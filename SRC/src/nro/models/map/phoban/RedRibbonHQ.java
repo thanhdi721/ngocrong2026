@@ -22,6 +22,8 @@ import nro.models.services.ItemTimeService;
 import nro.models.map.service.MapService;
 import nro.models.services.Service;
 import nro.models.utils.Util;
+import nro.models.consts.ConstMap;
+import nro.models.services.TaskService;
 
 @Data
 public class RedRibbonHQ implements Runnable {
@@ -236,6 +238,11 @@ public class RedRibbonHQ implements Runnable {
             }
             if (allCharactersDead && !winDT) {
                 winDT = true;
+                // TUYẾN MỚI: B1 — phá xong doanh trại Độc Nhãn -> ghi nhận TASK_21_1
+                // cho MỌI người thật đang ở trong instance phó bản.
+                for (Zone zoneTask : zones) {
+                    TaskService.gI().checkDoneTaskDungeonForZone(zoneTask, ConstMap.MAP_DOANH_TRAI);
+                }
                 for (Zone zone : zones) {
                     List<Player> players = zone.getPlayers();
                     for (Player pl : players) {

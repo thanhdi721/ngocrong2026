@@ -46,7 +46,8 @@ public class NpcManager {
                 continue;
             } 
             // Điều kiện loại trừ NPC CALICK dựa vào nhiệm vụ
-            else if (npc.tempId == ConstNpc.CALICK && TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
+            // TUYẾN MỚI: mốc cũ TASK_21_0 -> TASK_24_0 (NV 24 mới mở NPC Ca Lích ở map 102)
+            else if (npc.tempId == ConstNpc.CALICK && TaskService.gI().getIdTask(player) < ConstTask.TASK_24_0) {
                 continue;
             } 
             // Điều kiện loại trừ NPC QUOC_VUONG nếu sức mạnh của người chơi nhỏ hơn 17 tỷ

@@ -2,6 +2,7 @@ package nro.models.boss.MajinBuu_12h;
 
 
 import nro.models.boss.Boss;
+import nro.models.boss.BossDropRate;
 import nro.models.boss.BossID;
 import nro.models.consts.BossStatus;
 import nro.models.boss.BossesData;
@@ -50,7 +51,8 @@ public class Drabura2 extends Boss {
         int drop = 190; // 100% rơi item ID 190
         int quantity = Util.nextInt(20000, 30000);
         // Tạo itemMap cho item ID 190
-        if (Util.isTrue(1 , 100)) {
+        // FIX: bỏ số cứng 1%, tỉ lệ rơi đồ Thần Linh nay tính theo máu hiệu dụng của boss (BossDropRate, 1–5%)
+        if (BossDropRate.rollDoThanLinh(this)) {
         ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
         if (it != null) {
         Service.gI().dropItemMap(zone, it);
@@ -128,9 +130,10 @@ public class Drabura2 extends Boss {
                 damage = 20000000;
             }
 
+            // FIX: trước đây đòn chí mạng chuyển thẳng sang AFK -> DIE, bỏ qua die() nên không trao thưởng
+            // và không gọi checkDoneTaskKillBoss. Nay chặn đòn bằng đúng HP còn lại để chạy qua die() bình thường.
             if (damage >= this.nPoint.hp) {
-                this.changeStatus(BossStatus.AFK);
-                damage = 0;
+                damage = this.nPoint.hp;
             }
 
             this.nPoint.subHP(damage);

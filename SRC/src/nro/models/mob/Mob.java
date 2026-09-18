@@ -17,6 +17,7 @@ import nro.models.player.Player;
 import nro.models.network.Message;
 import java.io.IOException;
 import nro.models.server.Maintenance;
+import nro.models.server.Manager;
 import nro.models.utils.Util;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -618,12 +619,9 @@ public class Mob {
         }
 
         //========================TASK========================
-        if (player.isPl() && TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
-            if (player.gender == 0 && this.tempId == 11 || player.gender == 1 && this.tempId == 12 || player.gender == 2 && this.tempId == 10) {
-                list.add(new ItemMap(zone, 20, 1, x, yEnd, player.id));
-                TaskService.gI().checkDoneTaskFind7Stars(player);
-            }
-        }
+        // TUYẾN MỚI: bỏ nhánh rơi Ngọc 7 sao (item 20) ở mốc cũ TASK_8_1.
+        // Tuyến cũ dùng TASK_8_1 cho "Nhiệm vụ tìm ngọc"; tuyến mới TASK_8_1 là bước MUA Rada cấp 1
+        // của NV 8 "Máy dò ký ức" nên nhánh này sẽ phát nhầm vật phẩm nếu giữ lại.
 
         //========================Map Bang Hội========================
         if (MapService.gI().isMapUpPorata(mapid)) {
@@ -1070,26 +1068,63 @@ public class Mob {
 
     }
 
+    /**
+     * Vật phẩm nhiệm vụ của tuyến mới (2009, 2010) chỉ tồn tại sau khi đã nạp dữ liệu nhiệm vụ mới.
+     * ItemService.getTemplate() tra theo VỊ TRÍ trong danh sách nên nếu chưa nạp sẽ ném
+     * IndexOutOfBoundsException. Hàm này chặn trước để server không sập khi triển khai lệch nhịp.
+     */
+    private ItemMap dropQuestItem(Player player, int itemTemplateId) {
+        if (itemTemplateId >= Manager.ITEM_TEMPLATES.size()) {
+            return null;
+        }
+        return new ItemMap(zone, itemTemplateId, 1, location.x, location.y, player.id);
+    }
+
     private ItemMap dropItemTask(Player player) {
         ItemMap itemMap = null;
         switch (tempId) {
             case ConstMob.KHUNG_LONG:
             case ConstMob.LON_LOI:
             case ConstMob.QUY_DAT:
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_2_0) {
-                    itemMap = new ItemMap(zone, 73, 1, location.x, location.y, player.id);
+                // TUYẾN MỚI: mốc cũ TASK_2_0 rơi item 73 "Đùi gà" -> TASK_2_2 rơi "Mảnh Vỡ Hư Không"
+                // FIX: id 2001 -> 2009. Bảng id đã chốt lại (docs/4-trien-khai/25-bang-id-vat-pham-moi.md):
+                // 2001 nay là "Vỏ Lõi rỗng", còn "Mảnh Vỡ Hư Không" = 2009.
+                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_2_2) {
+                    itemMap = dropQuestItem(player, 2009);
+                }
+                break;
+            case ConstMob.THAN_LAN_BAY:
+            case ConstMob.PHI_LONG:
+            case ConstMob.QUY_BAY:
+                // TUYẾN MỚI: nhánh mới của NV 5 "Ký ức của ông" - rơi "Kỷ Vật Của Ông"
+                // FIX: id 2002 -> 2010. Bảng id đã chốt lại: 2002 nay là "Mảnh Ký Ức 1",
+                // còn "Kỷ Vật Của Ông" = 2010.
+                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_5_0) {
+                    itemMap = dropQuestItem(player, 2010);
                 }
                 break;
             case ConstMob.THAN_LAN_ME:
             case ConstMob.QUY_BAY_ME:
             case ConstMob.PHI_LONG_ME:
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
-                    if (Util.isTrue(10, 10)) {
-                        itemMap = new ItemMap(zone, 20, 1, location.x, location.y, player.id);
-                    } else {
-                        Service.gI().sendThongBao(player, "Con thằn lằn mẹ này không giữ ngọc, hãy tìm con thằn lằn mẹ khác");
-                    }
+                // TUYẾN MỚI: bỏ nhánh rơi Ngọc 7 sao (item 20) ở mốc cũ TASK_8_1.
+                // NV 8 tuyến mới chỉ yêu cầu HẠ 25 con quái mẹ, không rơi vật phẩm.
+                break;
+            case ConstMob.BULON:
+            case ConstMob.UKULELE:
+            case ConstMob.QUY_MAP:
+                // TUYẾN MỚI: NV 16 bước 3 (TASK_16_3) — rơi 25% "Vỏ đạn khắc dấu" (2014),
+                // cần nhặt 5 cái. Bảng id chốt ở docs/4-trien-khai/25-bang-id-vat-pham-moi.md.
+                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_16_3 && Util.isTrue(25, 100)) {
+                    itemMap = dropQuestItem(player, 2014);
                 }
+                break;
+            case ConstMob.TOBI:
+                // TUYẾN MỚI: NV 32 bước 4 (TASK_32_4) — rơi "Mảnh Ký Ức Vỡ" (2025),
+                // CHỈ từ mob 81 Tobi, cần nhặt 3 cái.
+                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_32_4) {
+                    itemMap = dropQuestItem(player, 2025);
+                }
+                break;
         }
         if (itemMap != null) {
             return itemMap;

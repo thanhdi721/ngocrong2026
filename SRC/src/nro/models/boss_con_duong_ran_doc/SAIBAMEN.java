@@ -6,7 +6,6 @@ import nro.models.boss.BossData;
 import nro.models.boss.BossID;
 import nro.models.consts.BossStatus;
 import nro.models.boss.Boss_Manager.SnakeWayManager;
-import nro.models.utils.Functions;
 import nro.models.consts.ConstPlayer;
 import static nro.models.consts.BossType.PHOBANCDRD;
 import nro.models.clan.Clan;
@@ -27,6 +26,8 @@ public class SAIBAMEN extends Boss {
 
     private Clan clan;
     private int idboss;
+    // FIX: mốc thời gian thay cho lời gọi ngủ trong afk()
+    private long timeChangeToActive;
 
     private static final int[][] FULL_GALICK = new int[][]{{Skill.GALICK, 1}, {Skill.GALICK, 2}, {Skill.GALICK, 3}, {Skill.GALICK, 4}, {Skill.GALICK, 5}, {Skill.GALICK, 6}, {Skill.GALICK, 7}};
 
@@ -65,14 +66,20 @@ public class SAIBAMEN extends Boss {
             return;
         }
         if (this.idboss == 1) {
-            Player pl = getPlayerAttack();
-            if (pl == null || pl.isDie()) {
+            // FIX: Functions.sleep(1500) ở đây làm đứng luồng SnakeWayManager dùng chung cho mọi bang.
+            // Thay bằng mốc thời gian: lần cập nhật sau mới chuyển sang ACTIVE.
+            if (this.timeChangeToActive == 0) {
+                Player pl = getPlayerAttack();
+                if (pl == null || pl.isDie()) {
+                    return;
+                }
+                this.changeToTypePK();
+                this.timeChangeToActive = System.currentTimeMillis();
                 return;
             }
-
-            this.changeToTypePK();
-            Functions.sleep(1500);
-            this.changeStatus(BossStatus.ACTIVE);
+            if (Util.canDoWithTime(this.timeChangeToActive, 1500)) {
+                this.changeStatus(BossStatus.ACTIVE);
+            }
         } else if (9 - this.clan.ConDuongRanDoc.getNumBossAlive() == this.idboss) {
             this.changeStatus(BossStatus.ACTIVE);
         }

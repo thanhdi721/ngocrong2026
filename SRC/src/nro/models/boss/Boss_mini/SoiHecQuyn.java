@@ -19,6 +19,12 @@ import nro.models.utils.Util;
 
 public class SoiHecQuyn extends Boss {
 
+    /**
+     * FIX: tỉ lệ rơi mỗi "Hộp quà Goku Day" (1591 và 1594), tính riêng cho từng món.
+     * Trước đây hai món rơi 100% mỗi lần giết.
+     */
+    private static final int DROP_HOP_QUA_PERCENT = 5;
+
     private long lastTimeDrop;
     private long st;
     private int timeLeave;
@@ -178,8 +184,14 @@ public class SoiHecQuyn extends Boss {
     @Override
     public void reward(Player plKill) {
         try {
+            // FIX: vòng lặp cũ rơi thẳng cả 1591 lẫn 1594 không gieo xúc xắc, tức 100%
+            // mỗi lần giết Sói hẹc quyn. Nay mỗi món gieo riêng 5% một lần — hai món
+            // độc lập, không phải "5% rơi cả hai".
             int[] itemDropIds = {1591, 1594};
             for (int itemId : itemDropIds) {
+                if (!Util.isTrue(DROP_HOP_QUA_PERCENT, 100)) {
+                    continue;
+                }
                 int x = this.location.x + Util.nextInt(-20, 20);
                 int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
 

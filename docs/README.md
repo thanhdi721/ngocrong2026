@@ -11,8 +11,11 @@ docs/
 ├── 1-he-thong-hien-tai/       22 file: mô tả game đang chạy (đọc code + DB thật)
 ├── 2-thiet-ke-nhiem-vu-moi/    4 file: tuyến nhiệm vụ mới "Vết Nứt Hư Không"
 ├── 3-kiem-tra-can-bang/        4 file: kiểm tra vật phẩm, item mới, cân bằng boss
-└── 4-trien-khai/               2 file: checklist sẵn sàng code + hướng dẫn tạo ảnh & prompt
+├── 4-trien-khai/              nhật ký thi công: checklist, tạo ảnh, từng đợt sửa code
+└── 5-tra-cuu/                 bảng tra cứu: tất cả boss trong game
 ```
+
+> **Tra cứu boss:** [5-tra-cuu/34-tat-ca-boss.md](5-tra-cuu/34-tat-ca-boss.md) — 147 boss, đủ máu, sát thương, kỹ năng, map, thời gian hồi sinh, đồ rơi.
 
 > **Bắt đầu từ đâu:** muốn biết còn thiếu gì để code và cần chốt những gì, đọc [4-trien-khai/22-san-sang-code.md](4-trien-khai/22-san-sang-code.md).
 

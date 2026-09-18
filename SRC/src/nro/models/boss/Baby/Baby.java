@@ -4,6 +4,8 @@ import java.util.List;
 import nro.models.consts.ConstPlayer;
 import nro.models.boss.Boss;
 import nro.models.boss.BossesData;
+import nro.models.boss.BossDamageReduce;
+import nro.models.boss.BossDropRate;
 import nro.models.boss.BossID;
 import nro.models.item.Item;
 import nro.models.map.ItemMap;
@@ -12,22 +14,27 @@ import nro.models.services.EffectSkillService;
 import nro.models.services.ItemService;
 import nro.models.services.Service;
 import nro.models.services.SkillService;
+import nro.models.services.TaskService;
 import nro.models.utils.Util;
 
 public class Baby extends Boss {
 
     public Baby() throws Exception {
         super(BossID.BABY, BossesData.BABY, BossesData.BABY_2, BossesData.BABY_3);
+        this.damageReducePercentByLevel = BossDamageReduce.BABY_TG;
     }
 
     @Override
     public void reward(Player plKill) {
+        // FIX: boss chết nhưng không báo hệ thống nhiệm vụ — thêm checkDoneTaskKillBoss cho người kết liễu
+        TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         int x = this.location.x; // đâyyyy
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         int drop = 190; // 100% rơi item ID 190
         int quantity = Util.nextInt(20000, 30000);
         // Tạo itemMap cho item ID 190
-        if (Util.isTrue(10, 100)) {
+        // FIX: bỏ số cứng 10%, tỉ lệ rơi đồ Thần Linh nay tính theo máu hiệu dụng của boss (BossDropRate, 1–5%)
+        if (BossDropRate.rollDoThanLinh(this)) {
             ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
             if (it != null) {
                 Service.gI().dropItemMap(zone, it);
@@ -104,6 +111,16 @@ public class Baby extends Boss {
         this.attack();
     }
 
+    /**
+     * FIX: khai báo lớp giảm cũ cho BossDropRate — injured() của Baby nhân sát thương
+     * với 0,7 rồi chia 2, tức chỉ còn 35% → đã chặn sẵn 65% ở MỌI hình dạng.
+     * Nhờ vậy 2 tỉ máu danh nghĩa được quy ra ~5,71 tỉ máu hiệu dụng.
+     */
+    @Override
+    public int getLegacyDamageReducePercent() {
+        return 65;
+    }
+
     @Override
     public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack
     ) {
@@ -124,6 +141,9 @@ public class Baby extends Boss {
                 damage = damage / 4;
             }
 
+            // Giảm sát thương nhận vào: đặt ngay trước subHP nên cộng dồn lên trên
+            // cơ chế chia sát thương sẵn có của boss này, không thay thế nó.
+            damage = applyDamageReduce(damage);
             this.nPoint.subHP(damage);
 
             if (isDie()) {

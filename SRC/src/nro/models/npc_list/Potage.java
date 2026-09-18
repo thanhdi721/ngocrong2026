@@ -6,6 +6,8 @@ import nro.models.player.Player;
 import nro.models.map.service.NpcService;
 import nro.models.services.Service;
 import nro.models.utils.Util;
+import nro.models.consts.ConstTask;
+import nro.models.services.TaskService;
 
 public class Potage extends Npc {
 
@@ -13,9 +15,20 @@ public class Potage extends Npc {
         super(mapId, status, cx, cy, tempId, avartar);
     }
 
+    /** TUYẾN MỚI: B14 — id menu riêng cho điểm rẽ nhánh 2 (NV 31 ↔ NV 49). */
+    private static final int MENU_RE_NHANH_NV31 = 2201;
+
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            // TUYẾN MỚI: B14 — đang ở bước TASK_31_1 thì mở menu 2 nút rẽ nhánh,
+            // KHÔNG đụng vào menu Commeson cũ (dùng id menu riêng nên không lẫn).
+            if (this.mapId == 140 && TaskService.gI().getIdTask(player) == ConstTask.TASK_31_1) {
+                this.createOtherMenu(player, MENU_RE_NHANH_NV31,
+                        "Bản sao của ngươi đã bị khuất phục.\nNgươi muốn tiêu diệt nó, hay thu nhận nó?",
+                        "Tiêu diệt", "Thu nhận");
+                return;
+            }
             if (this.mapId == 140) {
                 Player BossClone = BossManager.gI().findBossClone(player);
                 if (BossClone != null) {
@@ -33,6 +46,11 @@ public class Potage extends Npc {
     @Override
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
+            // TUYẾN MỚI: B14 — chuyển lựa chọn sang TaskService, mọi luật rẽ nhánh nằm ở đó.
+            if (player.idMark.getIndexMenu() == MENU_RE_NHANH_NV31) {
+                TaskService.gI().checkDoneTaskConfirmMenuNpc(player, this, (byte) select);
+                return;
+            }
             if (this.mapId == 140) {
                 if (player.idMark.isBaseMenu()) {
                     Player BossClone = BossManager.gI().findBossClone(player);

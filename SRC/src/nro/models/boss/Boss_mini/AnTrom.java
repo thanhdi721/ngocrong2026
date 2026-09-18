@@ -27,6 +27,12 @@ public class AnTrom extends Boss {
     private long lastTimeJoinMap;
     private static final long timeChangeMap = 1000;
 
+    /**
+     * FIX: tỉ lệ rơi mỗi "Hộp quà Goku Day" (1591 và 1594), tính riêng cho từng món.
+     * Trước đây hai món rơi 100% mỗi lần giết.
+     */
+    private static final int DROP_HOP_QUA_PERCENT = 5;
+
     public AnTrom() throws Exception {
         super(BossID.AN_TROM, new BossData(
                 "Ăn Trộm ",
@@ -145,16 +151,22 @@ public class AnTrom extends Boss {
                 ItemMap gold = new ItemMap(this.zone, 190, (int) (goldAnTrom / 5), x, y, plKill.id);
                 Service.gI().dropItemMap(this.zone, gold);
             }
-            int x1 = this.location.x + Util.nextInt(-10, 10);
-            int y1 = this.zone.map.yPhysicInTop(x1, this.location.y - 24);
-            ItemMap item1591 = new ItemMap(this.zone, 1591, 1, x1, y1, plKill.id);
-            Service.gI().dropItemMap(this.zone, item1591);
-            
-            int x2 = this.location.x + Util.nextInt(-10, 10);
-            int y2 = this.zone.map.yPhysicInTop(x2, this.location.y - 24);
-            ItemMap item1594 = new ItemMap(this.zone, 1594, 1, x2, y2, plKill.id);
-            Service.gI().dropItemMap(this.zone, item1594);
-            
+            // FIX: trước đây hai "Hộp quà Goku Day" (1591, 1594) rơi 100% mỗi lần giết.
+            // Nay mỗi món gieo riêng 5%, giống Ở Dơ và Sói hẹc quyn.
+            if (Util.isTrue(DROP_HOP_QUA_PERCENT, 100)) {
+                int x1 = this.location.x + Util.nextInt(-10, 10);
+                int y1 = this.zone.map.yPhysicInTop(x1, this.location.y - 24);
+                ItemMap item1591 = new ItemMap(this.zone, 1591, 1, x1, y1, plKill.id);
+                Service.gI().dropItemMap(this.zone, item1591);
+            }
+
+            if (Util.isTrue(DROP_HOP_QUA_PERCENT, 100)) {
+                int x2 = this.location.x + Util.nextInt(-10, 10);
+                int y2 = this.zone.map.yPhysicInTop(x2, this.location.y - 24);
+                ItemMap item1594 = new ItemMap(this.zone, 1594, 1, x2, y2, plKill.id);
+                Service.gI().dropItemMap(this.zone, item1594);
+            }
+
             BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.BI_MOC_SACH_TUI, 1);
             plKill.event.addEventPoint(5);
             Service.gI().sendThongBao(plKill, "+5 Point");

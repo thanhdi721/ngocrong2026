@@ -12,6 +12,7 @@ import nro.models.item.Item;
 import nro.models.item.Item.ItemOption;
 import nro.models.map.service.NpcService;
 import nro.models.network.Message;
+import nro.models.player.Inventory;
 import nro.models.player.Player;
 import nro.models.services.InventoryService;
 import nro.models.services.ItemService;
@@ -24,6 +25,10 @@ import nro.models.services.Service;
  */
 
 public class ConsignShopService {
+
+    // FIX: trần giá ký gửi (trước đây các điều kiện kiểm tra dùng && nên vô hiệu)
+    private static final int MAX_GOLD_CONSIGN = 200_000_000;
+    private static final int MAX_GEM_CONSIGN = 1_000_000;
 
     private static ConsignShopService instance;
 
@@ -303,9 +308,12 @@ public class ConsignShopService {
                     return;
                 }
                 if (it.goldSell > 0) {
-                    Item tvAdd = ItemService.gI().createNewItem((short) 457);
-                    tvAdd.quantity = it.goldSell - it.goldSell * 10 / 100;
-                    InventoryService.gI().addItemBag(pl, tvAdd);
+                    // FIX: người mua trả vàng nên người bán phải nhận lại vàng (trước đây nhận Thỏi vàng => tạo vàng vô hạn)
+                    long goldReceive = (long) it.goldSell - (long) it.goldSell * 10 / 100;
+                    pl.inventory.gold += goldReceive;
+                    if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
+                        pl.inventory.gold = Inventory.LIMIT_GOLD;
+                    }
                 } else if (it.gemSell > 0) {
                     pl.inventory.gem += it.gemSell - it.gemSell * 10 / 100;
                 }
@@ -395,15 +403,18 @@ public class ConsignShopService {
                 return;
             }
 
-            if (quantity > 99 && quantity < 0) {
+            // FIX: điều kiện cũ dùng && nên không bao giờ đúng => giới hạn số lượng vô hiệu
+            if (quantity < 1 || quantity > 99) {
                 Service.gI().sendThongBao(pl, "Ký gửi tối đa x99");
                 openShopKyGui(pl);
                 return;
             }
             switch (moneyType) {
                 case 0:// vàng
-                    if (money > 100000 && money < 0) {
-                        Service.gI().sendThongBao(pl, "không thể ký gửi quá 100000 thỏi vàng");
+                    // FIX: điều kiện cũ dùng && nên không bao giờ đúng => không có giới hạn giá.
+                    // Mốc trần lấy theo hướng dẫn của NPC Ký gửi ("10k-200Tr vàng").
+                    if (money < 1 || money > MAX_GOLD_CONSIGN) {
+                        Service.gI().sendThongBao(pl, "Giá ký gửi bằng vàng phải từ 1 đến 200.000.000");
                     } else {
                         InventoryService.gI().subQuantityItemsBag(pl, pl.inventory.itemsBag.get(id), quantity);
                         ConsignShopManager.gI().listItem.add(new ConsignItem(getMaxId() + 1, it.template.id, (int) pl.id, getTabKiGui(it), money, -1, quantity, (byte) 0, it.itemOptions, false));
@@ -415,7 +426,8 @@ public class ConsignShopService {
                     }
                     break;
                 case 1:// Ngọc Xanh
-                    if (money > 1000000 && money < 0) {
+                    // FIX: điều kiện cũ dùng && nên không bao giờ đúng => không có giới hạn giá
+                    if (money < 1 || money > MAX_GEM_CONSIGN) {
                         Service.gI().sendThongBao(pl, "không thể ký gửi quá 1000000 ngọc");
                     } else {
                         InventoryService.gI().subQuantityItemsBag(pl, pl.inventory.itemsBag.get(id), quantity);

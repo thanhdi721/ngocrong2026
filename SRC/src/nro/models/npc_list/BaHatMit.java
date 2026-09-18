@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import nro.models.shop.ShopService;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
 
 /**
  *
@@ -37,6 +38,9 @@ public class BaHatMit extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            // TUYẾN MỚI: B3 chống kẹt — người chơi đã sẵn có trang bị pha lê hóa
+            // thì bước TASK_26_1 được tính ngay khi mở menu Bà Hạt Mít.
+            TaskService.gI().checkDoneTaskCombineByExistingItem(player);
             switch (this.mapId) {
                 case 5 ->
                     this.createOtherMenu(player, ConstNpc.BASE_MENU,

@@ -146,6 +146,11 @@ public class ConstNpc {
     public static final byte PANCHY = 68;
     public static final byte THO_DAI_CA = 69;
     public static final byte BARDOCK = 70;
+    // TUYẾN MỚI: hai NPC dưới đây đã có sẵn trong bảng `npc_template` nhưng chưa
+    // có hằng số ở đây nên TaskService phải khai tạm (TaskService.NPC_BERRY /
+    // NPC_GRANOLA). Xem docs/4-trien-khai/30-boss-npc-bo-sung.md.
+    public static final byte BERRY = 71;    // Khu hang động (map 160) — NV 20 / NV 48
+    public static final byte GRANOLA = 76;  // Khu hang động (map 160) — NV 20
     public static final byte TORIBOT = 74;
     public static final byte CAY_NEU = 72;
     public static final byte EVENT = 75;

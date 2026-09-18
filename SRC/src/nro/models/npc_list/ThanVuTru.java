@@ -21,6 +21,9 @@ public class ThanVuTru extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            // TUYẾN MỚI: NPC này chưa từng báo cho hệ thống nhiệm vụ.
+            // Thiếu dòng này thì bước nói chuyện ở NV 35 không bao giờ xong.
+            nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this);
             if (this.mapId == 48) {
                 switch (player.levelLuyenTap) {
                     case 4 ->

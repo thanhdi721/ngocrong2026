@@ -28,7 +28,11 @@ public class BadgesData {
 
     public BadgesData(Player player, int id, int days) {
         idBadGes = id;
-        timeofUseBadges = System.currentTimeMillis() + days * 24 * 60 * 60 * 1000L;
+        // FIX (rà soát 37): days * 24 * 60 * 60 là phép nhân KIỂU INT.
+        // Với days = 36500 (danh hiệu "vĩnh viễn" của NV 47 / NV 50) kết quả là
+        // 3.153.600.000 > Integer.MAX_VALUE -> tràn số âm -> hạn dùng rơi về năm 1934,
+        // danh hiệu hết hạn ngay khi vừa được trao. Ép long ngay từ thừa số đầu.
+        timeofUseBadges = System.currentTimeMillis() + (long) days * 24L * 60L * 60L * 1000L;
         if (player.dataBadges != null) {
             for (BadgesData data2 : player.dataBadges) {
                 data2.isUse = false;

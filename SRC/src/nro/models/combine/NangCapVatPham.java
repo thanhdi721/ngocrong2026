@@ -12,6 +12,7 @@ import nro.models.services.InventoryService;
 import nro.models.services.Service;
 import nro.models.task.BadgesTaskService;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
 
 /**
  *
@@ -216,6 +217,9 @@ public class NangCapVatPham {
                         if (level == 7) {
                             BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.THANH_DAP_DO_7, 1);
                         }
+                        // TUYẾN MỚI: B2 — chỉ nhánh roll THÀNH CÔNG mới ghi nhận TASK_17_1.
+                        // Điều kiện "mức nâng cấp >= 2" đã được kiểm bên trong TaskService.
+                        TaskService.gI().checkDoneTaskUpgradeItem(player, itemDo);
                     } else {
                         if ((level == 2 || level == 4 || level == 6) && (player.combineNew.itemsCombine.size() != 3)) {
                             option.param -= (option.param * 11 / 100) < 1 ? 1 : (option.param * 11 / 100);

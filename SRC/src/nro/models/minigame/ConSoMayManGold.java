@@ -1,7 +1,9 @@
 package nro.models.minigame;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Random;
 import java.util.stream.Collectors;
 import nro.models.item.Item;
@@ -234,9 +236,12 @@ public class ConSoMayManGold implements Runnable {
         dataKQ_CSMM.add(this.result);
         this.result_name = "";
 
+        // FIX: trước đây strFinish(g.id) được gọi cho TỪNG vé => người trúng có N vé nhận thưởng N lần.
+        // Mỗi người chỉ được trả thưởng/thông báo đúng 1 lần trong 1 ván.
+        Set<Integer> rewarded = new HashSet<>();
         for (ConSoMayManData g : players) {
             Player player = Client.gI().getPlayer(g.id);
-            if (player != null) {
+            if (player != null && rewarded.add(g.id)) {
                 Service.gI().showYourNumber(player, "", result + "", strFinish(g.id), 1);
             }
 

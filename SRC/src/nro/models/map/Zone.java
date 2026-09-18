@@ -285,16 +285,35 @@ public class Zone {
 
     public List<ItemMap> getItemMapsForPlayer(Player player) {
         List<ItemMap> list = new ArrayList<>();
+        // TUYẾN MỚI: tra một lần, dùng cho các bộ lọc vật phẩm nhiệm vụ bên dưới.
+        final int idTaskOfPlayer = TaskService.gI().getIdTask(player);
         for (ItemMap item : items) {
-            if (item.itemTemplate.id == 78) {
-                if (TaskService.gI().getIdTask(player) != ConstTask.TASK_3_1) {
-                    continue;
-                }
+            // TUYẾN MỚI: bỏ hai nhánh của tuyến cũ
+            //   - item 78 "Đứa bé" hiện khi getIdTask == TASK_3_1  -> bỏ hẳn (tuyến mới không dùng)
+            //   - item 74 "Đùi gà nướng" hiện khi getIdTask >= TASK_3_0 -> bỏ hẳn (tuyến mới không dùng)
+            // Thay bằng vật phẩm nhiệm vụ mới "Mảnh Vỡ Hư Không" (NV 2) và "Kỷ Vật Của Ông" (NV 5),
+            // chỉ chủ nhân nhìn thấy như item 726.
+            // FIX: id 2001/2002 -> 2009/2010. Bảng id đã chốt lại
+            // (docs/4-trien-khai/25-bang-id-vat-pham-moi.md): 2001 = "Vỏ Lõi rỗng",
+            // 2002 = "Mảnh Ký Ức 1", nên hai id cũ đã trỏ nhầm món.
+            if ((item.itemTemplate.id == 2009 || item.itemTemplate.id == 2010
+                    || item.itemTemplate.id == 2014 || item.itemTemplate.id == 2025)
+                    && item.playerId != player.id) {
+                continue;
             }
-            if (item.itemTemplate.id == 74) {
-                if (TaskService.gI().getIdTask(player) < ConstTask.TASK_3_0) {
-                    continue;
-                }
+            // TUYẾN MỚI: ba vật phẩm nhiệm vụ được RẢI SẴN trên map (playerId = -1),
+            // chỉ hiện với người đang đứng đúng bước; người khác không thấy và không nhặt được.
+            //   2008 Mảnh Ký Ức 7        — map 78,  TASK_45_1
+            //   2026 Mảnh Ký Ức Đóng Băng — map 110, TASK_34_3
+            //   2023 Bản thiết kế bản sao — map 166, TASK_29_2
+            if (item.itemTemplate.id == 2008 && idTaskOfPlayer != ConstTask.TASK_45_1) {
+                continue;
+            }
+            if (item.itemTemplate.id == 2026 && idTaskOfPlayer != ConstTask.TASK_34_3) {
+                continue;
+            }
+            if (item.itemTemplate.id == 2023 && idTaskOfPlayer != ConstTask.TASK_29_2) {
+                continue;
             }
             if (item.itemTemplate.id == 726 && item.playerId != player.id) {
                 continue;

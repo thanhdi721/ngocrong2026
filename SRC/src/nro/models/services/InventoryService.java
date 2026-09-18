@@ -126,6 +126,14 @@ public class InventoryService {
                 Service.gI().sendThongBao(player, "Không thể bỏ vật phẩm này.");
                 return;
             }
+            // FIX: chặn VỨT vật phẩm nhiệm vụ (id 2000..2031). Vứt là mất hẳn
+            // (không rơi ra đất) => người chơi kẹt nhiệm vụ, nhất là các món kỷ vật
+            // vĩnh viễn 2000 Lõi Hư Không / 2001 Vỏ Lõi rỗng / 2011 Máy Dò Ký Ức.
+            // Chặn ở đây là chặng CUỐI: chặng xác nhận nằm ở UseItem case DO_THROW_ITEM.
+            if (itemThrow.template != null && ItemService.isTaskItem(itemThrow.template.id)) {
+                Service.gI().sendThongBao(player, "Không thể bỏ vật phẩm nhiệm vụ.");
+                return;
+            }
             if (itemThrow.template != null && itemThrow.template.id != 457) {
                 removeItemBag(player, index);
                 sortItems(player.inventory.itemsBag);
@@ -290,6 +298,16 @@ public class InventoryService {
         byte type = item.getType();
         Item sItem = item;
         if (!item.isNotNullItem()) {
+            return sItem;
+        }
+
+        // FIX: chặn MẶC vật phẩm nhiệm vụ (id 2000..2031).
+        // 7 món phải bấm "Dùng" được để lên trigger A12 nên buộc phải để TYPE 27,
+        // mà TYPE 27 lại mặc được vào ô 7 (ô pet). Nếu người chơi mặc vào đó thì item
+        // rời khỏi hành trang => subQuantityItemsBag không tìm thấy => KẸT bước nộp.
+        if (ItemService.isTaskItem(item.template.id)) {
+            Service.gI().sendThongBaoOK(player.isPet ? ((Pet) player).master : player,
+                    "Không thể trang bị vật phẩm nhiệm vụ!");
             return sItem;
         }
 

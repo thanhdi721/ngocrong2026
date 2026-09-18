@@ -11,6 +11,7 @@ import nro.models.services.ItemService;
 import nro.models.services.PlayerService;
 import nro.models.services.InventoryService;
 import nro.models.utils.Logger;
+import nro.models.services.TaskService;
 
 public class MagicTree {
 
@@ -162,6 +163,9 @@ public class MagicTree {
                 return;
             }
             this.lastTimeHarvest = System.currentTimeMillis();
+            // TUYẾN MỚI: B7 — gọi SAU addPeaHarvest, cộng ĐÚNG số hạt vừa vào hành trang
+            // (currPeasTemp - currPeas), không phải 1.
+            TaskService.gI().checkDoneTaskHarvestPea(player, currPeasTemp - this.currPeas);
             InventoryService.gI().sendItemBags(player);
             Message msg;
             try {

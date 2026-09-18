@@ -22,6 +22,8 @@ import lombok.Data;
 import nro.models.server.Maintenance;
 import nro.models.map.service.ItemMapService;
 import nro.models.utils.TimeUtil;
+import nro.models.consts.ConstMap;
+import nro.models.services.TaskService;
 
 @Data
 public class SnakeWay implements Runnable {
@@ -89,6 +91,13 @@ public class SnakeWay implements Runnable {
             if (!kickoutcdrd && (endCDRD || Util.canDoWithTime(lastTimeOpen, TIME_CON_DUONG_RAN_DOC - 60000))) {
                 kickoutcdrd = true;
                 timeKickOutCDRD = System.currentTimeMillis();
+                // TUYẾN MỚI: B1 — CHỈ khi hạ xong Cadic (endCDRD) mới tính là phá xong phó bản;
+                // hết giờ thì không tính. Khối này chạy đúng MỘT lần cho mỗi lượt mở.
+                if (endCDRD) {
+                    for (Zone zoneTask : zones) {
+                        TaskService.gI().checkDoneTaskDungeonForZone(zoneTask, ConstMap.MAP_CON_DUONG_RAN_DOC);
+                    }
+                }
             }
             if (kickoutcdrd && Util.canDoWithTime(lastTimeUpdateMessage, 10000)) {
                 lastTimeUpdateMessage = System.currentTimeMillis();

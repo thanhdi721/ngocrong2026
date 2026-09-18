@@ -29,6 +29,7 @@ import nro.models.map.service.NpcService;
 import nro.models.task.BadgesTaskService;
 import nro.models.utils.SkillUtil;
 import nro.models.utils.TimeUtil;
+import nro.models.services.TaskService;
 
 /**
  *
@@ -884,6 +885,9 @@ public class ShopService {
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBags(player);
         Service.gI().sendThongBao(player, "Mua thành công " + is.temp.name);
+        // TUYẾN MỚI: B4 — gọi SAU KHI đã trừ tiền và addItemBag thành công.
+        // TASK_8_1 (Rada cấp 1 ở shop 1/2/3) và TASK_14_1 (món bất kỳ ở quầy Uron, shop 4).
+        TaskService.gI().checkDoneTaskBuyItem(player, itemTempId, shop.id);
 
         if (itemTempId == 1523 || itemTempId == 1524 || itemTempId == 521) {
             updateAutoTrainPurchase(player, itemTempId);
@@ -1027,6 +1031,14 @@ public class ShopService {
                 Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm này");
                 return;
             }
+            // FIX: chặn bán VẬT PHẨM NHIỆM VỤ (id 2000..2031).
+            // gold = 0 KHÔNG chặn được bán vì bên dưới có "if (cost == 0) cost = 1;"
+            // => người chơi lỡ tay bán mất vật phẩm nhiệm vụ với giá 1 vàng và KẸT nhiệm vụ.
+            // Danh sách "Đã bán" chỉ giữ 10 món gần nhất nên không cứu được mọi trường hợp.
+            if (ItemService.isTaskItem(item.template.id)) {
+                Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm nhiệm vụ");
+                return;
+            }
             int quantity = item.quantity;
             int cost = item.template.gold;
             if (item.template.id == 457) {
@@ -1082,17 +1094,25 @@ public class ShopService {
                 Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm này");
                 return;
             }
+            // FIX: chặn bán VẬT PHẨM NHIỆM VỤ (id 2000..2031) — chặn ở CẢ HAI chặng
+            // (showConfirmSellItem và sellItem), vì client sửa được có thể gửi thẳng gói bán.
+            if (ItemService.isTaskItem(item.template.id)) {
+                Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm nhiệm vụ");
+                return;
+            }
             if (InventoryService.gI().getParam(pl, 93, item.template.id) > 0) {
                 Service.gI().sendThongBao(pl, "Bạn không thể bán vật phẩm có hạn sử dụng");
                 return;
             }
-            int quantity = item.quantity;
-            int cost = item.template.gold;
+            // FIX: Thỏi vàng chỉ được bán qua form BANSLL (37.000.000/thỏi).
+            // Trước đây client gửi thẳng gói bán 457 sẽ ăn template.gold = 500.000.000/thỏi.
             if (item.template.id == 457) {
-                quantity = 1;
-            } else {
-                cost /= 4;
+                Input.gI().createFormBanSLL(pl);
+                return;
             }
+            int quantity = item.quantity;
+            long cost = item.template.gold;
+            cost /= 4;
             if (cost == 0) {
                 cost = 1;
             }

@@ -1936,6 +1936,10 @@ public class NPoint {
                 return;
             }
         }
+        // TUYẾN MỚI: B11 — gọi ở CUỐI hàm, chỉ khi việc nâng chỉ số đã thực sự xảy ra
+        // (mọi nhánh thất bại đều return sớm ở trên). type 2 được TaskService chuyển tiếp
+        // sang checkDoneTaskNangCS nên hành vi cũ không đổi.
+        TaskService.gI().checkDoneTaskBasePoint(player, type);
         Service.gI().point(player);
     }
 

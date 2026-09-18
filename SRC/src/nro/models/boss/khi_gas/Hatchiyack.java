@@ -14,6 +14,7 @@ import nro.models.player.Player;
 import nro.models.services.EffectSkillService;
 import nro.models.skill.Skill;
 import nro.models.services.Service;
+import nro.models.services.TaskService;
 import nro.models.map.service.ChangeMapService;
 import nro.models.utils.Util;
 
@@ -83,6 +84,8 @@ public class Hatchiyack extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        // FIX: boss chết nhưng không báo hệ thống nhiệm vụ — thêm checkDoneTaskKillBoss cho người kết liễu
+        TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         dropCt(0);
         for (int i = 0; i < this.zone.getNumOfPlayers(); i++) {
             int x = (i + 1) * 50;

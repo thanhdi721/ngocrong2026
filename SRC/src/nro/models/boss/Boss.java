@@ -105,6 +105,16 @@ public class Boss extends Player implements IBoss {
     public boolean isNotifyDisabled;
     public boolean isZone01SpawnDisabled;
 
+    /**
+     * Bảng % sát thương bị chặn, chạy theo {@link #currentLevel} (hình dạng).
+     * {@code null} = không giảm gì. Lớp con gán trong hàm dựng, lấy hằng số từ
+     * {@link BossDamageReduce}. Xem docs/4-trien-khai/33-giam-sat-thuong-boss.md.
+     */
+    protected int[] damageReducePercentByLevel;
+
+    /** Hình dạng đã chat câu cảnh báo giảm sát thương rồi (tránh spam mỗi đòn). */
+    private int damageReduceChatLevel = -2;
+
     public Boss(int id, boolean isNotifyDisabled, boolean isZone01SpawnDisabled, BossData... data) throws Exception {
         this(id, data);
         this.isNotifyDisabled = isNotifyDisabled;
@@ -417,6 +427,9 @@ public class Boss extends Player implements IBoss {
 
     @Override
     public void joinMap() {
+        // Mỗi lần ra map là một lượt mới: cho phép câu cảnh báo giảm sát thương
+        // được nói lại (nếu không, boss hồi sinh về hình dạng cũ sẽ im lặng mãi).
+        this.damageReduceChatLevel = -2;
         if (zoneFinal != null) {
             joinMapByZone(zoneFinal);
             this.notifyJoinMap();
@@ -694,6 +707,102 @@ public class Boss extends Player implements IBoss {
         this.wakeupAnotherBossWhenDisappear();
     }
 
+    // ================= giảm sát thương nhận vào =================
+    /**
+     * FIX: khai báo lớp giảm sát thương CŨ đã viết cứng trong {@code injured()} của
+     * riêng từng boss, để {@link BossDropRate} tính được máu hiệu dụng thật.
+     *
+     * <p>
+     * {@link #getDamageReducePercent()} chỉ biết bảng {@link BossDamageReduce}; nó
+     * không thấy các phép chia viết tay nằm rải rác trong {@code injured()} của lớp
+     * con ({@code damage /= 2} của Black Goku/Cumber, {@code damage * 0,7 / 2} của
+     * Baby, {@code damage / 3} của Siêu Bọ Hung…). Nếu bỏ qua những phép chia đó thì
+     * máu hiệu dụng bị tính hụt và boss khó lại bị xếp bậc rơi đồ thấp.
+     *
+     * <p>
+     * Lớp con có phép chia cố định thì ghi đè hàm này và trả về % tương đương:
+     * {@code /2} → 50, {@code /3} → 66, {@code ×0,7/2} → 65. Chỉ khai báo phần
+     * <b>luôn luôn</b> áp dụng; những nhánh có điều kiện (khiên đỡ, né đòn, chặn trần
+     * sát thương mỗi đòn…) không tính vào đây vì không phải lúc nào cũng xảy ra.
+     *
+     * @return số nguyên trong khoảng 0…99, mặc định 0
+     */
+    public int getLegacyDamageReducePercent() {
+        return 0;
+    }
+
+    /**
+     * Phần trăm sát thương bị chặn trước khi trừ máu, tính theo hình dạng hiện tại.
+     *
+     * <p>
+     * Mặc định đọc {@link #damageReducePercentByLevel}; trả 0 khi bảng chưa được
+     * gán. Lớp con có logic động (theo level phó bản, theo số người trong khu…) thì
+     * ghi đè thẳng hàm này.
+     *
+     * @return số nguyên trong khoảng 0…{@link BossDamageReduce#MAX_PERCENT}
+     */
+    public int getDamageReducePercent() {
+        int[] table = this.damageReducePercentByLevel;
+        if (table == null || table.length == 0) {
+            return 0;
+        }
+        // currentLevel khởi tạo bằng -1 và có thể vượt data.length trong vài nhánh
+        // (xem hàm die/leaveMap) nên phải kẹp hai đầu trước khi lấy chỉ số.
+        int level = this.currentLevel;
+        if (level < 0) {
+            level = 0;
+        } else if (level >= table.length) {
+            level = table.length - 1;
+        }
+        return table[level];
+    }
+
+    /**
+     * Áp dụng {@link #getDamageReducePercent()} lên một đòn đánh.
+     *
+     * <p>
+     * Ba bảo đảm:
+     * <ul>
+     * <li><b>Không chia cho 0</b> — chỉ dùng phép nhân/chia cho 100.</li>
+     * <li><b>Không tràn số</b> — chia trước rồi nhân, nên {@code damage} có lớn cỡ
+     * {@code Long.MAX_VALUE} cũng không vượt kiểu.</li>
+     * <li><b>Sát thương tối thiểu vẫn là 1</b> — mọi đòn có {@code damage >= 1} vẫn
+     * trừ được ít nhất 1 máu, boss không thể bất tử vì làm tròn xuống 0.</li>
+     * </ul>
+     *
+     * Đòn {@code damage <= 0} được trả nguyên vẹn để không phá các nhánh đặc biệt
+     * đang cố tình trả về 0.
+     */
+    protected final long applyDamageReduce(long damage) {
+        if (damage <= 0) {
+            return damage;
+        }
+        int percent = getDamageReducePercent();
+        if (percent <= 0) {
+            return damage;
+        }
+        if (percent > BossDamageReduce.MAX_PERCENT) {
+            percent = BossDamageReduce.MAX_PERCENT;
+        }
+        int keep = 100 - percent;
+        // Chia trước, nhân sau: tránh tràn long ngay cả với damage cực lớn.
+        long reduced = (damage / 100L) * keep + (damage % 100L) * keep / 100L;
+        if (reduced < 1L) {
+            reduced = 1L;
+        }
+        notifyDamageReduceOnce(percent);
+        return reduced;
+    }
+
+    /** Báo cho người chơi biết hình dạng này có lớp phòng ngự — mỗi hình dạng một lần. */
+    private void notifyDamageReduceOnce(int percent) {
+        if (this.damageReduceChatLevel == this.currentLevel) {
+            return;
+        }
+        this.damageReduceChatLevel = this.currentLevel;
+        this.chat("Đòn của ngươi yếu đi " + percent + "% trước ta");
+    }
+
     @Override
     public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
@@ -705,6 +814,7 @@ public class Boss extends Player implements IBoss {
             if (plAtt != null && plAtt.idNRNM != -1) {
                 return 1;
             }
+            damage = applyDamageReduce(damage);
             this.nPoint.subHP(damage);
 
             if (isDie()) {

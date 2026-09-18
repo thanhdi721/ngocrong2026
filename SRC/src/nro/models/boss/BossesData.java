@@ -225,7 +225,10 @@ public class BossesData {
             new short[]{168, 169, 170, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             10000, //dame
             new int[]{2_500_000}, //hp
-            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
+            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
+            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
+            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
+            new int[]{73, 74, 75, 76, 77}, //map join
             //           new int[]{86}, //map join
             new int[][]{
                 {Skill.LIEN_HOAN, 7, 1000},
@@ -250,7 +253,10 @@ public class BossesData {
             new short[]{174, 175, 176, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             10000, //dame
             new int[]{3_000_000}, //hp
-            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
+            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
+            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
+            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
+            new int[]{73, 74, 75, 76, 77}, //map join
             new int[][]{
                 {Skill.LIEN_HOAN, 7, 1000},
                 {Skill.ANTOMIC, 4, 1000},},//skill
@@ -273,7 +279,10 @@ public class BossesData {
             new short[]{171, 172, 173, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             12200, //dame
             new int[]{3_500_000}, //hp
-            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
+            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
+            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
+            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
+            new int[]{73, 74, 75, 76, 77}, //map join
             new int[][]{
                 {Skill.GALICK, 7, 1000},
                 {Skill.ANTOMIC, 3, 3000},},//skill//skill
@@ -296,7 +305,10 @@ public class BossesData {
             new short[]{177, 178, 179, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             13200, //dame
             new int[]{4_000_000}, //hp
-            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
+            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
+            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
+            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
+            new int[]{73, 74, 75, 76, 77}, //map join
             new int[][]{
                 {Skill.LIEN_HOAN, 7, 1000},
                 {Skill.KAMEJOKO, 4, 10000},},//skill//skill
@@ -319,7 +331,10 @@ public class BossesData {
             new short[]{180, 181, 182, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             15000, //dame
             new int[]{5000000}, //hp
-            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
+            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
+            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
+            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
+            new int[]{73, 74, 75, 76, 77}, //map join
             new int[][]{
                 ////                {Skill.SOCOLA, 7, 1000},
                 {Skill.MASENKO, 7, 1000},
@@ -1499,7 +1514,10 @@ public class BossesData {
             new short[]{341, 342, 343, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             170000, //dame
             new int[]{20000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.DEMON, 7, 1000},
                 {Skill.MASENKO, 7, 1000},},//skill
@@ -1522,7 +1540,10 @@ public class BossesData {
             new short[]{329, 330, 331, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             180000, //dame
             new int[]{40000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.TAI_TAO_NANG_LUONG, 7, 100000},
                 {Skill.DRAGON, 7, 1000},
@@ -1542,7 +1563,10 @@ public class BossesData {
             new short[]{332, 333, 334, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             207200, //dame
             new int[]{60000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.TAI_TAO_NANG_LUONG, 7, 100000},
                 {Skill.GALICK, 7, 1000},
@@ -1562,7 +1586,10 @@ public class BossesData {
             new short[]{335, 336, 337, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             250200, //dame
             new int[]{80000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.TAI_TAO_NANG_LUONG, 7, 100000},
                 {Skill.DRAGON, 7, 1000},
@@ -1584,7 +1611,10 @@ public class BossesData {
             new short[]{323, 324, 325, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             300000, //dame
             new int[]{100000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.TAI_TAO_NANG_LUONG, 7, 100000},
                 {Skill.TROI, 7, 120000},
@@ -1605,7 +1635,10 @@ public class BossesData {
             new short[]{326, 327, 328, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             300000, //dame
             new int[]{150000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.TAI_TAO_NANG_LUONG, 7, 100000},
                 {Skill.THOI_MIEN, 7, 100000},
@@ -1626,7 +1659,10 @@ public class BossesData {
             new short[]{326, 327, 328, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             300000, //dame
             new int[]{500000000}, //hp
-            new int[]{3, 4, 5, 6, 27, 28, 29, 30}, //map join
+            // FIX: bỏ map đầu game (3 Rừng nấm, 4 Rừng xương, 5 Đảo Kamê, 6 Đông Karin,
+            // 27 Rừng Bamboo, 28 Rừng dương xỉ, 29 Nam Kamê, 30 Đảo Bulông) vì nhóm Bojack
+            // dame 170.000–300.000 giết người chơi mới 1 đòn; chuyển sang map cuối game (NV ≥ 24–27)
+            new int[]{97, 98, 99, 100, 105, 106, 107, 108, 109}, //map join
             new int[][]{
                 {Skill.TAI_TAO_NANG_LUONG, 7, 100000},
                 {Skill.TROI, 3, 60000},
@@ -2703,6 +2739,488 @@ public class BossesData {
                 "|-1|Ta không tin chuyện này sẽ xảy ra!!",
                 "|-1|Đồ khốn kiếp!! Rồi ngươi sẽ phải trả giá"
             }, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //==========================================================================
+    // BOSS BẢN NHIỆM VỤ — dải id -2100 … -2199 (xem docs/4-trien-khai/28-boss-ban-nhiem-vu.md)
+    //
+    // Nguyên tắc (22 §0 mục 2 & 11, 21c §6.1 P1/P3/P4/P5):
+    //  - Đây là bản "boss cốt truyện": HP/dame theo mốc sức mạnh của chính nhiệm vụ (21c §6.2.a),
+    //    trung bình thấp hơn boss thế giới ~90 lần.
+    //  - Chỉ rơi ĐỒ NHIỆM VỤ, KHÔNG rơi vàng / trang bị / ngọc rồng / đồ Thần Linh.
+    //  - Boss thế giới bản gốc giữ nguyên HP, dame và bảng rơi đồ.
+    //  - Tạo hình, tên và lời thoại mượn nguyên bản gốc để khớp lời kể của nhiệm vụ.
+    //  - secondsRest ngắn (REST_1_M) vì đây là cửa nhiệm vụ, không phải nguồn đồ.
+    //  - HP là int[] → trần 2.147.483.647; mọi con số dưới đây đều nằm rất xa trần.
+    //==========================================================================
+
+    //-------------------- NV 30 — Xên bọ hung (bản nhiệm vụ của -100) --------------------
+    public static final BossData XEN_BO_HUNG_NV_1 = new BossData(
+            "Xên bọ hung", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{228, 229, 230, -1, -1, -1}, //outfit
+            12000, //dame (gốc 20.000)
+            new int[]{800000}, //hp (gốc 50.000.000)
+            new int[]{100}, //map join — 100 Thị trấn Ginder
+            new int[][]{
+                {Skill.KAMEJOKO, 7, 1000},
+                {Skill.LIEN_HOAN, 7, 10000},
+                {Skill.DICH_CHUYEN_TUC_THOI, 3, 10000}},
+            new String[]{"|-1|Lại một kẻ nữa đi tìm mẫu 07"}, //text chat 1
+            new String[]{"|-1|Ngươi không thắng nổi ta đâu",
+                "|-1|Ta có thể tái tạo mọi bộ phận cơ thể!"}, //text chat 2
+            new String[]{"|-1|Chưa xong... ta còn hình dạng khác"}, //text chat 3
+            REST_1_M
+    );
+
+    public static final BossData XEN_BO_HUNG_NV_2 = new BossData(
+            "Xên hoàn thiện", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{231, 232, 233, -1, -1, -1}, //outfit
+            12500, //dame (gốc 25.000)
+            new int[]{930000}, //hp (gốc 100.000.000)
+            new int[]{100}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 7, 1000},
+                {Skill.LIEN_HOAN, 7, 10000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Muốn chạy khỏi ta thì đừng hòng!!"}, //text chat 2
+            new String[]{"|-1|Đến lúc rồi!"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData XEN_BO_HUNG_NV_3 = new BossData(
+            "Xên hoàn thiện", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{234, 235, 236, -1, -1, -1}, //outfit
+            13000, //dame (gốc 30.000)
+            new int[]{1060000}, //hp (gốc 150.000.000)
+            new int[]{100}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 7, 1000},
+                {Skill.DICH_CHUYEN_TUC_THOI, 7, 10000},
+                {Skill.LIEN_HOAN, 7, 10000}},
+            new String[]{"|-1|Đây mới là dạng hoàn hảo"}, //text chat 1
+            new String[]{"|-1|Giờ ngươi chỉ là rác rưởi mà thôi!"}, //text chat 2
+            new String[]{"|-1|Đồ khốn kiếp!! Rồi ngươi sẽ phải trả giá"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //-------------------- NV 34 — Cooler (bản nhiệm vụ của -29) --------------------
+    public static final BossData COOLER_NV_1 = new BossData(
+            "Cooler", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{317, 318, 319, -1, -1, -1}, //outfit
+            18700, //dame (gốc 32.000)
+            new int[]{3000000}, //hp (gốc 200.000.000)
+            new int[]{110}, //map join — 110 Hang băng
+            new int[][]{
+                {Skill.GALICK, 1, 2000},
+                {Skill.ANTOMIC, 1, 6000}},
+            new String[]{"|-1|Ngươi lần theo dấu băng tới tận đây à?"}, //text chat 1
+            new String[]{"|-1|Nên giải quyết con sâu nào trước đây",
+                "|-1|Ta chính là Vũ Trụ Đệ Nhất Cao Thủ"}, //text chat 2
+            new String[]{"|-1|Nãy giờ ta chưa thèm tung hết sức đâu",
+                "|-1|Biến hình, hây aaaa..."}, //text chat 3
+            REST_1_M
+    );
+
+    public static final BossData COOLER_NV_2 = new BossData(
+            "Cooler 2", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{320, 321, 322, -1, -1, -1}, //outfit
+            18700, //dame (gốc 50.000)
+            new int[]{3300000}, //hp (gốc 500.000.000)
+            new int[]{110}, //map join
+            new int[][]{
+                {Skill.GALICK, 1, 2000},
+                {Skill.ANTOMIC, 1, 6000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Chúng mày nghĩ kiến lại thắng nổi khủng long sao"}, //text chat 2
+            new String[]{"|-1|Mọi chuyện chưa kết thúc đâu"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //-------------------- NV 37 — Mabư 14h (bản nhiệm vụ của -214) --------------------
+    // Bản nhiệm vụ BỎ cơ chế "ăn người chơi" và bỏ ràng buộc "form cuối chỉ chết bằng
+    // Quả cầu kênh khí" của boss phó bản gốc — hai cơ chế đó khiến bước nhiệm vụ không qua được.
+    public static final BossData MABU_NV_1 = new BossData(
+            "Mabư mập", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{297, 298, 299, -1, -1, -1}, //outfit
+            24000, //dame (gốc 500.000)
+            new int[]{2000000}, //hp (gốc 50.000.000)
+            new int[]{127}, //map join — 127 Cổng phi thuyền
+            new int[][]{
+                {Skill.KAMEJOKO, 3, 5000},
+                {Skill.DRAGON, 7, 1000}},
+            new String[]{"|-1|Mabư đói bụng rồi"}, //text chat 1
+            new String[]{"|-1|Khí công pháo",
+                "|-1|Úm ba la xì bùa"}, //text chat 2
+            new String[]{"|-1|Biến hình"}, //text chat 3
+            REST_1_M
+    );
+
+    public static final BossData MABU_NV_2 = new BossData(
+            "Super Bư", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{421, 422, 423, -1, -1, -1}, //outfit
+            24000, //dame
+            new int[]{2000000}, //hp (gốc 60.000.000)
+            new int[]{127}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 3, 5000},
+                {Skill.DRAGON, 7, 1000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Khí công pháo"}, //text chat 2
+            new String[]{"|-1|Biến hình"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData MABU_NV_3 = new BossData(
+            "Bư Tênk", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{424, 425, 426, -1, -1, -1}, //outfit
+            24000, //dame
+            new int[]{2000000}, //hp (gốc 80.000.000)
+            new int[]{127}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 3, 5000},
+                {Skill.DRAGON, 7, 1000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Ui da đau bụng quá"}, //text chat 2
+            new String[]{"|-1|Biến hình"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData MABU_NV_4 = new BossData(
+            "Bư Han", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{427, 428, 429, -1, -1, -1}, //outfit
+            24000, //dame
+            new int[]{2000000}, //hp (gốc 100.000.000)
+            new int[]{127}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 3, 5000},
+                {Skill.DRAGON, 7, 1000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Khí công pháo"}, //text chat 2
+            new String[]{"|-1|Biến hình"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData MABU_NV_5 = new BossData(
+            "Kid Bư", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{439, 440, 441, -1, -1, -1}, //outfit
+            24000, //dame
+            new int[]{2000000}, //hp (gốc 150.000.000)
+            new int[]{127}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 3, 5000},
+                {Skill.DRAGON, 7, 1000}},
+            new String[]{"|-1|Bư nhỏ lại rồi, nhưng dữ hơn"}, //text chat 1
+            new String[]{"|-1|Khí công pháo"}, //text chat 2
+            new String[]{"|-1|Bư thua rồi..."}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //-------------------- NV 38 — Black Goku (bản nhiệm vụ của -203) --------------------
+    public static final BossData BLACK_GOKU_NV_1 = new BossData(
+            "Black Goku", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{550, 551, 552, -1, -1, -1}, //outfit
+            28500, //dame (gốc 50.000)
+            new int[]{3100000}, //hp (gốc 500.000.000)
+            new int[]{102, 92, 93, 94, 96, 97, 98, 99, 100}, //map join
+            new int[][]{
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.GALICK, 7, 100}},
+            new String[]{"|-1|Ta là Sôn Gô Ku",
+                "|-1|Mau chấp nhận số phận đi lũ sâu bọ"}, //text chat 1
+            new String[]{"|-1|Các ngươi chỉ có vậy thôi sao?",
+                "|-1|Đúng là loài người thấp kém"}, //text chat 2
+            new String[]{"|-1|Biến hình! Super Saiyan Rose"}, //text chat 3
+            REST_1_M
+    );
+
+    public static final BossData BLACK_GOKU_NV_2 = new BossData(
+            "Super Black Goku", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{553, 551, 552, -1, -1, -1}, //outfit
+            28500, //dame (gốc 100.000)
+            new int[]{3600000}, //hp (gốc 2.000.000.000)
+            new int[]{102, 92, 93, 94, 96, 97, 98, 99, 100}, //map join
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 30000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Sức mạnh của ta là không có giới hạn"}, //text chat 2
+            new String[]{"|-1|Chúng ta sẽ gặp lại nhau sớm thôi"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //-------------------- NV 39 — Baby (bản nhiệm vụ của -925) --------------------
+    public static final BossData BABY_NV_1 = new BossData(
+            "Baby", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{1715, 1716, 1717, -1, -1, -1}, //outfit
+            30000, //dame (gốc 200.000)
+            new int[]{1900000}, //hp (gốc 2.000.000.000)
+            new int[]{14}, //map join — 14 Làng Kakarot
+            new int[][]{
+                {Skill.GALICK, 7, 100},
+                {Skill.MASENKO, 7, 100},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.LIEN_HOAN, 7, 10000}},
+            new String[]{"|-1|Hôm nay sẽ là ngày đáng nhớ đây!"}, //text chat 1
+            new String[]{"|-1|Ngươi không thể thắng nổi ta! Từ bỏ đi!!"}, //text chat 2
+            new String[]{"|-1|Chưa đâu..."}, //text chat 3
+            REST_1_M
+    );
+
+    public static final BossData BABY_NV_2 = new BossData(
+            "Baby", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{1718, 1719, 1720, -1, -1, -1}, //outfit
+            30000, //dame (gốc 250.000)
+            new int[]{1900000}, //hp (gốc 2.000.000.000)
+            new int[]{14}, //map join
+            new int[][]{
+                {Skill.GALICK, 7, 100},
+                {Skill.ANTOMIC, 7, 100},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.LIEN_HOAN, 7, 10000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Ta muốn thử xem sức mạnh này đến đâu..."}, //text chat 2
+            new String[]{"|-1|Đến lúc rồi!"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData BABY_NV_3 = new BossData(
+            "Baby", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{1721, 1722, 1723, -1, -1, -1}, //outfit
+            30000, //dame (gốc 30.000 — nghi là lỗi gõ của 300.000, xem 21c §6.2.a)
+            new int[]{1900000}, //hp (gốc 2.000.000.000)
+            new int[]{14}, //map join
+            new int[][]{
+                {Skill.GALICK, 7, 100},
+                {Skill.DEMON, 7, 100},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.SUPER_KAME, 7, 20000}},
+            new String[]{"|-1|Đây là dạng hoàn hảo của ta"}, //text chat 1
+            new String[]{"|-1|Giờ ngươi chỉ là rác rưởi mà thôi!"}, //text chat 2
+            new String[]{"|-1|Cơ thể hoàn hảo của ta!!"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //-------------------- NV 42 — Cumber (bản nhiệm vụ của -203999) --------------------
+    public static final BossData CUMBER_NV_1 = new BossData(
+            "Cumber", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{1254, 1255, 1256, -1, -1, -1}, //outfit
+            37200, //dame (gốc 50.000)
+            new int[]{3700000}, //hp (gốc 500.000.000)
+            new int[]{155}, //map join — 155 Hành tinh ngục tù
+            new int[][]{
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.GALICK, 7, 100}},
+            new String[]{"|-1|Heart nuôi ta bằng ký ức của tù nhân"}, //text chat 1
+            new String[]{"|-1|Các ngươi chỉ có vậy thôi sao?"}, //text chat 2
+            new String[]{"|-1|Biến hình! Super Saiyan SSJ"}, //text chat 3
+            REST_1_M
+    );
+
+    public static final BossData CUMBER_NV_2 = new BossData(
+            "Super Cumber", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{1257, 1255, 1256, -1, -1, -1}, //outfit
+            37200, //dame (gốc 100.000)
+            new int[]{4400000}, //hp (gốc 2.000.000.000)
+            new int[]{155}, //map join
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Sức mạnh của ta là không có giới hạn"}, //text chat 2
+            new String[]{"|-1|Chúng ta sẽ gặp lại nhau sớm thôi"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //==========================================================================
+    // BOSS RIÊNG CHƯƠNG 1–2 — dải id -2000 … -2099
+    // (đặc tả: docs/2-thiet-ke-nhiem-vu-moi/20a-chi-tiet-nhiem-vu-00-15.md §C,
+    //  bàn giao: docs/4-trien-khai/30-boss-npc-bo-sung.md)
+    //
+    // Khác với 6 con -2100…-2105 (là "bản nhiệm vụ" của boss thế giới có sẵn),
+    // hai con dưới đây là boss cốt truyện HOÀN TOÀN MỚI, không có bản gốc để đè lên.
+    // Tạo hình mượn npc_template nên KHÔNG cần thêm tài nguyên client:
+    //   - Kẻ Thu Gom  mượn NPC 26 Độc Nhãn  {144, 145, 146}
+    //   - Jaco        mượn NPC 63 Jaco      {624, 625, 626}
+    // Cả hai KHÔNG rơi gì (đồ nhiệm vụ của NV 6 / NV 15 trao qua rewardDoneTask).
+    //==========================================================================
+
+    //-------------------- NV 6 bước 1 — Kẻ Thu Gom (-2000) --------------------
+    // Mốc sức mạnh người chơi khi tới bước này: ~34.000 (20a, cuối NV 5).
+    public static final BossData KE_THU_GOM = new BossData(
+            "Kẻ Thu Gom", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{144, 145, 146, -1, -1, -1}, //outfit — mượn NPC 26 Độc Nhãn
+            400, //dame
+            new int[]{80000}, //hp
+            new int[]{4, 12, 18}, //map join — 4 Rừng xương / 12 Vực maima / 18 Rừng thông Xayda
+            new int[][]{
+                {Skill.DRAGON, 3, 1000}}, //Chiêu đấm Dragon cấp 3
+            new String[]{"|-1|Đừng phiền. Tôi chỉ đang dọn dẹp. Mấy thứ này chúng nó có giữ cũng chẳng để làm gì."}, //text chat 1
+            new String[]{"|-1|Ngươi còn nhớ mẹ ngươi tên gì không? Thấy chưa, tôi giúp ngươi nhẹ hơn thôi mà."}, //text chat 2
+            new String[]{"|-1|Ông chủ... sẽ tự đến lấy... phần của ngài..."}, //text chat 3
+            REST_2_M
+    );
+
+    //-------------------- NV 15 bước 1 — Jaco (-2001), 2 hình dạng --------------------
+    // Mốc sức mạnh người chơi khi tới bước này: ~2.000.000 (20a, NV 15).
+    // Chỉ hình dạng CUỐI (currentLevel == 1) mới tính xong bước TASK_15_1.
+    public static final BossData JACO_VO_THUC_1 = new BossData(
+            "Jaco Mất Ký Ức", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{624, 625, 626, -1, -1, -1}, //outfit — mượn NPC 63 Jaco
+            3000, //dame
+            new int[]{1200000}, //hp
+            new int[]{27, 31, 35}, //map join — 27 Rừng Bamboo / 31 Núi hoa vàng / 35 Rừng cọ
+            new int[][]{
+                {Skill.DRAGON, 5, 1000},
+                {Skill.QUA_CAU_KENH_KHI, 3, 8000}},
+            new String[]{"|-1|Đứng im. Cảnh sát vũ trụ đây. Ngươi là... ngươi là... ngươi là ai?"}, //text chat 1
+            new String[]{"|-1|Ta có một người bạn. Ta nhớ là có. Nhưng ta không nhớ mặt nó."}, //text chat 2
+            new String[]{"|-1|Đừng lại gần! Ta không điều khiển được tay mình nữa!"}, //text chat 3
+            REST_5_M
+    );
+
+    public static final BossData JACO_VO_THUC_2 = new BossData(
+            "Jaco Vô Thức", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{624, 625, 626, -1, -1, -1}, //outfit — giữ nguyên hình dạng 0
+            5000, //dame
+            new int[]{2500000}, //hp
+            new int[]{27, 31, 35}, //map join
+            new int[][]{
+                {Skill.DRAGON, 7, 1000},
+                {Skill.QUA_CAU_KENH_KHI, 5, 6000},
+                {Skill.DICH_CHUYEN_TUC_THOI, 3, 15000}},
+            new String[]{}, //text chat 1
+            new String[]{"|-1|Đừng gọi tên ta nữa! Mỗi lần ngươi gọi là ta lại đau!"}, //text chat 2
+            new String[]{"|-1|...Ngươi vẫn gọi đúng tên ta. Cảm ơn. Cảm ơn vì đã không quên ta."}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    //==========================================================================
+    // BOSS MỚI: HEART (-108108) — phản diện chính tuyến mới
+    // Tạo hình mượn NPC 108 (head 2109 / body 2110 / leg 2111) — không cần tài nguyên client mới.
+    // Lời thoại, map, thời gian nghỉ theo 20c §5.2; HP/dame theo 21c §6.2.a (thang boss cốt truyện).
+    //==========================================================================
+    public static final BossData HEART = new BossData(
+            "Heart", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit — NPC 108
+            150000, //dame — chủ dự án chốt: Heart là boss kết truyện, dùng đúng số 20c
+            new int[]{1500000000}, //hp 1,5 tỉ — chủ dự án chốt (trần engine 2,147 tỉ vì NPoint.hp là int)
+            new int[]{166}, //map join — 166 Phòng thí nghiệm Myuu
+            new int[][]{
+                {Skill.THOI_MIEN, 7, 60000},
+                {Skill.TROI, 7, 90000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.MASENKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            new String[]{"|-1|Ta không ghét ai cả",
+                "|-1|Ta chỉ thấy các ngươi đau, và ta biết chỗ cơn đau nằm",
+                "|-1|Đưa sáu mảnh đó cho ta, rồi ngươi sẽ ngủ ngon"}, //text chat 1
+            new String[]{"|-1|Ngươi còn nhớ ông ngươi gọi nhầm tên ngươi chứ?",
+                "|-1|Ta có thể lấy luôn cả cái đó đi",
+                "|-2|Đừng nghe hắn! Hắn nói với ta y hệt vậy!",
+                "|-1|Tiến sĩ Myuu, ngươi lại nhớ ra rồi à? Phiền thật",
+                "|-1|Quên đi. Quên là món quà, không phải hình phạt"}, //text chat 2
+            new String[]{"|-1|Thân xác này chỉ là chỗ ta tạm ngồi",
+                "|-1|Lên Võ Đài Siêu Cấp đi. Ta đợi ở đó"}, //text chat 3
+            REST_10_M
+    );
+
+    public static final BossData HEART_2 = new BossData(
+            "Heart Hư Không", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit
+            250000, //dame — chủ dự án chốt
+            new int[]{2000000000}, //hp 2 tỉ — chủ dự án chốt
+            new int[]{145}, //map join — 145 Võ Đài Siêu Cấp
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 30000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.DICH_CHUYEN_TUC_THOI, 7, 20000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            new String[]{"|-1|Đây mới là ta. Phần còn lại chỉ là bộ đồ"}, //text chat 1
+            new String[]{"|-1|Ngươi đánh ta để giữ ký ức. Ta lấy ký ức để bớt người phải đánh nhau",
+                "|-1|Ai trong hai ta đang hủy diệt ít hơn?",
+                "|-2|Cậu không cần trả lời hắn. Cứ đánh đi",
+                "|-1|Thiên sứ thì biết gì về quên"}, //text chat 2
+            new String[]{"|-1|Chưa xong đâu. Mảnh thứ bảy vẫn trong ngực ta"}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData HEART_3 = new BossData(
+            "Heart Toàn Ký", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit
+            400000, //dame — chủ dự án chốt
+            new int[]{2000000000}, //hp 2 tỉ — chủ dự án chốt
+            new int[]{145}, //map join
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 30000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 200000},
+                {Skill.KHIEN_NANG_LUONG, 7, 200000},
+                {Skill.LIEN_HOAN, 7, 10000},
+                {Skill.SUPER_KAME, 7, 10000},
+                {Skill.ANTOMIC, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            new String[]{"|-1|Sáu mảnh trong ngực ngươi vừa gọi mảnh thứ bảy trong ngực ta",
+                "|-1|Chúng nhớ nhau đấy. Ngươi nghe thấy không?"}, //text chat 1
+            new String[]{"|-1|Ta đã xóa hai vạn hành tinh. Không hành tinh nào khóc cả",
+                "|-1|Vì không ai còn nhớ để mà khóc",
+                "|-2|Tôi nhớ. Tôi nhớ hết",
+                "|-1|Ngươi là lỗi duy nhất của ta"}, //text chat 2
+            new String[]{"|-1|Ngươi không giết ta. Ngươi chỉ mở cái hũ ra",
+                "|-1|Giờ thì tới lượt ngươi chọn..."}, //text chat 3
+            AppearType.ANOTHER_LEVEL
+    );
+
+    public static final BossData HEART_4 = new BossData(
+            "Hư Không Vô Danh", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit
+            500000, //dame — chủ dự án chốt
+            new int[]{2000000000}, //hp 2 tỉ — chủ dự án chốt
+            new int[]{145, 155}, //map join — 145 (nhánh NV 47) hoặc 155 (nhánh NV 50)
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 25000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 200000},
+                {Skill.KHIEN_NANG_LUONG, 7, 200000},
+                {Skill.THOI_MIEN, 7, 60000},
+                {Skill.LIEN_HOAN, 7, 10000},
+                {Skill.SUPER_KAME, 7, 8000},
+                {Skill.GALICK, 7, 100}},
+            new String[]{"|-1|Ta là phần bị bỏ lại",
+                "|-1|Không tên, không chủ. Ngươi trả ta cho ai đây?"}, //text chat 1
+            new String[]{"|-1|Ngươi giữ ta lại. Vậy ai là chủ, ai là hũ đựng?",
+                "|-1|Mỗi lần ngươi nhớ một người, ta lại dày thêm một chút"}, //text chat 2
+            new String[]{"|-1|Được rồi... ta đi đây. Nhớ giùm ta nhé"}, //text chat 3
             AppearType.ANOTHER_LEVEL
     );
 }

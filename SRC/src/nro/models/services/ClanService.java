@@ -280,7 +280,8 @@ public class ClanService {
         Player pl = Client.gI().getPlayer(playerId);
         if (pl != null && player.clan != null && (player.clan.isLeader(player) || player.clan.isDeputy(player))) {
             if (player.clan.getCurrMembers() < player.clan.maxMember) {
-                if (TaskService.gI().getIdTask(pl) < ConstTask.TASK_10_0) {
+                // TUYẾN MỚI: mốc cũ TASK_10_0 -> TASK_13_0 (NV 13 "Không ai đi một mình" mới là bước vào bang)
+                if (TaskService.gI().getIdTask(pl) < ConstTask.TASK_13_0) {
                     Service.gI().sendThongBao(player, pl.name + " chưa thể vào bang lúc này");
                     return;
                 }
@@ -314,7 +315,8 @@ public class ClanService {
      */
     private void acceptJoinClan(Player player, int clanId) {
         try {
-            if (TaskService.gI().getIdTask(player) < ConstTask.TASK_10_0) {
+            // TUYẾN MỚI: mốc cũ TASK_10_0 -> TASK_13_0 (NV 13 "Không ai đi một mình")
+            if (TaskService.gI().getIdTask(player) < ConstTask.TASK_13_0) {
                 Service.gI().sendThongBao(player, "Bạn chưa thể vào bang lúc này");
                 return;
             }

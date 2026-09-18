@@ -53,13 +53,10 @@ public class DrDrief extends Npc {
 
                 this.createOtherMenu(pl, ConstNpc.BASE_MENU, "Tôi có thể giúp gì cho bang hội của bạn ?", menus);
             } else if (!TaskService.gI().checkDoneTaskTalkNpc(pl, this)) {
-                if (pl.playerTask.taskMain.id == 7) {
-                    NpcService.gI().createTutorial(pl, this.avartar, "Hãy lên đường cứu đứa bé nhà tôi\nChắc bây giờ nó đang sợ hãi lắm rồi");
-                } else {
-                    this.createOtherMenu(pl, ConstNpc.BASE_MENU,
-                            "Tàu Vũ Trụ của ta có thể đưa cậu đến hành tinh khác chỉ trong 3 giây. Cậu muốn đi đâu?",
-                            "Đến\nNamếc", "Đến\nXayda", "Siêu thị");
-                }
+                // TUYẾN MỚI: bỏ nhánh thoại nhiệm vụ 7 tuyến cũ ("cứu đứa bé"), xem ghi chú ở Cargo.java
+                this.createOtherMenu(pl, ConstNpc.BASE_MENU,
+                        "Tàu Vũ Trụ của ta có thể đưa cậu đến hành tinh khác chỉ trong 3 giây. Cậu muốn đi đâu?",
+                        "Đến\nNamếc", "Đến\nXayda", "Siêu thị");
             }
         }
     }

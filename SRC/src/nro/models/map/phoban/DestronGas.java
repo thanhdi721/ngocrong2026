@@ -20,6 +20,8 @@ import lombok.Data;
 import nro.models.server.Maintenance;
 import nro.models.map.service.ItemMapService;
 import nro.models.utils.TimeUtil;
+import nro.models.consts.ConstMap;
+import nro.models.services.TaskService;
 
 @Data
 public class DestronGas implements Runnable {
@@ -99,6 +101,13 @@ public class DestronGas implements Runnable {
             if (!kickoutkghd && (hatchiyatchDead || Util.canDoWithTime(lastTimeOpen, TIME_KHI_GAS_HUY_DIET - 60000))) {
                 kickoutkghd = true;
                 timeKickOutKGHD = System.currentTimeMillis();
+                // TUYẾN MỚI: B1 — CHỈ khi Hatchiyack chết (hatchiyatchDead) mới tính phá xong phó bản;
+                // hết giờ thì không tính. Khối này chạy đúng MỘT lần cho mỗi lượt mở.
+                if (hatchiyatchDead) {
+                    for (Zone zoneTask : zones) {
+                        TaskService.gI().checkDoneTaskDungeonForZone(zoneTask, ConstMap.MAP_KHI_GAS_HUY_DIET);
+                    }
+                }
                 for (Zone zone : zones) {
                     List<Player> players = zone.getPlayers();
                     for (Player pl : players) {

@@ -172,6 +172,17 @@ public class Player implements Runnable {
     public String notify = null;
 
     public int mapIdBeforeLogout;
+    // FIX: mốc lần tự lưu định kỳ gần nhất (dùng để rải tải, xem ServerManager.autoSavePlayers)
+    public long lastTimeAutoSave = System.currentTimeMillis();
+    /**
+     * FIX (rà soát 37): KHOÁ RIÊNG cho việc ghi DB (PlayerDAO.updatePlayer /
+     * autoSavePlayer). TUYỆT ĐỐI không dùng {@code synchronized (player)} cho việc lưu:
+     * {@link #injured} là phương thức {@code synchronized} nên khoá trên chính đối tượng
+     * Player. Nếu luồng tự lưu giữ khoá đó trong suốt một lệnh UPDATE MySQL (50–500 ms,
+     * lâu hơn nhiều nếu DB nghẽn) thì MỌI luồng boss/quái/PvP gọi {@code pl.injured(...)}
+     * sẽ bị chặn -> cả map đứng hình.
+     */
+    public final Object saveLock = new Object();
     public List<Zone> mapBlackBall;
     public List<Zone> mapMaBu;
 
@@ -443,16 +454,17 @@ public class Player implements Runnable {
                         activeEffects.entrySet().removeIf(entry -> System.currentTimeMillis() >= entry.getValue());
                         this.spreadEffectToNearbyPlayers();
                     }
-                    if (this.isPl() && this.zone != null && this.zone.map.mapId == this.gender + 21 && (TaskService.gI().getIdTask(this) == ConstTask.TASK_0_0 || TaskService.gI().getIdTask(this) == ConstTask.TASK_0_1)) {
-                        this.playerTask.taskMain.index = 2;
-                        TaskService.gI().sendTaskMain(this);
-                    }
+                    // TUYẾN MỚI: bỏ đoạn ép taskMain.index = 2 khi đứng ở map nhà với mốc cũ TASK_0_0 / TASK_0_1.
+                    // Tuyến cũ dùng nó để đẩy người chơi qua bước "đi tới mép vách núi". Tuyến mới NV 0 có
+                    // bước 0 "Đi về nhà" (TASK_0_0) và bước 1 "Lấy đồ trong rương" (TASK_0_1) là bước thật,
+                    // giữ lại đoạn này sẽ nhảy cóc mất bước 1 và mất luôn phần thưởng của bước đó.
+                }
+                // FIX: kick người bị ban ở mọi bản đồ (trước đây chỉ kick khi không đứng ở map nhà)
+                if (isPl() && idMark != null && idMark.isBan() && Util.canDoWithTime(idMark.getLastTimeBan(), 5000)) {
+                    Client.gI().kickSession(session);
+                    return;
                 }
                 if ((this.zone != null && !MapService.gI().isHome(this.zone.map.mapId)) || (!this.isPl() && this.zone == null)) {
-                    if (isPl() && idMark != null && idMark.isBan() && Util.canDoWithTime(idMark.getLastTimeBan(), 5000)) {
-                        Client.gI().kickSession(session);
-                        return;
-                    }
                     if (nPoint != null) {
                         nPoint.update();
                     }
@@ -523,6 +535,13 @@ public class Player implements Runnable {
                             }
                         }
                         TaskService.gI().sendUpdateCountSubTask(this);
+                        // TUYẾN MỚI: ba hàm kiểm định kỳ (vòng update chạy ~1 giây/lần)
+                        //   B12 — phát hiện bước có đồng hồ đã hết giờ kể cả khi người chơi đứng im
+                        //   B13 — bước "làm cùng người khác" ở map 103 / 143 / 78
+                        //   B8  — chống kẹt bước "có đệ tử" với người đã sẵn có đệ tử
+                        TaskService.gI().updateTimedSubTaskTick(this);
+                        TaskService.gI().checkDoneTaskTogetherInZone(this);
+                        TaskService.gI().checkDoneTaskHavePet(this);
                         autoSendBadges();
                         BadgesTaskService.updateDoneTask(this);
                         sendTextTimeDaiLyGift();
@@ -1001,7 +1020,9 @@ public class Player implements Runnable {
         } else if (this.idNRNM >= 353 && this.idNRNM <= 359) {
             return 30;
         }
-        if (TaskService.gI().getIdTask(this) == ConstTask.TASK_3_2) {
+        // TUYẾN MỚI: mốc cũ TASK_3_2 (so sánh ==) -> TASK_5_2 (so sánh >=).
+        // NV 5 "Ký ức của ông" mới là bước mở túi lưng; dùng >= để cờ túi không biến mất khi qua bước sau.
+        if (TaskService.gI().getIdTask(this) >= ConstTask.TASK_5_2) {
             return 28;
         }
         if (this.inventory.itemsBody.size() >= 11) {

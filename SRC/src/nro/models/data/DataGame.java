@@ -34,7 +34,11 @@ public class DataGame {
     public static byte vsData = 9;
     public static byte vsMap = 2;
     public static byte vsSkill = 1;
-    public static byte vsItem = 9;
+    // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
+    // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.
+    // Không tăng => item mới hiện tên rỗng / icon trắng với mọi người chơi cũ.
+    // Mỗi lần thêm/bớt/sửa dòng item_template PHẢI tăng số này thêm 1 (tối đa 127).
+    public static byte vsItem = 10;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

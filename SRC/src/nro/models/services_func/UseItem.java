@@ -222,6 +222,13 @@ public class UseItem {
                             Service.gI().sendThongBao(player, "Không thể bỏ vật phẩm này.");
                             return;
                         }
+                        // FIX: chặn VỨT vật phẩm nhiệm vụ (id 2000..2031) ngay ở chặng xác nhận,
+                        // để người chơi không thấy hộp thoại "Bạn chắc chắn muốn vứt...".
+                        // Chặng thứ hai nằm ở InventoryService.throwItem.
+                        if (item.isNotNullItem() && ItemService.isTaskItem(item.template.id)) {
+                            Service.gI().sendThongBao(player, "Không thể bỏ vật phẩm nhiệm vụ.");
+                            return;
+                        }
                         if (!item.isNotNullItem()) {
                             return;
                         }
@@ -875,9 +882,14 @@ public class UseItem {
                                     Service.gI().sendThongBao(pl, "Bạn đã có quả trứng nên không thể sử dụng");
                                 }
                                 break;
-                            case 2006:
-                                Input.gI().createFormChangeNameByItem(pl);
-                                break;
+                            // FIX: đã BỎ "case 2006: Input.gI().createFormChangeNameByItem(pl);"
+                            // 2006 từng là id "thẻ đổi tên" của một bản server khác và KHÔNG có
+                            // trong DB team2026 (không item nào tên "đổi tên"). Từ khi thêm vật
+                            // phẩm nhiệm vụ, 2006 = "Mảnh Ký Ức 5" (TYPE 8) => bấm "Dùng" vào
+                            // mảnh ký ức sẽ mở form đổi tên nhân vật, và Input.CHANGE_NAME_BY_ITEM
+                            // sẽ TRỪ MẤT mảnh ký ức đó.
+                            // Muốn mở lại tính năng đổi tên bằng vật phẩm: tạo item mới ngoài dải
+                            // 2000..2031 rồi thêm case với id đó (và sửa cả Input.java:431).
                             case 1758: {
                                 Player player = pl;
                                 if (player.pet != null) {

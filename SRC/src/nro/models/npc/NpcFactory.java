@@ -48,6 +48,8 @@ import nro.models.npc_list.Rong4Sao;
 import nro.models.npc_list.Rong3Sao;
 import nro.models.npc_list.BoMong;
 import nro.models.npc_list.Dende;
+import nro.models.npc_list.Berry;
+import nro.models.npc_list.Granola;
 import nro.models.npc_list.Jaco;
 import nro.models.npc_list.QuocVuong;
 import nro.models.npc_list.Osin;
@@ -155,6 +157,12 @@ public class NpcFactory {
                     new Calick(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.JACO ->
                     new Jaco(mapId, status, cx, cy, tempId, avatar);
+                // TUYẾN MỚI: hai NPC của điểm rẽ nhánh 1 (NV 20 / NV 48), trước đây
+                // rơi vào nhánh default nên không gọi được trigger nhiệm vụ nào.
+                case ConstNpc.BERRY ->
+                    new Berry(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.GRANOLA ->
+                    new Granola(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.THUONG_DE ->
                     new ThuongDe(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.VADOS ->
@@ -457,16 +465,26 @@ public class NpcFactory {
 
                     case ConstNpc.BAN_PLAYER -> {
                         if (select == 0) {
-                            PlayerService.gI().banPlayer((Player) PLAYERID_OBJECT.get(player.id));
-                            Service.gI().sendThongBao(player, "Ban người chơi " + ((Player) PLAYERID_OBJECT.get(player.id)).name + " thành công");
+                            // FIX: kiểm tra quyền admin ngay tại handler (phòng thủ nhiều lớp)
+                            if (!player.isAdmin()) {
+                                Service.gI().sendThongBao(player, "Không đủ quyền hạn!");
+                            } else {
+                                PlayerService.gI().banPlayer((Player) PLAYERID_OBJECT.get(player.id));
+                                Service.gI().sendThongBao(player, "Ban người chơi " + ((Player) PLAYERID_OBJECT.get(player.id)).name + " thành công");
+                            }
                         }
                     }
                     case ConstNpc.BUFF_PET -> {
                         if (select == 0) {
-                            Player pl = (Player) PLAYERID_OBJECT.get(player.id);
-                            if (pl.pet == null) {
-                                PetService.gI().createNormalPet(pl);
-                                Service.gI().sendThongBao(player, "Phát đệ tử cho " + ((Player) PLAYERID_OBJECT.get(player.id)).name + " thành công");
+                            // FIX: kiểm tra quyền admin ngay tại handler (phòng thủ nhiều lớp)
+                            if (!player.isAdmin()) {
+                                Service.gI().sendThongBao(player, "Không đủ quyền hạn!");
+                            } else {
+                                Player pl = (Player) PLAYERID_OBJECT.get(player.id);
+                                if (pl.pet == null) {
+                                    PetService.gI().createNormalPet(pl);
+                                    Service.gI().sendThongBao(player, "Phát đệ tử cho " + ((Player) PLAYERID_OBJECT.get(player.id)).name + " thành công");
+                                }
                             }
                         }
                     }

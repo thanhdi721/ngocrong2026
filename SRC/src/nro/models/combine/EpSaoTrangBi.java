@@ -8,6 +8,7 @@ import nro.models.services.InventoryService;
 import nro.models.services.ItemService;
 import nro.models.services.Service;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
 
 /**
  *
@@ -160,6 +161,8 @@ public class EpSaoTrangBi {
 
             InventoryService.gI().subQuantityItemsBag(player, daPhaLe, 1);
             CombineService.gI().sendEffectSuccessCombine(player);
+            // TUYẾN MỚI: B3 — ép sao pha lê THÀNH CÔNG -> ghi nhận TASK_26_2
+            TaskService.gI().checkDoneTaskCombine(player, TaskService.COMBINE_EP_SAO);
             InventoryService.gI().sendItemBags(player);
             Service.gI().sendMoney(player);
             CombineService.gI().reOpenItemCombine(player);

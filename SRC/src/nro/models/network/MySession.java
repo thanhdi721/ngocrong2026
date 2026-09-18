@@ -110,11 +110,6 @@ public class MySession extends Session {
             Service.gI().sendThongBaoOK(this, "Server đang trong thời gian bảo trì, vui lòng quay lại sau");
             return;
         }
-        if (!this.isAdmin && Client.gI().getPlayers().size() >= Manager.MAX_PLAYER) {
-            Service.gI().sendThongBaoOK(this, "Máy chủ hiện đang quá tải, "
-                    + "cư dân vui lòng di chuyển sang máy chủ khác.");
-            return;
-        }
         if (this.player == null) {
             Player pl = null;
             try {
@@ -123,6 +118,14 @@ public class MySession extends Session {
                 this.pp = password;
                 pl = MrBlue.login(this, al);
                 if (pl != null) {
+                    // FIX: kiểm tra quá tải SAU khi nạp tài khoản — trước đây check nằm trên đầu hàm,
+                    // lúc đó session.isAdmin luôn false (chỉ được gán trong MrBlue.login) nên admin cũng bị chặn
+                    if (!this.isAdmin && Client.gI().getPlayers().size() >= Manager.MAX_PLAYER) {
+                        Service.gI().sendThongBaoOK(this, "Máy chủ hiện đang quá tải, "
+                                + "cư dân vui lòng di chuyển sang máy chủ khác.");
+                        pl.dispose();
+                        return;
+                    }
                     DataGame.sendSmallVersion(this);
                     DataGame.sendBgItemVersion(this);
 

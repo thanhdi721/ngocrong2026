@@ -2,6 +2,8 @@ package nro.models.boss.Black_Goku;
 
 import nro.models.boss.Boss;
 import nro.models.boss.BossesData;
+import nro.models.boss.BossDamageReduce;
+import nro.models.boss.BossDropRate;
 import nro.models.boss.BossID;
 import nro.models.consts.ConstPlayer;
 import nro.models.item.Item;
@@ -24,6 +26,7 @@ public class BlackGoku extends Boss {
 
     public BlackGoku() throws Exception {
         super(BossID.BLACK_GOKU, false, true, BossesData.BLACK_GOKU, BossesData.SUPER_BLACK_GOKU);
+        this.damageReducePercentByLevel = BossDamageReduce.BLACK_GOKU_TG;
     }
 
     @Override
@@ -34,7 +37,8 @@ public class BlackGoku extends Boss {
         int drop = 190; // 100% rơi item ID 190
         int quantity = Util.nextInt(20000, 30000);
         // Tạo itemMap cho item ID 190
-        if (Util.isTrue(5, 100)) {
+        // FIX: bỏ số cứng 5%, tỉ lệ rơi đồ Thần Linh nay tính theo máu hiệu dụng của boss (BossDropRate, 1–5%)
+        if (BossDropRate.rollDoThanLinh(this)) {
             ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
             if (it != null) {
                 Service.gI().dropItemMap(zone, it);
@@ -89,6 +93,15 @@ public class BlackGoku extends Boss {
         Service.gI().sendThongBao(plKill, "+5 Point");
     }
 
+    /**
+     * FIX: khai báo lớp giảm cũ cho BossDropRate — injured() có {@code damage /= 2}
+     * cho mọi hình dạng khác hình dạng đầu, tức chặn sẵn 50%. Hình dạng đầu không có.
+     */
+    @Override
+    public int getLegacyDamageReducePercent() {
+        return this.currentLevel != 0 ? 50 : 0;
+    }
+
     @Override
     public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
         if (!this.isDie()) {
@@ -106,6 +119,9 @@ public class BlackGoku extends Boss {
                 }
                 damage = 1;
             }
+            // Giảm sát thương nhận vào: đặt ngay trước subHP nên cộng dồn lên trên
+            // cơ chế chia sát thương sẵn có của boss này, không thay thế nó.
+            damage = applyDamageReduce(damage);
             this.nPoint.subHP(damage);
             if (isDie()) {
                 this.setDie(plAtt);

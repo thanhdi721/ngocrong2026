@@ -267,18 +267,28 @@ public final class Manager {
                 parts.add(part);
                 dataArray.clear();
             }
-            DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"));
-            dos.writeShort(parts.size());
-            for (Part part : parts) {
-                dos.writeByte(part.type);
-                for (PartDetail partDetail : part.partDetails) {
-                    dos.writeShort(partDetail.iconId);
-                    dos.writeByte(partDetail.dx);
-                    dos.writeByte(partDetail.dy);
-                }
+            // FIX: kiểm tra dữ liệu đầu vào - không ghi đè file part khi bảng part rỗng/lỗi
+            if (parts.isEmpty()) {
+                Logger.error("loadPart: bang 'part' khong co du lieu, giu nguyen file data/update_data/part\n");
+                return;
             }
-            dos.flush();
-            dos.close();
+            // FIX: ghi ra file tạm rồi mới thay thế để không làm hỏng file part khi ghi dở
+            java.io.File fileTmp = new java.io.File("data/update_data/part.tmp");
+            java.io.File filePart = new java.io.File("data/update_data/part");
+            try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(fileTmp))) {
+                dos.writeShort(parts.size());
+                for (Part part : parts) {
+                    dos.writeByte(part.type);
+                    for (PartDetail partDetail : part.partDetails) {
+                        dos.writeShort(partDetail.iconId);
+                        dos.writeByte(partDetail.dx);
+                        dos.writeByte(partDetail.dy);
+                    }
+                }
+                dos.flush();
+            }
+            java.nio.file.Files.move(fileTmp.toPath(), filePart.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             System.err.print("\nError at 299\n");
             e.printStackTrace();
@@ -521,10 +531,13 @@ public final class Manager {
             Logger.success(Logger.RED + "Successfully loaded intrinsic (" + INTRINSICS.size() + ")\n");
 
             //load task
+            // TUYẾN MỚI: thêm ORDER BY. Manager gom bước con theo THỨ TỰ dòng trả về,
+            // không có ORDER BY thì MySQL được phép trả xen kẽ và TaskService sẽ tra nhầm index.
             ps = ConnectionDatabase.prepareStatement("SELECT id, task_main_template.name, detail, "
                     + "task_sub_template.name AS 'sub_name', max_count, notify, npc_id, map "
                     + "FROM task_main_template JOIN task_sub_template ON task_main_template.id = "
-                    + "task_sub_template.task_main_id");
+                    + "task_sub_template.task_main_id "
+                    + "ORDER BY task_main_template.id, task_sub_template.ducvupro");
             rs = ps.executeQuery();
             int taskId = -1;
             TaskMain task = null;
@@ -547,6 +560,10 @@ public final class Manager {
                 task.subTasks.add(subTask);
             }
             Logger.success(Logger.PURPLE + "Successfully loaded task (" + TASKS.size() + ")\n");
+
+            //load task main reward
+            // TUYẾN MỚI: bảng thưởng nhiệm vụ chính đọc từ DB thay cho switch hardcode cũ
+            nro.models.database.TaskRewardDAO.load(ConnectionDatabase);
 
             //load side task
             ps = ConnectionDatabase.prepareStatement("select * from side_task_template");
@@ -626,7 +643,13 @@ public final class Manager {
 
             try {
                 while (true) {
-                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template LIMIT ? OFFSET ?");
+                    // FIX: thêm ORDER BY id. ITEM_TEMPLATES là ArrayList và
+                    // ItemService.getTemplate(id) = ITEM_TEMPLATES.get(id) lấy theo CHỈ SỐ MẢNG,
+                    // nên thứ tự nạp PHẢI đúng theo id tăng dần. Trước đây không có ORDER BY:
+                    // thứ tự đúng chỉ nhờ may mắn (InnoDB trả theo khóa chính), sẽ hỏng sau
+                    // OPTIMIZE TABLE / đổi engine / nâng cấp MySQL, và khi đó TOÀN BỘ bảng item
+                    // của server lệch — client hiện sai tên và icon mọi vật phẩm.
+                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template ORDER BY id LIMIT ? OFFSET ?");
                     ps.setInt(1, batchSize);
                     ps.setInt(2, offset);
                     rs = ps.executeQuery();

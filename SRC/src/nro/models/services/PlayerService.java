@@ -250,10 +250,16 @@ public class PlayerService {
     }
 
     public void banPlayer(Player playerBaned) {
+        if (playerBaned == null || playerBaned.getSession() == null) {
+            return;
+        }
         try {
-            LocalManager.executeUpdate("update account set ban = 0 where id = ? and username = ?",
+            // FIX: ghi ban = 1 (trước đây ghi 0 nên tài khoản không hề bị khóa)
+            LocalManager.executeUpdate("update account set ban = 1 where id = ? and username = ?",
                     playerBaned.getSession().userId, playerBaned.getSession().uu);
         } catch (Exception e) {
+            // FIX: không nuốt lỗi - nếu không ghi được DB thì admin phải biết
+            Logger.logException(PlayerService.class, e);
         }
         Service.gI().sendThongBao(playerBaned,
                 "Tài khoản của bạn đã bị khóa\nGame sẽ mất kết nối sau 5 giây...");

@@ -21,6 +21,7 @@ import java.util.List;
 import nro.models.consts.ConstTaskBadges;
 import nro.models.server.Maintenance;
 import nro.models.task.BadgesTaskService;
+import nro.models.services.TaskService;
 
 /**
  *
@@ -61,7 +62,7 @@ public class SummonDragon {
             = new String[]{"Giàu có\n+2 Tỏi\nVàng", "Găng tay\nđang mang\nlên 1 cấp", "Chí mạng\nGốc +2%",
                 "Thay\nChiêu 2-3\nĐệ tử", "Điều ước\nkhác"};
     public static final String[] SHENRON_1_STAR_WISHES_2
-            = new String[]{"Đẹp trai\nnhất\nVũ trụ", "Giàu có\n+10K\nNgọc", "+200 Tr\nSức mạnh\nvà tiềm\nnăng",
+            = new String[]{"Đẹp trai\nnhất\nVũ trụ", "Giàu có\n+2K\nNgọc", "+200 Tr\nSức mạnh\nvà tiềm\nnăng",
                 "Găng tay đệ\nđang mang\nlên 1 cấp",
                 "Điều ước\nkhác"};
     public static final String[] SHENRON_1_STAR_WISHES_3
@@ -286,12 +287,25 @@ public class SummonDragon {
         }
     }
 
+    // FIX: cộng vàng cho điều ước, chặn tại LIMIT_GOLD thay vì gán thẳng LIMIT_GOLD
+    private void addGold(Player pl, long amount) {
+        if (pl == null || amount <= 0) {
+            return;
+        }
+        if (pl.inventory.gold > Inventory.LIMIT_GOLD - amount) {
+            pl.inventory.gold = Inventory.LIMIT_GOLD;
+        } else {
+            pl.inventory.gold += amount;
+        }
+    }
+
     public void confirmWish() {
         switch (this.menuShenron) {
             case ConstNpc.SHENRON_1_1:
                 switch (this.select) {
-                    case 0: //20 tr vàng
-                        this.playerSummonShenron.inventory.gold = 2000000000;
+                    case 0: //+2 tỏi vàng
+                        // FIX: cộng thêm thay vì gán thẳng vàng = 2 tỷ
+                        addGold(this.playerSummonShenron, 2000000000L);
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;
                     case 1: //găng tay đang đeo lên 1 cấp
@@ -375,8 +389,9 @@ public class SummonDragon {
                             return;
                         }
                         break;
-                    case 1: //+1,5 ngọc
-                        this.playerSummonShenron.inventory.gem += 10000;
+                    case 1: //+2K ngọc
+                        // FIX: giảm thưởng ngọc của điều ước rồng thần xuống tối đa 2.000 ngọc/lần ước
+                        this.playerSummonShenron.inventory.gem += 2000;
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;
                     case 2: //+200 tr smtn
@@ -434,12 +449,9 @@ public class SummonDragon {
                     case 1: //+20 tr smtn
                         Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 20000000, false);
                         break;
-                    case 2: //2 tr vàng
-                        if (this.playerSummonShenron.inventory.gold > 1800000000) {
-                            this.playerSummonShenron.inventory.gold = Inventory.LIMIT_GOLD;
-                        } else {
-                            this.playerSummonShenron.inventory.gold += 200000000;
-                        }
+                    case 2: //+200 tr vàng
+                        // FIX: trước đây người có > 1,8 tỷ vàng được gán thẳng 200 tỷ; nay chỉ cộng đúng 200 triệu
+                        addGold(this.playerSummonShenron, 200000000L);
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;
                 }
@@ -453,17 +465,17 @@ public class SummonDragon {
                     case 1: //+2 tr smtn
                         Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 2000000, false);
                         break;
-                    case 2: //200k vàng
-                        if (this.playerSummonShenron.inventory.gold > (2000000000 - 20000000)) {
-                            this.playerSummonShenron.inventory.gold = Inventory.LIMIT_GOLD;
-                        } else {
-                            this.playerSummonShenron.inventory.gold += 20000000;
-                        }
+                    case 2: //+20 tr vàng
+                        // FIX: trước đây người có > 1,98 tỷ vàng được gán thẳng 200 tỷ; nay chỉ cộng đúng 20 triệu
+                        addGold(this.playerSummonShenron, 20000000L);
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;
                 }
                 break;
         }
+        // TUYẾN MỚI: B6 — gọi NGAY TRƯỚC shenronLeave (nơi đặt lastTimeShenronAppeared = now),
+        // lúc này playerSummonShenron và shenronStar còn nguyên giá trị. Chỉ Rồng Thần 1 Sao được tính.
+        TaskService.gI().checkDoneTaskWishDragon(this.playerSummonShenron, this.shenronStar);
         shenronLeave(this.playerSummonShenron, WISHED);
     }
 

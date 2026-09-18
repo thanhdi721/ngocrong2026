@@ -54,6 +54,9 @@ public class Input {
     public static final int CHOOSE_LEVEL_BDKB = 504;
     public static final int NAP_THE = 505;
     public static final int CHANGE_NAME_BY_ITEM = 506;
+    // FIX: id vật phẩm "thẻ đổi tên". Đặt -1 = tính năng TẮT, vì id cũ (2006) nay là
+    // "Mảnh Ký Ức 5" của tuyến nhiệm vụ mới. Xem docs/4-trien-khai/25-bang-id-vat-pham-moi.md
+    public static final int ID_THE_DOI_TEN = -1;
     public static final int GIVE_IT = 507;
     public static final int GET_IT = 508;
     public static final int DANGKY = 509;
@@ -282,6 +285,11 @@ public class Input {
                     }
                 }
                 case GIVE_IT -> {
+                    // FIX: form tặng vật phẩm là chức năng admin, phải tự kiểm tra quyền
+                    // (GET_IT và SEND_ITEM_OP đã có sẵn kiểm tra này)
+                    if (!player.isAdmin()) {
+                        return;
+                    }
                     String name = text[0];
                     int id = Integer.parseInt(text[1]);
                     int op = Integer.parseInt(text[2]);
@@ -423,7 +431,15 @@ public class Input {
                         } else if (text[0].length() > 10) {
                             Service.gI().sendThongBaoOK(player, "Tên nhân vật chỉ đồng ý các ký tự a-z, 0-9 và chiều dài từ 5 đến 10 ký tự");
                         } else {
-                            Item theDoiTen = InventoryService.gI().findItem(player.inventory.itemsBag, 2006);
+                            // FIX: trước đây tìm item id 2006 làm "thẻ đổi tên".
+                            // 2006 KHÔNG tồn tại trong DB team2026 (di sản bản server khác), và
+                            // từ khi thêm vật phẩm nhiệm vụ thì 2006 = "Mảnh Ký Ức 5" => nhánh này
+                            // sẽ TRỪ MẤT mảnh ký ức của người chơi. Nguồn mở form duy nhất
+                            // (UseItem case 2006) đã bị bỏ, nhánh này giữ lại để phòng gói tin giả:
+                            // ID_THE_DOI_TEN = -1 nên luôn không tìm thấy => luôn báo lỗi, không trừ gì.
+                            // Muốn mở lại tính năng: tạo item mới NGOÀI dải 2000..2031 và đặt id đó
+                            // vào ID_THE_DOI_TEN, đồng thời thêm lại case trong UseItem.
+                            Item theDoiTen = InventoryService.gI().findItem(player.inventory.itemsBag, ID_THE_DOI_TEN);
                             if (theDoiTen == null) {
                                 Service.gI().sendThongBao(player, "Không tìm thấy thẻ đổi tên");
                             } else {
@@ -524,7 +540,18 @@ public class Input {
                     int numruby = Integer.parseInt((text[1]));
                     if (pl != null) {
                         if (numruby > 0 && player.inventory.ruby >= numruby) {
-                            Item item = InventoryService.gI().findItemBag(player, 2002);
+                            // FIX: trước đây trừ item id 2002 làm "vé tặng ngọc".
+                            // 2002 KHÔNG tồn tại trong DB team2026, và nay 2002 = "Mảnh Ký Ức 1"
+                            // của tuyến nhiệm vụ mới => nhánh này sẽ TRỪ MẤT mảnh ký ức.
+                            // Vé tặng ngọc THẬT trong DB là item 718 (ConstItem.VE_TANG_NGOC),
+                            // đúng như nhánh TANG_NGOC ở trên đang dùng.
+                            // Thêm cả kiểm tra null: code cũ gọi subQuantityItemsBag(null) khi
+                            // người chơi không có vé.
+                            Item item = InventoryService.gI().findItemBag(player, 718);
+                            if (item == null || item.quantity < 1) {
+                                Service.gI().sendThongBao(player, "Bạn cần 1 vé để tặng ngọc");
+                                break;
+                            }
                             player.inventory.subGem(numruby);
                             PlayerService.gI().sendInfoHpMpMoney(player);
                             pl.inventory.ruby += numruby;

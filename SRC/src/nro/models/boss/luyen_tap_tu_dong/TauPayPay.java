@@ -97,7 +97,9 @@ public class TauPayPay extends TrainingBoss {
                 return 0;
             }
 
-            if (TaskService.gI().getIdTask(plAtt) != ConstTask.TASK_10_1) {
+            // TUYẾN MỚI: mốc cũ != TASK_10_1 -> < TASK_10_1 (NV 10 "Bái sư" giữ nguyên mốc, đổi nội dung).
+            // Dùng >= để người chơi đã qua bước vẫn đánh được Tàu Pảy Pảy, không bị kẹt khi làm lại.
+            if (TaskService.gI().getIdTask(plAtt) < ConstTask.TASK_10_1) {
                 return 100;
             }
             damage = this.nPoint.subDameInjureWithDeff(damage);

@@ -68,8 +68,15 @@ public class DrKore extends Boss {
     }
     private long st;
 
-    public synchronized int injured(Player plAtt, int damage, boolean piercing, boolean isMobAttack) {
-        if (plAtt != null) {
+    // FIX: trước đây khai báo "int damage" trong khi lớp cha là "long damage" và thiếu @Override,
+    // nên đây là một hàm KHÁC chứ không đè lên hàm gốc — cơ chế hấp thụ chưởng chưa từng chạy.
+    // Kèm theo: thêm kiểm tra null cho playerSkill/skillSelect/template, vì nay hàm thật sự
+    // được gọi mỗi đòn đánh, thiếu kiểm tra là văng lỗi khi người chơi chưa chọn kỹ năng.
+    @Override
+    public synchronized int injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {
+        if (plAtt != null && plAtt.playerSkill != null
+                && plAtt.playerSkill.skillSelect != null
+                && plAtt.playerSkill.skillSelect.template != null) {
             switch (plAtt.playerSkill.skillSelect.template.id) {
                 case Skill.KAMEJOKO:
                 case Skill.MASENKO:
