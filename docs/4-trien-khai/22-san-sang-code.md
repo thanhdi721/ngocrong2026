@@ -16,6 +16,40 @@
 
 ---
 
+## 0. QUYẾT ĐỊNH ĐÃ CHỐT (18/09/2026) — code bám theo bảng này
+
+| # | Vấn đề | Chốt |
+|---|---|---|
+| 1 | Ngọc Rồng trong thưởng nhiệm vụ | **Bỏ**. Ngoài ra **giảm ngọc từ điều ước rồng thần xuống 2.000 mỗi lần** |
+| 2 | Boss bản nhiệm vụ riêng (id −2100…−2199) | **Có** — chỉ rơi đồ nhiệm vụ, HP theo mốc nhiệm vụ |
+| 3 | Vật phẩm nhiệm vụ | **Tạo mới**, id liền mạch từ 2000 |
+| 4 | Bộ Thần Linh chương 6 | **Đổi thành mảnh**, gom đủ mới đổi được 1 món |
+| 5 | Thời gian cày hết tuyến | **1 – 2 tháng** |
+| 6 | Điểm rẽ nhánh | **Giữ cả 3** (NV 20/48, NV 31/49, NV 47/50) |
+| 7 | Đệ tử ở NV 12 | **NPC sư phụ tặng 1 con** |
+| 8 | Cân bằng boss sẵn có (nhóm D) | **Làm luôn** |
+| 9 | Lỗi kinh tế cũ (ký gửi, VIP, rồng thần…) | **Làm luôn** |
+| 10 | Quà bù khi reset người chơi | **Không có** |
+| 11 | Boss nhiệm vụ rơi vàng | **Không** |
+
+**Môi trường đã chốt:**
+
+- Máy này **chỉ để code**. Build và test ở đây, xong bàn giao `SRC/` cho chủ dự án đưa lên server.
+- Database thật là **`team2026`** (file `database team2026.sql` ở thư mục gốc). File `SRC/sql/nro1.sql` là dump cũ của database tên `a`, **không dùng**.
+- SQL giao dưới dạng **file patch riêng**, chủ dự án tự import.
+- Không có quà bù, không cần thông báo trước cho người chơi.
+
+**Vật phẩm mới — id và ảnh đã chốt:**
+
+| Item id | Tên | icon_id | Ghi chú |
+|---|---|---|---|
+| 2000 | Lõi Hư Không | 20000 | Ảnh do chủ dự án tạo |
+| 2001 | Vỏ Lõi rỗng | 20001 | |
+| 2002 → 2008 | Mảnh Ký Ức #1 → #7 | 20002 → 20008 | |
+| 2009 trở đi | Các vật phẩm nhiệm vụ còn lại | mượn icon sẵn có | Đánh số tiếp, **không được hở id** |
+
+Ảnh đã chuẩn hóa đúng bội số x1/x2/x3/x4 và chép vào `SRC/data/icon/`. Bản gốc lưu ở `assets-moi/icon-goc-cua-ban/`.
+
 ## 1. Trả lời ngắn
 
 **Phần thiết kế: đủ.** Cốt truyện, 48 nhiệm vụ, hơn 210 bước, lời thoại, phần thưởng, id map/quái/NPC/boss — đều đã có và đã đối chiếu với code thật.
