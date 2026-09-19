@@ -249,7 +249,7 @@ public final class Manager {
         ResultSet rs = null;
         try (Connection con = LocalManager.getConnection();) {
             //load part
-            ps = con.prepareStatement("select * from part");
+            ps = con.prepareStatement("select * from part order by id");
             rs = ps.executeQuery();
             List<Part> parts = new ArrayList<>();
             while (rs.next()) {
@@ -276,15 +276,7 @@ public final class Manager {
             java.io.File fileTmp = new java.io.File("data/update_data/part.tmp");
             java.io.File filePart = new java.io.File("data/update_data/part");
             try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(fileTmp))) {
-                dos.writeShort(parts.size());
-                for (Part part : parts) {
-                    dos.writeByte(part.type);
-                    for (PartDetail partDetail : part.partDetails) {
-                        dos.writeShort(partDetail.iconId);
-                        dos.writeByte(partDetail.dx);
-                        dos.writeByte(partDetail.dy);
-                    }
-                }
+                writePartData(dos, parts);
                 dos.flush();
             }
             java.nio.file.Files.move(fileTmp.toPath(), filePart.toPath(),
@@ -292,6 +284,36 @@ public final class Manager {
         } catch (Exception e) {
             System.err.print("\nError at 299\n");
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Ghi file part cho client. Client đọc CỐ ĐỊNH số mảnh theo loại (đầu 3, thân 17, chân 14),
+     * không có byte đếm. Một dòng `part` sai số mảnh (vd part 1999 chỉ có 2 mảnh) làm client đọc
+     * lệch toàn bộ part phía sau -> NPC / cải trang từ part đó trở đi mất hình. Nay cắt / đệm
+     * đúng số mảnh (đệm bằng icon 2955 trong suốt) và báo dòng sai ra log.
+     */
+    private static void writePartData(DataOutputStream dos, List<Part> parts) throws java.io.IOException {
+        dos.writeShort(parts.size());
+        for (Part part : parts) {
+            int need = part.type == 0 ? 3 : part.type == 1 ? 17 : 14;
+            if (part.partDetails.size() != need) {
+                Logger.error("part " + part.id + " (type " + part.type + ") co " + part.partDetails.size()
+                        + " manh, can " + need + " -> tu dong can chinh khi ghi file\n");
+            }
+            dos.writeByte(part.type);
+            for (int k = 0; k < need; k++) {
+                if (k < part.partDetails.size()) {
+                    PartDetail partDetail = part.partDetails.get(k);
+                    dos.writeShort(partDetail.iconId);
+                    dos.writeByte(partDetail.dx);
+                    dos.writeByte(partDetail.dy);
+                } else {
+                    dos.writeShort(2955);
+                    dos.writeByte(0);
+                    dos.writeByte(0);
+                }
+            }
         }
     }
 
@@ -303,7 +325,7 @@ public final class Manager {
         ResultSet rs = null;
         try (Connection ConnectionDatabase = LocalManager.getConnection()) {
             //load part
-            ps = ConnectionDatabase.prepareStatement("select * from part");
+            ps = ConnectionDatabase.prepareStatement("select * from part order by id");
             rs = ps.executeQuery();
             List<Part> parts = new ArrayList<>();
             while (rs.next()) {
@@ -322,15 +344,7 @@ public final class Manager {
                 dataArray.clear();
             }
             DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"));
-            dos.writeShort(parts.size());
-            for (Part part : parts) {
-                dos.writeByte(part.type);
-                for (PartDetail partDetail : part.partDetails) {
-                    dos.writeShort(partDetail.iconId);
-                    dos.writeByte(partDetail.dx);
-                    dos.writeByte(partDetail.dy);
-                }
-            }
+            writePartData(dos, parts);
             dos.flush();
             Logger.success(Logger.PURPLE + "Successfully loaded part (" + parts.size() + ")\n");
 
