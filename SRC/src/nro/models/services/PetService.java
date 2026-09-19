@@ -7,7 +7,6 @@ import nro.models.player.Player;
 import nro.models.map.service.ChangeMapService;
 import nro.models.utils.SkillUtil;
 import nro.models.utils.Util;
-import nro.models.services.TaskService;
 
 /**
  *
@@ -327,8 +326,6 @@ public class PetService {
 
         pet.nPoint.setFullHpMp();
         player.pet = pet;
-        // TUYẾN MỚI: B8 — vừa có đệ tử -> ghi nhận TASK_12_0
-        TaskService.gI().checkDoneTaskHavePet(player);
     }
 
     public static void Pet2(Player pl, int h, int b, int l) {

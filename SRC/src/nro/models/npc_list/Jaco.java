@@ -17,6 +17,7 @@ import nro.models.services.TaskService;
  *   (TASK_3_0 "gặp Jaco ở Vách núi" ĐÃ BỎ — NV 3 trả về cơ chế gốc, xem doc 39;
  *    Jaco vẫn đứng ở 42/43/44 nhưng chỉ có lời thoại)
  *   TASK_7_2  — gặp Jaco ở Trạm tàu vũ trụ (map 24 / 25 / 26 theo hành tinh)
+ *   TASK_12_0 — NV 12 "Bạn đồng hành": Jaco xin đi cùng (doc 43, thay bước đệ tử)
  *   TASK_15_2 — gặp lại Jaco ở Trạm tàu vũ trụ
  *   TASK_48_2 / TASK_48_5 — trình báo và nộp biên bản, CHỈ ở map 24
  * Mọi điều kiện (đúng map theo hành tinh, đúng bước) nằm trong
@@ -50,7 +51,7 @@ public class Jaco extends Npc {
             case 139 ->
                 this.createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Tàu Vũ Trụ của ta có thể đưa cậu đến hành tinh khác chỉ trong 3 giây.\nCậu muốn đi đâu?", "Đến\nTrái Đất", "Đến\nNamếc", "Đến\nXayda", "Từ chối");
-            // TUYẾN MỚI: Trạm tàu vũ trụ Namếc / Xayda — Jaco đứng đây cho NV 7 và NV 15.
+            // TUYẾN MỚI: Trạm tàu vũ trụ Namếc / Xayda — Jaco đứng đây cho NV 7, NV 12 và NV 15.
             case 25, 26 ->
                 this.createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Cảnh sát vũ trụ đây. Ta đang ghi lại mọi thứ hành tinh này còn nhớ được.\nNgươi cứ đi việc của ngươi.",

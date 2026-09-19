@@ -275,7 +275,7 @@ public class TaskService {
     }
 
     /**
-     * TUYẾN MỚI: các bước "thụ động" (mốc sức mạnh, đã có đệ tử, đã đủ 7 viên ngọc…)
+     * TUYẾN MỚI: các bước "thụ động" (mốc sức mạnh, đã đủ 7 viên ngọc…)
      * phải được kiểm lại ngay khi vừa bước sang, không chờ sự kiện kế tiếp.
      */
     public void recheckPassiveSubTask(Player player) {
@@ -291,9 +291,7 @@ public class TaskService {
             case ConstTask.TASK_49_6:
                 checkDoneTaskPower(player, player.nPoint.power);
                 break;
-            case ConstTask.TASK_12_0:
-                checkDoneTaskHavePet(player);
-                break;
+            // doc 43: bỏ B8 (TASK_12_0 "có đệ tử") — NV 12 không còn bước đệ tử.
             case ConstTask.TASK_39_1:
                 checkDoneTaskCollect7Stars(player);
                 break;
@@ -308,7 +306,37 @@ public class TaskService {
     //  - TASK_13_0 (gia nhập bang) KHÔNG còn nằm ở đây, nó thuộc checkDoneTaskJoinClan.
     //  - Không còn khối QUY_LAO_KAME lọt ra ngoài ngoặc kiểm tra gender.
     // ======================================================================
+    /**
+     * Nói chuyện với NPC. Trả true nếu vừa hoàn thành một bước nhiệm vụ.
+     *
+     * FIX "Xin chờ" quay mãi: khi hàm này trả true, lớp NPC KHÔNG mở menu nữa (mẫu chung
+     * {@code if (!checkDoneTaskTalkNpc(...)) openMenu}). Client lúc bấm NPC đã hiện "Xin chờ"
+     * và đợi server trả một hộp thoại. Các bước tuyến cũ luôn có câu thoại trong
+     * {@link #doneTask}, nhưng nhiều bước tuyến mới thì không → client chờ mãi.
+     * Nay nếu bước vừa xong mà chưa có hộp thoại nào được gửi, tự gửi một câu báo việc tiếp theo.
+     */
     public boolean checkDoneTaskTalkNpc(Player player, Npc npc) {
+        int before = nro.models.map.service.NpcService.DIALOG_COUNT.get()[0];
+        boolean done = checkDoneTaskTalkNpcInner(player, npc);
+        if (done && npc != null && player != null && nro.models.map.service.NpcService.DIALOG_COUNT.get()[0] == before) {
+            NpcService.gI().createTutorial(player, npc.tempId, npc.avartar, nextStepText(player));
+        }
+        return done;
+    }
+
+    /** Câu báo "việc tiếp theo" dùng khi bước vừa xong không có lời thoại riêng. */
+    private String nextStepText(Player player) {
+        try {
+            TaskMain tm = player.playerTask.taskMain;
+            if (tm != null && tm.subTasks != null && tm.index >= 0 && tm.index < tm.subTasks.size()) {
+                return "Tốt lắm!\nViệc tiếp theo: " + tm.subTasks.get(tm.index).name;
+            }
+        } catch (Exception ignored) {
+        }
+        return "Tốt lắm! Con đã hoàn thành nhiệm vụ.";
+    }
+
+    private boolean checkDoneTaskTalkNpcInner(Player player, Npc npc) {
         if (player == null || npc == null || !player.isPl()) {
             return false;
         }
@@ -355,7 +383,9 @@ public class TaskService {
             case ConstNpc.JACO: {
                 // doc 39: bỏ TASK_3_0 "Gặp Jaco ở vách núi" — NV 3 đã trả về cơ chế gốc.
                 if (isMapTTVT(player, mapId)) {
+                    // doc 43: NV 12 "Bạn đồng hành" — bạn đồng hành là Jaco, không phải đệ tử.
                     return doneTask(player, ConstTask.TASK_7_2)
+                            || doneTask(player, ConstTask.TASK_12_0)
                             || doneTask(player, ConstTask.TASK_15_2);
                 }
                 if (mapId == 24) { // Jaco của nhánh 48 chỉ đứng ở map 24
@@ -1693,18 +1723,6 @@ public class TaskService {
     }
 
     /**
-     * B8 — đã có đệ tử. Móc ở PetService.createNewPet VÀ Player.update.
-     */
-    public void checkDoneTaskHavePet(Player player) {
-        if (player == null || !player.isPl()) {
-            return;
-        }
-        if (player.pet != null) {
-            doneTask(player, ConstTask.TASK_12_0);
-        }
-    }
-
-    /**
      * B9 — học chưởng cấp 1. Móc ở SkillService sau khi skill.point tăng.
      * Kamejoko 1 / Masenko 3 / Antomic 5 tùy hành tinh.
      */
@@ -2153,6 +2171,19 @@ public class TaskService {
             case ConstTask.TASK_5_2:
                 // Nộp Kỷ Vật Của Ông
                 subItem(player, 2010, 1);
+                break;
+            // doc 43: NV 12 "Bạn đồng hành" — Jaco đi cùng người chơi (không còn đệ tử).
+            case ConstTask.TASK_12_0:
+                npcSay(player, ConstNpc.JACO,
+                        "Ngươi tới rồi. Ta ghi chép suốt mà trí nhớ cứ rơi như cát.\n"
+                        + "Hai cái đầu thì quên chậm hơn một. Từ nay ta đi cùng ngươi.\n"
+                        + "Lũ quái mẹ ở %15 lớn nhanh bất thường. Dọn 25 con với ta.");
+                break;
+            case ConstTask.TASK_12_2:
+                npcSay(player, ConstTask.NPC_NHA,
+                        "Bạn con đấy à? Cảnh sát vũ trụ cơ đấy!\n"
+                        + "Ông không nhớ đã gặp cậu ta chưa, mà sao thấy quen quen...\n"
+                        + "Có người đi cùng thì ông yên tâm. Hai đứa nhớ giữ lấy nhau nhé.");
                 break;
             case ConstTask.TASK_32_5:
                 // Nộp 3 Mảnh Ký Ức Vỡ cho Bardock

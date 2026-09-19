@@ -46,6 +46,9 @@
 --      map -11..-14 và chữ %15..%20; bước đánh quái tính ở MỌI map có quái đó.
 --      File này đã chứa chữ + cột map mới của doc 41. Nếu cài mới theo thứ tự
 --      02 -> 05 -> 06 thì 06 sẽ ghi đè lại chữ cũ => PHẢI chạy tiếp 07.
+--   d) [doc 43 — docs/4-trien-khai/43-bo-de-tu-khoi-nhiem-vu.md] NV 12 không còn đệ tử
+--      (bạn đồng hành là Jaco) và bỏ thưởng chỉ dùng cho đệ. 06/07 ghi lại chữ NV 12 cũ
+--      => nếu chạy 06/07 sau file này thì PHẢI chạy tiếp 08 sau cùng.
 --
 -- ---------------------------------------------------------------------
 -- NGUYÊN TẮC PHẦN THƯỞNG (quyết định của chủ dự án — 22 §0)
@@ -53,6 +56,8 @@
 --   * CHỈ sức mạnh, tiềm năng và vật phẩm.
 --   * KHÔNG vàng, KHÔNG ngọc, KHÔNG hồng ngọc, KHÔNG Ngọc Rồng (14–20),
 --     KHÔNG Thỏi vàng (457 — là tiền trá hình).
+--   * [doc 43] KHÔNG thưởng vật phẩm chỉ dùng cho đệ tử (401, 402–404, 454, 921,
+--     1819, 1795…) — đệ tử vẫn chỉ nhận bằng cách săn Super Broly, không thuộc tuyến chính.
 --   * Bộ Thần Linh chương 6 trao dưới dạng MẢNH (1066-1070): tuyến cho 150 mảnh MỖI LOẠI
 --     (chủ dự án chốt), gom đủ 999 mảnh
 --     mỗi loại mới đổi được 1 món ở Whis — tuyến chỉ cho ~400/999 mỗi loại.
@@ -112,9 +117,9 @@ Thưởng: 100.000 SM, 100.000 TN, 1 sách đấm lv1'),
 (11, 'Hạt giống hy vọng', 'Cây đậu nhà ngươi sắp chết, vì đất cũng quên cách nuôi nó.
 Hái 5 hạt đậu, gieo Hạt Giống Hy Vọng rồi khoe với %2.
 Thưởng: 140.000 SM, 140.000 TN, 1 Gói 30 đậu cấp 3'),
-(12, 'Bạn đồng hành', 'Quả trứng ông để dành cho ai đó bỗng nứt ra.
-Nở trứng nhận đệ tử, cùng nó hạ quái mẹ ở %15 rồi về nhà.
-Thưởng: 200.000 SM, 200.000 TN, 1 Đổi đệ tử, 1 Nâng kỹ năng 1 đệ tử'),
+(12, 'Bạn đồng hành', 'Jaco xin đi cùng ngươi: hai cái đầu thì quên chậm hơn một.
+Gặp Jaco ở trạm tàu, cùng hạ quái mẹ ở %15 rồi về nhà.
+Thưởng: 200.000 SM, 200.000 TN, 1 Gói 30 đậu cấp 3, 5 Đá nâng cấp 1'),
 (13, 'Không ai đi một mình', 'Ký ức một người thì dễ lấy, ký ức cả bang thì khó nuốt.
 Vào bang, cùng bang hạ quái mẹ ở %15, gặp Giu-ma Đầu Bò.
 Thưởng: 280.000 SM, 280.000 TN, 2 Gói 30 đậu cấp 3, 2 Đá bảo vệ'),
@@ -180,7 +185,7 @@ Gặp Quốc Vương, mở giới hạn sức mạnh, đạt 3 tỷ sức mạnh
 Thưởng: 250 triệu SM, 250 triệu TN, 50 Đậu thần cấp 8, 5 Đá bảo vệ'),
 (34, 'Vùng đất băng giá', 'Một Mảnh Ký Ức bị đóng băng trong Hang băng, Cooler canh giữ.
 Vượt vùng tuyết, nhặt Mảnh Ký Ức Đóng Băng rồi hạ Cooler.
-Thưởng: 300 triệu SM, 300 triệu TN, 1 Bông tai Porata'),
+Thưởng: 300 triệu SM, 300 triệu TN, 5 Đá bảo vệ, 3 Đá ngũ sắc'),
 (35, 'Con đường rắn độc', 'Muốn biết Heart đem ký ức đi đâu, phải hỏi người đã chết.
 Đi Con đường rắn độc cùng bạn, rồi gặp Thượng Đế ở Thần điện.
 Thưởng: 350 triệu SM, 350 triệu TN, 5 Đá nâng cấp 5'),
@@ -189,13 +194,13 @@ Gặp Ôsin, vào phi thuyền (hoặc đi vòng Sa mạc), gặp Babiđây.
 Thưởng: 400 triệu SM, 400 triệu TN, 50 Đậu thần cấp 8'),
 (37, 'Mabư', 'Tầng cuối phi thuyền không phải kho, nó là cái bụng.
 Hạ Mabư, lấy Lõi Phép Babiđây mang tới Kibit ở Thánh địa Kaio.
-Thưởng: 450 triệu SM, 450 triệu TN, 1 Bông tai Porata'),
+Thưởng: 450 triệu SM, 450 triệu TN, 5 Đá bảo vệ, 5 Đá ngũ sắc'),
 (38, 'Black Goku', 'Một kẻ mang khuôn mặt quen thuộc đang xóa sạch Tương lai.
 Hạ boss Black Goku ở Tương lai, nhặt nhẫn về cho Bunma.
 Thưởng: 550 triệu SM, 550 triệu TN, 2 Sao pha lê lục'),
 (39, 'Cái giá của ký ức', 'Bardock thấy trước cái chết của ngươi và chọn đổi chỗ cho ngươi.
 Gom 7 viên Ngọc Rồng, ước, rồi hạ Baby ở Làng Kakarot.
-Thưởng: 1 tỷ SM, 1 tỷ TN, 1 Bông tai Porata, 50 Đậu thần cấp 8'),
+Thưởng: 1 tỷ SM, 1 tỷ TN, 10 Đá bảo vệ, 50 Đậu thần cấp 8'),
 (40, 'Tổ Sư Kaio', 'Lõi Hư Không không phải vũ khí, nó là nơi chứa.
 Lên Thánh địa Kaio, trao Mảnh Ký Ức 1 cho Tổ Sư Kaio.
 Thưởng: 550 triệu SM, 550 triệu TN, 150 Mảnh áo, 50 Đậu thần cấp 8'),
@@ -296,9 +301,9 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (11, 'Thu hoạch 5 hạt đậu', 5, 'Về nhà hái đậu thần trên cây', 4, -2, 36),  -- TASK_11_0 = 22528  B7   Thu hoạch 5 hạt đậu
 (11, 'Gieo Hạt Giống Hy Vọng', 1, 'Dùng Hạt Giống Hy Vọng khi đang ở nhà', 4, -2, 37),  -- TASK_11_1 = 22530  A12  Gieo Hạt Giống Hy Vọng
 (11, 'Khoe cây mới với %2', 1, 'Cây đã khỏe lại. Khoe với %2 thôi', -2, -2, 38),  -- TASK_11_2 = 22532  A3   Khoe cây mới với %2
-(12, 'Nở trứng nhận đệ tử', 1, 'Chạm vào Quả trứng ở nhà, chọn Nở trứng', 50, -2, 39),  -- TASK_12_0 = 24576  B8   Nở trứng nhận đệ tử
-(12, 'Cùng đệ tử hạ 25 quái mẹ', 25, 'Dẫn đệ tử đi hạ %14 ở %15; quái mẹ loại nào cũng tính', -1, -11, 40),  -- TASK_12_1 = 24578  A1   Cùng đệ tử hạ 25 quái mẹ
-(12, 'Dẫn đệ tử gặp %2', 1, 'Về nhà giới thiệu đệ tử với %2', -2, -2, 41),  -- TASK_12_2 = 24580  A3   Dẫn đệ tử gặp %2
+(12, 'Gặp Jaco ở Trạm tàu vũ trụ', 1, 'Jaco đợi ở Trạm tàu vũ trụ hành tinh ngươi, hắn muốn đi cùng ngươi', 63, -6, 39),  -- TASK_12_0 = 24576  A3   Gặp Jaco ở Trạm tàu vũ trụ (doc 43: thay bước đệ tử)
+(12, 'Cùng Jaco hạ 25 quái mẹ', 25, 'Jaco đi tuần cùng ngươi: %14 ở %15; quái mẹ loại nào, map nào cũng tính', -1, -11, 40),  -- TASK_12_1 = 24578  A1   Cùng Jaco hạ 25 quái mẹ
+(12, 'Đưa Jaco về gặp %2', 1, 'Về nhà giới thiệu Jaco với %2', -2, -2, 41),  -- TASK_12_2 = 24580  A3   Đưa Jaco về gặp %2
 (13, 'Gia nhập 1 bang hội', 1, 'Tạo bang hoặc xin vào một bang hội', -1, -1, 42),  -- TASK_13_0 = 26624  A10  Gia nhập 1 bang hội
 (13, 'Cùng bạn bang hạ 30 quái mẹ', 30, 'Quái mẹ ở %15. Cần 1 bạn cùng bang cùng khu; từ 3 người mỗi con tính 2', -1, -11, 43),  -- TASK_13_1 = 26626  B13  Cùng bạn bang hạ 30 quái mẹ
 (13, 'Gặp Giu-ma Đầu Bò', 1, 'Giu-ma Đầu Bò ở Lãnh địa Bang Hội', 47, 153, 44),  -- TASK_13_2 = 26628  A3   Gặp Giu-ma Đầu Bò
@@ -596,7 +601,7 @@ INSERT INTO `task_main_reward`
 (11, 0, -1, 14000, 14000, 0, 0, 0, '[[2013,1,[]]]', 'Thưởng 14.000 sức mạnh. Thưởng 14.000 tiềm năng. Thưởng 1 Hạt Giống Hy Vọng'),
 (11, 1, -1, 14000, 14000, 0, 0, 0, '[]', 'Thưởng 14.000 sức mạnh. Thưởng 14.000 tiềm năng'),
 (11, 2, -1, 14000, 14000, 0, 0, 0, '[]', 'Thưởng 14.000 sức mạnh. Thưởng 14.000 tiềm năng'),
-(12, -1, -1, 200000, 200000, 0, 0, 0, '[[401,1,[]],[402,1,[]]]', 'Thưởng 200.000 sức mạnh. Thưởng 200.000 tiềm năng. Thưởng 1 Đổi đệ tử, 1 Nâng kỹ năng 1 đệ tử'),
+(12, -1, -1, 200000, 200000, 0, 0, 0, '[[295,1,[]],[1074,5,[]]]', 'Thưởng 200.000 sức mạnh. Thưởng 200.000 tiềm năng. Thưởng 1 Gói 30 đậu thần cấp 3, 5 Đá nâng cấp cấp 1'),
 (12, 0, -1, 20000, 20000, 0, 0, 0, '[]', 'Thưởng 20.000 sức mạnh. Thưởng 20.000 tiềm năng'),
 (12, 1, -1, 20000, 20000, 0, 0, 0, '[]', 'Thưởng 20.000 sức mạnh. Thưởng 20.000 tiềm năng'),
 (12, 2, -1, 20000, 20000, 0, 0, 0, '[]', 'Thưởng 20.000 sức mạnh. Thưởng 20.000 tiềm năng'),
@@ -720,7 +725,7 @@ INSERT INTO `task_main_reward`
 (33, 3, -1, 25000000, 25000000, 0, 0, 0, '[]', 'Thưởng 25.000.000 sức mạnh. Thưởng 25.000.000 tiềm năng'),
 (33, 4, -1, 25000000, 25000000, 0, 0, 0, '[]', 'Thưởng 25.000.000 sức mạnh. Thưởng 25.000.000 tiềm năng'),
 (33, 5, -1, 25000000, 25000000, 0, 0, 0, '[]', 'Thưởng 25.000.000 sức mạnh. Thưởng 25.000.000 tiềm năng'),
-(34, -1, -1, 300000000, 300000000, 0, 0, 0, '[[454,1,[]]]', 'Thưởng 300.000.000 sức mạnh. Thưởng 300.000.000 tiềm năng. Thưởng 1 Bông tai Porata'),
+(34, -1, -1, 300000000, 300000000, 0, 0, 0, '[[987,5,[]],[674,3,[]]]', 'Thưởng 300.000.000 sức mạnh. Thưởng 300.000.000 tiềm năng. Thưởng 5 Đá bảo vệ, 3 Đá ngũ sắc'),
 (34, 0, -1, 30000000, 30000000, 0, 0, 0, '[]', 'Thưởng 30.000.000 sức mạnh. Thưởng 30.000.000 tiềm năng'),
 (34, 1, -1, 30000000, 30000000, 0, 0, 0, '[]', 'Thưởng 30.000.000 sức mạnh. Thưởng 30.000.000 tiềm năng'),
 (34, 2, -1, 30000000, 30000000, 0, 0, 0, '[]', 'Thưởng 30.000.000 sức mạnh. Thưởng 30.000.000 tiềm năng'),
@@ -734,12 +739,12 @@ INSERT INTO `task_main_reward`
 (35, 3, -1, 35000000, 35000000, 0, 0, 0, '[]', 'Thưởng 35.000.000 sức mạnh. Thưởng 35.000.000 tiềm năng'),
 (35, 4, -1, 35000000, 35000000, 0, 0, 0, '[]', 'Thưởng 35.000.000 sức mạnh. Thưởng 35.000.000 tiềm năng'),
 (36, -1, -1, 400000000, 400000000, 0, 0, 0, '[[352,50,[]]]', 'Thưởng 400.000.000 sức mạnh. Thưởng 400.000.000 tiềm năng. Thưởng 50 Đậu thần cấp 8'),
-(36, 0, -1, 40000000, 40000000, 0, 0, 0, '[[1795,1,[]]]', 'Thưởng 40.000.000 sức mạnh. Thưởng 40.000.000 tiềm năng. Thưởng 1 Bình hút năng lượng'),
+(36, 0, -1, 40000000, 40000000, 0, 0, 0, '[[352,10,[]]]', 'Thưởng 40.000.000 sức mạnh. Thưởng 40.000.000 tiềm năng. Thưởng 10 Đậu thần cấp 8'),
 (36, 1, -1, 40000000, 40000000, 0, 0, 0, '[]', 'Thưởng 40.000.000 sức mạnh. Thưởng 40.000.000 tiềm năng'),
 (36, 2, -1, 40000000, 40000000, 0, 0, 0, '[]', 'Thưởng 40.000.000 sức mạnh. Thưởng 40.000.000 tiềm năng'),
 (36, 3, -1, 40000000, 40000000, 0, 0, 0, '[]', 'Thưởng 40.000.000 sức mạnh. Thưởng 40.000.000 tiềm năng'),
 (36, 4, -1, 40000000, 40000000, 0, 0, 0, '[]', 'Thưởng 40.000.000 sức mạnh. Thưởng 40.000.000 tiềm năng'),
-(37, -1, -1, 450000000, 450000000, 0, 0, 0, '[[921,1,[]]]', 'Thưởng 450.000.000 sức mạnh. Thưởng 450.000.000 tiềm năng. Thưởng 1 Bông tai Porata'),
+(37, -1, -1, 450000000, 450000000, 0, 0, 0, '[[987,5,[]],[674,5,[]]]', 'Thưởng 450.000.000 sức mạnh. Thưởng 450.000.000 tiềm năng. Thưởng 5 Đá bảo vệ, 5 Đá ngũ sắc'),
 (37, 0, -1, 45000000, 45000000, 0, 0, 0, '[]', 'Thưởng 45.000.000 sức mạnh. Thưởng 45.000.000 tiềm năng'),
 (37, 1, -1, 45000000, 45000000, 0, 0, 0, '[]', 'Thưởng 45.000.000 sức mạnh. Thưởng 45.000.000 tiềm năng'),
 (37, 2, -1, 45000000, 45000000, 0, 0, 0, '[]', 'Thưởng 45.000.000 sức mạnh. Thưởng 45.000.000 tiềm năng'),
@@ -752,7 +757,7 @@ INSERT INTO `task_main_reward`
 (38, 3, -1, 55000000, 55000000, 0, 0, 0, '[]', 'Thưởng 55.000.000 sức mạnh. Thưởng 55.000.000 tiềm năng'),
 (38, 4, -1, 55000000, 55000000, 0, 0, 0, '[]', 'Thưởng 55.000.000 sức mạnh. Thưởng 55.000.000 tiềm năng'),
 (38, 5, -1, 55000000, 55000000, 0, 0, 0, '[]', 'Thưởng 55.000.000 sức mạnh. Thưởng 55.000.000 tiềm năng'),
-(39, -1, -1, 1000000000, 1000000000, 0, 0, 0, '[[1819,1,[]],[352,50,[]]]', 'Thưởng 1.000.000.000 sức mạnh. Thưởng 1.000.000.000 tiềm năng. Thưởng 1 Bông tai Porata, 50 Đậu thần cấp 8'),
+(39, -1, -1, 1000000000, 1000000000, 0, 0, 0, '[[987,10,[]],[352,50,[]]]', 'Thưởng 1.000.000.000 sức mạnh. Thưởng 1.000.000.000 tiềm năng. Thưởng 10 Đá bảo vệ, 50 Đậu thần cấp 8'),
 (39, 0, -1, 100000000, 100000000, 0, 0, 0, '[]', 'Thưởng 100.000.000 sức mạnh. Thưởng 100.000.000 tiềm năng'),
 (39, 1, -1, 100000000, 100000000, 0, 0, 0, '[]', 'Thưởng 100.000.000 sức mạnh. Thưởng 100.000.000 tiềm năng'),
 (39, 2, -1, 100000000, 100000000, 0, 0, 0, '[]', 'Thưởng 100.000.000 sức mạnh. Thưởng 100.000.000 tiềm năng'),
@@ -906,7 +911,7 @@ WHERE r.sub_index >= c.n;
 --     (Lưu ý: dữ liệu ở trên đã COMMIT ở cuối mục (4), nên dù câu kiểm tra nào
 --     lỗi thì dữ liệu nhiệm vụ vẫn đã được lưu.)
 SELECT x.id AS item_id_khong_ton_tai
-FROM (SELECT 0 AS id UNION ALL SELECT 1 AS id UNION ALL SELECT 2 AS id UNION ALL SELECT 6 AS id UNION ALL SELECT 7 AS id UNION ALL SELECT 8 AS id UNION ALL SELECT 12 AS id UNION ALL SELECT 13 AS id UNION ALL SELECT 21 AS id UNION ALL SELECT 22 AS id UNION ALL SELECT 23 AS id UNION ALL SELECT 27 AS id UNION ALL SELECT 28 AS id UNION ALL SELECT 29 AS id UNION ALL SELECT 57 AS id UNION ALL SELECT 58 AS id UNION ALL SELECT 66 AS id UNION ALL SELECT 79 AS id UNION ALL SELECT 87 AS id UNION ALL SELECT 94 AS id UNION ALL SELECT 101 AS id UNION ALL SELECT 108 AS id UNION ALL SELECT 193 AS id UNION ALL SELECT 222 AS id UNION ALL SELECT 223 AS id UNION ALL SELECT 295 AS id UNION ALL SELECT 352 AS id UNION ALL SELECT 401 AS id UNION ALL SELECT 402 AS id UNION ALL SELECT 445 AS id UNION ALL SELECT 446 AS id UNION ALL SELECT 447 AS id UNION ALL SELECT 454 AS id UNION ALL SELECT 611 AS id UNION ALL SELECT 674 AS id UNION ALL SELECT 921 AS id UNION ALL SELECT 987 AS id UNION ALL SELECT 992 AS id UNION ALL SELECT 1066 AS id UNION ALL SELECT 1067 AS id UNION ALL SELECT 1068 AS id UNION ALL SELECT 1069 AS id UNION ALL SELECT 1070 AS id UNION ALL SELECT 1074 AS id UNION ALL SELECT 1075 AS id UNION ALL SELECT 1076 AS id UNION ALL SELECT 1077 AS id UNION ALL SELECT 1078 AS id UNION ALL SELECT 1795 AS id UNION ALL SELECT 1819 AS id UNION ALL SELECT 2000 AS id UNION ALL SELECT 2001 AS id UNION ALL SELECT 2002 AS id UNION ALL SELECT 2003 AS id UNION ALL SELECT 2004 AS id UNION ALL SELECT 2005 AS id UNION ALL SELECT 2006 AS id UNION ALL SELECT 2007 AS id UNION ALL SELECT 2011 AS id UNION ALL SELECT 2012 AS id UNION ALL SELECT 2013 AS id UNION ALL SELECT 2015 AS id UNION ALL SELECT 2020 AS id UNION ALL SELECT 2022 AS id UNION ALL SELECT 2024 AS id UNION ALL SELECT 2030 AS id UNION ALL SELECT 2031 AS id) x
+FROM (SELECT 0 AS id UNION ALL SELECT 1 AS id UNION ALL SELECT 2 AS id UNION ALL SELECT 6 AS id UNION ALL SELECT 7 AS id UNION ALL SELECT 8 AS id UNION ALL SELECT 12 AS id UNION ALL SELECT 13 AS id UNION ALL SELECT 21 AS id UNION ALL SELECT 22 AS id UNION ALL SELECT 23 AS id UNION ALL SELECT 27 AS id UNION ALL SELECT 28 AS id UNION ALL SELECT 29 AS id UNION ALL SELECT 57 AS id UNION ALL SELECT 58 AS id UNION ALL SELECT 66 AS id UNION ALL SELECT 79 AS id UNION ALL SELECT 87 AS id UNION ALL SELECT 94 AS id UNION ALL SELECT 101 AS id UNION ALL SELECT 108 AS id UNION ALL SELECT 193 AS id UNION ALL SELECT 222 AS id UNION ALL SELECT 223 AS id UNION ALL SELECT 295 AS id UNION ALL SELECT 352 AS id UNION ALL SELECT 445 AS id UNION ALL SELECT 446 AS id UNION ALL SELECT 447 AS id UNION ALL SELECT 611 AS id UNION ALL SELECT 674 AS id UNION ALL SELECT 987 AS id UNION ALL SELECT 992 AS id UNION ALL SELECT 1066 AS id UNION ALL SELECT 1067 AS id UNION ALL SELECT 1068 AS id UNION ALL SELECT 1069 AS id UNION ALL SELECT 1070 AS id UNION ALL SELECT 1074 AS id UNION ALL SELECT 1075 AS id UNION ALL SELECT 1076 AS id UNION ALL SELECT 1077 AS id UNION ALL SELECT 1078 AS id UNION ALL SELECT 2000 AS id UNION ALL SELECT 2001 AS id UNION ALL SELECT 2002 AS id UNION ALL SELECT 2003 AS id UNION ALL SELECT 2004 AS id UNION ALL SELECT 2005 AS id UNION ALL SELECT 2006 AS id UNION ALL SELECT 2007 AS id UNION ALL SELECT 2011 AS id UNION ALL SELECT 2012 AS id UNION ALL SELECT 2013 AS id UNION ALL SELECT 2015 AS id UNION ALL SELECT 2020 AS id UNION ALL SELECT 2022 AS id UNION ALL SELECT 2024 AS id UNION ALL SELECT 2030 AS id UNION ALL SELECT 2031 AS id) x
 LEFT JOIN `item_template` it ON it.id = x.id
 WHERE it.id IS NULL;
 

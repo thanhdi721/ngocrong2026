@@ -543,13 +543,11 @@ public class Player implements Runnable {
                             }
                         }
                         TaskService.gI().sendUpdateCountSubTask(this);
-                        // TUYẾN MỚI: ba hàm kiểm định kỳ (vòng update chạy ~1 giây/lần)
+                        // TUYẾN MỚI: hai hàm kiểm định kỳ (doc 43: bỏ B8 "có đệ tử") (vòng update chạy ~1 giây/lần)
                         //   B12 — phát hiện bước có đồng hồ đã hết giờ kể cả khi người chơi đứng im
                         //   B13 — bước "làm cùng người khác" ở map 103 / 143 / 78
-                        //   B8  — chống kẹt bước "có đệ tử" với người đã sẵn có đệ tử
                         TaskService.gI().updateTimedSubTaskTick(this);
                         TaskService.gI().checkDoneTaskTogetherInZone(this);
-                        TaskService.gI().checkDoneTaskHavePet(this);
                         autoSendBadges();
                         BadgesTaskService.updateDoneTask(this);
                         sendTextTimeDaiLyGift();
