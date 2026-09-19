@@ -164,14 +164,56 @@ public abstract class QuestBoss extends Boss {
      * boss thế giới bản gốc. Không sợ bị farm: boss nhiệm vụ chỉ rơi đồ nhiệm vụ,
      * không vàng, không trang bị (xem {@link #reward(Player)}).
      */
+    /**
+     * Sắp xếp các map theo số bản boss CÙNG ID đang đứng (hoặc sắp vào) ở map đó, ít nhất trước.
+     * Các map bằng nhau thì trộn ngẫu nhiên. Đọc danh sách boss qua bản sao để không đụng độ
+     * với luồng khác đang sửa danh sách.
+     */
+    private int[] mapsByFewestInstances(int[] maps) {
+        java.util.Map<Integer, Integer> count = new java.util.HashMap<>();
+        for (int m : maps) {
+            count.put(m, 0);
+        }
+        try {
+            List<Boss> snapshot = new java.util.ArrayList<>(
+                    nro.models.boss.Boss_Manager.BossManager.gI().getBosses());
+            for (Boss b : snapshot) {
+                if (b == null || b == this || b.id != this.id) {
+                    continue;
+                }
+                Zone z = b.zone != null ? b.zone : ((b instanceof QuestBoss) ? ((QuestBoss) b).zoneFinal : null);
+                if (z != null && z.map != null && count.containsKey(z.map.mapId)) {
+                    count.merge(z.map.mapId, 1, Integer::sum);
+                }
+            }
+        } catch (Exception ignored) {
+            // danh sách đang bị sửa ở luồng khác — bỏ qua, dùng thứ tự ngẫu nhiên
+        }
+        List<Integer> list = new java.util.ArrayList<>(count.keySet());
+        java.util.Collections.shuffle(list);
+        list.sort(java.util.Comparator.comparingInt(count::get));
+        int[] out = new int[list.size()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = list.get(i);
+        }
+        return out;
+    }
+
     protected Zone findRandomZone(int level) {
         int[] maps = this.data[safeLevel(level)].getMapJoin();
         if (maps == null || maps.length == 0) {
             return null;
         }
+        // FIX: RẢI ĐỀU các bản boss ra từng map, ưu tiên map đang có ÍT bản cùng loại nhất.
+        // Trước đây mỗi bản bốc ngẫu nhiên 1 map trong mapJoin một cách độc lập. Với boss có
+        // mapJoin trải 3 hành tinh (Kẻ Thu Gom: 4/12/18, Jaco: 27/31/35) và 3 bản, xác suất cả
+        // 3 bản cùng rơi vào map của hành tinh khác là (2/3)^3 ≈ 30% → người chơi hành tinh đó
+        // đi tìm mãi không thấy boss, kẹt nhiệm vụ.
+        int[] order = mapsByFewestInstances(maps);
         // Thử nhiều lượt cho tới khi vớ được khu trống; hết lượt thì thôi, tick sau thử lại.
         for (int attempt = 0; attempt < 30; attempt++) {
-            int mapId = maps[Util.nextInt(0, maps.length - 1)];
+            // 2/3 số lượt đầu chỉ thử map ít bản nhất; sau đó mới mở rộng ra mọi map.
+            int mapId = attempt < 20 ? order[0] : maps[Util.nextInt(0, maps.length - 1)];
             nro.models.map.Map map = nro.models.map.service.MapService.gI().getMapById(mapId);
             if (map == null || map.zones == null || map.zones.isEmpty()) {
                 continue;
@@ -323,6 +365,8 @@ public abstract class QuestBoss extends Boss {
     public void reward(Player plKill) {
         // (1) Luôn báo cho hệ thống nhiệm vụ. Bảng đối chiếu bossId -> bước nhiệm vụ
         //     nằm trong TaskService.checkDoneTaskKillBoss (do nhóm khác cập nhật).
+        //     Hàm đó cũng gọi nro.models.task.QuestDrop.onBossKilled — rơi đồ nhiệm vụ THEO
+        //     BƯỚC (ví dụ Nhẫn thời không 992 cho người đang ở TASK_38_4 khi hạ Black Goku -2103).
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         // (2) Chỉ rơi đồ nhiệm vụ. KHÔNG vàng, KHÔNG trang bị, KHÔNG Ngọc Rồng,
         //     KHÔNG đồ Thần Linh — đồ xịn vẫn chỉ đến từ boss thế giới bản gốc.
@@ -341,8 +385,7 @@ public abstract class QuestBoss extends Boss {
         }
         int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
-        ItemMap itemMap = new ItemMap(this.zone, itemId, 1, x, y, plKill.id);
-        itemMap.options.add(new Item.ItemOption(30, 0)); // Không thể giao dịch
-        Service.gI().dropItemMap(this.zone, itemMap);
+        // doc 42: dùng chung cơ chế QuestDrop — gắn chủ + option 30, chỉ người kết liễu thấy/nhặt.
+        nro.models.task.QuestDrop.dropForPlayer(this.zone, plKill, itemId, 1, x, y);
     }
 }

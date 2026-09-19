@@ -184,6 +184,9 @@ public class Zone {
         udItem();
         udPlayer();
         udNonInteractiveNPC();
+        // doc 42: sinh sẵn vật phẩm nhiệm vụ cho người đang ở đúng bước ở map không có quái
+        // (map 166 — Bản thiết kế bản sao, TASK_29_2). Map khác thoát ngay.
+        nro.models.task.QuestDrop.updateZone(this);
     }
 
     public Zone(Map map, int zoneId, int maxPlayer) {
@@ -307,8 +310,15 @@ public class Zone {
                     && item.playerId != player.id) {
                 continue;
             }
-            // TUYẾN MỚI: ba vật phẩm nhiệm vụ được RẢI SẴN trên map (playerId = -1),
-            // chỉ hiện với người đang đứng đúng bước; người khác không thấy và không nhặt được.
+            // doc 42: vật phẩm nhiệm vụ do bảng QuestDrop sinh ra chỉ hiện với CHỦ NHÂN
+            // (chủ lưu riêng, không mất sau 45 giây như ItemMap.playerId).
+            if (nro.models.task.QuestDrop.isHiddenFor(item, player)) {
+                continue;
+            }
+            // TUYẾN MỚI: ba vật phẩm nhiệm vụ chỉ hiện với người đang đứng đúng bước.
+            // doc 42: không còn "rải sẵn" (Map.initItem chưa từng rải) — nay 2008/2026 rơi từ quái
+            // map 78/110 và 2023 sinh sẵn cho riêng người ở map 166 (QuestDrop); bộ lọc giữ lại
+            // làm lớp chặn thứ hai, chủ nhân luôn đang ở đúng bước khi vật phẩm được sinh ra.
             //   2008 Mảnh Ký Ức 7        — map 78,  TASK_45_1
             //   2026 Mảnh Ký Ức Đóng Băng — map 110, TASK_34_3
             //   2023 Bản thiết kế bản sao — map 166, TASK_29_2
@@ -354,6 +364,12 @@ public class Zone {
                 if (!itemMap.isPickedUp) {
                     if (itemMap.itemTemplate != null) {
                         if (itemMap.itemTemplate.type == 22) {
+                            return;
+                        }
+                        // doc 42: vật phẩm nhiệm vụ (bảng QuestDrop) chỉ chủ nhân nhặt được,
+                        // kể cả sau 45 giây khi ItemMap.update đã xóa playerId.
+                        if (!nro.models.task.QuestDrop.canPick(player, itemMap)) {
+                            Service.gI().sendThongBao(player, "Không thể nhặt vật phẩm nhiệm vụ của người khác");
                             return;
                         }
                         int playerId = Math.abs(itemMap.playerId > 100_000_000 ? 1_000_000_000 - (int) itemMap.playerId : (int) itemMap.playerId);

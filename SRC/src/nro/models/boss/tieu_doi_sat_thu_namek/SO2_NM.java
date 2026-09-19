@@ -31,6 +31,9 @@ public class SO2_NM extends Boss {
 
    @Override
     public void reward(Player plKill) {
+        // FIX: báo hệ thống nhiệm vụ như bản Trái Đất (NV 22 bước 2). Trước đây bản Namek
+        // không gọi nên người chơi hạ Tiểu đội sát thủ Namek không nhận tiến độ.
+        nro.models.services.TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         Service.gI().dropItemMap(this.zone, new ItemMap(zone, 77, Util.nextInt(1, 2), this.location.x + Util.nextInt(-50, 50), this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
         for (int i = 0; i < Util.nextInt(2); i++) {
             Service.gI().dropItemMap(this.zone, new ItemMap(zone, 77, Util.nextInt(1, 3), this.location.x + i * Util.nextInt(-50, 50), this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));

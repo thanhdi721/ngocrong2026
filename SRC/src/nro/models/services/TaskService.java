@@ -1119,6 +1119,13 @@ public class TaskService {
             case BossID.SO_2:
             case BossID.SO_1:
             case BossID.TIEU_DOI_TRUONG:
+            // FIX: tính cả Tiểu đội sát thủ bản Namek — trước đây chỉ bản Trái Đất được tính,
+            // người chơi hạ bản Namek (map 73–77) không nhận tiến độ.
+            case BossID.SO_4_NM:
+            case BossID.SO_3_NM:
+            case BossID.SO_2_NM:
+            case BossID.SO_1_NM:
+            case BossID.TIEU_DOI_TRUONG_NM:
                 doneTask(player, ConstTask.TASK_22_2);
                 break;
             // ---- NV 23: Fide đại ca ---------------------------------------
@@ -1254,16 +1261,34 @@ public class TaskService {
             default:
                 break;
         }
+        // doc 42: rơi vật phẩm nhiệm vụ từ boss (bảng chung nro.models.task.QuestDrop).
+        // Đặt SAU switch: đòn kết liễu vừa đưa người chơi sang bước "nhặt" thì rơi luôn.
+        // Mọi boss (thế giới lẫn QuestBoss) đều gọi hàm này trong reward().
+        nro.models.task.QuestDrop.onBossKilled(player, boss);
     }
 
     // ======================================================================
     // A1 — ĐÁNH QUÁI
+    // RÕ MAP (docs/4-trien-khai/41): mọi bước đánh quái nay TÍNH THEO LOẠI QUÁI Ở BẤT KỲ
+    // MAP NÀO quái đó xuất hiện. Trước đây nhiều bước chỉ đếm ở đúng một map (ví dụ NV 6
+    // bước 0 chỉ đếm Thằn lằn bay ở Rừng xương, đánh ở Rừng nấm không tính) trong khi chữ
+    // không nói gì về map — người chơi không thể biết.
+    // Ràng buộc map CHỈ còn ở các ngoại lệ có lý do, đánh dấu "NGOẠI LỆ GIỮ MAP":
+    //   * TASK_21_1 / TASK_35_2-3 / TASK_43_1-4: đường vòng thay phó bản (doc 32) — phải cày
+    //     đúng cụm map thay thế, quái trong phó bản cộng 2 điểm.
+    //   * TASK_41_1 "vành đai rừng": bước theo VÙNG (map 27–38) — nay MỌI quái trong vùng đều
+    //     tính (trước chỉ 5 loài, Heo da xanh / Heo Xayda / Không tặc… không tính).
+    //   * TASK_36_2: mob 95 dùng chung id với Thỏ con của sự kiện — chỉ tính ở map 165.
     // ======================================================================
     public void checkDoneTaskKillMob(Player player, Mob mob) {
         if (player == null || mob == null || !player.isPl()) {
             return;
         }
         int mapId = (player.zone != null && player.zone.map != null) ? player.zone.map.mapId : -1;
+        // NGOẠI LỆ GIỮ MAP — NV 41 bước 1: mọi quái ở vành đai rừng 27–38 (cả 3 hành tinh).
+        if (isMapVanhDaiRung(mapId)) {
+            doneTask(player, ConstTask.TASK_41_1);
+        }
         switch (mob.tempId) {
             case ConstMob.MOC_NHAN: // 0
                 // doc 39: tuyến gốc — mộc nhân ở map nào cũng tính
@@ -1274,37 +1299,35 @@ public class TaskService {
             case ConstMob.QUY_DAT: // 3
                 // doc 39: bỏ TASK_2_1 / TASK_3_1 ở đây — NV 2 gốc là NHẶT đùi gà (Mob.dropItemTask),
                 // TASK_2_1 là "Báo cáo với ông", TASK_3_1 là nhặt vật thể lạ.
-                if (isMap500(player, mapId)) {
-                    doneTask(player, ConstTask.TASK_4_0);
-                }
+                // doc 41: bỏ ràng buộc map 2/9/16 — có ở đồi 1/8/15, thung lũng 2/9/16, rừng 3/11/17.
+                doneTask(player, ConstTask.TASK_4_0);
                 break;
             case ConstMob.KHUNG_LONG_ME: // 4
             case ConstMob.LON_LOI_ME: // 5
             case ConstMob.QUY_DAT_ME: // 6
-                if (isMap500(player, mapId)) {
-                    doneTask(player, ConstTask.TASK_4_1);
-                }
+                // doc 41: bỏ ràng buộc map 2/9/16 — có ở 2-4 / 9, 11, 12 / 16-18.
+                doneTask(player, ConstTask.TASK_4_1);
                 break;
             case ConstMob.THAN_LAN_BAY: // 7
             case ConstMob.PHI_LONG: // 8
             case ConstMob.QUY_BAY: // 9
-                if (mapId == 4 || mapId == 12 || mapId == 18) {
-                    doneTask(player, ConstTask.TASK_6_0);
-                }
+                // doc 41 (lỗi người chơi báo): trước chỉ đếm ở 4/12/18, đánh ở Rừng nấm 3 /
+                // Thung lũng Maima 11 / Rừng nguyên sinh 17 KHÔNG tính dù cùng loại quái.
+                doneTask(player, ConstTask.TASK_6_0);
                 break;
             case ConstMob.THAN_LAN_ME: // 10
             case ConstMob.PHI_LONG_ME: // 11
             case ConstMob.QUY_BAY_ME: // 12
-                if (mapId == 4 || mapId == 12 || mapId == 18) {
-                    // B12: TASK_7_0 — 10 Vòi Hư Không trong 3 phút
-                    if (isCurrentTask(player, ConstTask.TASK_7_0)) {
-                        if (updateTimedSubTask(player, ConstTask.TASK_7_0)) {
-                            doneTask(player, ConstTask.TASK_7_0);
-                        }
-                        break;
+                // doc 41: bỏ ràng buộc 4/12/18 cho TASK_7_0 / TASK_8_2 (quái mẹ còn ở 27/28,
+                // 31/32, 35/36) — cùng luật với TASK_12_1 vốn đã tính mọi map.
+                // B12: TASK_7_0 — 10 quái mẹ trong 3 phút
+                if (isCurrentTask(player, ConstTask.TASK_7_0)) {
+                    if (updateTimedSubTask(player, ConstTask.TASK_7_0)) {
+                        doneTask(player, ConstTask.TASK_7_0);
                     }
-                    doneTask(player, ConstTask.TASK_8_2);
+                    break;
                 }
+                doneTask(player, ConstTask.TASK_8_2);
                 doneTask(player, ConstTask.TASK_12_1);
                 // B13: TASK_13_1 — cùng bạn CÙNG BANG, >= 3 người thì x2
                 if (isCurrentTask(player, ConstTask.TASK_13_1)) {
@@ -1313,108 +1336,67 @@ public class TaskService {
                         addDoneSubTask(player, nSameClan >= 3 ? 2 : 1);
                     }
                 }
-                if (mapId == 27 || mapId == 31 || mapId == 35) {
-                    doneTask(player, ConstTask.TASK_15_0);
-                }
+                // doc 41: bỏ ràng buộc 27/31/35 ("điểm hẹn") — quái mẹ ở đâu cũng tính.
+                doneTask(player, ConstTask.TASK_15_0);
                 break;
             case ConstMob.OC_MUON_HON: // 13
             case ConstMob.OC_SEN: // 14
             case ConstMob.HEO_XAYDA_ME: // 15
-                if (isMapQuyLao(player, mapId)) {
-                    doneTask(player, ConstTask.TASK_9_1);
-                }
+                // doc 41: bỏ ràng buộc map sư phụ 5/13/20 — còn có ở 29/33/37.
+                doneTask(player, ConstTask.TASK_9_1);
                 break;
             case ConstMob.HEO_RUNG: // 16
             case ConstMob.HEO_DA_XANH: // 17
             case ConstMob.HEO_XAYDA: // 18
-                if (mapId == 27 || mapId == 31 || mapId == 35) {
-                    doneTask(player, ConstTask.TASK_14_2);
-                }
-                if (mob.tempId == ConstMob.HEO_RUNG && isMapVanhDaiRung(mapId)) {
-                    doneTask(player, ConstTask.TASK_41_1);
-                }
+                // doc 41: bỏ ràng buộc 27/31/35 — heo còn ở 28/32/36.
+                doneTask(player, ConstTask.TASK_14_2);
                 break;
             case ConstMob.BULON: // 22
-                if (mapId == 30 || mapId == 34 || mapId == 38) {
-                    doneTask(player, ConstTask.TASK_16_2);
-                }
-                if (isMapVanhDaiRung(mapId)) {
-                    doneTask(player, ConstTask.TASK_41_1);
-                }
-                break;
             case ConstMob.UKULELE: // 23
-                if (mapId == 30 || mapId == 34 || mapId == 38) {
-                    doneTask(player, ConstTask.TASK_16_2);
-                }
-                break;
             case ConstMob.QUY_MAP: // 24
-                if (mapId == 30 || mapId == 34 || mapId == 38) {
-                    doneTask(player, ConstTask.TASK_16_2);
-                }
-                if (isMapConDuongRanDoc(mapId)) {
+                // doc 41: bỏ ràng buộc 30/34/38.
+                doneTask(player, ConstTask.TASK_16_2);
+                if (mob.tempId == ConstMob.QUY_MAP && isMapConDuongRanDoc(mapId)) {
                     addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
-                }
-                if (isMapVanhDaiRung(mapId)) {
-                    doneTask(player, ConstTask.TASK_41_1);
                 }
                 break;
             case ConstMob.TAMBOURINE: // 25
             case ConstMob.DRUM: // 26
-                if (mapId == 6 || mapId == 10 || mapId == 19) {
-                    doneTask(player, ConstTask.TASK_18_2);
-                }
-                if (isMapConDuongRanDoc(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
-                }
-                break;
             case ConstMob.AKKUMAN: // 27
-                if (mapId == 6 || mapId == 10 || mapId == 19) {
-                    doneTask(player, ConstTask.TASK_18_2);
+                // doc 41: bỏ ràng buộc 6/10/19.
+                doneTask(player, ConstTask.TASK_18_2);
+                if (mob.tempId != ConstMob.AKKUMAN && isMapConDuongRanDoc(mapId)) {
+                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
                 break;
             case ConstMob.KHONG_TAC: // 31
-                if (mapId == 29 || mapId == 33 || mapId == 37) {
-                    doneTask(player, ConstTask.TASK_16_1);
-                }
-                break;
             case ConstMob.QUY_DAU_TO: // 32
-                if (mapId == 29 || mapId == 33 || mapId == 37) {
-                    doneTask(player, ConstTask.TASK_16_1);
-                }
-                if (isMapVanhDaiRung(mapId)) {
-                    doneTask(player, ConstTask.TASK_41_1);
-                }
-                break;
             case ConstMob.QUY_DIA_NGUC: // 33
-                if (mapId == 29 || mapId == 33 || mapId == 37) {
-                    doneTask(player, ConstTask.TASK_16_1);
-                }
-                if (isMapConDuongRanDoc(mapId)) {
+                // doc 41: bỏ ràng buộc 29/33/37 — còn có ở 30/34/38.
+                doneTask(player, ConstTask.TASK_16_1);
+                if (mob.tempId == ConstMob.QUY_DIA_NGUC && isMapConDuongRanDoc(mapId)) {
                     addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
-                }
-                if (isMapVanhDaiRung(mapId)) {
-                    doneTask(player, ConstTask.TASK_41_1);
                 }
                 break;
             case ConstMob.NAPPA: // 39
-                if (mapId == 68 || mapId == 69 || mapId == 70) {
-                    doneTask(player, ConstTask.TASK_19_1);
-                }
+                // doc 41: bỏ ràng buộc 68/69/70.
+                doneTask(player, ConstTask.TASK_19_1);
                 break;
             case ConstMob.SOLDIER: // 40
-                if (mapId == 69 || mapId == 70) {
-                    doneTask(player, ConstTask.TASK_19_2);
-                }
+                // doc 41: bỏ ràng buộc 69/70.
+                doneTask(player, ConstTask.TASK_19_2);
                 break;
             case ConstMob.APPULE: // 41
-                // B13: TASK_19_3 — cùng người khác (KHÔNG cần cùng bang), x2 tiến độ
-                if ((mapId == 71 || mapId == 72) && isCurrentTask(player, ConstTask.TASK_19_3)) {
+                // B13: TASK_19_3 — cùng người khác (KHÔNG cần cùng bang), x2 tiến độ.
+                // doc 41: bỏ ràng buộc 71/72 — Appule còn ở 70 Núi Appule.
+                if (isCurrentTask(player, ConstTask.TASK_19_3)) {
                     if (countPlayerInZone(player, false) >= NMEMBER_DO_TASK_TOGETHER) {
                         addDoneSubTask(player, 2);
                     }
                 }
                 break;
             // ---- ĐƯỜNG VÒNG NV 21: quái tuần tra cụm Trại lính Fide (63–67) ----
+            // NGOẠI LỆ GIỮ MAP: đường vòng thay phó bản Doanh trại, phải cày đúng cụm này.
             case ConstMob.THAN_LAN_XANH: // 43
             case ConstMob.QUY_DAU_NHON: // 44
             case ConstMob.QUY_DAU_VANG: // 45
@@ -1441,9 +1423,8 @@ public class TaskService {
                 if (isMapConDuongRanDoc(mapId)) {
                     addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
-                if (mapId == 126) {
-                    doneTask(player, ConstTask.TASK_37_2);
-                }
+                // doc 41: bỏ ràng buộc map 126 — Quỷ chim còn ở 76/77/81/82 (Xayda) …
+                doneTask(player, ConstTask.TASK_37_2);
                 // ĐƯỜNG VÒNG NV 35
                 if (isMapRanDocNgoai(mapId)) {
                     addRanDocNgoaiProgress(player);
@@ -1451,74 +1432,60 @@ public class TaskService {
                 break;
             case ConstMob.KHI_LONG_DEN: // 54
             case ConstMob.KHI_GIAP_SAT: // 55
-                if (mapId == 81 || mapId == 82 || mapId == 83) {
-                    doneTask(player, ConstTask.TASK_22_1);
-                }
+                // doc 41: bỏ ràng buộc 81/82/83.
+                doneTask(player, ConstTask.TASK_22_1);
                 break;
             case ConstMob.KHI_LONG_VANG: // 57
-                if (mapId == 80) {
-                    // B12: TASK_23_2 — 25 Khỉ lông vàng trong 5 phút
-                    if (isCurrentTask(player, ConstTask.TASK_23_2)) {
-                        if (updateTimedSubTask(player, ConstTask.TASK_23_2)) {
-                            doneTask(player, ConstTask.TASK_23_2);
-                        }
-                        break;
+                // doc 41: bỏ ràng buộc map 80.
+                // B12: TASK_23_2 — 25 Khỉ lông vàng trong 5 phút
+                if (isCurrentTask(player, ConstTask.TASK_23_2)) {
+                    if (updateTimedSubTask(player, ConstTask.TASK_23_2)) {
+                        doneTask(player, ConstTask.TASK_23_2);
                     }
-                    doneTask(player, ConstTask.TASK_39_4);
+                    break;
                 }
+                doneTask(player, ConstTask.TASK_39_4);
                 break;
             case ConstMob.XEN_CON_CAP_1: // 58
             case ConstMob.XEN_CON_CAP_2: // 59
-                if (mapId == 92 || mapId == 93) {
-                    doneTask(player, ConstTask.TASK_24_2);
-                }
+                doneTask(player, ConstTask.TASK_24_2);
                 break;
             case ConstMob.XEN_CON_CAP_3: // 60
             case ConstMob.XEN_CON_CAP_4: // 61
-                // map 95 là MAP_OFFLINE — không dùng
-                if (mapId == 94 || mapId == 96) {
-                    doneTask(player, ConstTask.TASK_24_3);
-                }
+                doneTask(player, ConstTask.TASK_24_3);
                 break;
             case ConstMob.XEN_CON_CAP_5: // 62
             case ConstMob.XEN_CON_CAP_6: // 63
             case ConstMob.XEN_CON_CAP_7: // 64
-                if (mapId == 97 || mapId == 98 || mapId == 99) {
-                    doneTask(player, ConstTask.TASK_28_1);
-                }
-                if (mapId >= 97 && mapId <= 100) {
-                    doneTask(player, ConstTask.TASK_38_1);
-                }
+                doneTask(player, ConstTask.TASK_28_1);
+                doneTask(player, ConstTask.TASK_38_1);
                 break;
             case ConstMob.XEN_CON_CAP_8: // 65
-                if (mapId == 100) {
-                    doneTask(player, ConstTask.TASK_30_1);
-                    doneTask(player, ConstTask.TASK_38_1);
-                }
+                doneTask(player, ConstTask.TASK_30_1);
+                doneTask(player, ConstTask.TASK_38_1);
                 break;
             case ConstMob.TAI_TIM: // 66
             case ConstMob.ABO: // 67
-                if (mapId == 105 || mapId == 106 || mapId == 107) {
-                    doneTask(player, ConstTask.TASK_34_1);
-                }
+                // doc 41: bỏ ràng buộc 105/106/107.
+                doneTask(player, ConstTask.TASK_34_1);
                 break;
             case ConstMob.KADO: // 68
+                // doc 41: bỏ ràng buộc 108/109 — Kado còn ở 110 Hang băng.
                 // B12: TASK_34_2 — 20 Kado trong 5 phút
-                if ((mapId == 108 || mapId == 109) && isCurrentTask(player, ConstTask.TASK_34_2)) {
+                if (isCurrentTask(player, ConstTask.TASK_34_2)) {
                     if (updateTimedSubTask(player, ConstTask.TASK_34_2)) {
                         doneTask(player, ConstTask.TASK_34_2);
                     }
                 }
                 break;
-            case ConstMob.HIRUDEGARN: // 70 — đường vòng 24/7 của NV 37 bước 1
-                if (mapId == 126) {
-                    doneTask(player, ConstTask.TASK_37_1);
-                }
+            case ConstMob.HIRUDEGARN: // 70 — đường vòng 24/7 của NV 37 bước 1 (chỉ có ở 126)
+                doneTask(player, ConstTask.TASK_37_1);
                 break;
             case ConstMob.KAWAZU: // 73
             case ConstMob.KINKARN: // 74
             case ConstMob.ARBEE: // 75
             case ConstMob.CO_MAY_HUY_DIET: // 76
+                // NGOẠI LỆ GIỮ MAP: quái trong phó bản Khí gas (147/149/151/152) cộng 2 điểm.
                 if (mapId == 147 || mapId == 149 || mapId == 151 || mapId == 152) {
                     // max_count nâng 80 -> 160 cho đường vòng => quái trong phó bản
                     // cộng 2 điểm, giữ nguyên "80 con" của người đi phó bản.
@@ -1527,30 +1494,30 @@ public class TaskService {
                 break;
             case ConstMob.KHI_LONG_XANH: // 78
             case ConstMob.TABURINE_DO: // 79
-                // B12: TASK_42_2 — 60 lồng giam trong 10 phút
-                if (mapId == 155 && isCurrentTask(player, ConstTask.TASK_42_2)) {
+                // B12: TASK_42_2 — 60 lồng giam trong 10 phút (hai loài này chỉ có ở 155)
+                if (isCurrentTask(player, ConstTask.TASK_42_2)) {
                     if (updateTimedSubTask(player, ConstTask.TASK_42_2)) {
                         doneTask(player, ConstTask.TASK_42_2);
                     }
                     break;
                 }
-                // ĐƯỜNG VÒNG NV 43 — Hành tinh ngục tù
+                // ĐƯỜNG VÒNG NV 43 — Hành tinh ngục tù (NGOẠI LỆ GIỮ MAP)
                 if (isMapKhiGasNgoai(mapId)) {
                     addKhiGasNgoaiProgress(player);
                 }
                 break;
             case ConstMob.CABIRA: // 80
             case ConstMob.TOBI: // 81
-                if (mapId == 160 || mapId == 161 || mapId == 162) {
-                    doneTask(player, ConstTask.TASK_32_3);
-                }
-                // ĐƯỜNG VÒNG NV 43 — Hành tinh thực vật (160/161)
+                // doc 41: bỏ ràng buộc 160/161/162 — còn ở 163 Làng Plant nguyên thủy.
+                doneTask(player, ConstTask.TASK_32_3);
+                // ĐƯỜNG VÒNG NV 43 — Hành tinh thực vật (160/161) (NGOẠI LỆ GIỮ MAP)
                 if (isMapKhiGasNgoai(mapId)) {
                     addKhiGasNgoaiProgress(player);
                 }
                 break;
             case ConstMob.THO_CON: // 95 — doc 27 gọi là "Cadic M" ở map 165
             case ConstMob.CADIC_M: // 118
+                // NGOẠI LỆ GIỮ MAP: id 95 dùng chung với Thỏ con của sự kiện.
                 if (mapId == 165) {
                     doneTask(player, ConstTask.TASK_36_2);
                 }
@@ -2301,6 +2268,49 @@ public class TaskService {
      * Trao một mục vật phẩm. Hai id đặc biệt 2030 / 2031 là DANH HIỆU TYPE 36 —
      * KHÔNG addItemBag mà trao qua BadgesData + turnOnBadges.
      */
+    /**
+     * Gắn chỉ số mặc định cho vật phẩm thưởng — đúng như cách game tạo ra món đó ở nơi khác:
+     * <ul>
+     * <li>Đậu thần: option hồi phục giống hệt cây đậu thần tạo khi thu hoạch
+     * ({@code MagicTree.addPeaHarvest}). Không có option này thì ăn đậu hồi 0 máu.</li>
+     * <li>Sao pha lê 441–447: option giống quái rơi ra ({@code Util.spl}).</li>
+     * <li>Còn lại: chỉ số của món đó trong shop ({@code ItemService.getListOptionItemShop}) —
+     * cùng nguồn mà lệnh admin tặng đồ đang dùng. Sao chép từng option (tạo đối tượng mới)
+     * để sau này nâng cấp món đồ không sửa lây sang bản mẫu trong shop.</li>
+     * </ul>
+     */
+    private void applyDefaultOptions(Item item) {
+        if (item == null || item.template == null) {
+            return;
+        }
+        int tempId = item.template.id;
+        // đậu thần — theo MagicTree
+        for (int i = 0; i < nro.models.npc.MagicTree.PEA_TEMP.length; i++) {
+            if (nro.models.npc.MagicTree.PEA_TEMP[i] == tempId) {
+                item.itemOptions.add(new Item.ItemOption(i > 1 ? 2 : 48, nro.models.npc.MagicTree.PEA_PARAM[i]));
+                return;
+            }
+        }
+        // sao pha lê — theo Util.spl
+        switch (tempId) {
+            case 441 -> { item.itemOptions.add(new Item.ItemOption(95, 5)); return; }
+            case 442 -> { item.itemOptions.add(new Item.ItemOption(96, 5)); return; }
+            case 443 -> { item.itemOptions.add(new Item.ItemOption(97, 5)); return; }
+            case 444 -> { item.itemOptions.add(new Item.ItemOption(99, 3)); return; }
+            case 445 -> { item.itemOptions.add(new Item.ItemOption(98, 3)); return; }
+            case 446 -> { item.itemOptions.add(new Item.ItemOption(100, 5)); return; }
+            case 447 -> { item.itemOptions.add(new Item.ItemOption(101, 5)); return; }
+            default -> {
+            }
+        }
+        // còn lại — chỉ số trong shop
+        for (Item.ItemOption io : ItemService.gI().getListOptionItemShop((short) tempId)) {
+            if (io != null && io.optionTemplate != null) {
+                item.itemOptions.add(new Item.ItemOption(io.optionTemplate.id, io.param));
+            }
+        }
+    }
+
     private boolean giveRewardItem(Player player, TaskMainReward.RewardItem ri) {
         if (ri == null) {
             return false;
@@ -2330,6 +2340,12 @@ public class TaskService {
                 for (int[] opt : ri.options) {
                     item.itemOptions.add(new Item.ItemOption(opt[0], opt[1]));
                 }
+            } else {
+                // FIX: dòng thưởng không ghi option thì phải gắn CHỈ SỐ MẶC ĐỊNH của vật phẩm.
+                // Trước đây createNewItem trả về item trống trơn → Rada cấp 2 không có
+                // "Chí mạng +2%", áo/quần/găng/giày không có giáp/HP/tấn công/KI,
+                // và nặng nhất: đậu thần KHÔNG có option hồi phục nên ăn vào hồi 0 máu.
+                applyDefaultOptions(item);
             }
             return InventoryService.gI().addItemBag(player, item);
         } catch (Exception e) {
@@ -2425,6 +2441,26 @@ public class TaskService {
             return player.gender == ConstPlayer.TRAI_DAT
                     ? 5 : (player.gender == ConstPlayer.NAMEC
                             ? 13 : 20);
+        } else if (id == ConstTask.MAP_RUNG_XUONG) {
+            // RÕ MAP (doc 41): Kẻ Thu Gom, quái mẹ chương 1 — 4 / 12 / 18
+            return player.gender == ConstPlayer.TRAI_DAT
+                    ? 4 : (player.gender == ConstPlayer.NAMEC
+                            ? 12 : 18);
+        } else if (id == ConstTask.MAP_RUNG_BAMBOO) {
+            // RÕ MAP (doc 41): heo chở hàng, điểm hẹn Jaco, Broly — 27 / 31 / 35
+            return player.gender == ConstPlayer.TRAI_DAT
+                    ? 27 : (player.gender == ConstPlayer.NAMEC
+                            ? 31 : 35);
+        } else if (id == ConstTask.MAP_PHIA_NAM) {
+            // RÕ MAP (doc 41): NV 16 vùng phía Nam — 29 / 33 / 37
+            return player.gender == ConstPlayer.TRAI_DAT
+                    ? 29 : (player.gender == ConstPlayer.NAMEC
+                            ? 33 : 37);
+        } else if (id == ConstTask.MAP_BO_BIEN) {
+            // RÕ MAP (doc 41): NV 16 vùng ven biển — 30 / 34 / 38
+            return player.gender == ConstPlayer.TRAI_DAT
+                    ? 30 : (player.gender == ConstPlayer.NAMEC
+                            ? 34 : 38);
         }
         return id;
     }
@@ -2451,12 +2487,37 @@ public class TaskService {
     }
 
     private String transformName(Player player, String text) {
-        text = text.replaceAll(ConstTask.TEN_QUAI_1000, player.gender == ConstPlayer.XAYDA
-                ? "thằn lằn mẹ" : (player.gender == ConstPlayer.TRAI_DAT
+        // RÕ MAP (doc 41): %15–%20 PHẢI thay trước %1 / %2 (replaceAll "%1" sẽ ăn mất
+        // chữ số đầu của "%15"). Thứ tự: số lớn trước.
+        text = text.replaceAll(ConstTask.TEN_QUAI_BO_BIEN, player.gender == ConstPlayer.TRAI_DAT
+                ? "bulon" : (player.gender == ConstPlayer.NAMEC
+                        ? "ukulele" : "quỷ mập"));
+        text = text.replaceAll(ConstTask.TEN_QUAI_PHIA_NAM, player.gender == ConstPlayer.TRAI_DAT
+                ? "không tặc" : (player.gender == ConstPlayer.NAMEC
+                        ? "quỷ đầu to" : "quỷ địa ngục"));
+        text = text.replaceAll(ConstTask.TEN_MAP_BO_BIEN, player.gender == ConstPlayer.TRAI_DAT
+                ? "Đảo Bulông" : (player.gender == ConstPlayer.NAMEC
+                        ? "Đông Nam Guru" : "Bờ vực đen"));
+        text = text.replaceAll(ConstTask.TEN_MAP_PHIA_NAM, player.gender == ConstPlayer.TRAI_DAT
+                ? "Nam Kamê" : (player.gender == ConstPlayer.NAMEC
+                        ? "Nam Guru" : "Thung lũng đen"));
+        text = text.replaceAll(ConstTask.TEN_MAP_RUNG_BAMBOO, player.gender == ConstPlayer.TRAI_DAT
+                ? "Rừng Bamboo" : (player.gender == ConstPlayer.NAMEC
+                        ? "Núi hoa vàng" : "Rừng cọ"));
+        text = text.replaceAll(ConstTask.TEN_MAP_RUNG_XUONG, player.gender == ConstPlayer.TRAI_DAT
+                ? "Rừng xương" : (player.gender == ConstPlayer.NAMEC
+                        ? "Vực maima" : "Rừng thông Xayda"));
+        // FIX (doc 41): %14 trước đây xếp nhầm hành tinh (TĐ ra "phi long mẹ", XD ra
+        // "thằn lằn mẹ"). Đúng theo map_template: Rừng xương (4) có Thằn lằn mẹ (mob 10),
+        // Vực maima (12) có Phi long mẹ (11), Rừng thông Xayda (18) có Quỷ bay mẹ (12).
+        text = text.replaceAll(ConstTask.TEN_QUAI_1000, player.gender == ConstPlayer.TRAI_DAT
+                ? "thằn lằn mẹ" : (player.gender == ConstPlayer.NAMEC
                         ? "phi long mẹ" : "quỷ bay mẹ"));
+        // FIX (doc 41): %13 Namếc trước đây ra "Thung lũng Namếc" (map 10, không có phi long);
+        // map quái bay của Namếc (placeholder -7) là 11 "Thung lũng Maima".
         text = text.replaceAll(ConstTask.TEN_MAP_600, player.gender == ConstPlayer.TRAI_DAT
                 ? "Rừng nấm" : (player.gender == ConstPlayer.NAMEC
-                        ? "Thung lũng Namếc" : "Rừng nguyên sinh"));
+                        ? "Thung lũng Maima" : "Rừng nguyên sinh"));
         text = text.replaceAll(ConstTask.TEN_NPC_QUY_LAO, player.gender == ConstPlayer.TRAI_DAT
                 ? "Quy Lão Kame" : (player.gender == ConstPlayer.NAMEC
                         ? "Trưởng lão Guru" : "Vua Vegeta"));

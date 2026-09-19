@@ -42,6 +42,10 @@
 --      Tuyến mới dùng -5 cho 2 Thung lũng tre / 9 Thị trấn Moori / 16 Làng Plant
 --      => thêm nhánh trả 2 / 9 / 16.
 --   Không sửa hai chỗ này thì nhiệm vụ vẫn chạy nhưng mũi tên dẫn đường sai.
+--   c) [doc 41 — docs/4-trien-khai/41-ro-map-va-boss-nhiem-vu.md] thêm placeholder
+--      map -11..-14 và chữ %15..%20; bước đánh quái tính ở MỌI map có quái đó.
+--      File này đã chứa chữ + cột map mới của doc 41. Nếu cài mới theo thứ tự
+--      02 -> 05 -> 06 thì 06 sẽ ghi đè lại chữ cũ => PHẢI chạy tiếp 07.
 --
 -- ---------------------------------------------------------------------
 -- NGUYÊN TẮC PHẦN THƯỞNG (quyết định của chủ dự án — 22 §0)
@@ -69,7 +73,7 @@ DELETE FROM `task_main_template`;
 
 -- ---------------------------------------------------------------------
 -- (2) 51 NHIỆM VỤ CHÍNH — id 0..47 (tuyến chính) + 48, 49, 50 (nhánh)
---     Cột: id, NAME, detail (varchar 500, placeholder %1..%14)
+--     Cột: id, NAME, detail (varchar 500, placeholder %1..%20 — %15..%20 thêm ở doc 41)
 -- ---------------------------------------------------------------------
 INSERT INTO `task_main_template` (`id`, `NAME`, `detail`) VALUES
 (0, 'Người duy nhất còn nhớ', 'Ngươi tỉnh dậy bên vách núi, trong ngực le lói ánh sáng lạ.
@@ -88,16 +92,16 @@ Thưởng: 5.000 SM, 5.000 TN, 1 bộ đồ vải cấp 1'),
 Dọn bầy %4 ở %6 rồi về kể cho %2.
 Thưởng: 6.000 SM, 6.000 TN, 2 Gói Capsule'),
 (5, 'Ký ức của ông', 'Ký ức bị rút đi luôn để lại một mỏ neo: kỷ vật của ông.
-Tìm kỷ vật rơi từ %9, lau sạch rồi đưa cho %2.
+Hạ %9 ở %13 lấy kỷ vật, lau sạch, đưa cho ông.
 Thưởng: 8.000 SM, 8.000 TN, 1 Rada cấp 2, 10 Đậu thần cấp 1'),
 (6, 'Người thu gom', 'Kẻ áo choàng xám đang hút thứ trong suốt ra khỏi xác thú.
-Hạ %9 trong rừng, diệt Kẻ Thu Gom rồi báo cho %2.
+Hạ %9, diệt boss Kẻ Thu Gom ở %15, báo ông.
 Thưởng: 12.000 SM, 12.000 TN, 1 Gói 30 đậu cấp 3'),
 (7, 'Chạy khỏi vết nứt', 'Vết nứt bắt đầu nuốt cả khu rừng. Không còn thời gian!
-Hạ 10 quái mẹ trong 3 phút, rồi chạy tới Trạm tàu vũ trụ gặp Jaco.
+Hạ 10 quái mẹ ở %15 trong 3 phút, rồi tới trạm tàu.
 Thưởng: 20.000 SM, 20.000 TN, 1 Mảnh Ký Ức 1, 75 Gói Capsule'),
 (8, 'Máy dò ký ức', 'Bunma chế được máy dò ký ức, chỉ còn thiếu vật liệu.
-Gặp Bunma ở Siêu Thị, mua Rada cấp 1, hạ quái mẹ lấy lõi.
+Gặp Bunma ở Siêu Thị, mua Rada cấp 1, hạ quái mẹ ở %15.
 Thưởng: 50.000 SM, 50.000 TN, 1 Máy Dò Ký Ức, 1 Gói 30 đậu cấp 3'),
 (9, 'Chuyến bay đầu tiên', 'Máy dò chỉ về người già nhất hành tinh còn tỉnh táo.
 Bay tới %11, dọn %12 rồi gặp %10.
@@ -109,19 +113,19 @@ Thưởng: 100.000 SM, 100.000 TN, 1 sách đấm lv1'),
 Hái 5 hạt đậu, gieo Hạt Giống Hy Vọng rồi khoe với %2.
 Thưởng: 140.000 SM, 140.000 TN, 1 Gói 30 đậu cấp 3'),
 (12, 'Bạn đồng hành', 'Quả trứng ông để dành cho ai đó bỗng nứt ra.
-Nở trứng nhận đệ tử, cùng nó hạ quái mẹ rồi về gặp %2.
+Nở trứng nhận đệ tử, cùng nó hạ quái mẹ ở %15 rồi về nhà.
 Thưởng: 200.000 SM, 200.000 TN, 1 Đổi đệ tử, 1 Nâng kỹ năng 1 đệ tử'),
 (13, 'Không ai đi một mình', 'Ký ức một người thì dễ lấy, ký ức cả bang thì khó nuốt.
-Vào bang, cùng bạn bang hạ quái mẹ rồi gặp Giu-ma Đầu Bò.
+Vào bang, cùng bang hạ quái mẹ ở %15, gặp Giu-ma Đầu Bò.
 Thưởng: 280.000 SM, 280.000 TN, 2 Gói 30 đậu cấp 3, 2 Đá bảo vệ'),
 (14, 'Chợ đen ký ức', 'Có kẻ đang đóng hộp ký ức đem bán như hàng hóa.
-Gặp Bunma, mua một món ở quầy Uron, chặn đoàn heo chở hàng.
+Gặp Bunma, mua ở quầy Uron, chặn heo chở hàng ở %16.
 Thưởng: 400.000 SM, 400.000 TN, 1 Hộp Ký Ức Bị Đánh Cắp, 10 Đá nâng cấp 1, 3 Đá bảo vệ'),
 (15, 'Người bạn đã quên', 'Chữ trên vận đơn là của Jaco, nhưng Jaco đã quên ngươi.
-Tới điểm hẹn, đánh bại Jaco mất ký ức rồi gặp lại hắn.
+Tới %16, hạ boss Jaco mất ký ức rồi gặp lại hắn.
 Thưởng: 600.000 SM, 600.000 TN, 1 Mảnh Ký Ức 2, 1 Gói 30 đậu cấp 3, 5 Đá nâng cấp 1'),
 (16, 'Dấu vết dẫn về phía Nam', 'Máy dò ký ức rung lên, kim chỉ thẳng về phía Nam.
-Dọn quái phía Nam, nhặt 5 Vỏ đạn khắc dấu rồi về gặp %10.
+Dọn quái %17, %18, nhặt 5 Vỏ đạn, về gặp sư phụ.
 Thưởng: 3 triệu SM, 3 triệu TN, 20 Đá nâng cấp 1'),
 (17, 'Rèn lại vũ khí', 'Bà Hạt Mít bảo vũ khí cũng biết quên, phải rèn lại cho nó nhớ.
 Gặp Bà Hạt Mít, nâng 1 trang bị lên +2 rồi dùng Búa rèn cũ.
@@ -130,7 +134,7 @@ Thưởng: 5 triệu SM, 5 triệu TN, 30 Đá nâng cấp 1, 3 Đá bảo vệ'
 Tìm Tapion, giải vây thành rồi cùng anh tới Thành phố Santa.
 Thưởng: 6 triệu SM, 6 triệu TN, 20 Đá nâng cấp 2'),
 (19, 'Trại lính hoang', 'Trại lính Nappa đã mất trí và tấn công bất cứ ai.
-Gặp Cui, dọn sạch trại lính, rủ thêm một người hạ Appule.
+Gặp Cui ở Thung lũng Nappa, dọn trại lính, rủ bạn hạ Appule.
 Thưởng: 7 triệu SM, 7 triệu TN, 30 Đá nâng cấp 2'),
 (20, 'Kẻ săn tiền thưởng', 'Granola rủ ngươi săn ba tay chân của Fide, không cần giấy phép.
 Chọn phe ở Khu hang động; theo Granola thì hạ 3 tay chân Fide.
@@ -139,16 +143,16 @@ Thưởng: 8 triệu SM, 8 triệu TN, 40 Đá nâng cấp 2'),
 Phá doanh trại cùng bang, hoặc một mình hạ 300 quái Trại lính Fide.
 Thưởng: 9 triệu SM, 9 triệu TN, 20 Đá nâng cấp 3, 2 Bản đồ kho báu'),
 (22, 'Tiểu đội sát thủ', 'Heart mua chuộc Tiểu đội sát thủ để săn người còn ký ức.
-Hạ trọn Tiểu đội sát thủ, lấy Máy đo ký ức đưa cho Tapion.
+Hạ trọn Tiểu đội sát thủ ở Núi khỉ đỏ, lấy máy đo cho Tapion.
 Thưởng: 11 triệu SM, 11 triệu TN, 30 Đá nâng cấp 3'),
 (23, 'Fide đại ca', 'Fide gom ký ức cả một vùng để bán cho Heart.
 Đốt kho tiếp tế ở Núi khỉ vàng, rồi hạ Fide cả ba dạng.
 Thưởng: 16 triệu SM, 16 triệu TN, 50 Đá nâng cấp 3, 5 Đá bảo vệ, 1 Mảnh Ký Ức 3'),
 (24, 'Tín hiệu lạ từ phương Bắc', 'Máy dò bắt được sóng cơ khí phát lại chính ký ức của ngươi.
-Lần theo sóng, dọn Xên con ở phía đông rồi báo Bunma.
+Dọn Xên con ở Thành phố phía đông rồi báo Bunma.
 Thưởng: 80 triệu SM, 80 triệu TN, 20 Đá nâng cấp 4'),
 (25, 'Android đầu tiên', 'Hai cỗ máy đầu tiên của Dr. Myuu vẫn còn nguyên dữ liệu.
-Hạ Android 19 và Dr.Kôrê, mang 3 lõi năng lượng về cho Bunma.
+Hạ Android 19, Dr.Kôrê ở Cao nguyên, mang 3 lõi về cho Bunma.
 Thưởng: 100 triệu SM, 100 triệu TN, 30 Đá nâng cấp 4'),
 (26, 'Kim loại và ký ức', 'Sắt thì quên, pha lê thì nhớ.
 Học Bà Hạt Mít pha lê hóa, ép sao, rồi kể lại cho %10.
@@ -157,7 +161,7 @@ Thưởng: 130 triệu SM, 130 triệu TN, 2 Sao pha lê lục, 3 Đá ngũ sắ
 Hỏi Ca Lích, tới sân sau siêu thị hạ Android 13, 14, 15.
 Thưởng: 150 triệu SM, 150 triệu TN, 40 Đá nâng cấp 4'),
 (28, 'King Kong', 'King Kong không phải máy, nó là sinh vật bị nhồi kim loại vào đầu.
-Dọn Xên con phía bắc, hạ Poc, Pic, King Kong rồi lấy mảnh giáp.
+Dọn Xên con ở Thành phố phía bắc, hạ Poc, Pic, King Kong.
 Thưởng: 180 triệu SM, 180 triệu TN, 20 Đá nâng cấp 5'),
 (29, 'Phòng thí nghiệm Myuu', 'Hệ thống lọc khí trong phòng thí nghiệm chạy mỗi 6 phút.
 Lẻn vào bằng thẻ từ giả, lấy 5 bản thiết kế rồi đối mặt Dr. Myuu.
@@ -169,7 +173,7 @@ Thưởng: 220 triệu SM, 220 triệu TN, 30 Đá nâng cấp 5, 2 Sao pha lê 
 Nghe Potage, chọn số phận bản sao rồi đấu nó ở Võ đài Xên.
 Thưởng: 230 triệu SM, 230 triệu TN, 50 Đá nâng cấp 5, 2 Sao pha lê cam, 1 Mảnh Ký Ức 4'),
 (32, 'Lời cảnh báo của Bardock', 'Nhẫn thời không sai lệch đưa ngươi về hành tinh thực vật cổ xưa.
-Tìm Bardock, dọn hang động, nhặt 3 Mảnh Ký Ức Vỡ cho ông.
+Tìm Bardock ở Khu hang động, dọn quái, nhặt 3 Mảnh Ký Ức Vỡ.
 Thưởng: 200 triệu SM, 200 triệu TN, 30 Đậu thần cấp 8'),
 (33, 'Phá vỡ giới hạn', 'HP gốc của ngươi đã chạm trần, cơ thể không lớn thêm được nữa.
 Gặp Quốc Vương, mở giới hạn sức mạnh, đạt 3 tỷ sức mạnh.
@@ -187,7 +191,7 @@ Thưởng: 400 triệu SM, 400 triệu TN, 50 Đậu thần cấp 8'),
 Hạ Mabư, lấy Lõi Phép Babiđây mang tới Kibit ở Thánh địa Kaio.
 Thưởng: 450 triệu SM, 450 triệu TN, 1 Bông tai Porata'),
 (38, 'Black Goku', 'Một kẻ mang khuôn mặt quen thuộc đang xóa sạch Tương lai.
-Hạ Black Goku cả hai dạng, nhặt nhẫn về cho Bunma.
+Hạ boss Black Goku ở Tương lai, nhặt nhẫn về cho Bunma.
 Thưởng: 550 triệu SM, 550 triệu TN, 2 Sao pha lê lục'),
 (39, 'Cái giá của ký ức', 'Bardock thấy trước cái chết của ngươi và chọn đổi chỗ cho ngươi.
 Gom 7 viên Ngọc Rồng, ước, rồi hạ Baby ở Làng Kakarot.
@@ -196,10 +200,10 @@ Thưởng: 1 tỷ SM, 1 tỷ TN, 1 Bông tai Porata, 50 Đậu thần cấp 8'),
 Lên Thánh địa Kaio, trao Mảnh Ký Ức 1 cho Tổ Sư Kaio.
 Thưởng: 550 triệu SM, 550 triệu TN, 150 Mảnh áo, 50 Đậu thần cấp 8'),
 (41, 'Cơn thịnh nộ Broly', 'Broly phát điên vì bị xóa sạch ký ức.
-Dọn vành đai rừng, hạ Broly rồi hạ tiếp Super Broly.
+Dọn vành đai rừng quanh %16, hạ boss Broly và Super Broly.
 Thưởng: 650 triệu SM, 650 triệu TN, 150 Mảnh quần, 50 Đậu thần cấp 8'),
 (42, 'Hành tinh ngục tù', 'Heart nuôi Cumber bằng ký ức của tù nhân.
-Phá 60 lồng giam trong 10 phút, rồi hạ Cumber cả hai dạng.
+Phá 60 lồng giam ở Hành tinh ngục tù, rồi hạ boss Cumber.
 Thưởng: 750 triệu SM, 750 triệu TN, 150 Mảnh găng tay, 50 Đậu thần cấp 8'),
 (43, 'Khí gas hủy diệt', 'Heart đánh thức Dr Lychee và thả lại khí gas hủy diệt.
 Dọn khí gas cùng bang, hoặc một mình hạ quái ngục tù và thực vật.
@@ -238,6 +242,13 @@ Thưởng: 1,5 tỷ SM, 1,5 tỷ TN, 1 danh hiệu Kẻ Giữ Hư Không, 20 Đ�
 --             -10 MAP_VACH_NUI_LANG (42/43/44*)  — placeholder mới, doc 39
 --             -5 MAP_500 (2/9/16*)  · -6 MAP_TTVT (24/25/26) · -7 MAP_QUAI_BAY_600 (3/11/17)
 --             -8 MAP_LANG (0/7/14)  · -9 MAP_QUY_LAO (5/13/20) · -1 = không chỉ đường
+--             [doc 41] -11 MAP_RUNG_XUONG (4/12/18) · -12 MAP_RUNG_BAMBOO (27/31/35)
+--             [doc 41] -13 MAP_PHIA_NAM (29/33/37) · -14 MAP_BO_BIEN (30/34/38)
+--       chữ:  [doc 41] %15 Rừng xương/Vực maima/Rừng thông Xayda · %16 Rừng Bamboo/Núi hoa vàng/Rừng cọ
+--             %17 Nam Kamê/Nam Guru/Thung lũng đen · %18 Đảo Bulông/Đông Nam Guru/Bờ vực đen
+--             %19 không tặc/quỷ đầu to/quỷ địa ngục · %20 bulon/ukulele/quỷ mập
+--             (%13 Namếc nay = Thung lũng Maima; %14 nay đúng hành tinh: TĐ thằn lằn mẹ,
+--              NM phi long mẹ, XD quỷ bay mẹ) — cần TaskService bản doc 41.
 --       npc:  -2 NPC_NHA (0/2/1) · -3 NPC_TTVT (10/11/12) · -4 NPC_SHOP_LANG (7/8/9)
 --             -5 NPC_QUY_LAO (13/14/15) · -1 = không có NPC
 --       (*) hai dòng đánh dấu cần sửa transformMapId — xem đầu file.
@@ -259,25 +270,25 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (2, 'Hạ %4 lấy 10 đùi gà', 10, 'Lên %3 hạ lũ %4, nhặt đủ 10 đùi gà', -1, -3, 9),  -- TASK_2_0 = 4096   GỐC  nhặt item 73
 (2, 'Đưa đùi gà cho %2', 1, 'Đủ 10 đùi gà rồi. Mang về cho %2 kẻo ông đói', -2, -2, 10),  -- TASK_2_1 = 4098   GỐC  nói chuyện ông, trừ 10 item 73
 (3, 'Cộng điểm tiềm năng', 1, '', -1, -1, 11),  -- TASK_3_0 = 6144   GỐC  cộng điểm tiềm năng
-(3, 'Tìm vật thể lạ rơi xuống', 1, '', -1, -4, 12),  -- TASK_3_1 = 6146   GỐC  nhặt item 78
+(3, 'Tìm đồ lạ ở %5', 1, '', -1, -4, 12),  -- TASK_3_1 = 6146   GỐC  nhặt item 78
 (3, 'Đưa vật lạ cho %2', 1, 'Mang thứ vừa tìm được về cho %2 xem', -2, -2, 13),  -- TASK_3_2 = 6148   GỐC  nói chuyện ông, trừ item 78
-(4, 'Hạ 12 %4', 12, 'Tới %6, hạ 12 %4 đang phát điên', -1, -5, 15),  -- TASK_4_0 = 8192   A1   Hạ 12 %4
-(4, 'Hạ 15 %4 mẹ', 15, 'Hạ 15 %4 mẹ ở %6, chúng cũng biến dạng rồi', -1, -5, 16),  -- TASK_4_1 = 8194   A1   Hạ 15 %4 mẹ
+(4, 'Hạ 12 %4', 12, '%4 có ở %3 và %6. Hạ ở map nào cũng tính', -1, -5, 15),  -- TASK_4_0 = 8192   A1   Hạ 12 %4
+(4, 'Hạ 15 %4 mẹ', 15, '%4 mẹ có ở %6 (và các khu rừng phía sau). Hạ ở map nào cũng tính', -1, -5, 16),  -- TASK_4_1 = 8194   A1   Hạ 15 %4 mẹ
 (4, 'Về kể cho %2', 1, 'Về nhà kể cho %2 chuyện ở %6', -2, -2, 17),  -- TASK_4_2 = 8196   A3   Về kể cho %2
-(5, 'Tìm Kỷ Vật Của Ông', 1, 'Hạ %9 trong rừng, kỷ vật sẽ rơi ra', -1, -7, 18),  -- TASK_5_0 = 10240  A4   Tìm Kỷ Vật Của Ông
+(5, 'Tìm Kỷ Vật Của Ông', 1, 'Hạ %9 ở %13 hoặc %15, kỷ vật sẽ rơi ra', -1, -7, 18),  -- TASK_5_0 = 10240  A4   Tìm Kỷ Vật Của Ông
 (5, 'Lau sạch Kỷ Vật', 1, 'Mở hành trang, dùng Kỷ Vật Của Ông để lau sạch', -1, -1, 19),  -- TASK_5_1 = 10242  A12  Lau sạch Kỷ Vật
 (5, 'Đưa kỷ vật cho %2', 1, 'Mang kỷ vật về nhà đưa cho %2', -2, -2, 20),  -- TASK_5_2 = 10244  A3   Đưa kỷ vật cho %2
-(6, 'Hạ 15 %9', 15, 'Lần theo tiếng rít vào rừng sâu, hạ 15 %9', -1, -1, 21),  -- TASK_6_0 = 12288  A1   Hạ 15 %9
-(6, 'Hạ Kẻ Thu Gom', 1, 'Kẻ Thu Gom đang lảng vảng trong rừng sâu', -1, -1, 22),  -- TASK_6_1 = 12290  A2   Hạ Kẻ Thu Gom
+(6, 'Hạ 15 %9', 15, '%9 có ở %13 và %15. Hạ ở map nào cũng tính', -1, -7, 21),  -- TASK_6_0 = 12288  A1   Hạ 15 %9
+(6, 'Hạ boss Kẻ Thu Gom', 1, 'Boss Kẻ Thu Gom xuất hiện ở %15, hồi sinh 15–30 phút', -1, -11, 22),  -- TASK_6_1 = 12290  A2   Hạ Kẻ Thu Gom
 (6, 'Về báo %2', 1, 'Về nhà báo cho %2 biết chuyện', -2, -2, 23),  -- TASK_6_2 = 12292  A3   Về báo %2
-(7, 'Hạ 10 quái mẹ trong 3 phút', 10, 'Còn 3 phút! Hạ quái mẹ ở rừng sâu, hết giờ phải đếm lại từ đầu', -1, -1, 24),  -- TASK_7_0 = 14336  B12  Hạ 10 quái mẹ trong 3 phút
+(7, 'Hạ 10 quái mẹ trong 3 phút', 10, 'Còn 3 phút! %14 có ở %15; hết giờ phải đếm lại từ đầu', -1, -11, 24),  -- TASK_7_0 = 14336  B12  Hạ 10 quái mẹ trong 3 phút
 (7, 'Chạy tới Trạm tàu vũ trụ', 1, 'Chạy ngay tới Trạm tàu vũ trụ', -3, -6, 25),  -- TASK_7_1 = 14338  A6   Chạy tới Trạm tàu vũ trụ
 (7, 'Gặp Jaco', 1, 'Jaco đang đợi ở Trạm tàu vũ trụ', 63, -6, 26),  -- TASK_7_2 = 14340  A3   Gặp Jaco
 (8, 'Gặp Bunma ở Siêu Thị', 1, 'Bunma đang đợi ở Siêu Thị', 7, 84, 27),  -- TASK_8_0 = 16384  A3   Gặp Bunma ở Siêu Thị
 (8, 'Mua 1 Rada cấp 1', 1, 'Mua 1 Rada cấp 1 ở cửa hàng trong Siêu Thị', -4, 84, 28),  -- TASK_8_1 = 16386  B4   Mua 1 Rada cấp 1
-(8, 'Hạ 25 quái mẹ lấy lõi', 25, 'Hạ thằn lằn mẹ, phi long mẹ hoặc quỷ bay mẹ ở rừng sâu', -1, -1, 29),  -- TASK_8_2 = 16388  A1   Hạ 25 quái mẹ lấy lõi
+(8, 'Hạ 25 quái mẹ lấy lõi', 25, 'Thằn lằn mẹ, phi long mẹ, quỷ bay mẹ đều tính; gần nhất ở %15', -1, -11, 29),  -- TASK_8_2 = 16388  A1   Hạ 25 quái mẹ lấy lõi
 (9, 'Bay tới %11', 1, 'Bay tới %11 tìm sư phụ', -1, -9, 30),  -- TASK_9_0 = 18432  A6   Bay tới %11
-(9, 'Hạ 20 %12', 20, '%12 bám đầy quanh nhà sư phụ. Hạ 20 con', -1, -9, 31),  -- TASK_9_1 = 18434  A1   Hạ 20 %12
+(9, 'Hạ 20 %12', 20, '%12 có ở %11, quanh nhà sư phụ. Hạ 20 con', -1, -9, 31),  -- TASK_9_1 = 18434  A1   Hạ 20 %12
 (9, 'Gặp %10', 1, '%10 đang đợi ngươi', -5, -9, 32),  -- TASK_9_2 = 18436  A3   Gặp %10
 (10, 'Bái %10 làm thầy', 1, 'Nói chuyện với %10 để xin làm đệ tử', -5, -9, 33),  -- TASK_10_0 = 20480  A3   Bái %10 làm thầy
 (10, 'Học chưởng cấp 1', 1, 'Học chưởng cấp 1 từ %10', -5, -9, 34),  -- TASK_10_1 = 20482  B9   Học chưởng cấp 1
@@ -286,21 +297,21 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (11, 'Gieo Hạt Giống Hy Vọng', 1, 'Dùng Hạt Giống Hy Vọng khi đang ở nhà', 4, -2, 37),  -- TASK_11_1 = 22530  A12  Gieo Hạt Giống Hy Vọng
 (11, 'Khoe cây mới với %2', 1, 'Cây đã khỏe lại. Khoe với %2 thôi', -2, -2, 38),  -- TASK_11_2 = 22532  A3   Khoe cây mới với %2
 (12, 'Nở trứng nhận đệ tử', 1, 'Chạm vào Quả trứng ở nhà, chọn Nở trứng', 50, -2, 39),  -- TASK_12_0 = 24576  B8   Nở trứng nhận đệ tử
-(12, 'Cùng đệ tử hạ 25 quái mẹ', 25, 'Dẫn đệ tử đi hạ quái mẹ', -1, -1, 40),  -- TASK_12_1 = 24578  A1   Cùng đệ tử hạ 25 quái mẹ
+(12, 'Cùng đệ tử hạ 25 quái mẹ', 25, 'Dẫn đệ tử đi hạ %14 ở %15; quái mẹ loại nào cũng tính', -1, -11, 40),  -- TASK_12_1 = 24578  A1   Cùng đệ tử hạ 25 quái mẹ
 (12, 'Dẫn đệ tử gặp %2', 1, 'Về nhà giới thiệu đệ tử với %2', -2, -2, 41),  -- TASK_12_2 = 24580  A3   Dẫn đệ tử gặp %2
 (13, 'Gia nhập 1 bang hội', 1, 'Tạo bang hoặc xin vào một bang hội', -1, -1, 42),  -- TASK_13_0 = 26624  A10  Gia nhập 1 bang hội
-(13, 'Cùng bạn bang hạ 30 quái mẹ', 30, 'Cần ít nhất 1 bạn cùng bang ở cùng khu; từ 3 người mỗi con tính 2', -1, -1, 43),  -- TASK_13_1 = 26626  B13  Cùng bạn bang hạ 30 quái mẹ
+(13, 'Cùng bạn bang hạ 30 quái mẹ', 30, 'Quái mẹ ở %15. Cần 1 bạn cùng bang cùng khu; từ 3 người mỗi con tính 2', -1, -11, 43),  -- TASK_13_1 = 26626  B13  Cùng bạn bang hạ 30 quái mẹ
 (13, 'Gặp Giu-ma Đầu Bò', 1, 'Giu-ma Đầu Bò ở Lãnh địa Bang Hội', 47, 153, 44),  -- TASK_13_2 = 26628  A3   Gặp Giu-ma Đầu Bò
 (14, 'Gặp Bunma ở Nhà Bunma', 1, 'Bunma có tin mới, gặp cô ở Nhà Bunma', 37, 102, 45),  -- TASK_14_0 = 28672  A3   Gặp Bunma ở Nhà Bunma
 (14, 'Mua 1 món ở quầy Uron', 1, 'Uron bán hàng ở Siêu Thị. Mua món gì cũng được', 16, 84, 46),  -- TASK_14_1 = 28674  B4   Mua 1 món ở quầy Uron
-(14, 'Hạ 20 heo chở hàng', 20, 'Heo chở hàng đi qua Rừng Bamboo, Núi hoa vàng, Rừng cọ', -1, -1, 47),  -- TASK_14_2 = 28676  A1   Hạ 20 heo chở hàng
-(15, 'Hạ 20 quái mẹ ở điểm hẹn', 20, 'Điểm hẹn ở Rừng Bamboo, Núi hoa vàng hoặc Rừng cọ', -1, -1, 48),  -- TASK_15_0 = 30720  A1   Hạ 20 quái mẹ ở điểm hẹn
-(15, 'Đánh bại Jaco mất ký ức', 1, 'Jaco đã bị xóa ký ức. Đánh gục hắn để hắn tỉnh lại', -1, -1, 49),  -- TASK_15_1 = 30722  A2   Đánh bại Jaco mất ký ức
+(14, 'Hạ 20 heo chở hàng', 20, 'Heo rừng, heo da xanh, heo Xayda đều tính; gần nhất ở %16', -1, -12, 47),  -- TASK_14_2 = 28676  A1   Hạ 20 heo chở hàng
+(15, 'Hạ 20 quái mẹ', 20, 'Điểm hẹn là %16; quái mẹ ở %15 cũng tính', -1, -12, 48),  -- TASK_15_0 = 30720  A1   Hạ 20 quái mẹ ở điểm hẹn
+(15, 'Hạ boss Jaco mất ký ức', 1, 'Boss Jaco ở %16, hạ cả 2 dạng; hồi sinh 15–30 phút', -1, -12, 49),  -- TASK_15_1 = 30722  A2   Đánh bại Jaco mất ký ức
 (15, 'Gặp Jaco ở Trạm tàu vũ trụ', 1, 'Jaco đã tỉnh, hắn đợi ngươi ở Trạm tàu vũ trụ', 63, -6, 50),  -- TASK_15_2 = 30724  A3   Gặp Jaco ở Trạm tàu vũ trụ
-(16, 'Đi về vùng đất phía Nam', 1, 'Tới Nam Kamê, Nam Guru hoặc Thung lũng đen (theo hành tinh)', -1, -1, 51),  -- TASK_16_0 = 32768  A6   Đi về vùng đất phía Nam
-(16, 'Hạ 40 quái chắn đường', 40, 'Hạ Không tặc, Quỷ đầu to hoặc Quỷ địa ngục ở vùng phía Nam', -1, -1, 52),  -- TASK_16_1 = 32770  A1   Hạ 40 quái chắn đường
-(16, 'Hạ 30 quái canh bờ biển', 30, 'Hạ Bulon, Ukulele hoặc Quỷ mập ở vùng ven biển', -1, -1, 53),  -- TASK_16_2 = 32772  A1   Hạ 30 quái canh bờ biển
-(16, 'Nhặt 5 Vỏ đạn khắc dấu', 5, 'Vỏ đạn rơi từ Bulon, Ukulele, Quỷ mập', -1, -1, 54),  -- TASK_16_3 = 32774  A4   Nhặt 5 Vỏ đạn khắc dấu
+(16, 'Tới %17', 1, 'Vùng phía Nam của hành tinh ngươi là %17', -1, -13, 51),  -- TASK_16_0 = 32768  A6   Đi về vùng đất phía Nam
+(16, 'Hạ 40 %19', 40, '%19 có ở %17 và %18; không tặc, quỷ đầu to, quỷ địa ngục đều tính', -1, -13, 52),  -- TASK_16_1 = 32770  A1   Hạ 40 quái chắn đường
+(16, 'Hạ 30 %20', 30, '%20 có ở %18; bulon, ukulele, quỷ mập đều tính', -1, -14, 53),  -- TASK_16_2 = 32772  A1   Hạ 30 quái canh bờ biển
+(16, 'Nhặt 5 Vỏ đạn khắc dấu', 5, 'Vỏ đạn rơi khi hạ %20 ở %18 (bulon, ukulele, quỷ mập đều rơi)', -1, -14, 54),  -- TASK_16_3 = 32774  A4   Nhặt 5 Vỏ đạn khắc dấu
 (16, 'Về gặp %10', 1, 'Mang vỏ đạn về cho %10 xem', -5, -9, 55),  -- TASK_16_4 = 32776  A3   Về gặp %10
 (17, 'Gặp Bà Hạt Mít', 1, 'Bà Hạt Mít đang đợi ở %5', 21, -10, 56),  -- TASK_17_0 = 34816  A3   Gặp Bà Hạt Mít
 (17, 'Nâng 1 trang bị lên +2', 1, 'Nhờ Bà Hạt Mít nâng cấp, nguyên liệu bà đã cho', 21, -10, 57),  -- TASK_17_1 = 34818  B2   Nâng 1 trang bị lên +2
@@ -308,34 +319,34 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (17, 'Về khoe với %10', 1, 'Mang vũ khí mới về khoe với %10', -5, -9, 59),  -- TASK_17_3 = 34822  A3   Về khoe với %10
 (18, 'Tới Thành phố Vegeta', 1, 'Tới Thành phố Vegeta', -1, 19, 60),  -- TASK_18_0 = 36864  A6   Tới Thành phố Vegeta
 (18, 'Gặp người lạ thổi nhạc', 1, 'Người thổi nhạc đứng trong Thành phố Vegeta', 53, 19, 61),  -- TASK_18_1 = 36866  A3   Gặp người lạ thổi nhạc
-(18, 'Hạ 30 quái vây thành', 30, 'Hạ Tambourine, Drum hoặc Akkuman đang vây thành', -1, -1, 62),  -- TASK_18_2 = 36868  A1   Hạ 30 quái vây thành
+(18, 'Hạ 30 quái vây thành', 30, 'Akkuman ở Thành phố Vegeta; Tambourine ở Đông Karin, Drum ở Thung lũng Namếc', -1, 19, 62),  -- TASK_18_2 = 36868  A1   Hạ 30 quái vây thành
 (18, 'Tới Thành phố Santa', 1, 'Tapion đi trước rồi. Theo anh tới Thành phố Santa', -1, 126, 63),  -- TASK_18_3 = 36870  A6   Tới Thành phố Santa
 (18, 'Nghe Tapion kể chuyện', 1, 'Tapion đợi ngươi ở Thành phố Santa', 53, 126, 64),  -- TASK_18_4 = 36872  A3   Nghe Tapion kể chuyện
 (19, 'Gặp Cui ở Thung lũng Nappa', 1, 'Cui đang đợi ở Thung lũng Nappa', 12, 68, 65),  -- TASK_19_0 = 38912  A3   Gặp Cui ở Thung lũng Nappa
 (19, 'Hạ 60 Nappa mất trí', 60, 'Nappa ở Thung lũng Nappa, Vực cấm, Núi Appule', -1, 68, 66),  -- TASK_19_1 = 38914  A1   Hạ 60 Nappa mất trí
 (19, 'Hạ 40 Soldier gác kho', 40, 'Soldier ở Vực cấm và Núi Appule', -1, 69, 67),  -- TASK_19_2 = 38916  A1   Hạ 40 Soldier gác kho
-(19, 'Cùng bạn hạ 30 Appule', 30, 'Appule ở vùng Raspberry. Cần 1 người chơi khác cùng khu, mỗi con tính 2', -1, 71, 68),  -- TASK_19_3 = 38918  B13  Cùng bạn hạ 30 Appule
+(19, 'Cùng bạn hạ 30 Appule', 30, 'Appule ở Núi Appule và vùng Raspberry. Cần 1 người khác cùng khu, mỗi con tính 2', -1, 71, 68),  -- TASK_19_3 = 38918  B13  Cùng bạn hạ 30 Appule
 (19, 'Báo cáo với Cui', 1, 'Về Thung lũng Nappa báo cáo với Cui', 12, 68, 69),  -- TASK_19_4 = 38920  A3   Báo cáo với Cui
 (20, 'Gặp Berry ở Khu hang động', 1, 'Berry đứng ở Khu hang động', 71, 160, 70),  -- TASK_20_0 = 40960  A3   Gặp Berry ở Khu hang động
 (20, 'Chọn: Granola hay Jaco', 1, 'Điểm rẽ nhánh: chọn đi theo Granola hoặc báo Jaco', 71, 160, 71),  -- TASK_20_1 = 40962  B14  Chọn: Granola hay Jaco
 (20, 'Bắt tay với Granola', 1, 'Granola ở ngay Khu hang động', 76, 160, 72),  -- TASK_20_2 = 40964  A3   Bắt tay với Granola
-(20, 'Hạ 3 tay chân của Fide', 3, 'Săn Kuku, Mập Đầu Đinh và Rambo', -1, -1, 73),  -- TASK_20_3 = 40966  A2   Hạ 3 tay chân của Fide
-(20, 'Nhặt 3 Thẻ tiền thưởng', 3, 'Thẻ rơi khi hạ Kuku, Mập Đầu Đinh, Rambo', -1, -1, 74),  -- TASK_20_4 = 40968  A4   Nhặt 3 Thẻ tiền thưởng
+(20, 'Hạ 3 boss tay chân Fide', 3, 'Boss Kuku ở Thung lũng Nappa, Mập Đầu Đinh ở Trại lính Fide, Rambo ở Đồi cây Fide', -1, 68, 73),  -- TASK_20_3 = 40966  A2   Hạ 3 tay chân của Fide
+(20, 'Nhặt 3 Thẻ tiền thưởng', 3, 'Thẻ rơi khi hạ Kuku, Mập Đầu Đinh, Rambo', -1, 68, 74),  -- TASK_20_4 = 40968  A4   Nhặt 3 Thẻ tiền thưởng
 (20, 'Nhận thưởng từ Granola', 1, 'Về Khu hang động nhận tiền từ Granola', 76, 160, 75),  -- TASK_20_5 = 40970  A3   Nhận thưởng từ Granola
 (21, 'Gặp Lính canh ở Rừng Bamboo', 1, 'Lính canh đứng ở Rừng Bamboo', 25, 27, 76),  -- TASK_21_0 = 43008  A3   Gặp Lính canh ở Rừng Bamboo
-(21, 'Phá trại hoặc hạ 300 quái', 300, 'Không có bang? Hạ 300 quái ở Trại lính Fide, Núi dây leo, Núi cây quỷ, Trại quỷ già, Vực chết', -1, 53, 77),  -- TASK_21_1 = 43010  B1   Phá trại hoặc hạ 300 quái
-(21, 'Lấy bản đồ hành quân', 1, 'Lấy từ Độc Nhãn trong doanh trại, hoặc hỏi Lính canh ở Rừng Bamboo', 26, 57, 78),  -- TASK_21_2 = 43012  A3   Lấy bản đồ hành quân
+(21, 'Phá trại hoặc hạ 300 quái', 300, 'Không có bang? Chỉ tính quái ở Trại lính Fide, Núi dây leo, Núi cây quỷ, Trại quỷ già, Vực chết', -1, 63, 77),  -- TASK_21_1 = 43010  B1   Phá trại hoặc hạ 300 quái
+(21, 'Lấy bản đồ hành quân', 1, 'Hỏi Lính canh ở Rừng Bamboo, hoặc Độc Nhãn khi đã phá xong doanh trại', 25, 27, 78),  -- TASK_21_2 = 43012  A3   Lấy bản đồ hành quân
 (21, 'Về gặp %10', 1, 'Mang bản đồ hành quân về cho %10', -5, -9, 79),  -- TASK_21_3 = 43014  A3   Về gặp %10
 (22, 'Hỏi Tapion về máy đo lạ', 1, 'Tapion ở Thành phố Santa', 53, 126, 80),  -- TASK_22_0 = 45056  A3   Hỏi Tapion về máy đo lạ
-(22, 'Hạ 40 lính khỉ canh đường', 40, 'Hạ Khỉ lông đen, Khỉ giáp sắt ở Hang quỷ chim, Núi khỉ đen, Hang khỉ đen', -1, 81, 81),  -- TASK_22_1 = 45058  A1   Hạ 40 lính khỉ canh đường
-(22, 'Hạ 5 tên Tiểu đội sát thủ', 5, 'Tiểu đội sát thủ xuất hiện ở Núi khỉ đỏ', -1, 79, 82),  -- TASK_22_2 = 45060  A2   Hạ 5 tên Tiểu đội sát thủ
+(22, 'Hạ 40 lính khỉ canh đường', 40, 'Khỉ lông đen, Khỉ giáp sắt ở Hang quỷ chim, Núi khỉ đen, Hang khỉ đen', -1, 81, 81),  -- TASK_22_1 = 45058  A1   Hạ 40 lính khỉ canh đường
+(22, 'Hạ 5 boss Tiểu đội sát thủ', 5, 'Boss ở Núi khỉ đỏ, Hang quỷ chim, Núi khỉ đen, Hang khỉ đen; hồi sinh 5 phút', -1, 79, 82),  -- TASK_22_2 = 45060  A2   Hạ 5 tên Tiểu đội sát thủ
 (22, 'Nhặt Máy đo ký ức', 1, 'Máy đo rơi khi hạ tên cuối của tiểu đội', -1, 79, 83),  -- TASK_22_3 = 45062  A4   Nhặt Máy đo ký ức
 (22, 'Đưa máy đo cho Tapion', 1, 'Mang máy đo về Thành phố Santa cho Tapion', 53, 126, 84),  -- TASK_22_4 = 45064  A3   Đưa máy đo cho Tapion
 (23, 'Đạt 80.000.000 sức mạnh', 1, 'Cần 80.000.000 sức mạnh mới đủ sức đấu Fide', -1, -1, 85),  -- TASK_23_0 = 47104  A5   Đạt 80.000.000 sức mạnh
 (23, 'Tới Núi khỉ vàng', 1, 'Tới Núi khỉ vàng', -1, 80, 86),  -- TASK_23_1 = 47106  A6   Tới Núi khỉ vàng
 (23, 'Hạ 25 Khỉ lông vàng, 5 phút', 25, 'Còn 5 phút! Hết giờ phải đếm lại', -1, 80, 87),  -- TASK_23_2 = 47108  B12  Hạ 25 Khỉ lông vàng, 5 phút
-(23, 'Hạ 2 dạng đầu của Fide', 2, 'Fide đại ca xuất hiện ở Núi khỉ vàng', -1, 80, 88),  -- TASK_23_3 = 47110  A2   Hạ 2 dạng đầu của Fide
-(23, 'Hạ Fide dạng cuối', 1, 'Fide biến hình lần cuối, hạ hắn đi', -1, 80, 89),  -- TASK_23_4 = 47112  A2   Hạ Fide dạng cuối
+(23, 'Hạ boss Fide dạng 1 và 2', 2, 'Boss Fide đại ca ở Núi khỉ vàng, hồi sinh 10 phút', -1, 80, 88),  -- TASK_23_3 = 47110  A2   Hạ 2 dạng đầu của Fide
+(23, 'Hạ boss Fide dạng cuối', 1, 'Fide biến hình lần cuối ở Núi khỉ vàng, hạ hắn đi', -1, 80, 89),  -- TASK_23_4 = 47112  A2   Hạ Fide dạng cuối
 (23, 'Về gặp %10', 1, 'Ba hành tinh đã liên minh. Về báo tin cho %10', -5, -9, 90),  -- TASK_23_5 = 47114  A3   Về gặp %10
 (24, 'Gặp Bunma ở Nhà Bunma', 1, 'Bunma đợi ở Nhà Bunma', 37, 102, 91),  -- TASK_24_0 = 49152  A3   Gặp Bunma ở Nhà Bunma
 (24, 'Tới Thành phố phía đông', 1, 'Tới Thành phố phía đông', -1, 92, 92),  -- TASK_24_1 = 49154  A6   Tới Thành phố phía đông
@@ -343,7 +354,7 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (24, 'Hạ 40 Xên con cấp 3-4', 40, 'Xên con cấp 3-4 ở Đảo Balê và Cao nguyên', -1, 94, 94),  -- TASK_24_3 = 49158  A1   Hạ 40 Xên con cấp 3-4
 (24, 'Báo lại cho Bunma', 1, 'Về Nhà Bunma báo lại', 37, 102, 95),  -- TASK_24_4 = 49160  A3   Báo lại cho Bunma
 (25, 'Tới Cao nguyên', 1, 'Hai bác sĩ máy đang ở Cao nguyên', -1, 96, 96),  -- TASK_25_0 = 51200  A6   Tới Cao nguyên
-(25, 'Hạ 2 boss: Android 19, Kôrê', 2, 'Hạ Android 19 rồi Dr.Kôrê ở Cao nguyên', -1, 96, 97),  -- TASK_25_1 = 51202  A2   Hạ 2 boss: Android 19, Kôrê
+(25, 'Hạ 2 boss: Android 19, Kôrê', 2, 'Boss ở Cao nguyên, Đảo Balê, Thành phố phía nam; hồi sinh 10 phút', -1, 96, 97),  -- TASK_25_1 = 51202  A2   Hạ 2 boss: Android 19, Kôrê
 (25, 'Nhặt 3 Lõi năng lượng', 3, 'Lõi rơi khi hạ Android 19 và Dr.Kôrê', -1, 96, 98),  -- TASK_25_2 = 51204  A4   Nhặt 3 Lõi năng lượng
 (25, 'Đưa lõi cho Bunma', 1, 'Mang lõi về Nhà Bunma', 37, 102, 99),  -- TASK_25_3 = 51206  A3   Đưa lõi cho Bunma
 (26, 'Gặp Bà Hạt Mít ở Đảo Kamê', 1, 'Bà Hạt Mít đợi ở Đảo Kamê, nguyên liệu bà cho không', 21, 5, 100),  -- TASK_26_0 = 53248  A3   Gặp Bà Hạt Mít ở Đảo Kamê
@@ -353,11 +364,11 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (26, 'Về kể cho %10', 1, 'Kể cho %10 những gì ngươi nghe được', -5, -9, 104),  -- TASK_26_4 = 53256  A3   Về kể cho %10
 (27, 'Hỏi Ca Lích về container', 1, 'Ca Lích ở Nhà Bunma', 38, 102, 105),  -- TASK_27_0 = 55296  A3   Hỏi Ca Lích về container
 (27, 'Tới Sân sau siêu thị', 1, 'Tới Sân sau siêu thị', -1, 104, 106),  -- TASK_27_1 = 55298  A6   Tới Sân sau siêu thị
-(27, 'Hạ 3 Android 13, 14, 15', 3, 'Ba cỗ máy mẫu đang ở Sân sau siêu thị', -1, 104, 107),  -- TASK_27_2 = 55300  A2   Hạ 3 Android 13, 14, 15
+(27, 'Hạ 3 boss Android 13-14-15', 3, 'Ba boss Android ở Sân sau siêu thị, hồi sinh 10 phút', -1, 104, 107),  -- TASK_27_2 = 55300  A2   Hạ 3 Android 13, 14, 15
 (27, 'Báo cáo với Ca Lích', 1, 'Về Nhà Bunma báo cáo với Ca Lích', 38, 102, 108),  -- TASK_27_3 = 55302  A3   Báo cáo với Ca Lích
 (28, 'Tới Thành phố phía bắc', 1, 'Tới Thành phố phía bắc', -1, 97, 109),  -- TASK_28_0 = 57344  A6   Tới Thành phố phía bắc
 (28, 'Hạ 60 Xên con cấp 5-7', 60, 'Xên con cấp 5-7 ở Thành phố, Ngọn núi, Thung lũng phía bắc', -1, 97, 110),  -- TASK_28_1 = 57346  A1   Hạ 60 Xên con cấp 5-7
-(28, 'Hạ 3 tên Poc, Pic, King Kong', 3, 'Hạ Poc, Pic rồi King Kong ở Thành phố phía bắc', -1, 97, 111),  -- TASK_28_2 = 57348  A2   Hạ 3 tên Poc, Pic, King Kong
+(28, 'Hạ 3 boss Poc/Pic/King Kong', 3, 'Boss ở Thành phố, Ngọn núi, Thung lũng phía bắc; hồi sinh 10 phút', -1, 97, 111),  -- TASK_28_2 = 57348  A2   Hạ 3 tên Poc, Pic, King Kong
 (28, 'Nhặt Mảnh giáp khắc tên', 1, 'Mảnh giáp rơi khi hạ King Kong', -1, 97, 112),  -- TASK_28_3 = 57350  A4   Nhặt Mảnh giáp khắc tên
 (28, 'Đưa mảnh giáp cho Bunma', 1, 'Mang mảnh giáp về Nhà Bunma', 37, 102, 113),  -- TASK_28_4 = 57352  A3   Đưa mảnh giáp cho Bunma
 (29, 'Lấy thẻ từ giả của Bunma', 1, 'Bunma đợi ở Nhà Bunma', 37, 102, 114),  -- TASK_29_0 = 59392  A3   Lấy thẻ từ giả của Bunma
@@ -366,8 +377,8 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (29, 'Đối mặt Dr. Myuu', 1, 'Dr. Myuu đang ở trong phòng thí nghiệm', 83, 166, 117),  -- TASK_29_3 = 59398  A3   Đối mặt Dr. Myuu
 (30, 'Tới Thị trấn Ginder', 1, 'Tới Thị trấn Ginder', -1, 100, 118),  -- TASK_30_0 = 61440  A6   Tới Thị trấn Ginder
 (30, 'Hạ 50 Xên con cấp 8', 50, 'Xên con cấp 8 ở Thị trấn Ginder', -1, 100, 119),  -- TASK_30_1 = 61442  A1   Hạ 50 Xên con cấp 8
-(30, 'Hạ 2 dạng đầu Xên bọ hung', 2, 'Xên bọ hung xuất hiện ở Thị trấn Ginder', -1, 100, 120),  -- TASK_30_2 = 61444  A2   Hạ 2 dạng đầu Xên bọ hung
-(30, 'Hạ Xên hoàn thiện', 1, 'Xên đã hoàn thiện, hạ nó đi', -1, 100, 121),  -- TASK_30_3 = 61446  A2   Hạ Xên hoàn thiện
+(30, 'Hạ boss Xên bọ hung dạng 1-2', 2, 'Boss Xên bọ hung ở Thị trấn Ginder, hồi sinh 15–30 phút', -1, 100, 120),  -- TASK_30_2 = 61444  A2   Hạ 2 dạng đầu Xên bọ hung
+(30, 'Hạ boss Xên hoàn thiện', 1, 'Xên đã hoàn thiện, hạ nó đi', -1, 100, 121),  -- TASK_30_3 = 61446  A2   Hạ Xên hoàn thiện
 (30, 'Báo cho Bunma về mẫu 07', 1, 'Về Nhà Bunma báo tin', 37, 102, 122),  -- TASK_30_4 = 61448  A3   Báo cho Bunma về mẫu 07
 (31, 'Nghe Potage kể sự thật', 1, 'Potage ở Hang động Potaufeu', 62, 140, 123),  -- TASK_31_0 = 63488  A3   Nghe Potage kể sự thật
 (31, 'Chọn số phận bản sao', 1, 'Điểm rẽ nhánh: tiêu diệt hay thu nhận bản sao', 62, 140, 124),  -- TASK_31_1 = 63490  B14  Chọn số phận bản sao
@@ -378,7 +389,7 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (32, 'Gặp Bunma ở Nhà Bunma', 1, 'Bunma có món đồ đưa ngươi, gặp cô ở Nhà Bunma', 37, 102, 129),  -- TASK_32_0 = 65536  A3   Gặp Bunma ở Nhà Bunma
 (32, 'Dùng Nhẫn thời không', 1, 'Mở hành trang, dùng Nhẫn thời không sai lệch', -1, -1, 130),  -- TASK_32_1 = 65538  A12  Dùng Nhẫn thời không
 (32, 'Gặp Bardock', 1, 'Bardock ở Khu hang động', 70, 160, 131),  -- TASK_32_2 = 65540  A3   Gặp Bardock
-(32, 'Hạ 40 Cabira hoặc Tobi', 40, 'Cabira, Tobi ở Khu hang động, Bìa rừng và Rừng nguyên thủy', -1, 160, 132),  -- TASK_32_3 = 65542  A1   Hạ 40 Cabira hoặc Tobi
+(32, 'Hạ 40 Cabira hoặc Tobi', 40, 'Cabira, Tobi ở Khu hang động, Bìa rừng, Rừng nguyên thủy, Làng Plant nguyên thủy', -1, 160, 132),  -- TASK_32_3 = 65542  A1   Hạ 40 Cabira hoặc Tobi
 (32, 'Nhặt 3 Mảnh Ký Ức Vỡ', 3, 'Mảnh vỡ chỉ rơi khi hạ Tobi', -1, 161, 133),  -- TASK_32_4 = 65544  A4   Nhặt 3 Mảnh Ký Ức Vỡ
 (32, 'Báo cáo với Bardock', 1, 'Về Khu hang động gặp Bardock', 70, 160, 134),  -- TASK_32_5 = 65546  A3   Báo cáo với Bardock
 (33, 'Tới %5', 1, 'Quốc Vương đợi ở %5', -1, -10, 135),  -- TASK_33_0 = 67584  A6   Tới %5
@@ -388,60 +399,60 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (33, 'Đạt 3 tỷ sức mạnh', 1, 'Luyện tập đến khi đạt 3 tỷ sức mạnh', -1, -1, 139),  -- TASK_33_4 = 67592  A5   Đạt 3 tỷ sức mạnh
 (33, 'Báo cáo với Quốc Vương', 1, 'Về %5 báo cáo với Quốc Vương', 42, -10, 140),  -- TASK_33_5 = 67594  A3   Báo cáo với Quốc Vương
 (34, 'Tới Cánh đồng tuyết', 1, 'Map lạnh trừ 50% HP nếu không có đồ chống lạnh', -1, 105, 141),  -- TASK_34_0 = 69632  A6   Tới Cánh đồng tuyết
-(34, 'Hạ 50 Tai tím hoặc Abo', 50, 'Tai tím, Abo ở Cánh đồng tuyết, Rừng tuyết, Núi tuyết', -1, 105, 142),  -- TASK_34_1 = 69634  A1   Hạ 50 Tai tím hoặc Abo
-(34, 'Hạ 20 Kado trong 5 phút', 20, 'Còn 5 phút! Kado ở Dòng sông băng, hết giờ phải đếm lại', -1, 108, 143),  -- TASK_34_2 = 69636  B12  Hạ 20 Kado trong 5 phút
+(34, 'Hạ 50 Tai tím hoặc Abo', 50, 'Tai tím, Abo ở Cánh đồng tuyết, Rừng tuyết, Núi tuyết, Dòng sông băng', -1, 105, 142),  -- TASK_34_1 = 69634  A1   Hạ 50 Tai tím hoặc Abo
+(34, 'Hạ 20 Kado trong 5 phút', 20, 'Còn 5 phút! Kado ở Dòng sông băng, Rừng băng, Hang băng; hết giờ phải đếm lại', -1, 108, 143),  -- TASK_34_2 = 69636  B12  Hạ 20 Kado trong 5 phút
 (34, 'Nhặt Mảnh Ký Ức Đóng Băng', 1, 'Mảnh ký ức nằm trong Hang băng', -1, 110, 144),  -- TASK_34_3 = 69638  A4   Nhặt Mảnh Ký Ức Đóng Băng
-(34, 'Hạ Cooler cả 2 dạng', 2, 'Cooler canh giữ Hang băng', -1, 110, 145),  -- TASK_34_4 = 69640  A2   Hạ Cooler cả 2 dạng
+(34, 'Hạ boss Cooler cả 2 dạng', 2, 'Boss Cooler canh giữ Hang băng, hồi sinh 15–30 phút', -1, 110, 145),  -- TASK_34_4 = 69640  A2   Hạ Cooler cả 2 dạng
 (34, 'Báo cáo với Bardock', 1, 'Về Khu hang động gặp Bardock', 70, 160, 146),  -- TASK_34_5 = 69642  A3   Báo cáo với Bardock
 (35, 'Gặp Thần Vũ Trụ', 1, 'Thần Vũ Trụ ở Hành tinh Kaio', 20, 48, 147),  -- TASK_35_0 = 71680  A3   Gặp Thần Vũ Trụ
-(35, 'Rủ 1 người đi cùng', 1, 'Vào Con đường rắn độc cùng bạn bang, hoặc đứng cùng 1 người ở Hang quỷ chim', 20, 143, 148),  -- TASK_35_1 = 71682  B13  Rủ 1 người đi cùng
-(35, 'Tích 120 điểm diệt quái', 120, 'Trong phó bản mỗi quái 2 điểm; ngoài phó bản (map 73-82) mỗi quái 1 điểm', -1, 141, 149),  -- TASK_35_2 = 71684  A1   Tích 120 điểm diệt quái
-(35, 'Qua rắn độc hoặc hạ 200 quái', 200, 'Không có bang? Hạ 200 Dơi da xanh hoặc Quỷ chim ở map 73/74/76/77/81/82', -1, 144, 150),  -- TASK_35_3 = 71686  B1   Qua rắn độc hoặc hạ 200 quái
+(35, 'Rủ 1 người đi cùng', 1, 'Vào Con đường rắn độc cùng bạn bang, hoặc đứng cùng 1 người ở Hang quỷ chim', -1, 81, 148),  -- TASK_35_1 = 71682  B13  Rủ 1 người đi cùng
+(35, 'Tích 120 điểm diệt quái', 120, 'Phó bản: mỗi quái 2 điểm. Ngoài: chỉ Dơi da xanh, Quỷ chim ở map 73/74/76/77/81/82, 1 điểm', -1, 81, 149),  -- TASK_35_2 = 71684  A1   Tích 120 điểm diệt quái
+(35, 'Qua rắn độc hoặc hạ 200 quái', 200, 'Không có bang? Hạ 200 Dơi da xanh hoặc Quỷ chim ở map 73/74/76/77/81/82', -1, 81, 150),  -- TASK_35_3 = 71686  B1   Qua rắn độc hoặc hạ 200 quái
 (35, 'Gặp Thượng Đế ở Thần điện', 1, 'Thượng Đế đợi ở Thần điện', 19, 45, 151),  -- TASK_35_4 = 71688  A3   Gặp Thượng Đế ở Thần điện
 (36, 'Gặp Ôsin ở Đại hội võ thuật', 1, 'Ôsin ở Đại hội võ thuật', 44, 52, 152),  -- TASK_36_0 = 73728  A3   Gặp Ôsin ở Đại hội võ thuật
 (36, 'Vào Cổng phi thuyền', 1, 'Cổng mở 12h-12h59. Sai giờ thì nhờ Ôsin đưa qua Sa mạc hoang vu', 44, 114, 153),  -- TASK_36_1 = 73730  A6   Vào Cổng phi thuyền
-(36, 'Hạ Drabura hoặc 20 Cadic M', 20, 'Hạ Drabura trong phi thuyền, hoặc 20 Cadic M ở Sa mạc hoang vu', -1, 114, 154),  -- TASK_36_2 = 73732  A2   Hạ Drabura hoặc 20 Cadic M
+(36, 'Hạ boss Drabura/20 Cadic M', 20, 'Boss Drabura trong phi thuyền (12h-12h59), hoặc 20 Cadic M ở Sa mạc hoang vu', -1, 114, 154),  -- TASK_36_2 = 73732  A2   Hạ Drabura hoặc 20 Cadic M
 (36, 'Xuống Cửa Ải 1', 1, 'Xuống Cửa Ải 1, hoặc nhặt đồ rơi từ Cadic M ở Sa mạc hoang vu', -1, 117, 155),  -- TASK_36_3 = 73734  A6   Xuống Cửa Ải 1
 (36, 'Nói chuyện với Babiđây', 1, 'Babiđây ở Cửa Ải 1; đi đường vòng thì gặp Ôsin ở Sa mạc hoang vu', 46, 117, 156),  -- TASK_36_4 = 73736  A3   Nói chuyện với Babiđây
 (37, 'Gặp Ôsin ở Đại hội võ thuật', 1, 'Ôsin ở Đại hội võ thuật', 44, 52, 157),  -- TASK_37_0 = 75776  A3   Gặp Ôsin ở Đại hội võ thuật
-(37, 'Hạ Mabư', 1, 'Hạ Mabư trong phi thuyền, hoặc Hirudegarn ở Thành phố Santa', -1, 120, 158),  -- TASK_37_1 = 75778  A2   Hạ Mabư
-(37, 'Hạ Drabura 3 / 30 Quỷ chim', 30, 'Hạ Drabura 3, hoặc 30 Quỷ chim ở Thành phố Santa', -1, 120, 159),  -- TASK_37_2 = 75780  A2   Hạ Drabura 3 / 30 Quỷ chim
-(37, 'Nhặt Lõi Phép Babiđây', 1, 'Lõi Phép rơi cho người kết liễu ở bước trước', -1, 120, 160),  -- TASK_37_3 = 75782  A4   Nhặt Lõi Phép Babiđây
+(37, 'Hạ boss Mabư', 1, 'Boss Mabư trong phi thuyền, hoặc hạ quái Hirudegarn ở Thành phố Santa (24/7)', -1, 126, 158),  -- TASK_37_1 = 75778  A2   Hạ Mabư
+(37, 'Hạ Drabura 3 / 30 Quỷ chim', 30, 'Hạ boss Drabura 3, hoặc 30 Quỷ chim (Thành phố Santa, Hang quỷ chim, Núi đá...)', -1, 126, 159),  -- TASK_37_2 = 75780  A2   Hạ Drabura 3 / 30 Quỷ chim
+(37, 'Nhặt Lõi Phép Babiđây', 1, 'Lõi Phép rơi cho người kết liễu ở bước trước', -1, 126, 160),  -- TASK_37_3 = 75782  A4   Nhặt Lõi Phép Babiđây
 (37, 'Mang Lõi Phép cho Kibit', 1, 'Kibit ở Thánh địa Kaio', 45, 50, 161),  -- TASK_37_4 = 75784  A3   Mang Lõi Phép cho Kibit
 (38, 'Gặp Bunma ở Nhà Bunma', 1, 'Bunma đợi ở Nhà Bunma', 37, 102, 162),  -- TASK_38_0 = 77824  A3   Gặp Bunma ở Nhà Bunma
 (38, 'Hạ 60 Xên con phía bắc', 60, 'Xên con cấp 5-8 ở vùng phía bắc và Thị trấn Ginder', -1, 97, 163),  -- TASK_38_1 = 77826  A1   Hạ 60 Xên con phía bắc
-(38, 'Hạ Black Goku', 1, 'Black Goku xuất hiện ở Thành phố phía đông', -1, 92, 164),  -- TASK_38_2 = 77828  A2   Hạ Black Goku
-(38, 'Hạ Super Black Goku', 1, 'Black Goku đã biến hình, hạ hắn đi', -1, 92, 165),  -- TASK_38_3 = 77830  A2   Hạ Super Black Goku
-(38, 'Nhặt Nhẫn thời không', 1, 'Nhẫn thời không sai lệch rơi khi hạ Black Goku', -1, 92, 166),  -- TASK_38_4 = 77832  A4   Nhặt Nhẫn thời không
+(38, 'Hạ boss Black Goku', 1, 'Boss Black Goku ở Nhà Bunma và các map Tương lai 92-100; hồi sinh 15–30 phút', -1, 92, 164),  -- TASK_38_2 = 77828  A2   Hạ Black Goku
+(38, 'Hạ boss Super Black Goku', 1, 'Black Goku đã biến hình, hạ hắn đi', -1, 92, 165),  -- TASK_38_3 = 77830  A2   Hạ Super Black Goku
+(38, 'Nhặt Nhẫn thời không', 1, 'Nhẫn thời không sai lệch rơi ngẫu nhiên khi hạ boss Black Goku', -1, 92, 166),  -- TASK_38_4 = 77832  A4   Nhặt Nhẫn thời không
 (38, 'Báo cáo với Bunma', 1, 'Về Nhà Bunma báo cáo', 37, 102, 167),  -- TASK_38_5 = 77834  A3   Báo cáo với Bunma
 (39, 'Gặp Bardock', 1, 'Bardock ở Khu hang động', 70, 160, 168),  -- TASK_39_0 = 79872  A3   Gặp Bardock
 (39, 'Gom đủ 7 viên Ngọc Rồng', 7, 'Đủ 7 viên từ 1 đến 7 sao trong hành trang', -1, -1, 169),  -- TASK_39_1 = 79874  A4   Gom đủ 7 viên Ngọc Rồng
-(39, 'Gọi Rồng Thần và ước', 1, 'Gọi Rồng Thần ở làng quê nhà rồi ước một điều', 5, -8, 170),  -- TASK_39_2 = 79876  B6   Gọi Rồng Thần và ước
+(39, 'Gọi Rồng Thần và ước', 1, 'Gọi Rồng Thần ở làng quê nhà rồi ước một điều', -1, -8, 170),  -- TASK_39_2 = 79876  B6   Gọi Rồng Thần và ước
 (39, 'Hỏi Rồng Omega về sao đen', 1, 'Rồng Omega ở Trạm tàu vũ trụ', 29, -6, 171),  -- TASK_39_3 = 79878  A3   Hỏi Rồng Omega về sao đen
 (39, 'Hạ 40 Khỉ lông vàng', 40, 'Khỉ lông vàng ở Núi khỉ vàng', -1, 80, 172),  -- TASK_39_4 = 79880  A1   Hạ 40 Khỉ lông vàng
 (39, 'Gặp Bardock ở Làng Kakarot', 1, 'Bardock đợi ngươi ở Làng Kakarot', 70, 14, 173),  -- TASK_39_5 = 79882  A3   Gặp Bardock ở Làng Kakarot
-(39, 'Hạ Baby cả 3 dạng', 3, 'Baby xuất hiện ở Làng Kakarot', -1, 14, 174),  -- TASK_39_6 = 79884  A2   Hạ Baby cả 3 dạng
+(39, 'Hạ boss Baby cả 3 dạng', 3, 'Boss Baby xuất hiện ở Làng Kakarot, hồi sinh 15–30 phút', -1, 14, 174),  -- TASK_39_6 = 79884  A2   Hạ Baby cả 3 dạng
 (40, 'Gặp Thần Vũ Trụ', 1, 'Thần Vũ Trụ ở Hành tinh Kaio', 20, 48, 175),  -- TASK_40_0 = 81920  A3   Gặp Thần Vũ Trụ
 (40, 'Lên Thánh địa Kaio', 1, 'Lên Thánh địa Kaio', -1, 50, 176),  -- TASK_40_1 = 81922  A6   Lên Thánh địa Kaio
 (40, 'Gặp Tổ Sư Kaio', 1, 'Tổ Sư Kaio ở Thánh địa Kaio', 43, 50, 177),  -- TASK_40_2 = 81924  A3   Gặp Tổ Sư Kaio
 (40, 'Dùng Mảnh Ký Ức 1', 1, 'Dùng Mảnh Ký Ức 1 ở Thánh địa Kaio. Mảnh vẫn giữ lại', 43, 50, 178),  -- TASK_40_3 = 81926  A12  Dùng Mảnh Ký Ức 1
 (40, 'Nghe Kibit kể tiếp', 1, 'Kibit ở Thánh địa Kaio', 45, 50, 179),  -- TASK_40_4 = 81928  A3   Nghe Kibit kể tiếp
 (41, 'Nghe Tổ Sư Kaio dặn', 1, 'Tổ Sư Kaio ở Thánh địa Kaio', 43, 50, 180),  -- TASK_41_0 = 83968  A3   Nghe Tổ Sư Kaio dặn
-(41, 'Hạ 60 quái vành đai rừng', 60, 'Hạ quái ở vùng map 27-38, bắt đầu từ Rừng Bamboo', -1, 27, 181),  -- TASK_41_1 = 83970  A1   Hạ 60 quái vành đai rừng
-(41, 'Hạ Broly', 1, 'Broly đang nổi điên ở Rừng Bamboo', -1, 27, 182),  -- TASK_41_2 = 83972  A2   Hạ Broly
-(41, 'Hạ Super Broly', 1, 'Super Broly xuất hiện ngay tại chỗ', -1, 27, 183),  -- TASK_41_3 = 83974  A2   Hạ Super Broly
+(41, 'Hạ 60 quái vành đai rừng', 60, 'Mọi quái ở vùng rừng quanh %16 (map 27-38, cả 3 hành tinh) đều tính', -1, -12, 181),  -- TASK_41_1 = 83970  A1   Hạ 60 quái vành đai rừng
+(41, 'Hạ boss Broly', 1, 'Boss Broly lang thang ở %11 và vùng rừng map 27-38 (khu 2 trở lên)', -1, -12, 182),  -- TASK_41_2 = 83972  A2   Hạ Broly
+(41, 'Hạ boss Super Broly', 1, 'Super Broly hiện ra ngay tại chỗ Broly biến mất (vùng rừng map 27-38)', -1, -12, 183),  -- TASK_41_3 = 83974  A2   Hạ Super Broly
 (41, 'Báo lại với Tổ Sư Kaio', 1, 'Về Thánh địa Kaio báo lại', 43, 50, 184),  -- TASK_41_4 = 83976  A3   Báo lại với Tổ Sư Kaio
 (42, 'Hỏi Ôsin đường tới ngục tù', 1, 'Ôsin ở Thánh địa Kaio', 44, 50, 185),  -- TASK_42_0 = 86016  A3   Hỏi Ôsin đường tới ngục tù
 (42, 'Tới Hành tinh ngục tù', 1, 'Nhờ Ôsin đưa tới Hành tinh ngục tù', -1, 155, 186),  -- TASK_42_1 = 86018  A6   Tới Hành tinh ngục tù
 (42, 'Phá 60 lồng giam, 10 phút', 60, 'Còn 10 phút! Hạ Khỉ lông xanh, Taburine Đỏ; hết giờ phải đếm lại', -1, 155, 187),  -- TASK_42_2 = 86020  B12  Phá 60 lồng giam, 10 phút
-(42, 'Hạ Cumber', 1, 'Cumber ở Hành tinh ngục tù', -1, 155, 188),  -- TASK_42_3 = 86022  A2   Hạ Cumber
-(42, 'Hạ Super Cumber', 1, 'Cumber đã biến hình, hạ hắn đi', -1, 155, 189),  -- TASK_42_4 = 86024  A2   Hạ Super Cumber
+(42, 'Hạ boss Cumber', 1, 'Boss Cumber ở Hành tinh ngục tù, hồi sinh 15–30 phút', -1, 155, 188),  -- TASK_42_3 = 86022  A2   Hạ Cumber
+(42, 'Hạ boss Super Cumber', 1, 'Cumber đã biến hình, hạ hắn đi', -1, 155, 189),  -- TASK_42_4 = 86024  A2   Hạ Super Cumber
 (42, 'Báo cáo với Ôsin', 1, 'Ôsin đợi ở Hành tinh ngục tù', 44, 155, 190),  -- TASK_42_5 = 86026  A3   Báo cáo với Ôsin
 (43, 'Gặp Mr Popo ở Làng Aru', 1, 'Mr Popo ở Làng Aru', 67, 0, 191),  -- TASK_43_0 = 88064  A3   Gặp Mr Popo ở Làng Aru
-(43, 'Tích 160 điểm diệt quái', 160, 'Trong phó bản mỗi quái 2 điểm; ngoài phó bản (map 155/160/161) mỗi quái 1', -1, 147, 192),  -- TASK_43_1 = 88066  A1   Tích 160 điểm diệt quái
-(43, 'Hạ Dr Lychee hoặc 50 quái', 50, 'Không có bang? Hạ 50 quái ở Hành tinh ngục tù hoặc Khu hang động, Bìa rừng', -1, 148, 193),  -- TASK_43_2 = 88068  A2   Hạ Dr Lychee hoặc 50 quái
-(43, 'Hạ Hatchiyack hoặc 70 quái', 70, 'Không có bang? Hạ 70 quái ở Hành tinh ngục tù hoặc Khu hang động, Bìa rừng', -1, 148, 194),  -- TASK_43_3 = 88070  A2   Hạ Hatchiyack hoặc 70 quái
-(43, 'Xong khí gas hoặc 100 quái', 100, 'Không có bang? Hạ 100 quái ở Hành tinh ngục tù hoặc Khu hang động, Bìa rừng', -1, 147, 195),  -- TASK_43_4 = 88072  B1   Xong khí gas hoặc 100 quái
+(43, 'Tích 160 điểm diệt quái', 160, 'Phó bản: mỗi quái 2 điểm. Ngoài: chỉ quái ở Hành tinh ngục tù, Khu hang động, Bìa rừng', -1, 155, 192),  -- TASK_43_1 = 88066  A1   Tích 160 điểm diệt quái
+(43, 'Hạ boss Lychee hoặc 50 quái', 50, 'Không có bang? Hạ 50 quái ở Hành tinh ngục tù hoặc Khu hang động, Bìa rừng', -1, 155, 193),  -- TASK_43_2 = 88068  A2   Hạ Dr Lychee hoặc 50 quái
+(43, 'Hạ boss Hatchiyack/70 quái', 70, 'Không có bang? Hạ 70 quái ở Hành tinh ngục tù hoặc Khu hang động, Bìa rừng', -1, 155, 194),  -- TASK_43_3 = 88070  A2   Hạ Hatchiyack hoặc 70 quái
+(43, 'Xong khí gas hoặc 100 quái', 100, 'Không có bang? Hạ 100 quái ở Hành tinh ngục tù hoặc Khu hang động, Bìa rừng', -1, 155, 195),  -- TASK_43_4 = 88072  B1   Xong khí gas hoặc 100 quái
 (43, 'Báo cáo với Thượng Đế', 1, 'Thượng Đế đợi ở Thần điện', 19, 45, 196),  -- TASK_43_5 = 88074  A3   Báo cáo với Thượng Đế
 (44, 'Nhờ Ôsin tới hành tinh Bill', 1, 'Ôsin ở Thánh địa Kaio', 44, 50, 197),  -- TASK_44_0 = 90112  A3   Nhờ Ôsin tới hành tinh Bill
 (44, 'Nói chuyện với Bill', 1, 'Bill ở Hành tinh Bill', 55, 154, 198),  -- TASK_44_1 = 90114  A3   Nói chuyện với Bill
@@ -455,22 +466,22 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (45, 'Hợp nhất 7 mảnh', 1, 'Dùng Lõi Ký Ức chưa hoàn chỉnh khi đủ 7 Mảnh Ký Ức', 64, 78, 206),  -- TASK_45_3 = 92166  A12  Hợp nhất 7 mảnh
 (45, 'Nghe Thiên Sứ Whis', 1, 'Thiên Sứ Whis ở Lãnh địa Fize', 64, 78, 207),  -- TASK_45_4 = 92168  A3   Nghe Thiên Sứ Whis
 (46, 'Gặp Dr. Myuu', 1, 'Dr. Myuu ở Phòng thí nghiệm Myuu', 83, 166, 208),  -- TASK_46_0 = 94208  A3   Gặp Dr. Myuu
-(46, 'Hạ Heart', 1, 'Heart ở Phòng thí nghiệm Myuu', -1, 166, 209),  -- TASK_46_1 = 94210  A2   Hạ Heart
+(46, 'Hạ boss Heart', 1, 'Boss Heart ở Phòng thí nghiệm Myuu, hồi sinh 15–30 phút', -1, 166, 209),  -- TASK_46_1 = 94210  A2   Hạ Heart
 (46, 'Đuổi tới Võ Đài Siêu Cấp', 1, 'Heart bỏ chạy tới Võ Đài Siêu Cấp', 64, 145, 210),  -- TASK_46_2 = 94212  A6   Đuổi tới Võ Đài Siêu Cấp
-(46, 'Hạ Heart Hư Không', 1, 'Heart biến hình ở Võ Đài Siêu Cấp', -1, 145, 211),  -- TASK_46_3 = 94214  A2   Hạ Heart Hư Không
-(46, 'Hạ Heart Toàn Ký', 1, 'Dạng cuối của Heart, hạ hắn đi', -1, 145, 212),  -- TASK_46_4 = 94216  A2   Hạ Heart Toàn Ký
+(46, 'Hạ boss Heart Hư Không', 1, 'Heart biến hình ở Võ Đài Siêu Cấp', -1, 145, 211),  -- TASK_46_3 = 94214  A2   Hạ Heart Hư Không
+(46, 'Hạ boss Heart Toàn Ký', 1, 'Dạng cuối của Heart, hạ hắn đi', -1, 145, 212),  -- TASK_46_4 = 94216  A2   Hạ Heart Toàn Ký
 (46, 'Gặp Thiên Sứ Whis', 1, 'Thiên Sứ Whis ở Võ Đài Siêu Cấp', 64, 145, 213),  -- TASK_46_5 = 94218  A3   Gặp Thiên Sứ Whis
 (47, 'Chọn số phận của Lõi', 1, 'Điểm rẽ nhánh: trả ký ức cho vũ trụ hay giữ Lõi Hư Không', 64, 145, 214),  -- TASK_47_0 = 96256  B14  Chọn số phận của Lõi
 (47, 'Trả Lõi Hư Không', 1, 'Dùng Lõi Hư Không ở Võ Đài Siêu Cấp', 64, 145, 215),  -- TASK_47_1 = 96258  A12  Trả Lõi Hư Không
 (47, 'Lên Thánh địa Kaio', 1, 'Lên Thánh địa Kaio', -1, 50, 216),  -- TASK_47_2 = 96260  A6   Lên Thánh địa Kaio
 (47, 'Mở giới hạn lần cuối', 1, 'Nhờ Tổ Sư Kaio mở giới hạn, lần này miễn phí', 43, 50, 217),  -- TASK_47_3 = 96262  B10  Mở giới hạn lần cuối
 (47, 'Nghe lời cuối Tổ Sư Kaio', 1, 'Tổ Sư Kaio ở Thánh địa Kaio', 43, 50, 218),  -- TASK_47_4 = 96264  A3   Nghe lời cuối Tổ Sư Kaio
-(47, 'Hạ Hư Không Vô Danh', 1, 'Hư Không Vô Danh ở Võ Đài Siêu Cấp', -1, 145, 219),  -- TASK_47_5 = 96266  A2   Hạ Hư Không Vô Danh
+(47, 'Hạ boss Hư Không Vô Danh', 1, 'Hư Không Vô Danh ở Võ Đài Siêu Cấp', -1, 145, 219),  -- TASK_47_5 = 96266  A2   Hạ Hư Không Vô Danh
 (48, 'Gặp Berry ở Khu hang động', 1, 'Berry đứng ở Khu hang động', 71, 160, 220),  -- TASK_48_0 = 98304  A3   Gặp Berry ở Khu hang động
 (48, 'Chọn: Granola hay Jaco', 1, 'Điểm rẽ nhánh: chọn đi theo Granola hoặc báo Jaco', 71, 160, 221),  -- TASK_48_1 = 98306  B14  Chọn: Granola hay Jaco
 (48, 'Gặp Jaco ở Trạm tàu vũ trụ', 1, 'Jaco ở Trạm tàu vũ trụ Trái Đất', 63, 24, 222),  -- TASK_48_2 = 98308  A3   Gặp Jaco ở Trạm tàu vũ trụ
-(48, 'Hạ 3 tên bị truy nã', 3, 'Truy nã Kuku, Mập Đầu Đinh và Rambo', -1, -1, 223),  -- TASK_48_3 = 98310  A2   Hạ 3 tên bị truy nã
-(48, 'Nhặt 3 Biên bản truy nã', 3, 'Biên bản rơi khi hạ Kuku, Mập Đầu Đinh, Rambo', -1, -1, 224),  -- TASK_48_4 = 98312  A4   Nhặt 3 Biên bản truy nã
+(48, 'Hạ 3 boss bị truy nã', 3, 'Boss Kuku ở Thung lũng Nappa, Mập Đầu Đinh ở Trại lính Fide, Rambo ở Đồi cây Fide', -1, 68, 223),  -- TASK_48_3 = 98310  A2   Hạ 3 tên bị truy nã
+(48, 'Nhặt 3 Biên bản truy nã', 3, 'Biên bản rơi khi hạ Kuku, Mập Đầu Đinh, Rambo', -1, 68, 224),  -- TASK_48_4 = 98312  A4   Nhặt 3 Biên bản truy nã
 (48, 'Nộp biên bản cho Jaco', 1, 'Về Trạm tàu vũ trụ Trái Đất gặp Jaco', 63, 24, 225),  -- TASK_48_5 = 98314  A3   Nộp biên bản cho Jaco
 (49, 'Nghe Potage kể sự thật', 1, 'Potage ở Hang động Potaufeu', 62, 140, 226),  -- TASK_49_0 = 100352 A3   Nghe Potage kể sự thật
 (49, 'Chọn số phận bản sao', 1, 'Điểm rẽ nhánh: tiêu diệt hay thu nhận bản sao', 62, 140, 227),  -- TASK_49_1 = 100354 B14  Chọn số phận bản sao
@@ -484,7 +495,7 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (50, 'Về Hành tinh ngục tù', 1, 'Lõi kéo ngươi về Hành tinh ngục tù', -1, 155, 235),  -- TASK_50_2 = 102404 A6   Về Hành tinh ngục tù
 (50, 'Mở giới hạn lần cuối', 1, 'Nhờ Tổ Sư Kaio ở Thánh địa Kaio mở giới hạn, lần này miễn phí', 43, 50, 236),  -- TASK_50_3 = 102406 B10  Mở giới hạn lần cuối
 (50, 'Nghe lời cuối của Ôsin', 1, 'Ôsin ở Hành tinh ngục tù', 44, 155, 237),  -- TASK_50_4 = 102408 A3   Nghe lời cuối của Ôsin
-(50, 'Hạ Hư Không Vô Danh', 1, 'Hư Không Vô Danh ở Hành tinh ngục tù', -1, 155, 238);  -- TASK_50_5 = 102410 A2   Hạ Hư Không Vô Danh
+(50, 'Hạ boss Hư Không Vô Danh', 1, 'Hư Không Vô Danh ở Hành tinh ngục tù', -1, 155, 238);  -- TASK_50_5 = 102410 A2   Hạ Hư Không Vô Danh
 
 -- ---------------------------------------------------------------------
 -- (4) BẢNG THƯỞNG MỚI — task_main_reward  (theo §9.2 của tài liệu 20)

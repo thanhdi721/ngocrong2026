@@ -58,6 +58,8 @@ public class EventManager {
     public static boolean TRUNG_THU = false;
 
     public static boolean TOP_UP = true;
+    /** Quái rơi Tayaki / Kẹo táo / Kem que đôi / Mochi / Ramen / Khúc mía. Mặc định TẮT. */
+    public static boolean THUC_AN_CHO_THAN = false;
 
     /** Mô tả 1 sự kiện có trong code. */
     public static final class Def {
@@ -122,6 +124,9 @@ public class EventManager {
                 "Chỉ đọc bảng `event` (không có trong DB) và dữ liệu không được dùng -> không có hiệu lực thực tế."));
         l.add(new Def("top_up", "TopUp (nạp)", true, false, TopUp::new, null,
                 "Lớp rỗng, không làm gì."));
+        l.add(new Def("thuc_an_cho_than", "Thức ăn cho thần (quái rơi Tayaki, Kẹo táo, Kem que đôi, Mochi, Ramen, Khúc mía)",
+                false, true, nro.models.event_list.ThucAnChoThan::new, null,
+                "Chỉ là cờ tỉ lệ rơi đồ ở mọi map, bật/tắt có hiệu lực ngay. Mặc định TẮT."));
         DEFS = Collections.unmodifiableList(l);
     }
 
@@ -276,6 +281,8 @@ public class EventManager {
                 TRUNG_THU = on;
             case "top_up" ->
                 TOP_UP = on;
+            case "thuc_an_cho_than" ->
+                THUC_AN_CHO_THAN = on;
             default -> {
             }
         }

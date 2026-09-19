@@ -97,7 +97,7 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (2, 'Hạ %4 lấy 10 đùi gà', 10, 'Lên %3 hạ lũ %4, nhặt đủ 10 đùi gà', -1, -3, 9),
 (2, 'Đưa đùi gà cho %2', 1, 'Đủ 10 đùi gà rồi. Mang về cho %2 kẻo ông đói', -2, -2, 10),
 (3, 'Cộng điểm tiềm năng', 1, '', -1, -1, 11),
-(3, 'Tìm vật thể lạ rơi xuống', 1, '', -1, -4, 12),
+(3, 'Tìm đồ lạ ở %5', 1, '', -1, -4, 12),  -- doc 41: ghi rõ map (item 78 rải ở 42/43/44); cơ chế, map, notify giữ nguyên
 (3, 'Đưa vật lạ cho %2', 1, 'Mang thứ vừa tìm được về cho %2 xem', -2, -2, 13);
 
 -- ---------------------------------------------------------------------

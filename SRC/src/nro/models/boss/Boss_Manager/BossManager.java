@@ -190,8 +190,13 @@ public class BossManager implements Runnable {
         // Cùng cơ chế QuestBoss như trên. 20a §C đề xuất mỗi con 1 bản; ở đây để 3
         // vì NV 6 và NV 15 nằm trong chương 1–2 — MỌI nhân vật mới đều phải đi qua,
         // nên đây là hai cửa đông người nhất cả tuyến. Con số này chỉnh được tự do.
-        this.createBoss(BossID.KE_THU_GOM, 3);
-        this.createBoss(BossID.JACO_VO_THUC, 3);
+        // RÕ MAP (docs/4-trien-khai/41): 3 -> 6. mapJoin của hai con này trải 3 HÀNH TINH
+        // (Kẻ Thu Gom 4/12/18, Jaco 27/31/35) và ở NV 6 người chơi CHƯA đi tàu sang hành
+        // tinh khác được (trạm tàu mở ở TASK_7_1). Với 3 bản, mỗi map chỉ có đúng 1 bản
+        // (QuestBoss.findRandomZone rải đều, ưu tiên map ít bản nhất) — bản đó vừa chết
+        // là cả hành tinh phải chờ 15–30 phút. 6 bản = 2 bản mỗi map, luôn còn 1 bản đứng.
+        this.createBoss(BossID.KE_THU_GOM, 6);
+        this.createBoss(BossID.JACO_VO_THUC, 6);
     }
 
     public void createBoss(int bossID, int total) {

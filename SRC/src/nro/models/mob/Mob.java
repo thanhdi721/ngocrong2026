@@ -51,6 +51,9 @@ public class Mob {
 
     public byte pDame;
     public int pTiemNang;
+
+    /** Tỉ lệ rơi Ngọc Rồng 4–7 sao từ quái, tính trên 10.000. 10 = 1/1000 (chủ dự án chốt). */
+    public static final int DROP_NGOC_RONG_PER_10000 = 10;
     private long maxTiemNang;
 
     public long lastTimeDie;
@@ -693,7 +696,10 @@ public class Mob {
                 player.event.luotNhanNgocMienPhi = 0;
             }
         }
-        if (MapService.gI().AllMap(mapid)) {
+        // FIX: nhóm đồ sự kiện "Thức ăn cho thần" trước đây rơi ở MỌI map mà không gắn với
+        // sự kiện nào → không tắt được. Nay chỉ rơi khi bật sự kiện thuc_an_cho_than
+        // (tab Sự kiện của cpanel, hoặc event.thuc_an_cho_than=true trong Config.properties).
+        if (nro.models.event.EventManager.THUC_AN_CHO_THAN && MapService.gI().AllMap(mapid)) {
             if (Util.isTrue(5, 100)) {
                 ItemMap it = new ItemMap(zone, 1798, 1, x, yEnd, player.id);
                 list.add(it);
@@ -1022,18 +1028,10 @@ public class Mob {
             list.add(it);
         }
 
-        if (MapService.gI().isMap3Planets(mapid) || MapService.gI().isMapNappa(mapid) || MapService.gI().isMapTuongLai(mapid) || MapService.gI().isMapCold(mapid)) {
-            int dropRate = 10;
-            if (player.itemTime.isUseCoBonLa) {
-                dropRate = (int) (dropRate * 1.15);
-            }
-
-            if (Util.isTrue(dropRate, 70) || (player.isActive() && Util.isTrue(1, 100))) {
-                int rand = Util.nextInt(0, 1);
-                ItemMap it = new ItemMap(zone, 19 + rand, 1, x, yEnd, player.id);
-                list.add(it);
-            }
-        }
+        // FIX (chủ dự án chốt): BỎ nguồn rơi Ngọc Rồng 6–7 sao riêng của các map 3 hành tinh /
+        // Nappa / Tương lai / Cold. Trước đây tỉ lệ là isTrue(10, 70) ≈ 14% mỗi con quái
+        // (cộng thêm 1% cho tài khoản kích hoạt) → cứ ~7 con là rơi 1 viên 6–7 sao.
+        // Ngọc Rồng giờ chỉ còn MỘT nguồn rơi từ quái, tỉ lệ 1/1000 — xem DROP_NGOC_RONG_PER_10000 bên dưới.
         if (player.setClothes.checkSetDes() && MapService.gI().isMapNgucTu(mapid)) {
             if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue(10, 100)) {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
@@ -1048,12 +1046,15 @@ public class Mob {
         }
 
         if (this.zone.map.mapId >= 0) {
-            int dropRate = 1;
+            // FIX (chủ dự án chốt): Ngọc Rồng 4–7 sao rơi từ quái 1/1000 (trước đây 1/100).
+            // Tính trên thang 10.000 để Cỏ bốn lá (+15%) còn có tác dụng — thang 100 cũ làm
+            // (int)(1 * 1.15) = 1 nên Cỏ bốn lá chưa từng tăng tỉ lệ này.
+            int dropRate = DROP_NGOC_RONG_PER_10000;
             if (player.itemTime.isUseCoBonLa) {
-                dropRate = (int) (dropRate * 1.15);
+                dropRate = dropRate * 115 / 100;
             }
 
-            if (Util.isTrue(dropRate, 100)) { // nro
+            if (Util.isTrue(dropRate, 10000)) { // nro
                 list.add(new ItemMap(zone, Util.nextInt(17, 20), 1, x, this.location.y, player.id));
             }
         }
@@ -1073,18 +1074,6 @@ public class Mob {
 
     }
 
-    /**
-     * Vật phẩm nhiệm vụ của tuyến mới (2009, 2010) chỉ tồn tại sau khi đã nạp dữ liệu nhiệm vụ mới.
-     * ItemService.getTemplate() tra theo VỊ TRÍ trong danh sách nên nếu chưa nạp sẽ ném
-     * IndexOutOfBoundsException. Hàm này chặn trước để server không sập khi triển khai lệch nhịp.
-     */
-    private ItemMap dropQuestItem(Player player, int itemTemplateId) {
-        if (itemTemplateId >= Manager.ITEM_TEMPLATES.size()) {
-            return null;
-        }
-        return new ItemMap(zone, itemTemplateId, 1, location.x, location.y, player.id);
-    }
-
     private ItemMap dropItemTask(Player player) {
         ItemMap itemMap = null;
         switch (tempId) {
@@ -1098,38 +1087,18 @@ public class Mob {
                     itemMap = new ItemMap(zone, 73, 1, location.x, location.y, player.id);
                 }
                 break;
-            case ConstMob.THAN_LAN_BAY:
-            case ConstMob.PHI_LONG:
-            case ConstMob.QUY_BAY:
-                // TUYẾN MỚI: nhánh mới của NV 5 "Ký ức của ông" - rơi "Kỷ Vật Của Ông"
-                // FIX: id 2002 -> 2010. Bảng id đã chốt lại: 2002 nay là "Mảnh Ký Ức 1",
-                // còn "Kỷ Vật Của Ông" = 2010.
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_5_0) {
-                    itemMap = dropQuestItem(player, 2010);
-                }
-                break;
             case ConstMob.THAN_LAN_ME:
             case ConstMob.QUY_BAY_ME:
             case ConstMob.PHI_LONG_ME:
                 // TUYẾN MỚI: bỏ nhánh rơi Ngọc 7 sao (item 20) ở mốc cũ TASK_8_1.
                 // NV 8 tuyến mới chỉ yêu cầu HẠ 25 con quái mẹ, không rơi vật phẩm.
                 break;
-            case ConstMob.BULON:
-            case ConstMob.UKULELE:
-            case ConstMob.QUY_MAP:
-                // TUYẾN MỚI: NV 16 bước 3 (TASK_16_3) — rơi 25% "Vỏ đạn khắc dấu" (2014),
-                // cần nhặt 5 cái. Bảng id chốt ở docs/4-trien-khai/25-bang-id-vat-pham-moi.md.
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_16_3 && Util.isTrue(25, 100)) {
-                    itemMap = dropQuestItem(player, 2014);
-                }
-                break;
-            case ConstMob.TOBI:
-                // TUYẾN MỚI: NV 32 bước 4 (TASK_32_4) — rơi "Mảnh Ký Ức Vỡ" (2025),
-                // CHỈ từ mob 81 Tobi, cần nhặt 3 cái.
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_32_4) {
-                    itemMap = dropQuestItem(player, 2025);
-                }
-                break;
+        }
+        // doc 42: MỌI vật phẩm nhiệm vụ tuyến mới rơi từ quái (2010, 2014, 2025, 2026, 2027,
+        // 2028, 2008) nay tra ở MỘT bảng chung nro.models.task.QuestDrop — chỉ rơi khi người
+        // kết liễu đang ở đúng bước, gắn chủ + option 30. Xem docs/4-trien-khai/42.
+        if (itemMap == null) {
+            itemMap = nro.models.task.QuestDrop.onMobKilled(player, this);
         }
         if (itemMap != null) {
             return itemMap;
