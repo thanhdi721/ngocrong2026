@@ -145,6 +145,10 @@ public class ServerManager {
             new Thread(TreasureUnderSeaManager.gI(), "Update treasure under sea boss").start();
             new Thread(SnakeWayManager.gI(), "Update snake way boss").start();
             new Thread(GasDestroyManager.gI(), "Update gas destroy boss").start();
+            // FIX: start luồng cho manager boss của sự kiện đang bật (HungVuong/Halloween/
+            // Christmas/TrungThu/LunarNewYear EventManager). Trước đây không start -> boss
+            // sự kiện được tạo nhưng đứng im. Có chống start trùng trong EventManager.
+            EventManager.gI().startBossManagers();
 
             new Thread(BotManager.gI(), "Thread Bot Game").start();
             new Thread(ChonAiDay_Gem.gI(), "Thread MiniGame").start();

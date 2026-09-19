@@ -184,8 +184,13 @@ public class Mob {
                 if (plAtt.isPl() && plAtt.satellite != null && plAtt.satellite.isDefend) {
                     plAtt.satellite.isDefend = false;
                 }
-                Service.gI().addSMTN(plAtt, (byte) 2, getTiemNangForPlayer(plAtt, damage), true);
-                TrainingService.gI().tangTnsmLuyenTap(plAtt, getTiemNangForPlayer(plAtt, damage));
+                // FIX: máy đo sức mạnh chỉ để đo sát thương, KHÔNG được cho kinh nghiệm.
+                // Trước đây mọi đòn trúng máy đo đều cộng sức mạnh/tiềm năng như quái thường
+                // (lỗi có sẵn từ bản gốc) → người chơi đứng đánh máy đo để cày.
+                if (this.tempId != ConstMob.MAY_DO_SUC_MANH) {
+                    Service.gI().addSMTN(plAtt, (byte) 2, getTiemNangForPlayer(plAtt, damage), true);
+                    TrainingService.gI().tangTnsmLuyenTap(plAtt, getTiemNangForPlayer(plAtt, damage));
+                }
                 plAtt.total_damage_maydam += damage;
                 Service.gI().updatePlayerTotalDamage(plAtt);
                 long realDamage = this.point.hp / 100 > 0 ? this.point.hp / 100 : 1;

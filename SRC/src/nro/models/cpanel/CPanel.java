@@ -143,6 +143,8 @@ public final class CPanel {
         tabs.addTab("Người chơi online", onlineTab);
         tabs.addTab("Nhân vật", new CharacterTab());
         tabs.addTab("Server", serverTab);
+        tabs.addTab("Buff đồ", new BuffTab());
+        tabs.addTab("Sự kiện", new EventTab());
 
         logArea = new JTextArea(6, 80);
         logArea.setEditable(false);

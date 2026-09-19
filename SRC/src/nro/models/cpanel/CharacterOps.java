@@ -199,7 +199,7 @@ final class CharacterOps {
         String apply(String oldValue) throws Exception;
     }
 
-    private enum Offline {
+    enum Offline {
         OK, ONLINE
     }
 
@@ -207,8 +207,9 @@ final class CharacterOps {
      * Sửa 1 cột JSON của nhân vật offline trong transaction.
      * @param column chỉ nhận hằng số trong code (không bao giờ là dữ liệu người dùng nhập)
      */
-    private static Offline modifyOffline(long playerId, String column, boolean force, Mutator mutator) throws Exception {
-        if (!column.equals("data_inventory") && !column.equals("data_task") && !column.equals("items_bag")) {
+    static Offline modifyOffline(long playerId, String column, boolean force, Mutator mutator) throws Exception {
+        if (!column.equals("data_inventory") && !column.equals("data_task") && !column.equals("items_bag")
+                && !column.equals("event_point")) {
             throw new IllegalArgumentException("Cột không được phép: " + column);
         }
         try (Connection con = LocalManager.getConnection()) {
@@ -268,7 +269,7 @@ final class CharacterOps {
         }
     }
 
-    private static String afterOffline(long playerId, String name, String msg) {
+    static String afterOffline(long playerId, String name, String msg) {
         CPanel.log(msg);
         // Nếu ngay sau khi ghi mà nhân vật lại online -> có thể game đã đọc bản cũ
         if (isOnlineNow(playerId, -1)) {
@@ -407,7 +408,7 @@ final class CharacterOps {
                 throw new CPanelException("\"" + t.name + "\" là vật phẩm đặc biệt (tiền tệ / ngọc rồng / mở rộng ô)."
                         + "\nChỉ tặng được khi người chơi đang online, hoặc dùng nút Cộng vàng/ngọc.");
             }
-            Offline r = modifyOffline(playerId, "items_bag", force, old -> addToBagJson(old, t, quantity));
+            Offline r = modifyOffline(playerId, "items_bag", force, old -> addToBagJson(old, t, quantity, null));
             if (r == Offline.OK) {
                 return afterOffline(playerId, name, "[OFFLINE/DB] Tặng " + quantity + " x " + t.name + " [" + itemId
                         + "] vào hành trang " + name);
@@ -449,24 +450,37 @@ final class CharacterOps {
         return msg;
     }
 
-    private static boolean isSpecialItem(Template.ItemTemplate t) {
+    static boolean isSpecialItem(Template.ItemTemplate t) {
         ItemMapService ims = ItemMapService.gI();
         return t.type == 9 || t.type == 10 || t.type == 34
                 || t.id == 517 || t.id == 518
                 || ims.isBlackBall(t.id) || ims.isNamecBall(t.id) || ims.isNamecBallStone(t.id);
     }
 
-    /** Thêm vật phẩm vào chuỗi JSON items_bag đúng định dạng PlayerDAO/MrBlue đang dùng. */
+    /**
+     * Thêm vật phẩm vào chuỗi JSON items_bag đúng định dạng PlayerDAO/MrBlue đang dùng.
+     * @param customOptions null = option shop mặc định (giống lệnh "i"); khác null = đúng danh sách {id, param} này
+     */
     @SuppressWarnings("unchecked")
-    private static String addToBagJson(String old, Template.ItemTemplate t, int quantity) throws CPanelException {
+    static String addToBagJson(String old, Template.ItemTemplate t, int quantity, List<int[]> customOptions)
+            throws CPanelException {
         JSONArray bag = parseArray(old);
-        // option: giống lệnh "i" (option shop mặc định), rỗng thì [73,0] như InventoryService.addItemList
+        // option: rỗng thì [73,0] như InventoryService.addItemList
         JSONArray options = new JSONArray();
-        for (Item.ItemOption io : ItemService.gI().getListOptionItemShop(t.id)) {
-            JSONArray opt = new JSONArray();
-            opt.add(io.optionTemplate.id);
-            opt.add(io.param);
-            options.add(opt.toJSONString());
+        if (customOptions == null) {
+            for (Item.ItemOption io : ItemService.gI().getListOptionItemShop(t.id)) {
+                JSONArray opt = new JSONArray();
+                opt.add(io.optionTemplate.id);
+                opt.add(io.param);
+                options.add(opt.toJSONString());
+            }
+        } else {
+            for (int[] o : customOptions) {
+                JSONArray opt = new JSONArray();
+                opt.add(o[0]);
+                opt.add(o[1]);
+                options.add(opt.toJSONString());
+            }
         }
         if (options.isEmpty()) {
             JSONArray opt = new JSONArray();
@@ -510,6 +524,41 @@ final class CharacterOps {
 
     private static String normalizeOpt(String s) {
         return s.replace("\"", "").replace("\\", "").replace(" ", "");
+    }
+
+    // =====================================================================
+    // ĐIỂM SỰ KIỆN (player.event_point <-> PlayerEvent.eventPoint)
+    // =====================================================================
+    static String addEventPoint(long playerId, String name, int delta, boolean force) throws Exception {
+        Player p = findOnline(playerId);
+        if (p == null) {
+            long[] after = new long[1];
+            Offline r = modifyOffline(playerId, "event_point", force, old -> {
+                long cur = 0;
+                try {
+                    cur = Long.parseLong(old == null ? "0" : old.trim());
+                } catch (NumberFormatException ignored) {
+                }
+                after[0] = Math.max(0, Math.min(Integer.MAX_VALUE, cur + delta));
+                return String.valueOf(after[0]);
+            });
+            if (r == Offline.OK) {
+                return afterOffline(playerId, name, "[OFFLINE/DB] " + (delta >= 0 ? "Cộng " : "Trừ ") + CPanel.num(Math.abs(delta))
+                        + " điểm sự kiện cho " + name + " -> còn " + CPanel.num(after[0]));
+            }
+            p = findOnline(playerId);
+            if (p == null) {
+                throw new CPanelException("Nhân vật đang chuyển trạng thái online/offline. Thử lại sau vài giây.");
+            }
+        }
+        long nv = Math.max(0, Math.min(Integer.MAX_VALUE, (long) p.event.getEventPoint() + delta));
+        p.event.setEventPoint((int) nv);
+        Service.gI().sendThongBao(p, "Quản trị viên đã " + (delta >= 0 ? "cộng " : "trừ ") + CPanel.num(Math.abs(delta))
+                + " điểm sự kiện");
+        String msg = "[ONLINE/BỘ NHỚ] " + (delta >= 0 ? "Cộng " : "Trừ ") + CPanel.num(Math.abs(delta)) + " điểm sự kiện cho "
+                + p.name + " -> còn " + CPanel.num(nv) + " (game sẽ tự lưu)";
+        CPanel.log(msg);
+        return msg;
     }
 
     // =====================================================================

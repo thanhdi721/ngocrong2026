@@ -2104,19 +2104,21 @@ public class TaskService {
             // ------------------------------------------------------------------
             case ConstTask.TASK_0_0:
                 NpcService.gI().createTutorial(player, -1, transformName(player,
-                        "Đầu ngươi đau như búa bổ, trong ngực có thứ gì ấm và sáng.\n"
-                        + "Nhà %2 ở ngay bên phải. Về nhà đi."));
+                        "Đầu ngươi đau như búa bổ. Trong ngực có thứ gì ấm và sáng,\n"
+                        + "như một ký ức chưa kịp tắt.\n"
+                        + "Nhà %2 ở ngay bên phải. Về đi, ông đang đợi."));
                 break;
             case ConstTask.TASK_0_1:
                 NpcService.gI().createTutorial(player, -1, transformName(player,
-                        "Ông %2 đang đứng đợi kìa\nHãy nhấn 2 lần vào ông để nói chuyện"));
+                        "Căn nhà vẫn y như cũ, và %2 đang đứng đợi ở đó.\n"
+                        + "Chạm nhanh 2 lần vào ông để nói chuyện."));
                 break;
             case ConstTask.TASK_0_2:
                 npcSay(player, ConstTask.NPC_NHA,
-                        "Con về rồi à... Kairo? Ăn cơm chưa, Kairo?\n"
-                        + "Sao con nhìn ta lạ vậy? Ta gọi đúng tên con mà...\n"
-                        + "Thôi, con ra rương đồ lấy rađa,\n"
-                        + "rồi hái hết đậu trên cây đậu thần đằng kia cho ông.");
+                        "Con về rồi à... Kairo! Ăn gì chưa, Kairo?\n"
+                        + "Sao con nhìn ông lạ thế? Ông gọi đúng tên con mà... phải không?\n"
+                        + "Thôi, chắc ông già rồi. Con ra rương lấy cái rađa,\n"
+                        + "rồi thu hoạch hết đậu trên cây đậu thần đằng kia giúp ông nhé.");
                 break;
             case ConstTask.TASK_0_3:
                 break;
@@ -2124,27 +2126,27 @@ public class TaskService {
                 break;
             case ConstTask.TASK_0_5:
                 npcSay(player, ConstTask.NPC_NHA,
-                        "Ngoan. Rađa sẽ cho con thấy máu và thể lực ở góc trái.\n"
-                        + "Tay ông vẫn nhớ cách dạy đánh, dù đầu ông quên nhiều thứ lắm.\n"
-                        + "Ra %1 đi, ở đó có mộc nhân cho con tập.\n"
-                        + "Đánh ngã 5 con mộc nhân cho ông xem.");
+                        "Ngoan lắm. Đeo rađa vào, con sẽ thấy máu và thể lực ở góc trái.\n"
+                        + "Đầu ông quên nhiều thứ, nhưng tay ông vẫn nhớ cách dạy võ.\n"
+                        + "Ra %1 đi, mấy con mộc nhân cũ vẫn đứng đó.\n"
+                        + "Đánh ngã 5 con cho ông xem. Hồi nhỏ con mê lắm mà... Kairo.");
                 break;
             //--------------------------------------------------------------
             case ConstTask.TASK_1_0: {
                 SubTaskMain stm = getCurrentSubTask(player);
                 if (stm != null && isCurrentTask(player, idTaskCustom)) {
-                    Service.gI().sendThongBao(player, "Bạn đánh được "
-                            + stm.count + "/" + stm.maxCount + " mộc nhân");
+                    Service.gI().sendThongBao(player, "Mộc nhân đã ngã: "
+                            + stm.count + "/" + stm.maxCount);
                 }
                 break;
             }
             case ConstTask.TASK_1_1:
                 npcSay(player, ConstTask.NPC_NHA,
-                        "Giỏi lắm. Hồi nhỏ con cũng đấm y hệt vậy... mà hồi nhỏ nào nhỉ?\n"
-                        + "Dạo này lũ thú trên %3 phát điên, phá nát nông sản của làng.\n"
-                        + "Con hạ chúng và mang về 10 cái đùi gà, hai ông cháu ăn dần.\n"
-                        + "Hết HP hay KI thì bấm nút hình trái tim góc phải dưới để ăn đậu thần.\n"
-                        + "Nhanh lên, ông đói lắm rồi.");
+                        "Giỏi lắm! Hồi nhỏ con cũng đấm y hệt vậy... mà hồi nhỏ nào nhỉ? Ông quên rồi.\n"
+                        + "Mấy hôm nay trời trên %3 cứ rách ra một vệt trắng, lũ thú ở đó phát điên.\n"
+                        + "Chúng phá nát ruộng làng. Con hạ chúng, mang về 10 cái đùi gà, hai ông cháu ăn dần.\n"
+                        + "Hết HP hay KI thì bấm nút trái tim ở góc phải dưới để ăn đậu thần.\n"
+                        + "Đi nhanh về nhanh, ông đói lắm rồi.");
                 break;
             //--------------------------------------------------------------
             case ConstTask.TASK_2_0:
@@ -2160,10 +2162,11 @@ public class TaskService {
                     }
                 }
                 npcSay(player, ConstTask.NPC_NHA,
-                        "Đùi gà đây rồi, haha. Ông nướng ở đống lửa kia, con đói thì cứ ăn.\n"
-                        + "Lúc nãy trời trên đồi rách một đường trắng, rồi có tiếng nổ lớn.\n"
-                        + "Hình như có vật gì rơi ở %5, con ra xem thử.\n"
-                        + "Nhớ dùng tiềm năng để tăng HP, KI hoặc sức đánh.");
+                        "Đùi gà đây rồi, haha! Ông nướng bên đống lửa kia, con đói thì cứ lấy mà ăn.\n"
+                        + "Lúc nãy vệt trắng trên trời lóe lên, rồi có tiếng nổ lớn lắm.\n"
+                        + "Hình như có thứ gì rơi xuống %5. Con ra xem thử đi.\n"
+                        + "Nhớ dùng tiềm năng để tăng HP, KI hoặc sức đánh trước đã.\n"
+                        + "Đi cẩn thận nhé... ơ, con tên gì ấy nhỉ? Thôi, về rồi ông nhớ.");
                 break;
             case ConstTask.TASK_3_0:
                 break;
@@ -2174,10 +2177,11 @@ public class TaskService {
                 InventoryService.gI().sendItemBags(player);
                 Service.gI().sendFlagBag(player);
                 npcSay(player, ConstTask.NPC_NHA,
-                        "Tàu của cảnh sát vũ trụ Jaco rơi à? Trong đó còn một đứa bé...\n"
-                        + "Nó cũng không nhớ nó là ai. Để ông trông nó.\n"
-                        + "Jaco nói lũ thú mẹ bò ra từ vết nứt, đang kéo tới làng.\n"
-                        + "Con đi chặn chúng lại giúp dân làng nhé.");
+                        "Con bảo tàu rơi có huy hiệu cảnh sát vũ trụ Jaco à? Còn đứa bé con bế về đây...\n"
+                        + "Nhìn kìa, nó cũng chẳng nhớ nó là ai. Như cả cái làng này dạo gần đây vậy.\n"
+                        + "Để ông trông nó. Người lái tàu chắc còn quanh %5.\n"
+                        + "Nghe nói lũ thú mẹ đang bò ra từ vết nứt, kéo về phía làng.\n"
+                        + "Con đi chặn chúng giúp dân làng nhé. Ông... ông sẽ cố nhớ tên con.");
                 break;
             case ConstTask.TASK_5_2:
                 // Nộp Kỷ Vật Của Ông
@@ -2356,8 +2360,14 @@ public class TaskService {
             int doneIndex = taskMain.index;
             taskMain.index++;
             taskMain.lastTime = 0;
-            // TUYẾN MỚI: thưởng theo BƯỚC lấy từ bảng task_main_reward (sub_index >= 0)
-            rewardDoneSubTask(player, doneTaskId, doneIndex);
+            // TUYẾN MỚI: thưởng theo BƯỚC lấy từ bảng task_main_reward (sub_index >= 0).
+            // FIX: bước CUỐI thì KHÔNG phát thưởng bước nữa — ngay sau đó sendNextTaskMain đã
+            // phát thưởng hoàn thành nhiệm vụ (sub_index = -1). Trước đây xong bước cuối là
+            // người chơi nhận liền 2 lần sức mạnh/tiềm năng (thưởng bước + thưởng nhiệm vụ).
+            boolean isLastStep = taskMain.index >= taskMain.subTasks.size();
+            if (!isLastStep) {
+                rewardDoneSubTask(player, doneTaskId, doneIndex);
+            }
             if (player.playerTask.taskMain.id != doneTaskId) {
                 // Phần thưởng đã làm đổi nhiệm vụ (hiếm) -> không đi tiếp
                 return;

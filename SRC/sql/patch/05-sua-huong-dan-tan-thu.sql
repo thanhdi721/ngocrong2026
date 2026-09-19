@@ -64,29 +64,18 @@ START TRANSACTION;
 DELETE FROM `task_main_template` WHERE `id` IN (0, 1, 2, 3);
 
 INSERT INTO `task_main_template` (`id`, `NAME`, `detail`) VALUES
-(0, 'Người duy nhất còn nhớ', 'Ngươi tỉnh dậy ở vách núi, đầu đau như vỡ ra.
-Về nhà gặp %2, mở rương lấy rađa,
-hái đậu thần rồi báo cáo với ông.
-Thưởng 2.000 sức mạnh
-Thưởng 2.000 tiềm năng
-Thưởng 5 Đậu thần cấp 1
-Thưởng 1 Gói 10 viên Capsule'),
-(1, 'Bài học của ông', 'Ông không nhớ tên ngươi nhưng tay ông vẫn nhớ cách dạy đánh.
+(0, 'Người duy nhất còn nhớ', 'Ngươi tỉnh dậy bên vách núi, trong ngực le lói ánh sáng lạ.
+Về nhà %2, lấy rađa trong rương rồi hái đậu thần.
+Thưởng: 2.000 SM, 2.000 TN, 5 Đậu thần cấp 1, 1 Gói Capsule'),
+(1, 'Bài học của ông', 'Ông quên tên ngươi, nhưng tay ông vẫn nhớ cách dạy võ.
 Đánh ngã 5 mộc nhân ở %1 rồi về khoe với %2.
-Thưởng 3.000 sức mạnh
-Thưởng 3.000 tiềm năng
-Thưởng 1 Rada cấp 1'),
-(2, 'Vết nứt đầu tiên', 'Bầu trời trên %3 rách một đường trắng đục, lũ %4 phát điên.
-Hạ chúng, nhặt về 10 đùi gà cho %2.
-Thưởng 4.000 sức mạnh
-Thưởng 4.000 tiềm năng
-Thưởng 10 Đậu thần cấp 1'),
-(3, 'Cảnh sát vũ trụ Jaco', 'Một con tàu nhỏ vừa rơi xuống %5.
-Dùng tiềm năng cho mạnh lên, đi xem vật thể lạ
-rồi báo cáo với %2.
-Thưởng 5.000 sức mạnh
-Thưởng 5.000 tiềm năng
-Thưởng 1 bộ trang bị cấp 1 theo hành tinh');
+Thưởng: 3.000 SM, 3.000 TN, 1 Rada cấp 1'),
+(2, 'Vết nứt đầu tiên', 'Trời trên %3 rách toạc, lũ %4 phát điên phá nát ruộng làng.
+Hạ %4, nhặt 10 đùi gà mang về cho %2.
+Thưởng: 4.000 SM, 4.000 TN, 10 Đậu thần cấp 1'),
+(3, 'Cảnh sát vũ trụ Jaco', 'Tiếng nổ vang từ vách núi, có thứ gì vừa rơi xuống.
+Cộng tiềm năng, tìm vật thể lạ rồi mang về cho %2.
+Thưởng: 5.000 SM, 5.000 TN, 1 bộ đồ vải cấp 1');
 
 -- ---------------------------------------------------------------------
 -- (2b) NV 0–3 — task_sub_template: CƠ CHẾ Y NGUYÊN TUYẾN GỐC
@@ -97,19 +86,19 @@ Thưởng 1 bộ trang bị cấp 1 theo hành tinh');
 DELETE FROM `task_sub_template` WHERE `task_main_id` IN (0, 1, 2, 3);
 
 INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, `npc_id`, `map`, `ducvupro`) VALUES
-(0, 'Đi tới mũi tên chỉ dẫn', 1, '', -1, -1, 1),
-(0, 'Về nhà %2 ở bên phải', 1, '', -2, -2, 2),
-(0, 'Nói chuyện với %2', 1, '', -2, -2, 3),
-(0, 'Mở rương đồ', 1, '', 3, -2, 4),
+(0, 'Đi theo mũi tên chỉ dẫn', 1, '', -1, -1, 1),
+(0, 'Về nhà %2', 1, '', -2, -2, 2),
+(0, 'Gặp %2', 1, '', -2, -2, 3),
+(0, 'Mở rương đồ lấy rađa', 1, '', 3, -2, 4),
 (0, 'Thu hoạch đậu thần', 1, '', 4, -2, 5),
-(0, 'Báo cáo với %2', 1, '', -2, -2, 6),
-(1, 'Đánh ngã 5 mộc nhân', 5, 'Đánh ngã 5 mộc nhân cho ông xem', -1, -1, 7),
-(1, 'Về khoe với %2', 1, 'Giỏi lắm, giờ hãy về khoe với %2', -2, -2, 8),
-(2, 'Nhặt 10 đùi gà', 10, 'Hạ lũ thú phát điên, nhặt 10 đùi gà', -1, -3, 9),
-(2, 'Mang đùi gà về cho %2', 1, 'Đủ rồi, mang đùi gà về cho %2', -2, -2, 10),
-(3, 'Sử dụng tiềm năng', 1, '', -1, -1, 11),
-(3, 'Đi xem vật thể lạ vừa rơi', 1, '', -1, -4, 12),
-(3, 'Báo cáo với %2', 1, 'Mang thứ tìm được về báo cáo với %2', -2, -2, 13);
+(0, 'Về báo %2', 1, '', -2, -2, 6),
+(1, 'Đánh ngã 5 mộc nhân', 5, 'Mộc nhân cũ vẫn đứng ở %1. Đánh ngã 5 con cho ông xem', -1, -1, 7),
+(1, 'Về khoe với %2', 1, 'Mộc nhân đổ cả rồi. Về khoe với %2 thôi', -2, -2, 8),
+(2, 'Hạ %4 lấy 10 đùi gà', 10, 'Lên %3 hạ lũ %4, nhặt đủ 10 đùi gà', -1, -3, 9),
+(2, 'Đưa đùi gà cho %2', 1, 'Đủ 10 đùi gà rồi. Mang về cho %2 kẻo ông đói', -2, -2, 10),
+(3, 'Cộng điểm tiềm năng', 1, '', -1, -1, 11),
+(3, 'Tìm vật thể lạ rơi xuống', 1, '', -1, -4, 12),
+(3, 'Đưa vật lạ cho %2', 1, 'Mang thứ vừa tìm được về cho %2 xem', -2, -2, 13);
 
 -- ---------------------------------------------------------------------
 -- (3) THƯỞNG THEO BƯỚC của NV 0–3 — chỉ sức mạnh / tiềm năng, KHÔNG vàng/ngọc.

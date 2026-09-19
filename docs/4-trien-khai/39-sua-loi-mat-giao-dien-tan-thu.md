@@ -163,3 +163,72 @@ Các bước NV 4+ đã chuyển từ `-4` sang `-10`. Chỉ đổi cột `map`,
 6. **`checkDoneTaskNangCS`** hiện không còn bước nào dùng. Mốc cũ `TASK_27_0` của bản gốc không trả về, vì NV 27 mới là nhiệm vụ khác.
 7. **Jaco vẫn đứng ở 42/43/44** (file `04-npc-tren-map.sql`) nhưng chỉ còn lời thoại, không gắn bước nào.
 8. **Không thử được trên client thật trong phiên này.** Chỉ đảm bảo biên dịch sạch và dữ liệu khớp từng trường với dump gốc. Việc client mở lại giao diện dựa trên nguyên nhân đã xác định (hướng dẫn tân thủ viết cứng theo tuyến gốc).
+
+---
+
+## 9. Chữ mới NV 0–3
+
+Chỉ đổi chữ. Số bước, thứ tự, `max_count`, `npc_id`, `map`, `ducvupro`, điều kiện hoàn thành và thao tác trao/thu vật phẩm giữ nguyên như mục 2. Bảng ở mục 2 ghi tên bước bản trước. Tên bước hiện tại là cột "Mới" dưới đây.
+
+Mạch cảm xúc: ông vẫn thương người chơi nhưng gọi nhầm tên ("Kairo"). Cuối NV 2 ông quên luôn tên người chơi, cuối NV 3 ông hứa "sẽ cố nhớ tên con". Thế giới bắt đầu quên, và người chơi là người duy nhất còn nhớ.
+
+Quy tắc đã giữ:
+- Placeholder chỉ dùng loại đã có (`%1`–`%5`). `%2` đã có chữ "ông" ("ông Gôhan"), nên không viết "Ông %2" (bản cũ ở `TASK_0_1` bị lặp thành "Ông ông Gôhan").
+- Không dùng `#`.
+- Tên bước tối đa 35 ký tự sau khi thay placeholder dài nhất (giới hạn 40).
+- Mỗi dòng thoại tối đa khoảng 86 ký tự (giới hạn 120).
+- `detail` tối đa 246 ký tự (giới hạn 250).
+- `notify` nào ở dump gốc để trống thì vẫn để trống (NV 0 cả 6 bước, NV 3 bước 0 và 1), để client không hiện thêm thông báo chen vào hướng dẫn tân thủ.
+
+### 9.1 Tên nhiệm vụ và `detail`
+
+| NV | Tên | `detail` cũ (phần cốt truyện) | `detail` mới (phần cốt truyện) |
+|---|---|---|---|
+| 0 | Người duy nhất còn nhớ | Ngươi tỉnh dậy ở vách núi, đầu đau như vỡ ra. / Về nhà gặp %2, mở rương lấy rađa, / hái đậu thần rồi báo cáo với ông. | Ngươi tỉnh dậy bên vách núi, trong ngực le lói ánh sáng lạ. / Về nhà với %2, lấy rađa, hái đậu thần. / Ông vẫn đợi ngươi... chỉ là gọi sai tên. |
+| 1 | Bài học của ông | Ông không nhớ tên ngươi nhưng tay ông vẫn nhớ cách dạy đánh. / Đánh ngã 5 mộc nhân ở %1 rồi về khoe với %2. | Đầu ông quên tên ngươi, nhưng tay ông vẫn nhớ cách dạy võ. / Ra %1 đánh ngã 5 mộc nhân rồi về khoe với %2. |
+| 2 | Vết nứt đầu tiên | Bầu trời trên %3 rách một đường trắng đục, lũ %4 phát điên. / Hạ chúng, nhặt về 10 đùi gà cho %2. | Trời trên %3 rách một đường trắng đục. / Lũ %4 quên mất mình là ai, phá nát ruộng làng. / Hạ chúng, mang 10 đùi gà về cho %2. |
+| 3 | Cảnh sát vũ trụ Jaco | Một con tàu nhỏ vừa rơi xuống %5. / Dùng tiềm năng cho mạnh lên, đi xem vật thể lạ / rồi báo cáo với %2. | Tiếng nổ vang từ %5, có thứ gì vừa rơi xuống. / Cộng tiềm năng cho mạnh lên, đi xem vật thể lạ / rồi mang về cho %2. |
+
+Các dòng "Thưởng ..." trong `detail` giữ nguyên, vì chúng khớp `task_main_reward`.
+
+### 9.2 Tên bước (`NAME`) và câu nhắc (`notify`)
+
+| ducvupro | Bước | Tên cũ | Tên mới | `notify` cũ | `notify` mới |
+|---|---|---|---|---|---|
+| 1 | TASK_0_0 | Đi tới mũi tên chỉ dẫn | Gượng dậy, đi theo mũi tên chỉ dẫn | *(trống)* | *(trống)* |
+| 2 | TASK_0_1 | Về nhà %2 ở bên phải | Tìm về nhà %2 ở bên phải | *(trống)* | *(trống)* |
+| 3 | TASK_0_2 | Nói chuyện với %2 | Gặp %2 đang đứng đợi | *(trống)* | *(trống)* |
+| 4 | TASK_0_3 | Mở rương đồ | Mở rương đồ lấy rađa | *(trống)* | *(trống)* |
+| 5 | TASK_0_4 | Thu hoạch đậu thần | Thu hoạch đậu thần cho ông | *(trống)* | *(trống)* |
+| 6 | TASK_0_5 | Báo cáo với %2 | Quay lại báo cáo với %2 | *(trống)* | *(trống)* |
+| 7 | TASK_1_0 | Đánh ngã 5 mộc nhân | Đánh ngã 5 mộc nhân ở %1 | Đánh ngã 5 mộc nhân cho ông xem | Mộc nhân cũ vẫn đứng ở %1. Đánh ngã 5 con cho ông xem |
+| 8 | TASK_1_1 | Về khoe với %2 | Về khoe thành quả với %2 | Giỏi lắm, giờ hãy về khoe với %2 | Mộc nhân đổ cả rồi. Về khoe với %2 thôi |
+| 9 | TASK_2_0 | Nhặt 10 đùi gà | Hạ lũ %4, nhặt 10 đùi gà | Hạ lũ thú phát điên, nhặt 10 đùi gà | Trời trên %3 rách toạc, lũ %4 phát điên. Hạ chúng, nhặt 10 đùi gà |
+| 10 | TASK_2_1 | Mang đùi gà về cho %2 | Mang 10 đùi gà về cho %2 | Đủ rồi, mang đùi gà về cho %2 | Đủ 10 cái rồi. Mang về cho %2 kẻo ông đói |
+| 11 | TASK_3_0 | Sử dụng tiềm năng | Cộng điểm tiềm năng cho mạnh lên | *(trống)* | *(trống)* |
+| 12 | TASK_3_1 | Đi xem vật thể lạ vừa rơi | Đi xem vật thể lạ vừa rơi xuống | *(trống)* | *(trống)* |
+| 13 | TASK_3_2 | Báo cáo với %2 | Đưa thứ tìm được về cho %2 | Mang thứ tìm được về báo cáo với %2 | Mang thứ vừa tìm được về cho %2 xem |
+
+### 9.3 Lời thoại trong `TaskService.doneTask` và `Controller`
+
+| Chỗ | Cũ | Mới |
+|---|---|---|
+| `Controller`, đăng nhập khi `TASK_0_0` | Chào Mừng {tên} Đến Với: {server} / Nhiệm vụ đầu tiên của bạn là di chuyển / Bạn hãy di chuyển nhân vật theo mũi tên chỉ hướng | Chào mừng {tên} đến với {server}. / Ngươi vừa tỉnh dậy bên vách núi, không nhớ mình đã ngất đi bao lâu. / Hãy di chuyển nhân vật theo mũi tên chỉ hướng. |
+| `TASK_0_0` (tutorial) | Đầu ngươi đau như búa bổ, trong ngực có thứ gì ấm và sáng. / Nhà %2 ở ngay bên phải. Về nhà đi. | Đầu ngươi đau như búa bổ. Trong ngực có thứ gì ấm và sáng, / như một ký ức chưa kịp tắt. / Nhà %2 ở ngay bên phải. Về đi, ông đang đợi. |
+| `TASK_0_1` (tutorial) | Ông %2 đang đứng đợi kìa / Hãy nhấn 2 lần vào ông để nói chuyện | Căn nhà vẫn y như cũ, và %2 đang đứng đợi ở đó. / Chạm nhanh 2 lần vào ông để nói chuyện. |
+| `TASK_0_2` (ông) | Con về rồi à... Kairo? Ăn cơm chưa, Kairo? / Sao con nhìn ta lạ vậy? ... / Thôi, con ra rương đồ lấy rađa, / rồi hái hết đậu ... | Con về rồi à... Kairo! Ăn gì chưa, Kairo? / Sao con nhìn ông lạ thế? Ông gọi đúng tên con mà... phải không? / Thôi, chắc ông già rồi. Con ra rương lấy cái rađa, / rồi thu hoạch hết đậu trên cây đậu thần đằng kia giúp ông nhé. |
+| `TASK_0_5` (ông) | Ngoan. Rađa sẽ cho con thấy máu và thể lực ở góc trái. / ... / Đánh ngã 5 con mộc nhân cho ông xem. | Ngoan lắm. Đeo rađa vào, con sẽ thấy máu và thể lực ở góc trái. / Đầu ông quên nhiều thứ, nhưng tay ông vẫn nhớ cách dạy võ. / Ra %1 đi, mấy con mộc nhân cũ vẫn đứng đó. / Đánh ngã 5 con cho ông xem. Hồi nhỏ con mê lắm mà... Kairo. |
+| `TASK_1_0` (thông báo) | Bạn đánh được x/5 mộc nhân | Mộc nhân đã ngã: x/5 |
+| `TASK_1_1` (ông) | Giỏi lắm. Hồi nhỏ con cũng đấm y hệt vậy... / Dạo này lũ thú trên %3 phát điên ... / Nhanh lên, ông đói lắm rồi. | Giỏi lắm! Hồi nhỏ con cũng đấm y hệt vậy... mà hồi nhỏ nào nhỉ? Ông quên rồi. / Mấy hôm nay trời trên %3 cứ rách ra một vệt trắng, lũ thú ở đó phát điên. / Chúng phá nát ruộng làng. Con hạ chúng, mang về 10 cái đùi gà, hai ông cháu ăn dần. / Hết HP hay KI thì bấm nút trái tim ở góc phải dưới để ăn đậu thần. / Đi nhanh về nhanh, ông đói lắm rồi. |
+| `TASK_2_1` (ông) | Đùi gà đây rồi, haha. ... / Hình như có vật gì rơi ở %5, con ra xem thử. / Nhớ dùng tiềm năng ... | Đùi gà đây rồi, haha! Ông nướng bên đống lửa kia, con đói thì cứ lấy mà ăn. / Lúc nãy vệt trắng trên trời lóe lên, rồi có tiếng nổ lớn lắm. / Hình như có thứ gì rơi xuống %5. Con ra xem thử đi. / Nhớ dùng tiềm năng để tăng HP, KI hoặc sức đánh trước đã. / Đi cẩn thận nhé... ơ, con tên gì ấy nhỉ? Thôi, về rồi ông nhớ. |
+| `TASK_3_2` (ông) | Tàu của cảnh sát vũ trụ Jaco rơi à? ... / Jaco nói lũ thú mẹ bò ra từ vết nứt ... | Con bảo tàu rơi có huy hiệu cảnh sát vũ trụ Jaco à? Còn đứa bé con bế về đây... / Nhìn kìa, nó cũng chẳng nhớ nó là ai. Như cả cái làng này dạo gần đây vậy. / Để ông trông nó. Người lái tàu chắc còn quanh %5. / Nghe nói lũ thú mẹ đang bò ra từ vết nứt, kéo về phía làng. / Con đi chặn chúng giúp dân làng nhé. Ông... ông sẽ cố nhớ tên con. |
+
+### 9.4 Đã kiểm tra
+
+- Biên dịch sạch cả 571 file `.java`.
+- Có script đối chiếu 13 bước NV 0–3 trong `02` và `05` với bản trước khi sửa. Kết quả:
+  - `task_main_id`, `max_count`, `npc_id`, `map` và `ducvupro` giống hệt bản trước;
+  - bước nào có `notify` trống thì vẫn trống;
+  - chữ trong `02` và `05` giống nhau từng ký tự;
+  - không có `#`, không có placeholder mới, độ dài nằm trong giới hạn.
+- Đã import thử vào DB tạm trên MySQL 8.4 (máy thử không có MariaDB): dump gốc, rồi `01`, `02`, `05`. Không lỗi. K1–K4 ra đúng kỳ vọng (6/2/2/3 bước, tổng 237, `-4` chỉ ở NV 3, `-10` gồm 2 bước NV 17 và 4 bước NV 33). Đã xóa DB tạm.

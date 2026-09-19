@@ -24,6 +24,13 @@ public class GiftCodeManager {
     public GiftCode checkUseGiftCode(Player player, String code) {
         for (GiftCode giftCode : listGiftCode) {
             if (giftCode.code.equals(code)) {
+                // FIX: xét hạn TRƯỚC khi trừ lượt. Trước đây hàm này trừ count_left và đánh dấu
+                // người chơi "đã dùng" rồi GiftCodeService mới báo hết hạn → nhập code hết hạn
+                // vẫn mất một lượt của code, và người đó không nhập lại được nữa.
+                if (giftCode.timeCode()) {
+                    Service.gI().sendThongBaoOK(player, "Code đã hết hạn");
+                    return null;
+                }
                 if (giftCode.countLeft <= 0) {
                     Service.gI().sendThongBaoOK(player, "Giftcode đã hết");
                     return null;

@@ -781,9 +781,9 @@ public class Controller implements IMessageHandler {
 
                             if (TaskService.gI().getIdTask(player) == ConstTask.TASK_0_0) {
                                 NpcService.gI().createTutorial(player, -1,
-                                        "Chào Mừng " + player.name + " Đến Với: " + ServerManager.NAME + "\n"
-                                        + "Nhiệm vụ đầu tiên của bạn là di chuyển\n"
-                                        + "Bạn hãy di chuyển nhân vật theo mũi tên chỉ hướng");
+                                        "Chào mừng " + player.name + " đến với " + ServerManager.NAME + ".\n"
+                                        + "Ngươi vừa tỉnh dậy bên vách núi, không nhớ mình đã ngất đi bao lâu.\n"
+                                        + "Hãy di chuyển nhân vật theo mũi tên chỉ hướng.");
                             } else {
                                 // -70 thông báo bigmessage
                                 //sendThongBaoServer(player);
