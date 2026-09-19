@@ -397,7 +397,10 @@ public class TaskService {
             // ---- 7 Bunma (Siêu thị 84) --------------------------------------
             case ConstNpc.BUNMA: {
                 if (mapId == 84) {
-                    return doneTask(player, ConstTask.TASK_8_0);
+                    // NV 14 bước 0: trước đây ở Nhà Bunma (102) nhưng map đó chỉ tới được bằng
+                    // cỗ máy thời gian của Ca Lích (mở từ NV 24) -> người chơi kẹt. Chuyển về Siêu Thị.
+                    return doneTask(player, ConstTask.TASK_8_0)
+                            || doneTask(player, ConstTask.TASK_14_0);
                 }
                 return false;
             }
@@ -413,8 +416,7 @@ public class TaskService {
                 if (mapId != 102) {
                     return false;
                 }
-                return doneTask(player, ConstTask.TASK_14_0)
-                        || doneTask(player, ConstTask.TASK_24_0)
+                return doneTask(player, ConstTask.TASK_24_0)
                         || doneTask(player, ConstTask.TASK_24_4)
                         || doneTask(player, ConstTask.TASK_25_3)
                         || doneTask(player, ConstTask.TASK_28_4)

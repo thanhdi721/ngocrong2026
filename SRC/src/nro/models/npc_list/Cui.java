@@ -55,9 +55,18 @@ public class Cui extends Npc {
                                         "Đến Cold", "Đến\nNappa", "Từ chối");
                             }
                         }
-                        case 68 ->
-                            this.createOtherMenu(pl, ConstNpc.BASE_MENU,
-                                    "Ngươi muốn về Thành Phố Vegeta", "Đồng ý", "Từ chối");
+                        case 68 -> {
+                            // Khu hang động (160) không có cổng đi bộ từ hiện tại; trước đây chỉ tới được
+                            // bằng Nhẫn thời không (có từ NV 32) nên NV 20 / NV 48 bị kẹt. Cui đưa tới từ NV 20.
+                            if (TaskService.gI().getIdTask(pl) >= ConstTask.TASK_20_0) {
+                                this.createOtherMenu(pl, ConstNpc.BASE_MENU,
+                                        "Ngươi muốn về Thành Phố Vegeta, hay tới Khu hang động?",
+                                        "Về TP\nVegeta", "Khu hang\nđộng", "Từ chối");
+                            } else {
+                                this.createOtherMenu(pl, ConstNpc.BASE_MENU,
+                                        "Ngươi muốn về Thành Phố Vegeta", "Về TP\nVegeta", "Từ chối");
+                            }
+                        }
                         default ->
                             this.createOtherMenu(pl, ConstNpc.BASE_MENU,
                                     "Tàu vũ trụ Xayda sử dụng công nghệ mới nhất, "
@@ -139,6 +148,11 @@ public class Cui extends Npc {
                     switch (select) {
                         case 0 ->
                             ChangeMapService.gI().changeMapBySpaceShip(player, 19, -1, 1100);
+                        case 1 -> {
+                            if (TaskService.gI().getIdTask(player) >= ConstTask.TASK_20_0) {
+                                ChangeMapService.gI().changeMapBySpaceShip(player, 160, -1, 1100);
+                            }
+                        }
                     }
                 }
             }
