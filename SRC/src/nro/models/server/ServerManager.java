@@ -101,6 +101,9 @@ public class ServerManager {
                 }
             }, "ServerMain").start();
 
+            // CPANEL: bảng điều khiển Swing (tự bỏ qua nếu headless hoặc server.cpanel=false)
+            nro.models.cpanel.CPanel.startIfEnabled();
+
             activeCommandLine();
         } catch (Exception e) {
             Logger.logException(ServerManager.class, e);

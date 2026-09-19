@@ -288,10 +288,16 @@ public class Zone {
         // TUYẾN MỚI: tra một lần, dùng cho các bộ lọc vật phẩm nhiệm vụ bên dưới.
         final int idTaskOfPlayer = TaskService.gI().getIdTask(player);
         for (ItemMap item : items) {
-            // TUYẾN MỚI: bỏ hai nhánh của tuyến cũ
-            //   - item 78 "Đứa bé" hiện khi getIdTask == TASK_3_1  -> bỏ hẳn (tuyến mới không dùng)
-            //   - item 74 "Đùi gà nướng" hiện khi getIdTask >= TASK_3_0 -> bỏ hẳn (tuyến mới không dùng)
-            // Thay bằng vật phẩm nhiệm vụ mới "Mảnh Vỡ Hư Không" (NV 2) và "Kỷ Vật Của Ông" (NV 5),
+            // doc 39: KHÔI PHỤC hai bộ lọc của tuyến gốc (NV 0–3 trả về cơ chế gốc):
+            //   - item 78 "đứa bé" / vật thể lạ (rải sẵn ở map 42/43/44) chỉ hiện khi TASK_3_1
+            //   - item 74 "đùi gà nướng" (rải sẵn ở map nhà 21/22/23) chỉ hiện từ TASK_3_0
+            if (item.itemTemplate.id == 78 && idTaskOfPlayer != ConstTask.TASK_3_1) {
+                continue;
+            }
+            if (item.itemTemplate.id == 74 && idTaskOfPlayer < ConstTask.TASK_3_0) {
+                continue;
+            }
+            // TUYẾN MỚI: vật phẩm nhiệm vụ "Mảnh Vỡ Hư Không" và "Kỷ Vật Của Ông" (NV 5),
             // chỉ chủ nhân nhìn thấy như item 726.
             // FIX: id 2001/2002 -> 2009/2010. Bảng id đã chốt lại
             // (docs/4-trien-khai/25-bang-id-vat-pham-moi.md): 2001 = "Vỏ Lõi rỗng",

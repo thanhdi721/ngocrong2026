@@ -454,10 +454,18 @@ public class Player implements Runnable {
                         activeEffects.entrySet().removeIf(entry -> System.currentTimeMillis() >= entry.getValue());
                         this.spreadEffectToNearbyPlayers();
                     }
-                    // TUYẾN MỚI: bỏ đoạn ép taskMain.index = 2 khi đứng ở map nhà với mốc cũ TASK_0_0 / TASK_0_1.
-                    // Tuyến cũ dùng nó để đẩy người chơi qua bước "đi tới mép vách núi". Tuyến mới NV 0 có
-                    // bước 0 "Đi về nhà" (TASK_0_0) và bước 1 "Lấy đồ trong rương" (TASK_0_1) là bước thật,
-                    // giữ lại đoạn này sẽ nhảy cóc mất bước 1 và mất luôn phần thưởng của bước đó.
+                    // doc 39: KHÔI PHỤC đoạn giải cứu của tuyến gốc. Người chơi đang đứng ở map nhà
+                    // (21 + gender) mà vẫn ở TASK_0_0 "Di chuyển tới mũi tên" hoặc TASK_0_1 "Đi đến nhà"
+                    // thì đẩy thẳng sang bước 2 "Nói chuyện với ông" và gửi lại nhiệm vụ, để client
+                    // hướng dẫn tân thủ bắt đúng nhịp (đúng tình trạng người mới bị kẹt khi mất giao diện).
+                    if (this.isPl() && this.zone != null && this.zone.map.mapId == this.gender + 21
+                            && this.playerTask != null && this.playerTask.taskMain != null
+                            && this.playerTask.taskMain.subTasks.size() > 2
+                            && (TaskService.gI().getIdTask(this) == ConstTask.TASK_0_0
+                            || TaskService.gI().getIdTask(this) == ConstTask.TASK_0_1)) {
+                        this.playerTask.taskMain.index = 2;
+                        TaskService.gI().sendTaskMain(this);
+                    }
                 }
                 // FIX: kick người bị ban ở mọi bản đồ (trước đây chỉ kick khi không đứng ở map nhà)
                 if (isPl() && idMark != null && idMark.isBan() && Util.canDoWithTime(idMark.getLastTimeBan(), 5000)) {
@@ -1020,9 +1028,10 @@ public class Player implements Runnable {
         } else if (this.idNRNM >= 353 && this.idNRNM <= 359) {
             return 30;
         }
-        // TUYẾN MỚI: mốc cũ TASK_3_2 (so sánh ==) -> TASK_5_2 (so sánh >=).
-        // NV 5 "Ký ức của ông" mới là bước mở túi lưng; dùng >= để cờ túi không biến mất khi qua bước sau.
-        if (TaskService.gI().getIdTask(this) >= ConstTask.TASK_5_2) {
+        // doc 39: khôi phục mốc gốc TASK_3_2 (đang cõng "đứa bé" về báo cáo ông) — cờ túi 28.
+        // Giữ thêm mốc TASK_5_2 trở đi của tuyến mới (NV 5 "Ký ức của ông").
+        int idTaskFlagBag = TaskService.gI().getIdTask(this);
+        if (idTaskFlagBag == ConstTask.TASK_3_2 || idTaskFlagBag >= ConstTask.TASK_5_2) {
             return 28;
         }
         if (this.inventory.itemsBody.size() >= 11) {

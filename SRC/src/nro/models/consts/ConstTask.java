@@ -30,6 +30,13 @@ public class ConstTask {
     public static final byte MAP_QUAI_BAY_600 = -7;
     public static final byte MAP_LANG = -8;
     public static final byte MAP_QUY_LAO = -9;
+    /**
+     * SỬA LỖI MẤT GIAO DIỆN TÂN THỦ (doc 39): -4 MAP_VACH_NUI phải trả 39/40/41 như tuyến gốc
+     * (NV 3 bước 1 "vật thể lạ" — client hướng dẫn tân thủ viết cứng theo đó).
+     * Các bước NV 4+ cần vách núi 42 Aru / 43 Moori / 44 Kakarot (Bà Hạt Mít NV 17,
+     * Quốc Vương NV 33) dùng placeholder riêng này.
+     */
+    public static final byte MAP_VACH_NUI_LANG = -10;
 
     //const change npc id
     public static final byte NPC_NHA = -2;

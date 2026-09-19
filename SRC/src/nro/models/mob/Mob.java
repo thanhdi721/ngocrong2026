@@ -1086,11 +1086,11 @@ public class Mob {
             case ConstMob.KHUNG_LONG:
             case ConstMob.LON_LOI:
             case ConstMob.QUY_DAT:
-                // TUYẾN MỚI: mốc cũ TASK_2_0 rơi item 73 "Đùi gà" -> TASK_2_2 rơi "Mảnh Vỡ Hư Không"
-                // FIX: id 2001 -> 2009. Bảng id đã chốt lại (docs/4-trien-khai/25-bang-id-vat-pham-moi.md):
-                // 2001 nay là "Vỏ Lõi rỗng", còn "Mảnh Vỡ Hư Không" = 2009.
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_2_2) {
-                    itemMap = dropQuestItem(player, 2009);
+                // doc 39: KHÔI PHỤC tuyến gốc — NV 2 bước 0 "thu thập 10 đùi gà": rơi item 73
+                // cho riêng người chơi khi đang ở TASK_2_0. (Bỏ nhánh "Mảnh Vỡ Hư Không" 2009
+                // ở TASK_2_2 vì NV 2 gốc chỉ có 2 bước.)
+                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_2_0) {
+                    itemMap = new ItemMap(zone, 73, 1, location.x, location.y, player.id);
                 }
                 break;
             case ConstMob.THAN_LAN_BAY:

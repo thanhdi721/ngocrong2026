@@ -322,8 +322,13 @@ public class TaskService {
                 if (npc.tempId != transformNpcId(player, ConstTask.NPC_NHA)) {
                     return false;
                 }
+                // NV 0–3: khôi phục NGUYÊN cơ chế tuyến gốc (doc 39) — client hướng dẫn
+                // tân thủ viết cứng theo đúng các bước này.
                 return doneTask(player, ConstTask.TASK_0_2)
+                        || doneTask(player, ConstTask.TASK_0_5)
                         || doneTask(player, ConstTask.TASK_1_1)
+                        || doneTask(player, ConstTask.TASK_2_1)
+                        || doneTask(player, ConstTask.TASK_3_2)
                         || doneTask(player, ConstTask.TASK_4_2)
                         || doneTask(player, ConstTask.TASK_5_2)
                         || doneTask(player, ConstTask.TASK_6_2)
@@ -348,9 +353,7 @@ public class TaskService {
             }
             // ---- 63 Jaco ----------------------------------------------------
             case ConstNpc.JACO: {
-                if (isMapVachNui(player, mapId)) {
-                    return doneTask(player, ConstTask.TASK_3_0);
-                }
+                // doc 39: bỏ TASK_3_0 "Gặp Jaco ở vách núi" — NV 3 đã trả về cơ chế gốc.
                 if (isMapTTVT(player, mapId)) {
                     return doneTask(player, ConstTask.TASK_7_2)
                             || doneTask(player, ConstTask.TASK_15_2);
@@ -393,7 +396,7 @@ public class TaskService {
             }
             // ---- 21 Bà Hạt Mít ----------------------------------------------
             case ConstNpc.BA_HAT_MIT: {
-                if (isMapVachNui(player, mapId)) {
+                if (isMapVachNuiLang(player, mapId)) {
                     return doneTask(player, ConstTask.TASK_17_0);
                 }
                 if (mapId == 5) {
@@ -495,7 +498,7 @@ public class TaskService {
             }
             // ---- 42 Quốc Vương (vách núi 42/43/44) --------------------------
             case ConstNpc.QUOC_VUONG: {
-                if (isMapVachNui(player, mapId)) {
+                if (isMapVachNuiLang(player, mapId)) {
                     return doneTask(player, ConstTask.TASK_33_1)
                             || doneTask(player, ConstTask.TASK_33_5);
                 }
@@ -617,7 +620,8 @@ public class TaskService {
     // ======================================================================
     public void checkDoneTaskGetItemBox(Player player) {
         if (player != null && player.isPl()) {
-            doneTask(player, ConstTask.TASK_0_1);
+            // doc 39: tuyến gốc — "Mở rương đồ" là bước 3 của NV 0
+            doneTask(player, ConstTask.TASK_0_3);
         }
     }
 
@@ -650,7 +654,8 @@ public class TaskService {
     // ======================================================================
     public void checkDoneTaskUseTiemNang(Player player) {
         if (player != null && player.isPl()) {
-            doneTask(player, ConstTask.TASK_1_2);
+            // doc 39: tuyến gốc — "Sử dụng tiềm năng" là bước 0 của NV 3
+            doneTask(player, ConstTask.TASK_3_0);
         }
     }
 
@@ -661,9 +666,9 @@ public class TaskService {
         if (player == null || !player.isPl() || player.nPoint == null) {
             return;
         }
-        if (player.nPoint.dameg >= 30) {
-            doneTask(player, ConstTask.TASK_3_2);
-        }
+        // doc 39: đã bỏ mốc "dameg >= 30 -> TASK_3_2". TASK_3_2 nay lại là bước
+        // "Báo cáo với ông" của tuyến gốc (nói chuyện NPC), không được hoàn thành ở đây.
+        // Hiện không bước nào của tuyến mới dùng trigger này.
     }
 
     // ======================================================================
@@ -695,9 +700,9 @@ public class TaskService {
         }
         int mapId = (player.zone != null && player.zone.map != null) ? player.zone.map.mapId : -1;
         switch (item.template.id) {
-            case 13: // Đậu thần cấp 1
-                doneTask(player, ConstTask.TASK_0_4);
-                break;
+            // doc 39: bỏ "case 13 (ăn Đậu thần) -> TASK_0_4". TASK_0_4 trả về bước gốc
+            // "Thu hoạch đậu thần" (checkDoneTaskConfirmMenuNpc). Bước ăn đậu cũ bắt người mới
+            // mở túi đồ trong lúc client còn ẩn giao diện -> kẹt vĩnh viễn.
             case 2010: // Kỷ Vật Của Ông — KHÔNG trừ ở bước này, trừ khi nộp ở TASK_5_2
                 doneTask(player, ConstTask.TASK_5_1);
                 break;
@@ -784,19 +789,20 @@ public class TaskService {
         }
         int mapId = zoneJoin.map.mapId;
         switch (mapId) {
-            case 21:
-            case 22:
-            case 23: // MAP_NHA
-                if (isMapNha(player, mapId)) {
+            // doc 39: khôi phục NGUYÊN hai nhánh NV 0 của tuyến gốc. Hàm này được gọi cả từ
+            // ChangeMapService (vào map) lẫn PlayerService.playerMove (mỗi lần di chuyển),
+            // nên điều kiện x >= 635 được xét liên tục khi người chơi đi về phía mũi tên.
+            case 39:
+            case 40:
+            case 41: // vách núi khởi đầu (PlayerDAO.createNewPlayer đặt ở 39 + gender)
+                if (player.location != null && player.location.x >= 635) {
                     doneTask(player, ConstTask.TASK_0_0);
                 }
                 break;
-            case 1:
-            case 8:
-            case 15: // MAP_200
-                if (isMap200(player, mapId)) {
-                    doneTask(player, ConstTask.TASK_2_0);
-                }
+            case 21:
+            case 22:
+            case 23: // MAP_NHA
+                doneTask(player, ConstTask.TASK_0_1);
                 break;
             case 24:
             case 25:
@@ -862,8 +868,8 @@ public class TaskService {
                 break;
             case 42:
             case 43:
-            case 44: // MAP_VACH_NUI (sau khi sửa transformMapId)
-                if (isMapVachNui(player, mapId)) {
+            case 44: // MAP_VACH_NUI_LANG (-10) — doc 39
+                if (isMapVachNuiLang(player, mapId)) {
                     doneTask(player, ConstTask.TASK_33_0);
                 }
                 break;
@@ -908,8 +914,13 @@ public class TaskService {
             return;
         }
         switch (item.itemTemplate.id) {
-            case 2009: // Mảnh Vỡ Hư Không
-                doneTask(player, ConstTask.TASK_2_2);
+            // doc 39: khôi phục vật phẩm nhiệm vụ gốc của NV 2 / NV 3.
+            // (Bỏ "2009 Mảnh Vỡ Hư Không -> TASK_2_2": NV 2 gốc chỉ có 2 bước.)
+            case 73: // đùi gà — Mob.dropItemTask rơi khi TASK_2_0
+                doneTask(player, ConstTask.TASK_2_0);
+                break;
+            case 78: // "đứa bé" / vật thể lạ — Map.initItem rải sẵn, Zone chỉ hiện khi TASK_3_1
+                doneTask(player, ConstTask.TASK_3_1);
                 break;
             case 2010: // Kỷ Vật Của Ông
                 doneTask(player, ConstTask.TASK_5_0);
@@ -1016,7 +1027,17 @@ public class TaskService {
         switch (npc.tempId) {
             // ---- A9: xem cây đậu thần (NPC 4), chọn bất kỳ mục menu nào ----
             case ConstNpc.DAU_THAN: {
-                doneTask(player, ConstTask.TASK_0_3);
+                // doc 39: tuyến gốc — "Thu hoạch đậu thần" (TASK_0_4) chỉ xong khi bấm mục 0
+                // của menu cây còn đậu / đầy đậu.
+                switch (player.idMark.getIndexMenu()) {
+                    case ConstNpc.MAGIC_TREE_NON_UPGRADE_LEFT_PEA, ConstNpc.MAGIC_TREE_NON_UPGRADE_FULL_PEA -> {
+                        if (select == 0) {
+                            doneTask(player, ConstTask.TASK_0_4);
+                        }
+                    }
+                    default -> {
+                    }
+                }
                 break;
             }
             // ---- B14 điểm rẽ 1: NPC 71 Berry, map 160, bước TASK_20_1 -------
@@ -1245,15 +1266,14 @@ public class TaskService {
         int mapId = (player.zone != null && player.zone.map != null) ? player.zone.map.mapId : -1;
         switch (mob.tempId) {
             case ConstMob.MOC_NHAN: // 0
-                if (isMapLang(player, mapId)) {
-                    doneTask(player, ConstTask.TASK_1_0);
-                }
+                // doc 39: tuyến gốc — mộc nhân ở map nào cũng tính
+                doneTask(player, ConstTask.TASK_1_0);
                 break;
             case ConstMob.KHUNG_LONG: // 1
             case ConstMob.LON_LOI: // 2
             case ConstMob.QUY_DAT: // 3
-                doneTask(player, ConstTask.TASK_2_1);
-                doneTask(player, ConstTask.TASK_3_1);
+                // doc 39: bỏ TASK_2_1 / TASK_3_1 ở đây — NV 2 gốc là NHẶT đùi gà (Mob.dropItemTask),
+                // TASK_2_1 là "Báo cáo với ông", TASK_3_1 là nhặt vật thể lạ.
                 if (isMap500(player, mapId)) {
                     doneTask(player, ConstTask.TASK_4_0);
                 }
@@ -2078,13 +2098,86 @@ public class TaskService {
         // Phần thưởng SM/TN/vàng/ngọc/vật phẩm thường nằm ở bảng task_main_reward,
         // switch dưới đây chỉ còn những việc bảng không làm được.
         switch (idTaskCustom) {
+            // ------------------------------------------------------------------
+            // NV 0–3: CƠ CHẾ Y NGUYÊN TUYẾN GỐC (doc 39) — chỉ đổi lời thoại.
+            // Client hướng dẫn tân thủ mở dần giao diện theo đúng các bước này.
+            // ------------------------------------------------------------------
             case ConstTask.TASK_0_0:
                 NpcService.gI().createTutorial(player, -1, transformName(player,
-                        "Làm tốt lắm..\nBây giờ bạn hãy vào nhà ông %2 bên phải để nhận nhiệm vụ mới nhé"));
+                        "Đầu ngươi đau như búa bổ, trong ngực có thứ gì ấm và sáng.\n"
+                        + "Nhà %2 ở ngay bên phải. Về nhà đi."));
                 break;
             case ConstTask.TASK_0_1:
                 NpcService.gI().createTutorial(player, -1, transformName(player,
-                        "Ông %2 đang đứng đợi kìa\nHãy nhấn 2 lần vào để nói chuyện"));
+                        "Ông %2 đang đứng đợi kìa\nHãy nhấn 2 lần vào ông để nói chuyện"));
+                break;
+            case ConstTask.TASK_0_2:
+                npcSay(player, ConstTask.NPC_NHA,
+                        "Con về rồi à... Kairo? Ăn cơm chưa, Kairo?\n"
+                        + "Sao con nhìn ta lạ vậy? Ta gọi đúng tên con mà...\n"
+                        + "Thôi, con ra rương đồ lấy rađa,\n"
+                        + "rồi hái hết đậu trên cây đậu thần đằng kia cho ông.");
+                break;
+            case ConstTask.TASK_0_3:
+                break;
+            case ConstTask.TASK_0_4:
+                break;
+            case ConstTask.TASK_0_5:
+                npcSay(player, ConstTask.NPC_NHA,
+                        "Ngoan. Rađa sẽ cho con thấy máu và thể lực ở góc trái.\n"
+                        + "Tay ông vẫn nhớ cách dạy đánh, dù đầu ông quên nhiều thứ lắm.\n"
+                        + "Ra %1 đi, ở đó có mộc nhân cho con tập.\n"
+                        + "Đánh ngã 5 con mộc nhân cho ông xem.");
+                break;
+            //--------------------------------------------------------------
+            case ConstTask.TASK_1_0: {
+                SubTaskMain stm = getCurrentSubTask(player);
+                if (stm != null && isCurrentTask(player, idTaskCustom)) {
+                    Service.gI().sendThongBao(player, "Bạn đánh được "
+                            + stm.count + "/" + stm.maxCount + " mộc nhân");
+                }
+                break;
+            }
+            case ConstTask.TASK_1_1:
+                npcSay(player, ConstTask.NPC_NHA,
+                        "Giỏi lắm. Hồi nhỏ con cũng đấm y hệt vậy... mà hồi nhỏ nào nhỉ?\n"
+                        + "Dạo này lũ thú trên %3 phát điên, phá nát nông sản của làng.\n"
+                        + "Con hạ chúng và mang về 10 cái đùi gà, hai ông cháu ăn dần.\n"
+                        + "Hết HP hay KI thì bấm nút hình trái tim góc phải dưới để ăn đậu thần.\n"
+                        + "Nhanh lên, ông đói lắm rồi.");
+                break;
+            //--------------------------------------------------------------
+            case ConstTask.TASK_2_0:
+                break;
+            case ConstTask.TASK_2_1:
+                subItem(player, 73, 10);
+                InventoryService.gI().sendItemBags(player);
+                if (player.zone != null) {
+                    // đùi gà nướng 74 rải sẵn ở map nhà (Map.initItem), Zone hiện từ TASK_3_0
+                    ItemMap duiGaNuong = player.zone.getItemMapByTempId(74);
+                    if (duiGaNuong != null) {
+                        Service.gI().dropItemMapForMe(player, duiGaNuong);
+                    }
+                }
+                npcSay(player, ConstTask.NPC_NHA,
+                        "Đùi gà đây rồi, haha. Ông nướng ở đống lửa kia, con đói thì cứ ăn.\n"
+                        + "Lúc nãy trời trên đồi rách một đường trắng, rồi có tiếng nổ lớn.\n"
+                        + "Hình như có vật gì rơi ở %5, con ra xem thử.\n"
+                        + "Nhớ dùng tiềm năng để tăng HP, KI hoặc sức đánh.");
+                break;
+            case ConstTask.TASK_3_0:
+                break;
+            case ConstTask.TASK_3_1:
+                break;
+            case ConstTask.TASK_3_2:
+                subItem(player, 78, 1);
+                InventoryService.gI().sendItemBags(player);
+                Service.gI().sendFlagBag(player);
+                npcSay(player, ConstTask.NPC_NHA,
+                        "Tàu của cảnh sát vũ trụ Jaco rơi à? Trong đó còn một đứa bé...\n"
+                        + "Nó cũng không nhớ nó là ai. Để ông trông nó.\n"
+                        + "Jaco nói lũ thú mẹ bò ra từ vết nứt, đang kéo tới làng.\n"
+                        + "Con đi chặn chúng lại giúp dân làng nhé.");
                 break;
             case ConstTask.TASK_5_2:
                 // Nộp Kỷ Vật Của Ông
@@ -2290,8 +2383,14 @@ public class TaskService {
                     ? 1 : (player.gender == ConstPlayer.NAMEC
                             ? 8 : 15);
         } else if (id == ConstTask.MAP_VACH_NUI) {
-            // TUYẾN MỚI: 39/40/41 và 42/43/44 TRÙNG TÊN trong map_template, nhưng Jaco (NV 3),
-            // Bà Hạt Mít (NV 17) và Quốc Vương (NV 33) đứng ở 42/43/44 — sửa lại cho đúng.
+            // doc 39: TRẢ VỀ NHƯ TUYẾN GỐC 39/40/41. NV 3 bước 1 "vật thể lạ" dùng -4 và
+            // client hướng dẫn tân thủ viết cứng theo map này.
+            return player.gender == ConstPlayer.TRAI_DAT
+                    ? 39 : (player.gender == ConstPlayer.NAMEC
+                            ? 40 : 41);
+        } else if (id == ConstTask.MAP_VACH_NUI_LANG) {
+            // doc 39: placeholder mới -10 cho vách núi cạnh làng 42 Aru / 43 Moori / 44 Kakarot
+            // (Bà Hạt Mít NV 17, Quốc Vương NV 33).
             return player.gender == ConstPlayer.TRAI_DAT
                     ? 42 : (player.gender == ConstPlayer.NAMEC
                             ? 43 : 44);
@@ -2420,8 +2519,11 @@ public class TaskService {
         return mapId == transformMapId(player, ConstTask.MAP_500);
     }
 
-    private boolean isMapVachNui(Player player, int mapId) {
-        return mapId == transformMapId(player, ConstTask.MAP_VACH_NUI);
+    /**
+     * Vách núi cạnh làng 42/43/44 (placeholder -10, doc 39).
+     */
+    private boolean isMapVachNuiLang(Player player, int mapId) {
+        return mapId == transformMapId(player, ConstTask.MAP_VACH_NUI_LANG);
     }
 
     private boolean isMapTTVT(Player player, int mapId) {

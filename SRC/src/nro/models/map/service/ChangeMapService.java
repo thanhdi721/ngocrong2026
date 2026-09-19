@@ -888,16 +888,17 @@ public class ChangeMapService {
                 case 1: //đồi hoa cúc
                 case 8: //đồi nấm tím
                 case 15: //đồi hoang
-                    // TUYẾN MỚI: mốc cũ TASK_1_0 -> TASK_2_0 (NV 2 "Vết nứt đầu tiên" diễn ra ở đây)
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_2_0) {
+                    // doc 39: trả về mốc GỐC TASK_1_0 (NV 0–3 dùng lại cơ chế tuyến gốc;
+                    // NV 2 bước 0 "thu thập 10 đùi gà" diễn ra ở đây)
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_1_0) {
                         return null;
                     }
                     break;
                 case 42: //vách aru
                 case 43: //vách moori
                 case 44: //vách kakarot
-                    // TUYẾN MỚI: mốc cũ TASK_2_0 -> TASK_3_0 (NV 3 "Cảnh sát vũ trụ Jaco")
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_3_0) {
+                    // doc 39: trả về mốc GỐC TASK_2_0 — NV 3 bước 1 phải nhặt item 78 rải sẵn ở đây
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_2_0) {
                         return null;
                     }
                     break;

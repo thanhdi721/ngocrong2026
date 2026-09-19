@@ -32,10 +32,12 @@
 -- ---------------------------------------------------------------------
 -- HAI THAY ĐỔI JAVA BẮT BUỘC ĐI KÈM FILE NÀY (nếu thiếu, mũi tên chỉ đường sai)
 -- ---------------------------------------------------------------------
--- TaskService.transformMapId (SRC/src/nro/models/services/TaskService.java:1134)
---   a) MAP_VACH_NUI (-4) hiện trả 39 / 40 / 41. Tuyến mới dùng vách núi
---      42 Vách núi Aru / 43 Vách núi Moori / 44 Vách núi Kakarot
---      (đó mới là nơi có Jaco, Bà Hạt Mít, Quốc Vương) => đổi thành 42/43/44.
+-- TaskService.transformMapId (SRC/src/nro/models/services/TaskService.java)
+--   a) [SỬA LẠI — docs/4-trien-khai/39] MAP_VACH_NUI (-4) GIỮ NHƯ TUYẾN GỐC 39/40/41
+--      (NV 3 bước 1 "vật thể lạ" — client hướng dẫn tân thủ viết cứng theo đó).
+--      Các bước NV 4+ cần 42 Vách núi Aru / 43 Vách núi Moori / 44 Vách núi Kakarot
+--      (Bà Hạt Mít NV 17, Quốc Vương NV 33) dùng placeholder MỚI -10
+--      MAP_VACH_NUI_LANG => 42/43/44.
 --   b) MAP_500 (-5) hiện KHÔNG được xử lý (trả nguyên -5 xuống client).
 --      Tuyến mới dùng -5 cho 2 Thung lũng tre / 9 Thị trấn Moori / 16 Làng Plant
 --      => thêm nhánh trả 2 / 9 / 16.
@@ -70,25 +72,26 @@ DELETE FROM `task_main_template`;
 --     Cột: id, NAME, detail (varchar 500, placeholder %1..%14)
 -- ---------------------------------------------------------------------
 INSERT INTO `task_main_template` (`id`, `NAME`, `detail`) VALUES
-(0, 'Người duy nhất còn nhớ', 'Ngươi tỉnh dậy và cả nhà đã quên tên ngươi.
-Về nhà ở %1, mở rương lấy đồ, gặp %2
-và ăn một hạt đậu thần.
+(0, 'Người duy nhất còn nhớ', 'Ngươi tỉnh dậy ở vách núi, đầu đau như vỡ ra.
+Về nhà gặp %2, mở rương lấy rađa,
+hái đậu thần rồi báo cáo với ông.
 Thưởng 2.000 sức mạnh
 Thưởng 2.000 tiềm năng
 Thưởng 5 Đậu thần cấp 1
 Thưởng 1 Gói 10 viên Capsule'),
 (1, 'Bài học của ông', 'Ông không nhớ tên ngươi nhưng tay ông vẫn nhớ cách dạy đánh.
-Đánh 10 mộc nhân ở %1, về gặp %2 rồi cộng điểm tiềm năng.
+Đánh ngã 5 mộc nhân ở %1 rồi về khoe với %2.
 Thưởng 3.000 sức mạnh
 Thưởng 3.000 tiềm năng
 Thưởng 1 Rada cấp 1'),
-(2, 'Vết nứt đầu tiên', 'Bầu trời trên %3 rách một đường trắng đục.
-Diệt 20 %4 đang phát điên và nhặt Mảnh Vỡ Hư Không.
+(2, 'Vết nứt đầu tiên', 'Bầu trời trên %3 rách một đường trắng đục, lũ %4 phát điên.
+Hạ chúng, nhặt về 10 đùi gà cho %2.
 Thưởng 4.000 sức mạnh
 Thưởng 4.000 tiềm năng
 Thưởng 10 Đậu thần cấp 1'),
-(3, 'Cảnh sát vũ trụ Jaco', 'Jaco đáp xuống %5 và đo sức mạnh của ngươi.
-Diệt 20 %4 cho hắn xem rồi nâng sức đánh gốc lên 30.
+(3, 'Cảnh sát vũ trụ Jaco', 'Một con tàu nhỏ vừa rơi xuống %5.
+Dùng tiềm năng cho mạnh lên, đi xem vật thể lạ
+rồi báo cáo với %2.
 Thưởng 5.000 sức mạnh
 Thưởng 5.000 tiềm năng
 Thưởng 1 bộ trang bị cấp 1 theo hành tinh'),
@@ -387,28 +390,33 @@ Thưởng 99 Đậu thần cấp 8');
 --     trả về => ghi ducvupro tăng dần đúng thứ tự (task_main_id, index).
 --
 --     npc_id / map âm là placeholder theo hành tinh (ConstTask):
---       map:  -2 MAP_NHA (21/22/23) · -3 MAP_200 (1/8/15) · -4 MAP_VACH_NUI (42/43/44*)
+--       map:  -2 MAP_NHA (21/22/23) · -3 MAP_200 (1/8/15) · -4 MAP_VACH_NUI (39/40/41)
+--             -10 MAP_VACH_NUI_LANG (42/43/44*)  — placeholder mới, doc 39
 --             -5 MAP_500 (2/9/16*)  · -6 MAP_TTVT (24/25/26) · -7 MAP_QUAI_BAY_600 (3/11/17)
 --             -8 MAP_LANG (0/7/14)  · -9 MAP_QUY_LAO (5/13/20) · -1 = không chỉ đường
 --       npc:  -2 NPC_NHA (0/2/1) · -3 NPC_TTVT (10/11/12) · -4 NPC_SHOP_LANG (7/8/9)
 --             -5 NPC_QUY_LAO (13/14/15) · -1 = không có NPC
 --       (*) hai dòng đánh dấu cần sửa transformMapId — xem đầu file.
+--
+--     NV 0–3 (ducvupro 1..13) là CƠ CHẾ Y NGUYÊN TUYẾN GỐC (docs/4-trien-khai/39):
+--     cùng số bước, thứ tự, max_count, npc_id, map — chỉ đổi chữ hiển thị.
+--     Client (Unity) có chế độ hướng dẫn tân thủ viết cứng theo đúng cấu trúc này;
+--     đổi số bước / loại bước là người mới MẤT HẾT giao diện. ducvupro 14 bỏ trống.
 -- ---------------------------------------------------------------------
 INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, `npc_id`, `map`, `ducvupro`) VALUES
-(0, 'Đi về nhà %2', 1, 'Hãy đi về nhà %2 ở bên phải', -1, -2, 1),  -- TASK_0_0 = 0      A6   Đi về nhà %2
-(0, 'Lấy đồ trong rương', 1, '', 3, -2, 2),  -- TASK_0_1 = 2      A8   Lấy đồ trong rương
-(0, 'Nói chuyện với %2', 1, '', -2, -2, 3),  -- TASK_0_2 = 4      A3   Nói chuyện với %2
-(0, 'Xem cây đậu thần', 1, '', 4, -2, 4),  -- TASK_0_3 = 6      A9   Xem cây đậu thần
-(0, 'Ăn một hạt Đậu thần cấp 1', 1, '', -1, -2, 5),  -- TASK_0_4 = 8      A12  Ăn một hạt Đậu thần cấp 1
-(1, 'Đập vỡ 10 mộc nhân ở %1', 10, 'Đánh ngã 10 mộc nhân ở %1', -1, -8, 6),  -- TASK_1_0 = 2048   A1   Đập vỡ 10 mộc nhân ở %1
-(1, 'Về khoe với %2', 1, 'Quay về báo cho %2', -2, -2, 7),  -- TASK_1_1 = 2050   A3   Về khoe với %2
-(1, 'Cộng điểm tiềm năng lần đầu', 1, '', -1, -1, 8),  -- TASK_1_2 = 2052   A7   Cộng điểm tiềm năng lần đầu
-(2, 'Lên %3 xem chuyện gì xảy ra', 1, '', -1, -3, 9),  -- TASK_2_0 = 4096   A6   Lên %3 xem chuyện gì xảy ra
-(2, 'Tiêu diệt 20 %4 đang phát điên', 20, 'Tiêu diệt 20 %4', -1, -3, 10),  -- TASK_2_1 = 4098   A1   Tiêu diệt 20 %4 đang phát điên
-(2, 'Nhặt Mảnh Vỡ Hư Không', 1, '', -1, -3, 11),  -- TASK_2_2 = 4100   A4   Nhặt Mảnh Vỡ Hư Không
-(3, 'Gặp Jaco ở %5', 1, '', 63, -4, 12),  -- TASK_3_0 = 6144   A3   Gặp Jaco ở %5
-(3, 'Cho Jaco xem ngươi đánh 20 %4', 20, '', -1, -3, 13),  -- TASK_3_1 = 6146   A1   Cho Jaco xem ngươi đánh 20 %4
-(3, 'Nâng sức đánh gốc lên 30', 1, '', -1, -1, 14),  -- TASK_3_2 = 6148   A11  Nâng sức đánh gốc lên 30
+(0, 'Đi tới mũi tên chỉ dẫn', 1, '', -1, -1, 1),  -- TASK_0_0 = 0      GỐC  vách núi 39/40/41, x >= 635
+(0, 'Về nhà %2 ở bên phải', 1, '', -2, -2, 2),  -- TASK_0_1 = 2      GỐC  vào map nhà 21/22/23
+(0, 'Nói chuyện với %2', 1, '', -2, -2, 3),  -- TASK_0_2 = 4      GỐC  nói chuyện ông
+(0, 'Mở rương đồ', 1, '', 3, -2, 4),  -- TASK_0_3 = 6      GỐC  lấy đồ trong rương (NPC 3)
+(0, 'Thu hoạch đậu thần', 1, '', 4, -2, 5),  -- TASK_0_4 = 8      GỐC  menu cây đậu (NPC 4), chọn mục 0
+(0, 'Báo cáo với %2', 1, '', -2, -2, 6),  -- TASK_0_5 = 10     GỐC  nói chuyện ông
+(1, 'Đánh ngã 5 mộc nhân', 5, 'Đánh ngã 5 mộc nhân cho ông xem', -1, -1, 7),  -- TASK_1_0 = 2048   GỐC  hạ mob 0
+(1, 'Về khoe với %2', 1, 'Giỏi lắm, giờ hãy về khoe với %2', -2, -2, 8),  -- TASK_1_1 = 2050   GỐC  nói chuyện ông
+(2, 'Nhặt 10 đùi gà', 10, 'Hạ lũ thú phát điên, nhặt 10 đùi gà', -1, -3, 9),  -- TASK_2_0 = 4096   GỐC  nhặt item 73
+(2, 'Mang đùi gà về cho %2', 1, 'Đủ rồi, mang đùi gà về cho %2', -2, -2, 10),  -- TASK_2_1 = 4098   GỐC  nói chuyện ông, trừ 10 item 73
+(3, 'Sử dụng tiềm năng', 1, '', -1, -1, 11),  -- TASK_3_0 = 6144   GỐC  cộng điểm tiềm năng
+(3, 'Đi xem vật thể lạ vừa rơi', 1, '', -1, -4, 12),  -- TASK_3_1 = 6146   GỐC  nhặt item 78
+(3, 'Báo cáo với %2', 1, 'Mang thứ tìm được về báo cáo với %2', -2, -2, 13),  -- TASK_3_2 = 6148   GỐC  nói chuyện ông, trừ item 78
 (4, 'Dọn đường vào %6: hạ 12 %4', 12, '', -1, -5, 15),  -- TASK_4_0 = 8192   A1   Dọn đường vào %6: hạ 12 %4
 (4, 'Hạ 15 quái mẹ biến dạng', 15, '', -1, -5, 16),  -- TASK_4_1 = 8194   A1   Hạ 15 quái mẹ biến dạng
 (4, 'Kể lại cho %2', 1, '', -2, -2, 17),  -- TASK_4_2 = 8196   A3   Kể lại cho %2
@@ -450,8 +458,8 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (16, 'Tiêu diệt 30 quái canh bờ biển', 30, '', -1, -1, 53),  -- TASK_16_2 = 32772  A1   Tiêu diệt 30 quái canh bờ biển
 (16, 'Nhặt 5 Vỏ đạn khắc dấu', 5, '', -1, -1, 54),  -- TASK_16_3 = 32774  A4   Nhặt 5 Vỏ đạn khắc dấu
 (16, 'Mang vỏ đạn về cho %10', 1, '', -5, -9, 55),  -- TASK_16_4 = 32776  A3   Mang vỏ đạn về cho %10
-(17, 'Gặp Bà Hạt Mít ở %5', 1, '', 21, -4, 56),  -- TASK_17_0 = 34816  A3   Gặp Bà Hạt Mít ở %5
-(17, 'Nâng một trang bị lên +2', 1, '', 21, -4, 57),  -- TASK_17_1 = 34818  B2   Nâng một trang bị lên +2
+(17, 'Gặp Bà Hạt Mít ở %5', 1, '', 21, -10, 56),  -- TASK_17_0 = 34816  A3   Gặp Bà Hạt Mít ở %5
+(17, 'Nâng một trang bị lên +2', 1, '', 21, -10, 57),  -- TASK_17_1 = 34818  B2   Nâng một trang bị lên +2
 (17, 'Dùng Búa rèn cũ', 1, '', -1, -1, 58),  -- TASK_17_2 = 34820  A12  Dùng Búa rèn cũ
 (17, 'Khoe vũ khí mới với %10', 1, '', -5, -9, 59),  -- TASK_17_3 = 34822  A3   Khoe vũ khí mới với %10
 (18, 'Tới Thành phố Vegeta', 1, '', -1, 19, 60),  -- TASK_18_0 = 36864  A6   Tới Thành phố Vegeta
@@ -529,12 +537,12 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (32, 'Dọn sạch hang động nguyên thủy', 40, '', -1, 160, 132),  -- TASK_32_3 = 65542  A1   Dọn sạch hang động nguyên thủy
 (32, 'Nhặt 3 Mảnh Ký Ức Vỡ', 3, '', -1, 161, 133),  -- TASK_32_4 = 65544  A4   Nhặt 3 Mảnh Ký Ức Vỡ
 (32, 'Báo cáo với Bardock', 1, '', 70, 160, 134),  -- TASK_32_5 = 65546  A3   Báo cáo với Bardock
-(33, 'Tới vách núi của hành tinh bạn', 1, '', -1, -4, 135),  -- TASK_33_0 = 67584  A6   Tới vách núi của hành tinh bạn
-(33, 'Nói chuyện với Quốc Vương', 1, '', 42, -4, 136),  -- TASK_33_1 = 67586  A3   Nói chuyện với Quốc Vương
+(33, 'Tới vách núi của hành tinh bạn', 1, '', -1, -10, 135),  -- TASK_33_0 = 67584  A6   Tới vách núi của hành tinh bạn
+(33, 'Nói chuyện với Quốc Vương', 1, '', 42, -10, 136),  -- TASK_33_1 = 67586  A3   Nói chuyện với Quốc Vương
 (33, 'Nâng HP gốc chạm trần 220.000', 1, '', -1, -1, 137),  -- TASK_33_2 = 67588  B11  Nâng HP gốc chạm trần 220.000
-(33, 'Mở giới hạn sức mạnh', 1, '', 42, -4, 138),  -- TASK_33_3 = 67590  B10  Mở giới hạn sức mạnh
+(33, 'Mở giới hạn sức mạnh', 1, '', 42, -10, 138),  -- TASK_33_3 = 67590  B10  Mở giới hạn sức mạnh
 (33, 'Đạt 3 tỷ sức mạnh', 1, '', -1, -1, 139),  -- TASK_33_4 = 67592  A5   Đạt 3 tỷ sức mạnh
-(33, 'Báo cáo với Quốc Vương', 1, '', 42, -4, 140),  -- TASK_33_5 = 67594  A3   Báo cáo với Quốc Vương
+(33, 'Báo cáo với Quốc Vương', 1, '', 42, -10, 140),  -- TASK_33_5 = 67594  A3   Báo cáo với Quốc Vương
 (34, 'Tới Cánh đồng tuyết', 1, '', -1, 105, 141),  -- TASK_34_0 = 69632  A6   Tới Cánh đồng tuyết
 (34, 'Diệt bọn canh băng', 50, '', -1, 105, 142),  -- TASK_34_1 = 69634  A1   Diệt bọn canh băng
 (34, 'Hạ 20 Kado trong 5 phút', 20, 'Còn 5 phút!', -1, 108, 143),  -- TASK_34_2 = 69636  B12  Hạ 20 Kado trong 5 phút
@@ -681,14 +689,13 @@ INSERT INTO `task_main_reward`
 (0, 2, -1, 200, 200, 0, 0, 0, '[]', 'Thưởng 200 sức mạnh. Thưởng 200 tiềm năng'),
 (0, 3, -1, 200, 200, 0, 0, 0, '[]', 'Thưởng 200 sức mạnh. Thưởng 200 tiềm năng'),
 (0, 4, -1, 200, 200, 0, 0, 0, '[]', 'Thưởng 200 sức mạnh. Thưởng 200 tiềm năng'),
+(0, 5, -1, 200, 200, 0, 0, 0, '[]', 'Thưởng 200 sức mạnh. Thưởng 200 tiềm năng'),
 (1, -1, -1, 3000, 3000, 0, 0, 0, '[[12,1,[]]]', 'Thưởng 3.000 sức mạnh. Thưởng 3.000 tiềm năng. Thưởng 1 Rada cấp 1'),
 (1, 0, -1, 300, 300, 0, 0, 0, '[]', 'Thưởng 300 sức mạnh. Thưởng 300 tiềm năng'),
 (1, 1, -1, 300, 300, 0, 0, 0, '[]', 'Thưởng 300 sức mạnh. Thưởng 300 tiềm năng'),
-(1, 2, -1, 300, 300, 0, 0, 0, '[]', 'Thưởng 300 sức mạnh. Thưởng 300 tiềm năng'),
 (2, -1, -1, 4000, 4000, 0, 0, 0, '[[13,10,[]]]', 'Thưởng 4.000 sức mạnh. Thưởng 4.000 tiềm năng. Thưởng 10 Đậu thần cấp 1'),
 (2, 0, -1, 400, 400, 0, 0, 0, '[]', 'Thưởng 400 sức mạnh. Thưởng 400 tiềm năng'),
 (2, 1, -1, 400, 400, 0, 0, 0, '[]', 'Thưởng 400 sức mạnh. Thưởng 400 tiềm năng'),
-(2, 2, -1, 400, 400, 0, 0, 0, '[]', 'Thưởng 400 sức mạnh. Thưởng 400 tiềm năng'),
 (3, -1, -1, 5000, 5000, 0, 0, 0, '[]', 'Thưởng 5.000 sức mạnh. Thưởng 5.000 tiềm năng. Thưởng 1 bộ trang bị cấp 1 theo hành tinh'),
 (3, -1, 0, 0, 0, 0, 0, 0, '[[0,1,[]],[6,1,[]],[21,1,[]],[27,1,[]]]', '1 Áo vải 3 lỗ, 1 Quần vải đen, 1 Găng vải đen, 1 Giầy nhựa'),
 (3, -1, 1, 0, 0, 0, 0, 0, '[[1,1,[]],[7,1,[]],[22,1,[]],[28,1,[]]]', '1 Áo sợi len, 1 Quần sợi len, 1 Găng sợi len, 1 Giầy sợi len'),
@@ -987,7 +994,7 @@ ALTER TABLE `task_sub_template` AUTO_INCREMENT = 239;
 SELECT COUNT(*) AS so_nhiem_vu, MIN(id) AS nho_nhat, MAX(id) AS lon_nhat
 FROM `task_main_template`;
 
--- 5.2 Đếm bước con.  KỲ VỌNG: so_buoc = 238
+-- 5.2 Đếm bước con.  KỲ VỌNG: so_buoc = 237  (NV 0–3 trả về 13 bước gốc, doc 39)
 SELECT COUNT(*) AS so_buoc FROM `task_sub_template`;
 
 -- 5.3 Không nhiệm vụ nào được thiếu bước.  KỲ VỌNG: 0 dòng trả về.

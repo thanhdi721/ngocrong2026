@@ -14,7 +14,8 @@ import nro.models.services.TaskService;
  * TUYẾN MỚI: Jaco (NPC 63) là NPC dẫn chuyện của cả chương 1–2 và của nhánh
  * NV 48. Trước đây lớp này chỉ phục vụ hai map 24 và 139 (đưa người chơi đi
  * hành tinh khác) và KHÔNG gọi trigger nhiệm vụ nào, nên các bước sau kẹt cứng:
- *   TASK_3_0  — gặp Jaco ở Vách núi   (map 42 / 43 / 44 theo hành tinh)
+ *   (TASK_3_0 "gặp Jaco ở Vách núi" ĐÃ BỎ — NV 3 trả về cơ chế gốc, xem doc 39;
+ *    Jaco vẫn đứng ở 42/43/44 nhưng chỉ có lời thoại)
  *   TASK_7_2  — gặp Jaco ở Trạm tàu vũ trụ (map 24 / 25 / 26 theo hành tinh)
  *   TASK_15_2 — gặp lại Jaco ở Trạm tàu vũ trụ
  *   TASK_48_2 / TASK_48_5 — trình báo và nộp biên bản, CHỈ ở map 24
