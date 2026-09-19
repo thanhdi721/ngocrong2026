@@ -1,6 +1,7 @@
 package nro.models.npc_list;
 
 import nro.models.consts.ConstNpc;
+import nro.models.consts.ConstTask;
 import nro.models.item.Item;
 import nro.models.map.phoban.BanDoKhoBau;
 import nro.models.services_dungeon.TreasureUnderSeaService;
@@ -192,8 +193,10 @@ public class QuyLaoKame extends Npc {
         ArrayList<String> menu = new ArrayList<>();
         menu.add("Nhiệm vụ");
         menu.add("Học\nKỹ năng");
+        // doc 45: "Về khu vực bang" LUÔN hiện ở chỉ số 2 (trước đây chỉ hiện khi có bang).
+        // Chỉ số không đổi với người có bang; người chưa có bang bấm vào sẽ được báo lý do.
+        menu.add("Về khu\nvực bang");
         if (player.clan != null) {
-            menu.add("Về khu\nvực bang");
             menu.add("Kho báu\ndưới biển");
             if (player.clan.isLeader(player)) {
                 menu.add("Giải tán\nBang hội");
@@ -293,6 +296,19 @@ public class QuyLaoKame extends Npc {
     }
 
     private void handleClanMapChange(Player player) {
+        goToClanTerritory(player);
+    }
+
+    /**
+     * doc 45: lối vào Lãnh địa Bang Hội (map 153) dùng chung cho Quy Lão Kame,
+     * Trưởng lão Guru, Vua Vegeta. Map 153 không có cửa đi bộ và bị khóa tới
+     * TASK_13_0 trong ChangeMapService.checkMapCanJoin — báo rõ thay vì im lặng.
+     */
+    public static void goToClanTerritory(Player player) {
+        if (TaskService.gI().getIdTask(player) < ConstTask.TASK_13_0) {
+            Service.gI().sendThongBao(player, "Hoàn thành nhiệm vụ 12 để mở Lãnh địa Bang Hội");
+            return;
+        }
         if (player.clan != null) {
             ChangeMapService.gI().changeMapNonSpaceship(player, 153, Util.nextInt(100, 200), 432);
         } else {
@@ -498,6 +514,15 @@ public class QuyLaoKame extends Npc {
             }
 
             if (currentProgress >= questData.requiredQuantity) {
+                // Chủ dự án chốt: nhận thưởng KOL VIP phải trừ 1 Vé Nhiệm Vụ VIP (1825), trừ TRƯỚC khi phát thưởng.
+                if (isVIP) {
+                    Item vipTicket = InventoryService.gI().findItemBag(player, 1825);
+                    if (vipTicket == null || vipTicket.quantity < 1) {
+                        Service.gI().sendThongBao(player, "Bạn cần có Vé Nhiệm Vụ VIP để nhận thưởng KOL VIP.");
+                        return;
+                    }
+                    InventoryService.gI().subQuantityItemsBag(player, vipTicket, 1);
+                }
                 if (questData.questType == ConstNpc.KOL_QUEST_TYPE_ITEM_COLLECTION) {
                     Item requiredItem = InventoryService.gI().findItemBag(player, questData.itemId);
                     if (requiredItem != null) {

@@ -1863,7 +1863,11 @@ public class UseItem {
             pl.mapBeforeCapsule = null;
         }
         pl.changeMapVIP = true;
-        ChangeMapService.gI().changeMapBySpaceShip(pl, pl.mapCapsule.get(index).map.mapId, zoneId, -1);
+        int mapIdDen = pl.mapCapsule.get(index).map.mapId;
+        // FIX (46): viên Capsule (item 193) bị trừ lúc MỞ bảng chọn map, nhưng trạng thái CHANGE_CAPSULE
+        // và danh sách map không bị xoá => sau đó gửi lại gói -91 [index] lúc nào cũng dịch chuyển miễn phí.
+        pl.idMark.setTypeChangeMap(-1);
+        ChangeMapService.gI().changeMapBySpaceShip(pl, mapIdDen, zoneId, -1);
     }
 
     public void eatPea(Player player) {

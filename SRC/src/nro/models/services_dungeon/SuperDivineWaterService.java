@@ -57,6 +57,17 @@ public class SuperDivineWaterService {
             zoneJoin = player.zoneSieuThanhThuy;
         }
         if (zoneJoin != null) {
+            // Chủ dự án chốt: dùng Mảnh giấy (726) phải bị trừ. Chỉ trừ khi vào lượt MỚI;
+            // quay lại khu đang đánh dở (zoneSieuThanhThuy != null) thì không trừ thêm.
+            if (player.zoneSieuThanhThuy == null) {
+                nro.models.item.Item manhGiay = nro.models.services.InventoryService.gI().findItemBag(player, 726);
+                if (manhGiay == null || manhGiay.quantity < 1) {
+                    Service.gI().sendThongBao(player, "Bạn không có Mảnh giấy");
+                    return;
+                }
+                nro.models.services.InventoryService.gI().subQuantityItemsBag(player, manhGiay, 1);
+                nro.models.services.InventoryService.gI().sendItemBags(player);
+            }
             init(zoneJoin, player);
             EffectSkillService.gI().setPKSTT(player, 900000);
             ChangeMapService.gI().changeMap(player, zoneJoin, 70, 336);

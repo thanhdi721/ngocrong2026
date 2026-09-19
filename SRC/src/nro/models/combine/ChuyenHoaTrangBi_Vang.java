@@ -22,7 +22,7 @@ public class ChuyenHoaTrangBi_Vang {
 
         Item trangBiGoc = player.combineNew.itemsCombine.get(0);
         Item trangBiCanChuyenHoa = player.combineNew.itemsCombine.get(1);
-        int goldChuyenHoa = 2_000_000_000;
+        long goldChuyenHoa = 5_000_000_000L; // chủ dự án chốt: 5 tỷ vàng
 
         int levelTrangBi = 0;
         int soLanRotCap = 0;
@@ -89,16 +89,34 @@ public class ChuyenHoaTrangBi_Vang {
         }
 
         npcSay.append("Chuyển qua tất cả sao pha lê\n");
-        npcSay.append("|2|Cần 2 tỷ vàng");
+        npcSay.append("|2|Cần 5 tỷ vàng");
 
         CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE,
                 npcSay.toString(), "Chuyển hóa", "Từ chối");
     }
 
     public static void thucHienChuyenHoa(Player player) {
+        // FIX (46): trước đây bước XÁC NHẬN không kiểm tra lại gì cả: gửi lại -81 với [X, X] (lặp chỉ số)
+        // sau một lần xem hợp lệ thì menu cũ vẫn còn => chuyển hoá chính món X, nhân chỉ số / sao pha lê;
+        // và trừ 2 tỷ vàng KHÔNG kiểm tra số dư (vàng âm vẫn nhận đồ). Nay kiểm tra lại toàn bộ.
+        if (player.combineNew.itemsCombine.size() != 2) {
+            return;
+        }
         Item trangBiGoc = player.combineNew.itemsCombine.get(0);
         Item trangBiCanChuyenHoa = player.combineNew.itemsCombine.get(1);
-        int goldChuyenHoa = 2_000_000_000;
+        long goldChuyenHoa = 5_000_000_000L; // chủ dự án chốt: 5 tỷ vàng
+        if (trangBiGoc == null || trangBiCanChuyenHoa == null || trangBiGoc == trangBiCanChuyenHoa
+                || !trangBiGoc.isNotNullItem() || !trangBiCanChuyenHoa.isNotNullItem()
+                || !isTrangBiGoc(trangBiGoc) || !isTrangBiChuyenHoa(trangBiCanChuyenHoa)
+                || !isCheckTrungTypevsGender(trangBiGoc, trangBiCanChuyenHoa)
+                || trangBiCanChuyenHoa.itemOptions.stream().anyMatch(io -> io.optionTemplate.id == 72 || io.optionTemplate.id == 102)) {
+            Service.gI().sendThongBao(player, "Trang bị không hợp lệ, hãy chọn lại");
+            return;
+        }
+        if (player.inventory.gold < goldChuyenHoa) {
+            Service.gI().sendThongBao(player, "Không đủ vàng để chuyển hóa");
+            return;
+        }
 
         int levelTrangBi = 0;
         int soLanRotCap = 0;
@@ -111,6 +129,10 @@ public class ChuyenHoaTrangBi_Vang {
             }
         }
 
+        if (levelTrangBi < 4) {
+            Service.gI().sendThongBao(player, "Trang bị gốc có cấp từ [+4]");
+            return;
+        }
         int chisogoc = trangBiCanChuyenHoa.itemOptions.get(0).param;
         chisogoc = (int) (chisogoc * Math.pow(1.1, levelTrangBi) * Math.pow(0.9, soLanRotCap));
         Item newItem = ItemService.gI().createNewItem(trangBiCanChuyenHoa.template.id);
@@ -135,9 +157,10 @@ public class ChuyenHoaTrangBi_Vang {
 
         player.inventory.gold -= goldChuyenHoa;
         Service.gI().sendMoney(player);
-        InventoryService.gI().addItemBag(player, newItem);
+        // FIX: trừ 2 món gốc TRƯỚC rồi mới thêm đồ mới (túi đầy vẫn có chỗ).
         InventoryService.gI().subQuantityItemsBag(player, trangBiGoc, 1);
         InventoryService.gI().subQuantityItemsBag(player, trangBiCanChuyenHoa, 1);
+        InventoryService.gI().addItemBag(player, newItem);
         InventoryService.gI().sendItemBags(player);
         CombineService.gI().reOpenItemCombine(player);
         CombineService.gI().sendEffectSuccessCombine(player);

@@ -74,8 +74,8 @@ public class ChonAiDay_Gem implements Runnable {
                             Player pl = listN.get(Util.nextInt(0, numWinners - 1));
                             if (pl != null && pl.inventory != null) {
                                 String chatMessage = pl.name + " đã chiến thắng Chọn ai đây giải thưởng";
-                                int goldC = gemNormar * 80 / 100;
-                                pl.inventory.gem += goldC;
+                                int goldC = (int) Math.min((long) gemNormar * 80 / 100, 2_000_000_000L); // FIX (46): chặn tràn int
+                                pl.inventory.gem = (int) Math.min((long) pl.inventory.gem + goldC, 2_000_000_000L); // FIX (46)
                                 Service.gI().sendThongBao(pl, "Chúc mừng bạn đã giành chiến thắng và nhận được " + Util.mumberToBlue(goldC) + " hồng ngọc");
                                 Service.gI().sendMoney(pl);
                                 ChatGlobalService.gI().chat(pl, chatMessage);
@@ -103,8 +103,8 @@ public class ChonAiDay_Gem implements Runnable {
                             Player pl = listN.get(Util.nextInt(0, numWinners - 1));
                             if (pl != null && pl.inventory != null) {
                                 String chatMessage = pl.name + " đã chiến thắng Chọn Ai Đây ngọc xanh giải VIP";
-                                int goldC = gemVip * 90 / 100;
-                                pl.inventory.gem += goldC;
+                                int goldC = (int) Math.min((long) gemVip * 90 / 100, 2_000_000_000L); // FIX (46): chặn tràn int
+                                pl.inventory.gem = (int) Math.min((long) pl.inventory.gem + goldC, 2_000_000_000L); // FIX (46)
                                 Service.gI().sendThongBao(pl, "Chúc mừng bạn đã giành chiến thắng và nhận được " + Util.mumberToBlue(goldC) + " hồng ngọc");
                                 Service.gI().sendMoney(pl);
                                 ChatGlobalService.gI().chat(pl, chatMessage);

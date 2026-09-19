@@ -158,6 +158,13 @@ public class ConstNpc {
     public static final byte RUONG_SUU_TAM = 82;
     public static final byte DR_MYUU = 83;
     public static final byte XE_NUOC_MIA = 84;
+    // NPC đổi VND ra Thỏi vàng / Ngọc, đứng ở nhà 3 hành tinh (map 21, 22, 23).
+    // id 85 = ô trống đầu tiên liền sau 84: client và NpcFactory tra template
+    // theo VỊ TRÍ trong danh sách npc_template, nên id phải bằng vị trí (và ≤ 127
+    // vì Zone ghi tempId bằng writeByte). Xem docs/4-trien-khai/44-npc-admin-dep-trai.md.
+    public static final byte ADMIN_DEP_TRAI = 85;
+    // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
+    public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------
     //menu o len tang map mabu
     public static final int GO_UPSTAIRS_MENU = 10000;

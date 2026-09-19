@@ -300,6 +300,14 @@ public class SummonDragon {
     }
 
     public void confirmWish() {
+        confirmWish(this.playerSummonShenron);
+    }
+
+    public void confirmWish(Player pl) {
+        // FIX (46): chỉ người gọi rồng mới được xác nhận điều ước.
+        if (!isShenronAppear || playerSummonShenron == null || pl == null || pl.id != playerSummonShenron.id) {
+            return;
+        }
         switch (this.menuShenron) {
             case ConstNpc.SHENRON_1_1:
                 switch (this.select) {
@@ -480,6 +488,17 @@ public class SummonDragon {
     }
 
     public void showConfirmShenron(Player pl, int menu, byte select) {
+        // FIX (46): trước đây nhận `menu` = indexMenu BẤT KỲ của BẤT KỲ ai: gọi rồng 3 sao, bấm cây đậu
+        // (indexMenu = 502 = SHENRON_1_1) rồi gửi gói 32 tới RONG_THIENG => được điều ước rồng 1 sao
+        // (+2 tỷ vàng); người khác cũng chen vào đổi điều ước. Nay chỉ người gọi rồng, đúng loại rồng.
+        if (!isShenronAppear || playerSummonShenron == null || pl == null || pl.id != playerSummonShenron.id) {
+            return;
+        }
+        int star = (menu == ConstNpc.SHENRON_1_1 || menu == ConstNpc.SHENRON_1_2 || menu == ConstNpc.SHENRON_1_3) ? 1
+                : menu == ConstNpc.SHENRON_2 ? 2 : menu == ConstNpc.SHENRON_3 ? 3 : -1;
+        if (star != this.shenronStar) {
+            return;
+        }
         this.menuShenron = menu;
         this.select = select;
         String wish = null;

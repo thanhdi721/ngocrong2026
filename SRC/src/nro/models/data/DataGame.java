@@ -32,7 +32,12 @@ import nro.models.player_system.Template.BgItem;
 public class DataGame {
 
     public static byte vsData = 9;
-    public static byte vsMap = 2;
+    // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
+    // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
+    // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
+    // không biết NPC 85, NPC đứng ở nhà không hiện / hiện sai hình.
+    // Mỗi lần thêm/sửa dòng npc_template hoặc tên map PHẢI tăng số này (tối đa 127).
+    public static byte vsMap = 3;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.

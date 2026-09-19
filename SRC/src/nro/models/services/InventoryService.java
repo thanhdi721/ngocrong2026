@@ -866,6 +866,10 @@ public class InventoryService {
                         || itemAdd.template.id == 610 || itemAdd.template.type == 14 || itemAdd.template.id == 2048
                         || itemAdd.template.id > 2049 && itemAdd.template.id < 2056 || itemAdd.template.id == 821
                         || itemAdd.template.id == 2075) {
+                    // FIX (46): chặn tràn int khi cộng dồn chồng không giới hạn (Thỏi vàng 457...).
+                    if ((long) it.quantity + itemAdd.quantity > Integer.MAX_VALUE) {
+                        continue;
+                    }
                     it.quantity += itemAdd.quantity;
                     itemAdd.quantity = 0;
                     return true;

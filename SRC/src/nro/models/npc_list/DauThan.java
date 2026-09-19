@@ -28,7 +28,10 @@ public class DauThan extends Npc {
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
             TaskService.gI().checkDoneTaskConfirmMenuNpc(player, this, (byte) select);
-            switch (player.idMark.getIndexMenu()) {
+            // FIX (46): xoá menu hiện tại để một lần mở menu chỉ xác nhận được một lần (chống gửi lặp gói 22).
+            int indexMenu = player.idMark.getIndexMenu();
+            player.idMark.setIndexMenu(-1);
+            switch (indexMenu) {
                 case ConstNpc.MAGIC_TREE_NON_UPGRADE_LEFT_PEA -> {
                     switch (select) {
                         case 0 ->

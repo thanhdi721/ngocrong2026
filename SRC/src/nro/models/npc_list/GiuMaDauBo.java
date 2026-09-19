@@ -5,6 +5,7 @@ import nro.models.clan.ClanMember;
 import nro.models.consts.ConstMob;
 import nro.models.consts.ConstNpc;
 import nro.models.map.Zone;
+import nro.models.map.service.ChangeMapService;
 import nro.models.mob.Mob;
 import nro.models.mob_bigboss.GauTuongCuop;
 import nro.models.npc.Npc;
@@ -30,14 +31,20 @@ public class GiuMaDauBo extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            // FIX: NV 13 bước 2 "Gặp Giu-ma Đầu Bò" — trước đây NPC này KHÔNG báo cho hệ thống
+            // nhiệm vụ nên bấm bao nhiêu lần bước đó cũng không xong, người chơi kẹt ở NV 13.
+            // Xong bước thì TaskService tự gửi câu "Việc tiếp theo" nên không mở menu nữa.
+            if (nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                return;
+            }
             this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ngươi đang muốn tìm mảnh vỡ và mảnh hồn bông tai Porata trong truyền thuyết, ta sẽ đưa ngươi đến đó ?",
-                    "Khiêu chiến\nBoss", "Điểm danh\n+1 Capsule\nBang", "OK", "Cửa Hàng\nBang hội","Từ chối");
+                    "Khiêu chiến\nBoss", "Điểm danh\n+1 Capsule\nBang", "OK", "Cửa Hàng\nBang hội", "Về nhà", "Từ chối");
         }
     }
 
     @Override
     public void confirmMenu(Player player, int select) {
-        if (canOpenNpc(player)) {
+        if (canOpenNpc(player) && player.idMark.isBaseMenu()) {
             switch (select) {
                 case 0 -> {
                     Zone zone = player.zone;
@@ -131,7 +138,12 @@ public class GiuMaDauBo extends Npc {
                 case 3 -> {
                     ShopService.gI().opendShop(player, "SHOP_CLAN", false);
                 }
-                default -> {
+                case 4 -> {
+                    // doc 45: lối ra khỏi Lãnh địa Bang Hội (map 153 không có cửa đi bộ)
+                    // -> về nhà đúng hành tinh: 21 Trái Đất / 22 Namếc / 23 Xayda.
+                    ChangeMapService.gI().changeMapBySpaceShip(player, 21 + player.gender, -1, 250);
+                }
+                default -> { // 5 = Từ chối
                 }
             }
         }

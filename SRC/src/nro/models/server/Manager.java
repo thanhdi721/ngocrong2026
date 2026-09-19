@@ -779,11 +779,19 @@ public final class Manager {
             Logger.success(Logger.PURPLE + "Successfully loaded mob template (" + MOB_TEMPLATES.size() + ")\n");
 
             //load npc template
-            ps = ConnectionDatabase.prepareStatement("select * from npc_template");
+            // FIX (44-npc-admin-dep-trai.md): "order by id" — client và NpcFactory tra
+            // template theo VỊ TRÍ trong danh sách, nên thứ tự phải cố định theo id.
+            int firstNpcGap = -1;
+            ps = ConnectionDatabase.prepareStatement("select * from npc_template order by id");
             rs = ps.executeQuery();
             while (rs.next()) {
                 NpcTemplate npcTemp = new NpcTemplate();
                 npcTemp.id = rs.getByte("id");
+                if (npcTemp.id != NPC_TEMPLATES.size() && firstNpcGap < 0) {
+                    // id != vị trí: NPC này (và mọi NPC sau nó) sẽ hiện sai ngoại hình ở
+                    // client, và NpcFactory.createNPC(tempId) lấy nhầm avatar / văng lỗi.
+                    firstNpcGap = npcTemp.id;
+                }
                 npcTemp.name = rs.getString("name");
                 npcTemp.head = rs.getShort("head");
                 npcTemp.body = rs.getShort("body");
@@ -792,6 +800,10 @@ public final class Manager {
                 NPC_TEMPLATES.add(npcTemp);
             }
             Logger.success(Logger.RED + "Successfully loaded npc template (" + NPC_TEMPLATES.size() + ")\n");
+            if (firstNpcGap >= 0) {
+                Logger.warning("npc_template: id hở từ id " + firstNpcGap
+                        + " trở đi — các NPC này KHÔNG dùng được trên map (id phải bằng vị trí).\n");
+            }
             ps = ConnectionDatabase.prepareStatement("select * from data_badges");
             rs = ps.executeQuery();
             while (rs.next()) {

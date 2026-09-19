@@ -45,6 +45,13 @@ public class Trade {
     private int goldTrade2;
 
     public byte accept;
+    // FIX (46 §Trade): theo dõi khoá / đồng ý THEO TỪNG NGƯỜI. Trước đây `accept++` mỗi lần có gói
+    // ACCEPT bất kể ai gửi => một người gửi ACCEPT 2 lần là giao dịch chạy mà đối phương chưa đồng ý;
+    // và không có trạng thái khoá => sau khi khoá (đối phương đã xem) vẫn đổi được số vàng.
+    private boolean locked1;
+    private boolean locked2;
+    private boolean accepted1;
+    private boolean accepted2;
 
     private long lastTimeStart;
     private boolean start;
@@ -89,11 +96,23 @@ public class Trade {
     }
 
     public void addItemTrade(Player pl, byte index, int quantity) {
+        // FIX: đã khoá thì không được thêm đồ / đổi số vàng nữa (đối phương đã xem bảng khoá).
+        if ((pl.equals(this.player1) && locked1) || (pl.equals(this.player2) && locked2)) {
+            Service.gI().sendThongBao(pl, "Đã khoá giao dịch, không thể thay đổi");
+            return;
+        }
         if (pl.getSession().actived) {
             if (index == -1) { // Giao dịch vàng
                 if (quantity > MAX_GOLD_TRADE_PER_TIME || quantity < 0) {
                     Service.gI().sendThongBao(pl, "Số vàng giao dịch không được vượt quá " + MAX_GOLD_TRADE_PER_TIME + " vàng.");
                     sendUpdateGoldTrade(pl); // Cập nhật lại số vàng hiển thị về 0 hoặc giá trị hợp lệ
+                    return;
+                }
+                // FIX: trước đây KHÔNG kiểm tra người đưa có đủ vàng => nick 0 vàng đưa 10 triệu,
+                // đối phương nhận đủ 10 triệu, nick đưa bị âm vàng. Lặp lại = in vàng vô hạn.
+                if (pl.inventory.gold < quantity) {
+                    Service.gI().sendThongBao(pl, "Không đủ vàng để giao dịch");
+                    sendUpdateGoldTrade(pl);
                     return;
                 }
                 if (pl.equals(this.player1)) {
@@ -110,6 +129,8 @@ public class Trade {
                 }
                 if (item.template.id == 570) {
                     Service.gI().sendThongBao(pl, "Không thể giao dịch Rương Gỗ");
+                    removeItemTrade2(pl, index); // FIX: trước đây chỉ báo mà vẫn cho giao dịch
+                    return;
                 }
                 if (quantity > item.quantity || quantity < 0) {
                     return;
@@ -290,6 +311,12 @@ public class Trade {
     }
 
     public void lockTran(Player pl) {
+        // FIX: ghi nhận khoá theo từng người (xem khai báo locked1/locked2).
+        if (pl.equals(player1)) {
+            locked1 = true;
+        } else if (pl.equals(player2)) {
+            locked2 = true;
+        }
         Message msg = null;
         try {
             msg = new Message(-86);
@@ -343,16 +370,67 @@ public class Trade {
         }
     }
 
-    public void acceptTrade() {
-        this.accept++;
+    /**
+     * FIX: mỗi người chỉ được tính đồng ý MỘT lần và chỉ sau khi CẢ HAI đã khoá.
+     * Trước đây `accept++` không phân biệt ai gửi.
+     */
+    public void acceptTrade(Player pl) {
+        if (!locked1 || !locked2) {
+            Service.gI().sendThongBao(pl, "Cả hai bên cần khoá giao dịch trước");
+            return;
+        }
+        if (pl.equals(player1)) {
+            accepted1 = true;
+        } else if (pl.equals(player2)) {
+            accepted2 = true;
+        } else {
+            return;
+        }
+        this.accept = (byte) ((accepted1 ? 1 : 0) + (accepted2 ? 1 : 0));
         if (this.accept == 2) {
             this.startTrade();
         }
     }
 
+    /**
+     * FIX: so hành trang THẬT với ảnh chụp lúc mở giao dịch. Giao dịch chạy trên bản sao
+     * hành trang rồi GHI ĐÈ lên hành trang thật; trước đây nếu trong lúc giao dịch người chơi
+     * tiêu / bán / đổi đồ qua đường không bị chặn (menu NPC, form nhập "bán Thỏi vàng",
+     * nâng cấp...) thì khi giao dịch xong đồ đó được "hồi sinh" => nhân đồ / nhân Thỏi vàng.
+     */
+    private static boolean sameBag(List<Item> now, List<Item> before) {
+        if (now == null || before == null || now.size() != before.size()) {
+            return false;
+        }
+        for (int i = 0; i < now.size(); i++) {
+            Item a = now.get(i);
+            Item b = before.get(i);
+            boolean na = a == null || !a.isNotNullItem();
+            boolean nb = b == null || !b.isNotNullItem();
+            if (na || nb) {
+                if (na != nb) {
+                    return false;
+                }
+                continue;
+            }
+            if (a.template.id != b.template.id || a.quantity != b.quantity
+                    || !InventoryService.checkListsEqual(a.itemOptions, b.itemOptions)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void startTrade() {
         byte tradeStatus = SUCCESS;
-        if (player1.inventory.gold + goldTrade2 > Inventory.LIMIT_GOLD) {
+        // FIX: kiểm tra lại đủ vàng lúc chốt (vàng có thể bị tiêu sau khi đặt) và hành trang
+        // không bị đổi trong lúc giao dịch (xem sameBag).
+        if (player1.inventory.gold < goldTrade1 || player2.inventory.gold < goldTrade2) {
+            tradeStatus = FAIL_NOT_ENOUGH_GOLD;
+        } else if (!sameBag(player1.inventory.itemsBag, bag1Before)
+                || (!player2.isBot && !sameBag(player2.inventory.itemsBag, bag2Before))) {
+            tradeStatus = FAIL_BAG_CHANGED;
+        } else if (player1.inventory.gold + goldTrade2 > Inventory.LIMIT_GOLD) {
             tradeStatus = FAIL_MAX_GOLD_PLAYER1;
         } else if (player2.inventory.gold + goldTrade1 > Inventory.LIMIT_GOLD) {
             tradeStatus = FAIL_MAX_GOLD_PLAYER2;
@@ -372,7 +450,9 @@ public class Trade {
                 sendNotifyTrade(tradeStatus);
             } else {
                 for (Item item : itemsTrade2) {
-                    if (!player2.isBot) {
+                    // FIX: trước đây điều kiện là !player2.isBot => giao dịch với bot bán đồ, người
+                    // chơi mất đồ đưa mà KHÔNG nhận được đồ của bot. player1 luôn là người thật.
+                    {
                         if (!InventoryService.gI().addItemList(itemsBag1, item)) {
                             tradeStatus = FAIL_NOT_ENOUGH_BAG_P2;
                             break;
@@ -408,6 +488,8 @@ public class Trade {
     private static final byte FAIL_NOT_ENOUGH_BAG_P1 = 3;
     private static final byte FAIL_NOT_ENOUGH_BAG_P2 = 4;
     private static final byte FAIL_ACTVIE = 5;
+    private static final byte FAIL_NOT_ENOUGH_GOLD = 6;
+    private static final byte FAIL_BAG_CHANGED = 7;
 
     private void sendNotifyTrade(byte status) {
         player1.idMark.setLastTimeTrade(System.currentTimeMillis());
@@ -432,6 +514,14 @@ public class Trade {
             case FAIL_NOT_ENOUGH_BAG_P2:
                 Service.gI().sendThongBao(player1, "Giao dịch thất bại vì " + player2.name + " không đủ chỗ chứa");
                 Service.gI().sendThongBao(player2, "Giao dịch thất bại vì " + player2.name + " không đủ chỗ chứa");
+                break;
+            case FAIL_NOT_ENOUGH_GOLD:
+                Service.gI().sendThongBao(player1, "Giao dịch thất bại vì một bên không đủ vàng");
+                Service.gI().sendThongBao(player2, "Giao dịch thất bại vì một bên không đủ vàng");
+                break;
+            case FAIL_BAG_CHANGED:
+                Service.gI().sendThongBao(player1, "Giao dịch thất bại vì hành trang đã thay đổi trong lúc giao dịch");
+                Service.gI().sendThongBao(player2, "Giao dịch thất bại vì hành trang đã thay đổi trong lúc giao dịch");
                 break;
             case FAIL_ACTVIE:
                 Service.gI().sendThongBao(player1,

@@ -50,6 +50,7 @@ public class NpcService {
             player.idMark.setIndexMenu(indexMenu);
             msg = new Message(32);
             msg.writer().writeShort(npcTempId);
+            if (player.idMark != null) { player.idMark.setMenuNpcId(npcTempId); } // FIX: nhớ NPC mở menu
             msg.writer().writeUTF(npcSay);
             msg.writer().writeByte(menuSelect.length);
             for (String menu : menuSelect) {

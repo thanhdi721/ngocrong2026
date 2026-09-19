@@ -37,6 +37,13 @@ public class BaHatMit extends Npc {
 
     @Override
     public void openBaseMenu(Player player) {
+        // FIX: báo hệ thống nhiệm vụ khi người chơi nói chuyện với NPC này. Trước đây NPC
+        // không gọi nên các bước nhiệm vụ "gặp / nói chuyện với" NPC này KHÔNG BAO GIỜ xong.
+        // Chỉ dừng lại khi vừa hoàn thành một bước (TaskService tự gửi câu "Việc tiếp theo");
+        // còn lại vẫn mở menu bình thường.
+        if (canOpenNpc(player) && nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+            return;
+        }
         if (canOpenNpc(player)) {
             // TUYẾN MỚI: B3 chống kẹt — người chơi đã sẵn có trang bị pha lê hóa
             // thì bước TASK_26_1 được tính ngay khi mở menu Bà Hạt Mít.
@@ -446,10 +453,10 @@ public class BaHatMit extends Npc {
                                 }
                             }
                             case CombineService.NANG_CAP_VAT_PHAM -> {
+                                // FIX (46): nút thứ 2 của menu là "Từ chối" nhưng trước đây lại gọi thẳng
+                                // nangCapVatPham (bỏ qua startCombine) => bấm Từ chối vẫn mất vàng + đá.
                                 if (select == 0) {
                                     CombineService.gI().startCombine(player);
-                                } else if (select == 1) {
-                                    NangCapVatPham.nangCapVatPham(player);
                                 }
                             }
                         }

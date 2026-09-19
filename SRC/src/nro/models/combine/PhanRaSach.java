@@ -58,6 +58,7 @@ public class PhanRaSach {
             return;
         }
         InventoryService.gI().subQuantityItemsBag(player, sachTuyetKy, 1);
+        player.inventory.gold -= 10_000_000; // FIX (46): trước đây chỉ KIỂM TRA 10 triệu vàng mà không trừ
         Item cuonSachCu = ItemService.gI().createNewItem((short) 1283, 5);
         cuonSachCu.itemOptions.add(new Item.ItemOption(30, 0));
         InventoryService.gI().addItemBag(player, cuonSachCu);

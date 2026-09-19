@@ -19,6 +19,13 @@ public class DocNhan extends Npc {
 
     @Override
     public void openBaseMenu(Player player) {
+        // FIX: báo hệ thống nhiệm vụ khi người chơi nói chuyện với NPC này. Trước đây NPC
+        // không gọi nên các bước nhiệm vụ "gặp / nói chuyện với" NPC này KHÔNG BAO GIỜ xong.
+        // Chỉ dừng lại khi vừa hoàn thành một bước (TaskService tự gửi câu "Việc tiếp theo");
+        // còn lại vẫn mở menu bình thường.
+        if (canOpenNpc(player) && nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+            return;
+        }
         if (canOpenNpc(player)) {
             if (mapId == 57) {
                 if (!player.clan.doanhTrai.winDT) {

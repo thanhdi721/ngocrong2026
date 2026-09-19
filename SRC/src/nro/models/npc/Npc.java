@@ -62,6 +62,7 @@ public abstract class Npc implements IAtionNpc {
             player.idMark.setIndexMenu(indexMenu);
             msg = new Message(32);
             msg.writer().writeShort(tempId);
+            if (player.idMark != null) { player.idMark.setMenuNpcId(tempId); } // FIX: nhớ NPC mở menu
             msg.writer().writeUTF(npcSay);
             msg.writer().writeByte(menuSelect.length);
             for (String menu : menuSelect) {
@@ -81,6 +82,7 @@ public abstract class Npc implements IAtionNpc {
             player.idMark.setIndexMenu(indexMenu);
             msg = new Message(32);
             msg.writer().writeShort(tempId);
+            if (player.idMark != null) { player.idMark.setMenuNpcId(tempId); } // FIX: nhớ NPC mở menu
             msg.writer().writeUTF(npcSay);
             msg.writer().writeByte(menuSelect.length);
             for (String menu : menuSelect) {
@@ -104,6 +106,7 @@ public abstract class Npc implements IAtionNpc {
                     Message msg;
                     msg = new Message(32);
                     msg.writer().writeShort(tempId);
+                    if (player.idMark != null) { player.idMark.setMenuNpcId(tempId); } // FIX: nhớ NPC mở menu
                     msg.writer().writeUTF("Ta có thể giúp gì cho ngươi ?");
                     msg.writer().writeByte(1);
                     msg.writer().writeUTF("Từ chối");

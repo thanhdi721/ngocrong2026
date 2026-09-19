@@ -20,6 +20,13 @@ public class QuocVuong extends Npc {
 
     @Override
     public void openBaseMenu(Player player) {
+        // FIX: báo hệ thống nhiệm vụ khi người chơi nói chuyện với NPC này. Trước đây NPC
+        // không gọi nên các bước nhiệm vụ "gặp / nói chuyện với" NPC này KHÔNG BAO GIỜ xong.
+        // Chỉ dừng lại khi vừa hoàn thành một bước (TaskService tự gửi câu "Việc tiếp theo");
+        // còn lại vẫn mở menu bình thường.
+        if (canOpenNpc(player) && nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+            return;
+        }
         // TUYẾN MỚI: B10 — chỉ hiện nút "Phá giới hạn (nhiệm vụ)" khi người chơi
         // đang đứng ĐÚNG bước nhiệm vụ và đúng bậc giới hạn. Nút mới chèn ở vị trí 2,
         // "Từ chối" đẩy xuống vị trí 3 (vị trí này vốn không có case xử lý nên không đổi hành vi).

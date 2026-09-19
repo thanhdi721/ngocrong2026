@@ -1,6 +1,7 @@
 package nro.models.npc;
 
 import nro.models.npc_list.Whis;
+import nro.models.npc_list.AdminDepTrai;
 import nro.models.npc_list.LinhCanh;
 import nro.models.npc_list.Bulma;
 import nro.models.npc_list.Cargo;
@@ -163,6 +164,9 @@ public class NpcFactory {
                     new Berry(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.GRANOLA ->
                     new Granola(mapId, status, cx, cy, tempId, avatar);
+                // NPC đổi VND ra Thỏi vàng / Ngọc ở nhà 3 hành tinh (map 21/22/23).
+                case ConstNpc.ADMIN_DEP_TRAI ->
+                    new AdminDepTrai(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.THUONG_DE ->
                     new ThuongDe(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.VADOS ->
@@ -293,7 +297,7 @@ public class NpcFactory {
                         break;
                     case ConstNpc.SHENRON_CONFIRM:
                         if (select == 0) {
-                            SummonDragon.gI().confirmWish();
+                            SummonDragon.gI().confirmWish(player); // FIX (46): truyền người xác nhận
                         } else if (select == 1) {
                             SummonDragon.gI().reOpenShenronWishes(player);
                         }
@@ -565,6 +569,11 @@ public class NpcFactory {
                         }
                     }
                     case ConstNpc.event3 -> {
+                        // FIX (46): menu ghi "Giá vàng 2.000.000" nhưng code không trừ vàng, và bấm "Đóng"
+                        // (select 1) cũng đổi. Nay chỉ nút "Đồng ý", kiểm & trừ 2 triệu vàng, cần 1 ô trống.
+                        if (select != 0) {
+                            break;
+                        }
                         Item gm = InventoryService.gI().findItemBag(player, 1505);
                         int giayMauCount = (gm != null) ? gm.quantity : 0;
 
@@ -572,8 +581,18 @@ public class NpcFactory {
                             Service.gI().sendThongBaoOK(player, "Bạn chưa có đủ 99 Giấy Màu");
                             break;
                         }
+                        if (player.inventory.gold < 2_000_000) {
+                            Service.gI().sendThongBaoOK(player, "Bạn không đủ 2.000.000 vàng");
+                            break;
+                        }
+                        if (InventoryService.gI().getCountEmptyBag(player) < 1 && gm.quantity > 99) {
+                            Service.gI().sendThongBaoOK(player, "Hành trang đã đầy");
+                            break;
+                        }
 
                         InventoryService.gI().subQuantityItemsBag(player, gm, 99);
+                        player.inventory.gold -= 2_000_000;
+                        Service.gI().sendMoney(player);
 
                         Item tv = ItemService.gI().createNewItem((short) 1506, 1);
                         InventoryService.gI().addItemBag(player, tv);
@@ -675,7 +694,14 @@ public class NpcFactory {
                         }
                     }
                     case ConstNpc.CONFIRM_TELE_NAMEC -> {
-                        if (select == 0) {
+                        // FIX (46): trước đây trừ ngọc KHÔNG kiểm tra số dư (ngọc âm vẫn dịch chuyển) và
+                        // người đang cầm ngọc (menu chỉ có nút "Kết thúc" ở vị trí 0) bấm cũng bị trừ + dịch chuyển.
+                        // Giá giữ nguyên 10 ngọc như code cũ (menu ghi 50 — xem mục cần chủ dự án quyết).
+                        if (select == 0 && player.idNRNM == -1) {
+                            if (player.inventory.gem < 10) {
+                                Service.gI().sendThongBao(player, "Bạn không đủ ngọc");
+                                break;
+                            }
                             NgocRongNamecService.gI().teleportToNrNamec(player);
                             player.inventory.subGem(10);
                             Service.gI().sendMoney(player);

@@ -1155,24 +1155,75 @@ public class PlayerDAO {
         return lastTimeLogout > lastTimeLogin;
     }
 
+    /**
+     * Trừ VND của tài khoản. Trả {@code true} CHỈ KHI DB đã trừ thật.
+     *
+     * <p>FIX (44-npc-admin-dep-trai.md §6): bản cũ chạy
+     * {@code vnd = vnd - ?} không điều kiện và bỏ qua số dòng bị ảnh hưởng, nên
+     * (a) DB có thể bị trừ thành số âm khi {@code session.vnd} trong RAM lệch
+     * với DB, (b) {@code num <= 0} thì "trừ" thành cộng. Nay:
+     * <ul>
+     * <li>từ chối {@code num <= 0};</li>
+     * <li>khoá theo session để hai lệnh đổi song song của cùng một người không
+     * cùng lọt qua bước so số dư trong RAM;</li>
+     * <li>câu UPDATE có {@code AND vnd >= ?} và phải ảnh hưởng đúng 1 dòng —
+     * DB là trọng tài cuối cùng, không bao giờ âm.</li>
+     * </ul>
+     */
     public static boolean subvnd(Player player, int num) {
-        PreparedStatement ps = null;
-        try (Connection con = LocalManager.getConnection();) {
-            if (player.getSession().vnd >= num) {
-            } else {
-                return false;
-            }
-            ps = con.prepareStatement("update account set vnd = vnd - ? where id = ?");
-            ps.setInt(1, num);
-            ps.setInt(2, player.getSession().userId);
-            ps.executeUpdate();
-            player.getSession().vnd -= num;
-
-        } catch (Exception e) {
-            Logger.logException(PlayerDAO.class, e, "Lỗi update vnd " + player.name);
+        if (player == null || player.getSession() == null || num <= 0) {
             return false;
         }
-        return true;
+        synchronized (player.getSession()) {
+            if (player.getSession().vnd < num) {
+                return false;
+            }
+            try (Connection con = LocalManager.getConnection();
+                    PreparedStatement ps = con.prepareStatement(
+                            "update account set vnd = vnd - ? where id = ? and vnd >= ?")) {
+                ps.setInt(1, num);
+                ps.setInt(2, player.getSession().userId);
+                ps.setInt(3, num);
+                if (ps.executeUpdate() != 1) {
+                    return false;
+                }
+                player.getSession().vnd -= num;
+            } catch (Exception e) {
+                Logger.logException(PlayerDAO.class, e, "Lỗi update vnd " + player.name);
+                return false;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Đọc lại {@code vnd} và {@code tongnap} từ bảng {@code account} vào session.
+     * {@code session.vnd} chỉ được nạp lúc đăng nhập, nên tiền nạp qua web khi
+     * đang online sẽ không hiện nếu không đọc lại. Chỉ ĐỌC, không ghi DB.
+     *
+     * @return {@code true} nếu đọc được
+     */
+    public static boolean reloadVnd(Player player) {
+        if (player == null || player.getSession() == null) {
+            return false;
+        }
+        synchronized (player.getSession()) {
+            try (Connection con = LocalManager.getConnection();
+                    PreparedStatement ps = con.prepareStatement(
+                            "select vnd, tongnap from account where id = ?")) {
+                ps.setInt(1, player.getSession().userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        player.getSession().vnd = rs.getInt("vnd");
+                        player.getSession().tongnap = rs.getInt("tongnap");
+                        return true;
+                    }
+                }
+            } catch (Exception e) {
+                Logger.logException(PlayerDAO.class, e, "Lỗi đọc vnd " + player.name);
+            }
+            return false;
+        }
     }
 
     public static boolean MuaThanhVien(Player player, int num) {

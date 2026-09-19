@@ -429,7 +429,12 @@ public class ShopService {
             msg.writer().writeByte(items.size());
             for (Item item : items) {
                 int giamualaingoc = item.template.gem / 2;
-                int giamualaivang = giamualaingoc == 0 ? (int) item.template.gold / 2 > 0 ? (int) item.template.gold / 2 : item.quantity * 100 : 0;
+                // FIX: hiển thị đúng giá mua lại mới (xem buyItemDaBan).
+                long giaVang = 0;
+                if (giamualaingoc == 0) {
+                    giaVang = item.template.gold > 0 ? Math.max(item.template.gold / 4, 1L) * item.quantity * 2L : (long) item.quantity * 100L;
+                }
+                int giamualaivang = (int) Math.min(giaVang, Integer.MAX_VALUE);
                 msg.writer().writeShort(item.template.id);
                 msg.writer().writeInt(giamualaivang);
                 msg.writer().writeInt(giamualaingoc);
@@ -485,6 +490,12 @@ public class ShopService {
         if (tagName.equals("BUA_1H") || tagName.equals("BUA_8H") || tagName.equals("BUA_1M")) {
             buyItemBua(player, tempId);
         } else if (tagName.equals("SANTA_HEAD")) {
+            // FIX: trước đây nhận tempId BẤT KỲ từ client (không cần có trong tiệm) => đặt được
+            // kiểu tóc của mọi vật phẩm (cải trang, đồ sự kiện...) miễn phí. Nay chỉ nhận món có trong tiệm.
+            if (player.idMark.getShopOpen().getItemShop(tempId) == null) {
+                Service.gI().sendThongBao(player, "Không thể thực hiện");
+                return;
+            }
             Item itS = ItemService.gI().createNewItem((short) tempId);
             player.head = (short) itS.template.head;
             Service.gI().Send_Caitrang(player);
@@ -517,8 +528,10 @@ public class ShopService {
         } else if (player.inventory.gem < gem) {
             Service.gI().sendThongBao(player, "Bạn không có đủ ngọc");
             return false;
-        } else if (player.inventory.gem < ruby) {
-            Service.gI().sendThongBao(player, "Bạn không có đủ ngọc");
+        } else if (player.inventory.ruby < ruby) {
+            // FIX: trước đây so sánh NGỌC XANH (gem) với giá hồng ngọc nhưng lại trừ HỒNG NGỌC
+            // => có ngọc xanh là mua được hàng giá hồng ngọc, hồng ngọc bị trừ xuống âm.
+            Service.gI().sendThongBao(player, "Bạn không có đủ hồng ngọc");
             return false;
         } else if (player.inventory.coupon < coupon) {
             Service.gI().sendThongBao(player, "Bạn không có đủ điểm");
@@ -697,6 +710,15 @@ public class ShopService {
 
         // Shop chipi
         if (is.tabShop.id == 49) {
+            // FIX: trước đây phát vật phẩm MIỄN PHÍ (không trừ gì) dù item_shop ghi giá 59..299
+            // (tiền là vật phẩm theo icon_spec). Nay trừ giá như tiệm đặc biệt trước khi phát.
+            if (InventoryService.gI().getCountEmptyBag(player) == 0) {
+                Service.gI().sendThongBao(player, "Hành trang đã đầy");
+                return;
+            }
+            if (!this.subIemByItemShop(player, is)) {
+                return;
+            }
             Item item = ItemService.gI().createItemFromItemShop(is);
             if (Util.isTrue(5, 100)) {
                 item.itemOptions.add(new ItemOption(73, 0)); // HSD vĩnh viễn
@@ -990,6 +1012,8 @@ public class ShopService {
                 break;
             case 77:
                 if (pl.inventory.gem >= buySpec) {
+                    // FIX: trước đây chỉ KIỂM TRA ngọc mà KHÔNG TRỪ => hàng giá ngọc trong tiệm đặc biệt miễn phí.
+                    pl.inventory.gem -= buySpec;
                     isBuy = true;
                 } else {
                     Service.gI().sendThongBao(pl, "Bạn Không Đủ Ngọc Để Mua Vật Phẩm");
@@ -1199,13 +1223,34 @@ public class ShopService {
         if (items == null) {
             return;
         }
-        if (index >= items.size()) {
+        if (index < 0 || index >= items.size()) {
             Service.gI().sendThongBao(player, "Không thể thực hiện");
             return;
         }
         Item item = items.get(index);
+        // FIX: kiểm tra món & chỗ trống TRƯỚC khi trừ tiền (trước đây trừ tiền rồi mới báo "Hành trang đã đầy").
+        if (item == null || !item.isNotNullItem()) {
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(player) == 0) {
+            Service.gI().sendThongBao(player, "Hành trang đã đầy");
+            return;
+        }
         int giamualaingoc = item.template.gem / 2;
-        int giamualaivang = giamualaingoc == 0 ? (int) item.template.gold / 2 > 0 ? (int) item.template.gold / 2 : item.quantity * 100 : 0;
+        // FIX: giá mua lại trước đây = template.gold / 2 CỐ ĐỊNH, không nhân số lượng, trong khi giá bán
+        // = template.gold / 4 × số lượng. Bán cả chồng (vd. 10 Hộp quà 5 sao = 500 triệu) rồi mua lại cả chồng
+        // với 100 triệu => lời 400 triệu mỗi vòng, lặp vô hạn. Nay giá mua lại vàng = 2 × giá đã bán
+        // (với món đơn lẻ vẫn bằng template.gold / 2 như cũ).
+        long giamualaivang = 0;
+        if (giamualaingoc == 0) {
+            long giaBan = item.template.gold / 4;
+            if (item.template.gold > 0) {
+                giamualaivang = Math.max(giaBan, 1L) * item.quantity * 2L;
+            } else {
+                giamualaivang = (long) item.quantity * 100L;
+            }
+        }
         if (giamualaivang > 0 && player.inventory.gold < giamualaivang) {
             Service.gI().sendThongBao(player, "Bạn không có đủ vàng!");
             return;
@@ -1217,20 +1262,12 @@ public class ShopService {
         player.inventory.gem -= giamualaingoc;
         player.inventory.gold -= giamualaivang;
         Service.gI().sendMoney(player);
-        if (item.isNotNullItem()) {
-            if (InventoryService.gI().getCountEmptyBag(player) != 0) {
-                InventoryService.gI().addItemBag(player, item);
-                Service.gI().sendThongBao(player,
-                        "Bạn nhận được " + (item.template.id == 189
-                                ? Util.numberToMoney(item.quantity) + " vàng" : item.template.name));
-                InventoryService.gI().sendItemBags(player);
-                items.remove(index);
-            } else {
-                Service.gI().sendThongBao(player, "Hành trang đã đầy");
-            }
-        } else {
-            Service.gI().sendThongBao(player, "Không thể thực hiện");
-        }
+        items.remove(index);
+        InventoryService.gI().addItemBag(player, item);
+        Service.gI().sendThongBao(player,
+                "Bạn nhận được " + (item.template.id == 189
+                        ? Util.numberToMoney(item.quantity) + " vàng" : item.template.name));
+        InventoryService.gI().sendItemBags(player);
         openShopType8(player, player.idMark.getTagNameShop(), items);
     }
 
@@ -1246,14 +1283,12 @@ public class ShopService {
             Service.gI().sendThongBao(player, "Hành trang đã đầy, không thể chứa thêm.");
             return;
         }
-        if (!subMoneyByItemShopV2(player, is)) {
-            return;
-        }
+        // FIX: trước đây TRỪ TIỀN (và trừ 99 thức ăn) TRƯỚC khi kiểm tra thức ăn / set thần
+        // => thiếu điều kiện vẫn mất tiền, mất thức ăn mà không nhận đồ. Nay kiểm tra hết rồi mới trừ.
+        Item doAn = null;
         if (item.template.level == 14) {
-            Item doAn = player.inventory.itemsBag.stream().filter(it -> it != null && it.template != null && (it.template.id == 663 || it.template.id == 664 || it.template.id == 665 || it.template.id == 666 || it.template.id == 667) && it.quantity >= 99).findFirst().orElse(null);
-            if (doAn != null) {
-                InventoryService.gI().subQuantityItemsBag(player, doAn, 99);
-            } else {
+            doAn = player.inventory.itemsBag.stream().filter(it -> it != null && it.template != null && (it.template.id == 663 || it.template.id == 664 || it.template.id == 665 || it.template.id == 666 || it.template.id == 667) && it.quantity >= 99).findFirst().orElse(null);
+            if (doAn == null) {
                 Service.gI().sendThongBao(player, "Không có đủ thức ăn");
                 return;
             }
@@ -1264,6 +1299,12 @@ public class ShopService {
                 Service.gI().sendThongBao(player, "Không có đủ set thần");
                 return;
             }
+        }
+        if (!subMoneyByItemShopV2(player, is)) {
+            return;
+        }
+        if (doAn != null) {
+            InventoryService.gI().subQuantityItemsBag(player, doAn, 99);
         }
         int param = 0;
         if (item.template.level == 14) {

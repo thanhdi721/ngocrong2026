@@ -385,6 +385,16 @@ public class Zone {
                             }
 
                             if (InventoryService.gI().addItemBag(player, item)) {
+                                // FIX (46): đánh dấu đã nhặt NGAY sau khi cộng vào túi. Trước đây biến `picked`
+                                // luôn false lúc kiểm tra nên isPickedUp không bao giờ được đặt => hai gói nhặt
+                                // cùng lúc (2 nick, hoặc nhặt tay + tự nhặt) đều qua synchronized và cùng nhận
+                                // vàng / ngọc / đồ (nhân đôi). Giữ ngoại lệ đùi gà ở nhà và cậu bé ở map 42–44.
+                                if (!(this.map.mapId >= 21 && this.map.mapId <= 23
+                                        && itemMap.itemTemplate != null && itemMap.itemTemplate.id == 74
+                                        || this.map.mapId >= 42 && this.map.mapId <= 44
+                                        && itemMap.itemTemplate != null && itemMap.itemTemplate.id == 78)) {
+                                    itemMap.isPickedUp = true;
+                                }
                                 int itemType = item.template.type;
                                 Message msg;
                                 try {

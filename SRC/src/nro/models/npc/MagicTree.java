@@ -145,7 +145,7 @@ public class MagicTree {
                 }
             } else {
                 msg.writer().writeUTF("Nâng cấp\nnhanh\n" + UPGRADE_GEM[this.level - 1] + " ngọc");
-                msg.writer().writeUTF("Hủy\nnâng cấp\nhồi " + (PEA_UPGRADE[this.level - 1][3] / 2 + (this.level <= 3 ? " k" : " Tr")) + "\nvàng");
+                msg.writer().writeUTF("Hủy\nnâng cấp\nhồi " + nro.models.utils.Util.numberToMoney(getUnupgradeRefund()) + "\nvàng");
                 this.player.idMark.setIndexMenu(ConstNpc.MAGIC_TREE_UPGRADE);
             }
             player.sendMessage(msg);
@@ -192,6 +192,10 @@ public class MagicTree {
     }
 
     public void upgradeMagicTree() {
+        // FIX (46): chặn nâng cấp khi đang nâng cấp / đã tối đa (trước đây trả tiền lần 2 vô ích).
+        if (this.isUpgrade || this.level >= MAX_LEVEL) {
+            return;
+        }
         short gold = PEA_UPGRADE[this.level - 1][3];
         int goldRequire = gold * (this.level <= 3 ? 1000 : 1000000);
         if (this.player.inventory.gold < goldRequire) {
@@ -206,10 +210,20 @@ public class MagicTree {
         }
     }
 
+    // Chủ dự án chốt: huỷ nâng cấp chỉ hoàn 1/2 số vàng đã bỏ ra (khớp chữ trên menu).
+    private long getUnupgradeRefund() {
+        long cost = (long) PEA_UPGRADE[this.level - 1][3] * (this.level <= 3 ? 1000 : 1000000);
+        return cost / 2;
+    }
+
     public void unupgradeMagicTree() {
-        short gold = PEA_UPGRADE[this.level - 1][3];
-        int goldReturn = (gold * (this.level <= 3 ? 1000 : 1000000));
-        this.player.inventory.gold += goldReturn;
+        // FIX (46): trước đây KHÔNG kiểm tra isUpgrade, và menu xác nhận không bị xoá => gửi lặp
+        // gói 22 [.. 0] là được hoàn tiền nâng cấp vô hạn (cấp 9: +300 triệu vàng mỗi gói).
+        if (!this.isUpgrade) {
+            return;
+        }
+        long goldReturn = getUnupgradeRefund();
+        this.player.inventory.gold = Math.min(this.player.inventory.gold + goldReturn, nro.models.player.Inventory.LIMIT_GOLD);
         PlayerService.gI().sendInfoHpMpMoney(this.player);
         this.isUpgrade = false;
         this.loadMagicTree();
@@ -237,6 +251,11 @@ public class MagicTree {
     }
 
     public void fastUpgradeMagicTree() {
+        // FIX (46): chỉ nâng nhanh khi ĐANG nâng cấp (đã trả vàng). Trước đây gửi lặp gói xác nhận là
+        // lên cấp liên tục tới tối đa chỉ bằng ngọc, bỏ qua phí vàng và thời gian của các cấp sau.
+        if (!this.isUpgrade) {
+            return;
+        }
         // Lấy số ngọc yêu cầu để nâng cấp
         int upgradeGemCost = UPGRADE_GEM[this.level - 1];
 

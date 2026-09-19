@@ -21,7 +21,8 @@ public class GiftCodeManager {
         return instance;
     }
 
-    public GiftCode checkUseGiftCode(Player player, String code) {
+    // FIX (46): synchronized — nhiều người nhập cùng lúc có thể cùng thấy countLeft > 0 và vượt số lượt.
+    public synchronized GiftCode checkUseGiftCode(Player player, String code) {
         for (GiftCode giftCode : listGiftCode) {
             if (giftCode.code.equals(code)) {
                 // FIX: xét hạn TRƯỚC khi trừ lượt. Trước đây hàm này trừ count_left và đánh dấu

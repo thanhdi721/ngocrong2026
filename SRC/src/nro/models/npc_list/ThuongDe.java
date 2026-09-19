@@ -19,7 +19,12 @@ public class ThuongDe extends Npc {
     }
 
     @Override
-    public void openBaseMenu(Player player) {    
+    public void openBaseMenu(Player player) {
+        // FIX: báo hệ thống nhiệm vụ khi người chơi nói chuyện với NPC này. Trước đây NPC
+        // không gọi nên các bước nhiệm vụ "gặp / nói chuyện với" NPC này KHÔNG BAO GIỜ xong.
+        if (canOpenNpc(player) && nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+            return;
+        }
          if (canOpenNpc(player)) {
             switch (mapId) {
                 case 45 -> {

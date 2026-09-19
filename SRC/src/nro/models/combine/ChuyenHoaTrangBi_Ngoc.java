@@ -14,6 +14,9 @@ import nro.models.services.Service;
  */
 public class ChuyenHoaTrangBi_Ngoc {
 
+    // Giá chuyển hoá bằng ngọc (chủ dự án chốt, trước đây code trừ nhầm 2 tỷ vàng).
+    private static final int GEM_CHUYEN_HOA = 10_000;
+
     public static void chuyenHoaTrangBiNgoc(Player player) {
         if (player.combineNew.itemsCombine.size() != 2) {
             Service.gI().sendThongBaoOK(player, "Cần 1 trang bị có cấp từ [+4] và 1 trang bị không có cấp nhưng cao hơn 1 bậc");
@@ -22,8 +25,6 @@ public class ChuyenHoaTrangBi_Ngoc {
 
         Item trangBiGoc = player.combineNew.itemsCombine.get(0);
         Item trangBiCanChuyenHoa = player.combineNew.itemsCombine.get(1);
-        int goldChuyenHoa = 2_000_000_000;
-
         int levelTrangBi = 0;
         int soLanRotCap = 0;
 
@@ -89,16 +90,33 @@ public class ChuyenHoaTrangBi_Ngoc {
         }
 
         npcSay.append("Chuyển qua tất cả sao pha lê\n");
-        npcSay.append("|2|Cần 5000 ngọc");
+        npcSay.append("|2|Cần " + GEM_CHUYEN_HOA + " ngọc"); // chủ dự án chốt: 10.000 ngọc
 
         CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE,
                 npcSay.toString(), "Chuyển hóa", "Từ chối");
     }
 
     public static void thucHienChuyenHoa(Player player) {
+        // FIX (46): trước đây bước XÁC NHẬN không kiểm tra lại gì cả: gửi lại -81 với [X, X] (lặp chỉ số)
+        // sau một lần xem hợp lệ thì menu cũ vẫn còn => chuyển hoá chính món X, nhân chỉ số / sao pha lê;
+        // và trừ 2 tỷ vàng KHÔNG kiểm tra số dư (vàng âm vẫn nhận đồ). Nay kiểm tra lại toàn bộ.
+        if (player.combineNew.itemsCombine.size() != 2) {
+            return;
+        }
         Item trangBiGoc = player.combineNew.itemsCombine.get(0);
         Item trangBiCanChuyenHoa = player.combineNew.itemsCombine.get(1);
-        int goldChuyenHoa = 2_000_000_000;
+        if (trangBiGoc == null || trangBiCanChuyenHoa == null || trangBiGoc == trangBiCanChuyenHoa
+                || !trangBiGoc.isNotNullItem() || !trangBiCanChuyenHoa.isNotNullItem()
+                || !isTrangBiGoc(trangBiGoc) || !isTrangBiChuyenHoa(trangBiCanChuyenHoa)
+                || !isCheckTrungTypevsGender(trangBiGoc, trangBiCanChuyenHoa)
+                || trangBiCanChuyenHoa.itemOptions.stream().anyMatch(io -> io.optionTemplate.id == 72 || io.optionTemplate.id == 102)) {
+            Service.gI().sendThongBao(player, "Trang bị không hợp lệ, hãy chọn lại");
+            return;
+        }
+        if (player.inventory.gem < GEM_CHUYEN_HOA) {
+            Service.gI().sendThongBao(player, "Không đủ " + GEM_CHUYEN_HOA + " ngọc để chuyển hóa");
+            return;
+        }
 
         int levelTrangBi = 0;
         int soLanRotCap = 0;
@@ -111,6 +129,10 @@ public class ChuyenHoaTrangBi_Ngoc {
             }
         }
 
+        if (levelTrangBi < 4) {
+            Service.gI().sendThongBao(player, "Trang bị gốc có cấp từ [+4]");
+            return;
+        }
         int chisogoc = trangBiCanChuyenHoa.itemOptions.get(0).param;
         chisogoc = (int) (chisogoc * Math.pow(1.1, levelTrangBi) * Math.pow(0.9, soLanRotCap));
         Item newItem = ItemService.gI().createNewItem(trangBiCanChuyenHoa.template.id);
@@ -133,11 +155,12 @@ public class ChuyenHoaTrangBi_Ngoc {
             }
         }
 
-        player.inventory.gold -= goldChuyenHoa;
+        player.inventory.gem -= GEM_CHUYEN_HOA;
         Service.gI().sendMoney(player);
-        InventoryService.gI().addItemBag(player, newItem);
+        // FIX: trừ 2 món gốc TRƯỚC rồi mới thêm đồ mới (túi đầy vẫn có chỗ).
         InventoryService.gI().subQuantityItemsBag(player, trangBiGoc, 1);
         InventoryService.gI().subQuantityItemsBag(player, trangBiCanChuyenHoa, 1);
+        InventoryService.gI().addItemBag(player, newItem);
         InventoryService.gI().sendItemBags(player);
         CombineService.gI().reOpenItemCombine(player);
         CombineService.gI().sendEffectSuccessCombine(player);

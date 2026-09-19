@@ -86,7 +86,7 @@ public class BotGiaoDich {
        Item it = ItemService.gI().createNewItem((short) this.idItem , sl1);
        this.trade.addItemBot(it);
        this.trade.lockTran(this.bot);
-       this.trade.acceptTrade();
+       this.trade.acceptTrade(this.bot);
    }
    
    public void mapL(){

@@ -38,6 +38,7 @@ public class VuaVegeta extends Npc {
                 ArrayList<String> menu = new ArrayList<>();
                 menu.add("Nhiệm vụ");
                 menu.add("Học\nKỹ năng");
+                menu.add("Về khu\nvực bang"); // doc 45: chỉ số 2
 
                 String[] menus = menu.toArray(String[]::new);
                 createOtherMenu(player, ConstNpc.BASE_MENU,
@@ -63,6 +64,8 @@ public class VuaVegeta extends Npc {
                 NpcService.gI().createTutorial(player, tempId, avartar, player.playerTask.taskMain.subTasks.get(player.playerTask.taskMain.index).name);
             case 1 ->
                 handleSkillLearningMenu(player);
+            case 2 -> // Về khu vực bang (doc 45) — cùng logic với Quy Lão Kame
+                QuyLaoKame.goToClanTerritory(player);
         }
     }
 

@@ -49,19 +49,30 @@ public class AchievementService {
     }
 
     public void confirmAchievement(Player player, byte select) {
-        if (player.achievement == null) {
+        if (player == null || player.achievement == null) {
+            return;
+        }
+        // FIX (46): trước đây KHÔNG kiểm tra đã hoàn thành / đã nhận chưa => gửi lặp gói -76 [select]
+        // là nhận ngọc thưởng thành tựu vô hạn. Nay bắt buộc canReward (xong + chưa nhận), khoá theo người chơi.
+        if (select < 0 || select >= Manager.ACHIEVEMENT_TEMPLATE.size()) {
+            return;
+        }
+        synchronized (player.achievement) {
+        if (!player.achievement.canReward(select)) {
+            Service.gI().sendThongBao(player, "Không thể nhận thưởng");
             return;
         }
         if (InventoryService.gI().getCountEmptyBag(player) > 0) {
             int money = Manager.ACHIEVEMENT_TEMPLATE.get(select).money;
             player.achievement.reward(select);
-            player.inventory.gem += money;
+            player.inventory.gem = (int) Math.min((long) player.inventory.gem + money, 2_000_000_000L);
             InventoryService.gI().sendItemBags(player);
             Service.gI().sendMoney(player);
             Service.gI().sendThongBao(player, "Bạn vừa nhận được " + money + " ngọc.");
         } else {
             Service.gI().sendThongBao(player, "Cần tối thiểu 1 ô trống hành trang để nhận thưởng");
             return;
+        }
         }
         Message msg = null;
         try {

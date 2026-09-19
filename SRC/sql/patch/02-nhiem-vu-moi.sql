@@ -306,7 +306,7 @@ INSERT INTO `task_sub_template` (`task_main_id`, `NAME`, `max_count`, `notify`, 
 (12, 'Đưa Jaco về gặp %2', 1, 'Về nhà giới thiệu Jaco với %2', -2, -2, 41),  -- TASK_12_2 = 24580  A3   Đưa Jaco về gặp %2
 (13, 'Gia nhập 1 bang hội', 1, 'Tạo bang hoặc xin vào một bang hội', -1, -1, 42),  -- TASK_13_0 = 26624  A10  Gia nhập 1 bang hội
 (13, 'Cùng bạn bang hạ 30 quái mẹ', 30, 'Quái mẹ ở %15. Cần 1 bạn cùng bang cùng khu; từ 3 người mỗi con tính 2', -1, -11, 43),  -- TASK_13_1 = 26626  B13  Cùng bạn bang hạ 30 quái mẹ
-(13, 'Gặp Giu-ma Đầu Bò', 1, 'Giu-ma Đầu Bò ở Lãnh địa Bang Hội', 47, 153, 44),  -- TASK_13_2 = 26628  A3   Gặp Giu-ma Đầu Bò
+(13, 'Gặp Giu-ma Đầu Bò', 1, 'Gặp %10, chọn "Về khu vực bang" để vào Lãnh địa Bang Hội, gặp Giu-ma Đầu Bò', 47, -9, 44),  -- TASK_13_2 = 26628  A3   Gặp Giu-ma Đầu Bò (doc 45: mũi tên -9 = map sư phụ)
 (14, 'Gặp Bunma ở Nhà Bunma', 1, 'Bunma có tin mới, gặp cô ở Nhà Bunma', 37, 102, 45),  -- TASK_14_0 = 28672  A3   Gặp Bunma ở Nhà Bunma
 (14, 'Mua 1 món ở quầy Uron', 1, 'Uron bán hàng ở Siêu Thị. Mua món gì cũng được', 16, 84, 46),  -- TASK_14_1 = 28674  B4   Mua 1 món ở quầy Uron
 (14, 'Hạ 20 heo chở hàng', 20, 'Heo rừng, heo da xanh, heo Xayda đều tính; gần nhất ở %16', -1, -12, 47),  -- TASK_14_2 = 28676  A1   Hạ 20 heo chở hàng
