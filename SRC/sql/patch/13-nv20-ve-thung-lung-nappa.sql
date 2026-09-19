@@ -12,15 +12,21 @@
 --    cho người đang dở bước ở đó.
 --
 -- Chạy SAU 11. Chạy lại nhiều lần vẫn an toàn. Cần khởi động lại server.
--- Nếu Berry / Granola đứng lơ lửng hoặc chìm đất: sửa x (cột thứ 2) trong
--- dòng UPDATE map 68 bên dưới cho đúng nền y = 408.
+-- Đã chạy bản cũ (Granola [76,324,408] lọt trong vách đá)? Dòng UPDATE thứ 2
+-- bên dưới tự sửa vị trí.
 -- =====================================================================
 
--- Map 68: Cui ở x=84; nền y=408. Berry x=204, Granola x=324 (cách nhau 120 px).
+-- Map 68 (tính từ data/map/tile_map_data/68): nền y=408 chỉ phẳng ở x=24..263 (Cui x=84,
+-- Berry x=204); từ x=264 là vách đá, mặt trên phẳng y=312 ở x=312..600 -> Granola x=456, y=312.
 -- Nối thêm vào cuối cột npcs (giữ nguyên NPC đang có); đã có Berry thì bỏ qua.
 UPDATE `map_template`
-   SET `npcs` = CONCAT(LEFT(`npcs`, CHAR_LENGTH(`npcs`) - 1), ',[71,204,408],[76,324,408]]')
+   SET `npcs` = CONCAT(LEFT(`npcs`, CHAR_LENGTH(`npcs`) - 1), ',[71,204,408],[76,456,312]]')
  WHERE `id` = 68 AND `npcs` NOT LIKE '%[71,%' AND `npcs` <> '[]';
+
+-- Sửa vị trí Granola nếu đã chạy bản cũ của patch này.
+UPDATE `map_template`
+   SET `npcs` = REPLACE(`npcs`, '[76,324,408]', '[76,456,312]')
+ WHERE `id` = 68;
 
 -- ---- NV 20 ----------------------------------------------------------
 UPDATE `task_sub_template`
