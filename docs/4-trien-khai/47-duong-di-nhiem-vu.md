@@ -28,3 +28,10 @@ Thành phố Santa (126) chỉ vào được qua Tapion theo giờ; phi thuyền
 | 22 | b0, b4 gặp Tapion ở 126 | Gặp Tapion ở 19 (126 vẫn tính) |
 | 36 | Đường vòng Sa mạc cần Bình hút năng lượng 1795 (patch 08 đã bỏ bình khỏi thưởng) | Ôsin ở 52 có nút "Sa mạc hoang vu" ngoài giờ Mabư cho NV 36–37 |
 | 37 | b1 chỉ Mabư / Hirudegarn (đều theo giờ) | b1 max 30: Mabư / Hirudegarn cộng trọn 30, hoặc 30 Cadic M ở 165; Lõi Phép (b3) rơi cả từ Cadic M ở 165 |
+
+## NV 20 / NV 48 về Thung lũng Nappa (patch 13)
+
+Chủ dự án không muốn người chơi NV 20 vào Khu hang động (160) vì cày sức mạnh quá nhanh.
+Berry (71) và Granola (76) đứng thêm ở Thung lũng Nappa (68) cạnh Cui; mọi bước gặp
+Berry / Granola làm ở 68 (code vẫn nhận ở 160 cho người đang dở). Gỡ nút "Khu hang động"
+của Cui (thay cho mục 2 ở trên). Khu hang động lại chỉ vào bằng Nhẫn thời không từ NV 32.

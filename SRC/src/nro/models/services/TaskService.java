@@ -458,8 +458,10 @@ public class TaskService {
                 return false;
             }
             // ---- 71 Berry (Khu hang động 160) — chưa có hằng ConstNpc -------
+            // NV 20 / NV 48 chuyển về Thung lũng Nappa (68): Khu hang động quái nhiều máu, cày
+            // sức mạnh quá nhanh. Vẫn nhận ở 160 cho người đang dở bước ở đó.
             case NPC_BERRY: {
-                if (mapId == 160) {
+                if (mapId == 68 || mapId == 160) {
                     return doneTask(player, ConstTask.TASK_20_0)
                             || doneTask(player, ConstTask.TASK_48_0);
                 }
@@ -467,7 +469,7 @@ public class TaskService {
             }
             // ---- 76 Granola (Khu hang động 160) — chưa có hằng ConstNpc -----
             case NPC_GRANOLA: {
-                if (mapId == 160) {
+                if (mapId == 68 || mapId == 160) {
                     return doneTask(player, ConstTask.TASK_20_2)
                             || doneTask(player, ConstTask.TASK_20_5);
                 }
@@ -1072,7 +1074,7 @@ public class TaskService {
             }
             // ---- B14 điểm rẽ 1: NPC 71 Berry, map 160, bước TASK_20_1 -------
             case NPC_BERRY: {
-                if (mapId == 160 && isCurrentTask(player, ConstTask.TASK_20_1)) {
+                if ((mapId == 68 || mapId == 160) && isCurrentTask(player, ConstTask.TASK_20_1)) {
                     if (select == 0) {
                         doneTask(player, ConstTask.TASK_20_1); // đi theo Granola -> giữ task 20
                     } else {

@@ -53,10 +53,17 @@ public class Berry extends Npc {
                     "Đi theo\nGranola", "Báo cho\nJaco");
             return;
         }
-        this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                "Đừng lại gần! Anh ấy bắn trước, hỏi sau.\n"
-                + "Mà dạo này anh ấy cũng chẳng hỏi nữa.",
-                "Về Thung\nlũng Nappa", "Rời đi");
+        if (this.mapId == 160) {
+            this.createOtherMenu(player, ConstNpc.BASE_MENU,
+                    "Đừng lại gần! Anh ấy bắn trước, hỏi sau.\n"
+                    + "Mà dạo này anh ấy cũng chẳng hỏi nữa.",
+                    "Về Thung\nlũng Nappa", "Rời đi");
+        } else {
+            this.createOtherMenu(player, ConstNpc.BASE_MENU,
+                    "Đừng lại gần! Anh ấy bắn trước, hỏi sau.\n"
+                    + "Mà dạo này anh ấy cũng chẳng hỏi nữa.",
+                    "Rời đi");
+        }
     }
 
     @Override
@@ -71,7 +78,7 @@ public class Berry extends Npc {
         }
         if (player.idMark.isBaseMenu()) {
             // Đường ra khỏi Khu hang động cho người chưa có Nhẫn thời không (NV 20 / NV 48).
-            if (select == 0) {
+            if (select == 0 && this.mapId == 160) {
                 nro.models.map.service.ChangeMapService.gI().changeMapBySpaceShip(player, 68, -1, 90);
                 return;
             }
