@@ -438,11 +438,12 @@ public class TaskService {
             }
             // ---- 53 Tapion --------------------------------------------------
             case ConstNpc.TAPION: {
-                if (mapId == 19) {
-                    return doneTask(player, ConstTask.TASK_18_1);
-                }
-                if (mapId == 126) {
-                    return doneTask(player, ConstTask.TASK_18_4)
+                // Thành phố Santa (126) chỉ vào được theo khung giờ -> mọi bước gặp Tapion
+                // của NV 18 / NV 22 làm ở Thành phố Vegeta (19). NV 18 bỏ hẳn bước "Tới Thành phố
+                // Santa" (patch 12), nên "Nghe Tapion kể chuyện" nay là TASK_18_3.
+                if (mapId == 19 || mapId == 126) {
+                    return doneTask(player, ConstTask.TASK_18_1)
+                            || doneTask(player, ConstTask.TASK_18_3)
                             || doneTask(player, ConstTask.TASK_22_0)
                             || doneTask(player, ConstTask.TASK_22_4);
                 }
@@ -868,9 +869,6 @@ public class TaskService {
             case 19:
                 doneTask(player, ConstTask.TASK_18_0);
                 break;
-            case 126:
-                doneTask(player, ConstTask.TASK_18_3);
-                break;
             case 80:
                 doneTask(player, ConstTask.TASK_23_1);
                 break;
@@ -1207,13 +1205,17 @@ public class TaskService {
                 }
                 break;
             // ---- NV 37 bước 1: Mabư ---------------------------------------
+            // max_count bước này nâng 1 -> 30 (patch 12) để có đường vòng 24/7: 30 Cadic M ở
+            // Sa mạc hoang vu. Hạ Mabư vẫn xong ngay (cộng trọn 30).
             case BossID.MABU_12H:
-                doneTask(player, ConstTask.TASK_37_1);
+                if (isCurrentTask(player, ConstTask.TASK_37_1)) {
+                    addDoneSubTask(player, 30);
+                }
                 break;
             case BossID.MABU:
             case BossID.MABU_14H_NV:
-                if (boss.currentLevel == 4) {
-                    doneTask(player, ConstTask.TASK_37_1);
+                if (boss.currentLevel == 4 && isCurrentTask(player, ConstTask.TASK_37_1)) {
+                    addDoneSubTask(player, 30);
                 }
                 break;
             // ---- NV 37 bước 2: Drabura 3 / Super Bư -> cộng trọn gói 30 ---
@@ -1510,8 +1512,10 @@ public class TaskService {
                     }
                 }
                 break;
-            case ConstMob.HIRUDEGARN: // 70 — đường vòng 24/7 của NV 37 bước 1 (chỉ có ở 126)
-                doneTask(player, ConstTask.TASK_37_1);
+            case ConstMob.HIRUDEGARN: // 70 — chỉ có ở 126 (theo giờ); cộng trọn 30
+                if (isCurrentTask(player, ConstTask.TASK_37_1)) {
+                    addDoneSubTask(player, 30);
+                }
                 break;
             case ConstMob.KAWAZU: // 73
             case ConstMob.KINKARN: // 74
@@ -1552,6 +1556,8 @@ public class TaskService {
                 // NGOẠI LỆ GIỮ MAP: id 95 dùng chung với Thỏ con của sự kiện.
                 if (mapId == 165) {
                     doneTask(player, ConstTask.TASK_36_2);
+                    // Đường vòng 24/7 của NV 37 bước 1 (Mabư / Hirudegarn đều theo giờ).
+                    doneTask(player, ConstTask.TASK_37_1);
                 }
                 break;
             default:

@@ -19,6 +19,9 @@ import nro.models.utils.Util;
 
 public class Osin extends Npc {
 
+    /** Đường vòng 24/7 của NV 36 / NV 37: đi thẳng tới Sa mạc hoang vu (165), không cần bình 1795. */
+    private static final int MENU_SA_MAC_NHIEM_VU = 2211;
+
     public Osin(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
     }
@@ -42,6 +45,16 @@ public class Osin extends Npc {
                             "Về nhà", "Bùa hỗ\ntrợ", "Từ chối");
                 case 52 -> {
                     player.fightMabu.clear();
+                    int taskId = TaskService.gI().getIdTask(player);
+                    if (taskId >= nro.models.consts.ConstTask.TASK_36_0 && taskId < nro.models.consts.ConstTask.TASK_38_0
+                            && !TimeUtil.isMabu14HOpen() && !TimeUtil.isMabuOpen()) {
+                        // Trước đây Sa mạc chỉ vào được khi có Bình hút năng lượng (patch 08 đã bỏ
+                        // bình khỏi thưởng NV 36) -> ngoài khung giờ Mabư là kẹt NV 36 / NV 37.
+                        this.createOtherMenu(player, MENU_SA_MAC_NHIEM_VU,
+                                "Phi thuyền chỉ mở vào khung giờ Mabư.\nTa đưa ngươi đi đường vòng qua Sa mạc hoang vu.",
+                                "Sa mạc\nhoang vu", "Từ chối");
+                        return;
+                    }
                     boolean hasEnergyJar = InventoryService.gI().findItemBag(player, 1795) != null;
                     if (TimeUtil.isMabu14HOpen()) {
                         if (hasEnergyJar) {
@@ -177,6 +190,14 @@ public class Osin extends Npc {
                             createOtherMenu(player, ConstNpc.BINH_HUT_NANG_LUONG,
                                     "Cadic đã bị phù thủy Babidi thôi miên\nhãy mang bình hút năng lượng đến đây\nhút cạn năng lượng tà ác trong cậu ấy",
                                     "Ok", "Từ chối");
+                        }
+                    }
+
+                    case MENU_SA_MAC_NHIEM_VU -> {
+                        int taskId = TaskService.gI().getIdTask(player);
+                        if (select == 0 && taskId >= nro.models.consts.ConstTask.TASK_36_0
+                                && taskId < nro.models.consts.ConstTask.TASK_38_0) {
+                            ChangeMapService.gI().changeMap(player, 165, -1, Util.nextInt(100, 500), 312);
                         }
                     }
 

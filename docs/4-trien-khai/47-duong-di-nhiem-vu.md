@@ -17,3 +17,14 @@ Sửa kèm: Thiên Sứ Whis trước đây xong bước nhiệm vụ vẫn mở
 
 Các tuyến dịch chuyển khác đã kiểm, dùng được: Tapion 19↔126 (đóng 23h–1h), Jaco 24→139 Potaufeu,
 Thượng Đế 45→48, Thần Vũ Trụ 48→50, Ôsin 52→114/165, 50→154/155, Ca Lích →102 (từ NV 24), cổng 97→166.
+
+## Bỏ các bước dính khung giờ (patch 12)
+
+Thành phố Santa (126) chỉ vào được qua Tapion theo giờ; phi thuyền Mabư cũng theo giờ.
+
+| NV | Trước | Sau |
+|---|---|---|
+| 18 | b3 "Tới Thành phố Santa", b4 nghe Tapion ở 126 | **Xoá b3**; "Nghe Tapion kể chuyện" (nay là `TASK_18_3`) ở Thành phố Vegeta 19. Bỏ trigger vào map 126 |
+| 22 | b0, b4 gặp Tapion ở 126 | Gặp Tapion ở 19 (126 vẫn tính) |
+| 36 | Đường vòng Sa mạc cần Bình hút năng lượng 1795 (patch 08 đã bỏ bình khỏi thưởng) | Ôsin ở 52 có nút "Sa mạc hoang vu" ngoài giờ Mabư cho NV 36–37 |
+| 37 | b1 chỉ Mabư / Hirudegarn (đều theo giờ) | b1 max 30: Mabư / Hirudegarn cộng trọn 30, hoặc 30 Cadic M ở 165; Lõi Phép (b3) rơi cả từ Cadic M ở 165 |

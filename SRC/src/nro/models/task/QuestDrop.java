@@ -156,6 +156,8 @@ public final class QuestDrop {
                     ANY_MAP, 2028, 100, 1),
             new Rule(ConstTask.TASK_37_3, SourceType.MOB,
                     ids(ConstMob.QUY_CHIM, ConstMob.HIRUDEGARN), ANY_MAP, 2028, 100, 1),
+            new Rule(ConstTask.TASK_37_3, SourceType.MOB,
+                    ids(ConstMob.THO_CON, ConstMob.CADIC_M), ids(165), 2028, 100, 1),
             // NV 38 b4 — Nhẫn thời không sai lệch, 100% từ Black Goku (bản NV -2103 và bản thế giới)
             new Rule(ConstTask.TASK_38_4, SourceType.BOSS,
                     ids(BossID.BLACK_GOKU_NV, BossID.BLACK_GOKU), ANY_MAP, 992, 100, 1),
