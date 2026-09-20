@@ -79,6 +79,27 @@ def icons_in_part(data):
     return [int(x) for x in re.findall(r"\[\s*(-?\d+)\s*,\s*-?\d+\s*,\s*-?\d+\s*\]", data)]
 
 
+def our_used_icons(our_sql):
+    """Mọi số icon mà dữ liệu hiện tại ĐANG dùng: icon vật phẩm, icon trong part, avatar.
+
+    Không được cấp lại số này cho ảnh mang từ nguồn khác, kể cả khi máy chủ đang thiếu file:
+    chép ảnh NGOL vào đó là đồ cũ của mình hiện sai hình.
+    """
+    used = set()
+    for m in re.finditer(r"^\(\d+, \d+, -?\d+, '(?:[^'\\]|\\.)*', '(?:[^'\\]|\\.)*', \d+, (\d+),",
+                         section(our_sql, "item_template"), re.M):
+        used.add(int(m.group(1)))
+    for m in re.finditer(r"^\(\d+, \d+, '(.*?)'\)", section(our_sql, "part"), re.M):
+        used.update(int(x) for x in re.findall(r"\[\s*(-?\d+)\s*,", m.group(1)))
+    used.update(int(m.group(1)) for m in re.finditer(r"^\(\d+, (\d+)\)", section(our_sql, "head_avatar"), re.M))
+    return used
+
+
+def ngol_head_avatar(sql):
+    return {int(m.group(1)): int(m.group(2))
+            for m in re.finditer(r"^\((\d+), (\d+)\)", section(sql, "head_avatar"), re.M)}
+
+
 def our_max_ids(our_sql):
     items = [int(m.group(1)) for m in re.finditer(r"^\((\d+), \d+, -?\d+, '", section(our_sql, "item_template"), re.M)]
     parts = [int(m.group(1)) for m in re.finditer(r"^\((\d+), \d+, '", section(our_sql, "part"), re.M)]
@@ -106,8 +127,11 @@ def main(argv):
     items = ngol_items(ngol)
     costumes = ngol_costume(ngol)
     nparts = parts_of(ngol)
+    navatar = ngol_head_avatar(ngol)
     our = read(OUR_SQL)
+    used_icons = our_used_icons(our)
     next_item, next_part = [x + 1 for x in our_max_ids(our)]
+    avatar_sql = []
 
     icon_map = {}       # icon NGOL -> icon bên mình
     next_icon = NEW_ICON_BASE
@@ -128,6 +152,10 @@ def main(argv):
         for p in used_parts:
             if p in nparts:
                 need_icons += icons_in_part(nparts[p][1])
+        old_head = used_parts[0] if used_parts else -1
+        avatar_icon = navatar.get(old_head, -1)
+        if avatar_icon >= 0:
+            need_icons.append(avatar_icon)
 
         for ic in need_icons:
             if ic < 0 or ic in icon_map:
@@ -138,7 +166,10 @@ def main(argv):
                 icon_map[ic] = ic          # không có file -> giữ nguyên, báo cáo
                 report.append("  thiếu file ảnh icon %d bên NGOL" % ic)
                 continue
-            if os.path.exists(dst) and file_hash(src) != file_hash(dst):
+            # Giữ nguyên số CHỈ khi ảnh y hệt ảnh đang có. Số đang được dữ liệu mình dùng
+            # (dù máy chủ thiếu file) thì luôn phải đánh số mới.
+            same = os.path.exists(dst) and file_hash(src) == file_hash(dst)
+            if not same and (ic in used_icons or os.path.exists(dst)):
                 if next_icon > MAX_ICON_ID:
                     raise SystemExit("Hết chỗ đánh số icon mới (đã tới %d, trần là %d)" % (next_icon, MAX_ICON_ID))
                 icon_map[ic] = next_icon    # trùng số, khác ảnh -> đánh số mới
@@ -158,6 +189,8 @@ def main(argv):
                         pdata = re.sub(r"\[\s*%d\s*," % old, "[%d," % new, pdata)
                 part_sql.append("(%d, %d, '%s')" % (slot, ptype, pdata))
             next_part += 3
+            if avatar_icon >= 0:
+                avatar_sql.append("(%d, %d)" % (head, icon_map.get(avatar_icon, avatar_icon)))
 
         icon = icon_map.get(it["icon"], it["icon"])
         item_sql.append("(%d, %d, %d, '%s', '%s', 0, %d, %d, %d, %d, 0, 0, %d, %d, %d)" % (
@@ -190,6 +223,10 @@ def main(argv):
         f.write("-- Nhớ tăng DataGame.vsItem (item_template) và vsData (part) rồi build lại jar.\n\n")
         if part_sql:
             f.write("INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES\n" + ",\n".join(part_sql) + ";\n\n")
+        if avatar_sql:
+            f.write("-- Ảnh đại diện (avatar) của cải trang: head_avatar tra theo id phần ĐẦU\n"
+                    + "INSERT INTO `head_avatar` (`head_id`, `avatar_id`) VALUES\n"
+                    + ",\n".join(avatar_sql) + ";\n\n")
         if item_sql:
             f.write("INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `level`,"
                     " `icon_id`, `part`, `is_up_to_up`, `power_require`, `gold`, `gem`, `head`, `body`, `leg`) VALUES\n"
