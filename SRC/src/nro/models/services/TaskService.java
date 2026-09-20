@@ -1922,9 +1922,11 @@ public class TaskService {
             case ConstTask.TASK_29_2:
                 return 360_000L;   // 5 Bản thiết kế trong 6 phút
             case ConstTask.TASK_34_2:
-                return 300_000L;   // 20 Kado trong 5 phút
+                // patch 34: số lượng 20 -> 200 nên nới giờ 5 -> 20 phút
+                return 1_200_000L; // 200 Kado trong 20 phút
             case ConstTask.TASK_42_2:
-                return 600_000L;   // 60 lồng giam trong 10 phút
+                // patch 34: số lượng 60 -> 600 nên nới giờ 10 -> 45 phút
+                return 2_700_000L; // 600 lồng giam trong 45 phút
             default:
                 return 0L;
         }
