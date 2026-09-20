@@ -373,6 +373,8 @@ public class TaskService {
                 }
                 return doneTask(player, ConstTask.TASK_9_2)
                         || doneTask(player, ConstTask.TASK_10_0)
+                        // patch 22: NV 33 bước cuối "Báo cáo" chuyển từ Quốc Vương về sư phụ
+                        || doneTask(player, ConstTask.TASK_33_4)
                         || doneTask(player, ConstTask.TASK_16_4)
                         || doneTask(player, ConstTask.TASK_17_3)
                         || doneTask(player, ConstTask.TASK_21_5)
@@ -534,7 +536,8 @@ public class TaskService {
             // ---- 42 Quốc Vương (vách núi 42/43/44) --------------------------
             case ConstNpc.QUOC_VUONG: {
                 if (isMapVachNuiLang(player, mapId)) {
-                    // patch 20: bỏ bước "Gặp Quốc Vương" -> chỉ còn bước báo cáo (index 4)
+                    // patch 22: mọi bước của NV 33 chuyển về sư phụ; giữ cửa này cho ai
+                    // đang đứng sẵn ở vách núi.
                     return doneTask(player, ConstTask.TASK_33_4);
                 }
                 return false;

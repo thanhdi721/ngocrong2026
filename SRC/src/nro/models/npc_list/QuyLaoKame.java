@@ -88,6 +88,10 @@ public class QuyLaoKame extends Npc {
         super(mapId, status, cx, cy, tempId, avartar);
     }
 
+
+    /** Menu riêng cho bước "Mở giới hạn sức mạnh" của nhiệm vụ (patch 22). */
+    private static final int MENU_PHA_GIOI_HAN_NV = 2215;
+
     @Override
     public void openBaseMenu(Player player) {
         Item ruacon = InventoryService.gI().findItemBag(player, 874);
@@ -106,6 +110,13 @@ public class QuyLaoKame extends Npc {
             }
             String[] menus = menu.toArray(String[]::new);
             if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                // patch 22: bước "Mở giới hạn sức mạnh" chuyển từ Quốc Vương về sư phụ.
+                if (TaskService.gI().canOpenPowerByTask(player)) {
+                    this.createOtherMenu(player, MENU_PHA_GIOI_HAN_NV,
+                            "Cơ thể con đã chạm trần rồi.\nĐể ta phá giới hạn sức mạnh cho con, lần này miễn phí.",
+                            "Phá giới hạn", "Từ chối");
+                    return;
+                }
                 this.createOtherMenu(player, ConstNpc.BASE_MENU, "Con muốn hỏi gì nào?", menus);
             }
         }
@@ -122,6 +133,12 @@ public class QuyLaoKame extends Npc {
             return;
         }
 
+            if (player.idMark.getIndexMenu() == MENU_PHA_GIOI_HAN_NV) {
+                if (select == 0 && TaskService.gI().canOpenPowerByTask(player)) {
+                    nro.models.services.OpenPowerService.gI().openPowerByTask(player);
+                }
+                return;
+            }
         switch (player.idMark.getIndexMenu()) {
             case ConstNpc.BASE_MENU:
                 handleBaseMenu(player, select);

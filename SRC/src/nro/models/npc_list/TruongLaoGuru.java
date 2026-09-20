@@ -28,12 +28,23 @@ public class TruongLaoGuru extends Npc {
         super(mapId, status, cx, cy, tempId, avartar);
     }
 
+
+    /** Menu riêng cho bước "Mở giới hạn sức mạnh" của nhiệm vụ (patch 22). */
+    private static final int MENU_PHA_GIOI_HAN_NV = 2215;
+
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
             if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
                 if (player.gender != ConstPlayer.NAMEC) {
                     NpcService.gI().createTutorial(player, tempId, avartar, "Con hãy về hành tinh của mình mà thể hiện");
+                    return;
+                }
+                // patch 22: bước "Mở giới hạn sức mạnh" chuyển từ Quốc Vương về sư phụ.
+                if (TaskService.gI().canOpenPowerByTask(player)) {
+                    this.createOtherMenu(player, MENU_PHA_GIOI_HAN_NV,
+                            "Cơ thể con đã chạm trần rồi.\nĐể ta phá giới hạn sức mạnh cho con, lần này miễn phí.",
+                            "Phá giới hạn", "Từ chối");
                     return;
                 }
                 ArrayList<String> menu = new ArrayList<>();
@@ -51,6 +62,12 @@ public class TruongLaoGuru extends Npc {
     @Override
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
+            if (player.idMark.getIndexMenu() == MENU_PHA_GIOI_HAN_NV) {
+                if (select == 0 && TaskService.gI().canOpenPowerByTask(player)) {
+                    nro.models.services.OpenPowerService.gI().openPowerByTask(player);
+                }
+                return;
+            }
             if (player.idMark.isBaseMenu()) {
                 handleBaseMenu(player, select);
             } else if (player.idMark.getIndexMenu() == 12) {
