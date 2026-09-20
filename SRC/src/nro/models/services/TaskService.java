@@ -720,6 +720,7 @@ public class TaskService {
             return;
         }
         if (type == 0) {
+            // patch 21: NV 33 không còn bước "nâng HP gốc"; vẫn xét lại các bước trạng thái khác.
             checkPassiveTaskConditions(player);
         }
     }
@@ -740,11 +741,6 @@ public class TaskService {
         }
         int idTask = getIdTask(player);
         switch (idTask) {
-            case ConstTask.TASK_33_1: // Nâng HP gốc lên mức trần của bậc giới hạn hiện tại
-                if (player.nPoint.hpg >= player.nPoint.getHpMpLimit()) {
-                    doneTask(player, ConstTask.TASK_33_1);
-                }
-                break;
             case ConstTask.TASK_10_2:  // 250.000 sức mạnh
             case ConstTask.TASK_23_0:  // 80 triệu
             case ConstTask.TASK_31_5:  // 2 tỷ
@@ -1396,6 +1392,12 @@ public class TaskService {
         // NGOẠI LỆ GIỮ MAP — NV 41 bước 1: mọi quái ở vành đai rừng 27–38 (cả 3 hành tinh).
         if (isMapVanhDaiRung(mapId)) {
             doneTask(player, ConstTask.TASK_41_1);
+        }
+        // patch 21 — NV 33 bước 1: thay bước "Nâng HP gốc lên 220.000" (điều kiện trạng thái,
+        // dễ kẹt) bằng hạ quái ở đồi cạnh làng (%3 = Đồi hoa cúc / Đồi nấm tím / Đồi hoang).
+        // Quái nào ở đó cũng tính.
+        if (mapId == transformMapId(player, ConstTask.MAP_200)) {
+            doneTask(player, ConstTask.TASK_33_1);
         }
         switch (mob.tempId) {
             case ConstMob.MOC_NHAN: // 0
