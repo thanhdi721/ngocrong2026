@@ -730,11 +730,27 @@ public class TaskService {
     // Trả về true nếu vật phẩm đã bị tiêu vào nhiệm vụ (nơi gọi không trừ lại nữa).
     // ======================================================================
     public void checkDoneTaskUseItem(Player player, Item item) {
-        if (player == null || !player.isPl() || item == null || !item.isNotNullItem()) {
+        if (item == null || !item.isNotNullItem()) {
+            return;
+        }
+        checkDoneTaskUseItem(player, item.template.id);
+    }
+
+    /**
+     * Bản nhận thẳng id vật phẩm.
+     *
+     * <p>FIX: vật phẩm dùng hết (số lượng về 0) bị {@code Item.dispose()} xoá trắng
+     * {@code template} NGAY TRONG lúc xử lý, nên bản nhận {@code Item} thấy vật phẩm
+     * rỗng và bỏ qua — bước nhiệm vụ "dùng vật phẩm X" không bao giờ xong khi X là
+     * cái cuối cùng trong hành trang (ví dụ Bình chứa Commeson ở NV 49). UseItem nay
+     * nhớ id trước khi dùng rồi gọi bản này.
+     */
+    public void checkDoneTaskUseItem(Player player, int itemTemplateId) {
+        if (player == null || !player.isPl() || itemTemplateId < 0) {
             return;
         }
         int mapId = (player.zone != null && player.zone.map != null) ? player.zone.map.mapId : -1;
-        switch (item.template.id) {
+        switch (itemTemplateId) {
             // doc 39: bỏ "case 13 (ăn Đậu thần) -> TASK_0_4". TASK_0_4 trả về bước gốc
             // "Thu hoạch đậu thần" (checkDoneTaskConfirmMenuNpc). Bước ăn đậu cũ bắt người mới
             // mở túi đồ trong lúc client còn ẩn giao diện -> kẹt vĩnh viễn.

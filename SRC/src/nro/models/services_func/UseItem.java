@@ -261,6 +261,9 @@ public class UseItem {
 
     private void useItem(Player pl, Item item, int indexBag) {
         if (item != null && item.isNotNullItem()) {
+            // Nhớ id TRƯỚC khi dùng: vật phẩm dùng hết bị xoá trắng ngay trong lúc xử lý,
+            // gọi trigger nhiệm vụ sau đó sẽ không còn đọc được id nữa.
+            final int usedItemId = item.template.id;
 
             if (item.template.id == 570) {
                 if (!Util.isAfterMidnight(pl.lastTimeRewardWoodChest)) {
@@ -944,7 +947,7 @@ public class UseItem {
                         }
                         break;
                 }
-                TaskService.gI().checkDoneTaskUseItem(pl, item);
+                TaskService.gI().checkDoneTaskUseItem(pl, usedItemId);
                 InventoryService.gI().sendItemBags(pl);
             } else {
                 Service.gI().sendThongBaoOK(pl, "Sức mạnh không đủ yêu cầu");
