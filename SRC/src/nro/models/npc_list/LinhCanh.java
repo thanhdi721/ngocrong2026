@@ -41,9 +41,11 @@ public class LinhCanh extends Npc {
                         "Bang hội phải có ít nhất 5 thành viên mới có thể tham gia");
                 return;
             }
-            if (player.clanMember.getNumDateFromJoinTimeToToday() < 1) {
+            if (player.clanMember != null && !player.clanMember.canJoinClanDungeon()) {
                 NpcService.gI().createTutorial(player, tempId, this.avartar,
-                        "Gia nhập bang hội trên 1 ngày mới được tham gia");
+                        "Gia nhập bang hội trên "
+                        + nro.models.clan.ClanMember.MIN_DAYS_JOIN_FOR_CLAN_DUNGEON
+                        + " ngày mới được tham gia");
                 return;
             }
             if (player.clan.doanhTrai != null) {

@@ -62,6 +62,20 @@ public class ClanMember {
         this.joinTime = (int) (System.currentTimeMillis() / 1000);
     }
 
+    /**
+     * Số ngày tối thiểu kể từ khi gia nhập bang mới được vào phó bản bang hội
+     * (Doanh trại Độc Nhãn, Con đường rắn độc). Chủ dự án chốt 2026-09-20: 0 = bỏ chặn.
+     *
+     * <p>Sửa bằng SQL không ăn thua vì ngày gia nhập nằm trong cột `clan`.`members`
+     * và server ghi đè cột đó mỗi lần lưu bang hội.
+     */
+    public static final int MIN_DAYS_JOIN_FOR_CLAN_DUNGEON = 0;
+
+    /** Đã ở trong bang đủ lâu để vào phó bản bang hội chưa. */
+    public boolean canJoinClanDungeon() {
+        return getNumDateFromJoinTimeToToday() >= MIN_DAYS_JOIN_FOR_CLAN_DUNGEON;
+    }
+
     public int getNumDateFromJoinTimeToToday() {
         return (int) TimeUtil.diffDate(new Date(), new Date(this.joinTime * 1000L), TimeUtil.DAY);
     }
