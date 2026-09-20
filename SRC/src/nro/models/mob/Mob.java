@@ -807,7 +807,10 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
-            int baseTileDrop = 2;
+            // patch 35 (chủ dự án chốt): tỉ lệ rơi đồ kích hoạt tính trên 99990 thay vì 9999.
+            // 42/99990 ≈ 2,1 lần tỉ lệ cũ, và mẫu số lớn để phần lẻ của các mốc cộng thêm
+            // (kháng tất cả, cỏ bốn lá) KHÔNG bị làm tròn mất như trước.
+            int baseTileDrop = DROP_DO_KICH_HOAT;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -833,7 +836,7 @@ public class Mob {
             }
 
             // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            if (Util.isTrue((int) Math.round(tileDrop), DROP_DO_KICH_HOAT_PER)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -854,7 +857,10 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapUpSKH(mapid)) {
-            int baseTileDrop = 2;
+            // patch 35 (chủ dự án chốt): tỉ lệ rơi đồ kích hoạt tính trên 99990 thay vì 9999.
+            // 42/99990 ≈ 2,1 lần tỉ lệ cũ, và mẫu số lớn để phần lẻ của các mốc cộng thêm
+            // (kháng tất cả, cỏ bốn lá) KHÔNG bị làm tròn mất như trước.
+            int baseTileDrop = DROP_DO_KICH_HOAT;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -880,7 +886,7 @@ public class Mob {
             }
 
             // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            if (Util.isTrue((int) Math.round(tileDrop), DROP_DO_KICH_HOAT_PER)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -1287,6 +1293,22 @@ public class Mob {
         }
     }
 
+
+    /**
+     * Tỉ lệ rơi đồ kích hoạt: DROP_DO_KICH_HOAT / DROP_DO_KICH_HOAT_PER mỗi con quái,
+     * áp dụng ở 9 map đầu game (isMapUpSKH) và Map riêng tư.
+     *
+     * <p>Chủ dự án chốt: đồ nghề đầy đủ (cỏ bốn lá + kháng tất cả 100%) vẫn phải cày
+     * khoảng 15 ngày mới đủ một set, tính theo 4 giờ/ngày và 40 quái/phút.
+     *
+     * <p>6/99990 ≈ 1 món mỗi 16.660 quái khi không có gì; cắn cỏ bốn lá (×1,5) còn
+     * ~11.110 quái; thêm kháng tất cả 100% (×1,2) còn ~9.090 quái. Trung bình phải rơi
+     * ~16 món mới đủ 5 ô (rada và áo hiếm hơn hẳn) -> đủ set ~144.000 quái khi có đủ đồ.
+     *
+     * <p>Muốn nhanh gấp đôi thì để 12, chậm một nửa thì để 3.
+     */
+    private static final int DROP_DO_KICH_HOAT = 6;
+    private static final int DROP_DO_KICH_HOAT_PER = 99990;
 
     /** Có rơi vàng cho nhóm map này không (tỉ lệ rate/per của GoldDropConfig). */
     private static boolean dropGold(GoldDropConfig.Group g) {
