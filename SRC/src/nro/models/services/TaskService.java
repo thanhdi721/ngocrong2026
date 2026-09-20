@@ -767,6 +767,20 @@ public class TaskService {
             case ConstTask.TASK_39_1:  // đủ 7 viên Ngọc Rồng trong hành trang
                 checkDoneTaskCollect7Stars(player);
                 break;
+            case ConstTask.TASK_39_2: {
+                // Cứu người đã gọi rồng trước khi có bản sửa: bước trước bắt phải CÓ đủ 7 viên,
+                // nên đang ở bước này mà trong hành trang không còn đủ 7 viên nghĩa là đã ước rồi.
+                int con = 0;
+                for (int id = 14; id <= 20; id++) {
+                    if (InventoryService.gI().findItemBag(player, id) != null) {
+                        con++;
+                    }
+                }
+                if (con < 7) {
+                    doneTask(player, ConstTask.TASK_39_2);
+                }
+                break;
+            }
             // Các bước "mở giới hạn": nếu người chơi ĐÃ mở tới bậc đó từ trước thì
             // Quốc Vương / Tổ Sư Kaio không hiện nút nữa -> phải tự cho qua bước.
             case ConstTask.TASK_33_2:
@@ -1813,13 +1827,13 @@ public class TaskService {
      * @param starType loại rồng (1 = Rồng Thần 1 Sao)
      */
     public void checkDoneTaskWishDragon(Player player, int starType) {
-        if (player == null || !player.isPl() || starType != 1) {
+        if (player == null || !player.isPl()) {
             return;
         }
-        int mapId = (player.zone != null && player.zone.map != null) ? player.zone.map.mapId : -1;
-        if (isMapLang(player, mapId)) {
-            doneTask(player, ConstTask.TASK_39_2);
-        }
+        // FIX (patch 27): trước đây chỉ tính khi ước ĐÚNG Rồng Thần 1 Sao và ĐỨNG Ở LÀNG QUÊ NHÀ.
+        // Gọi rồng ở map khác (hoặc rồng loại khác) là mất 7 viên ngọc mà bước vẫn 0/1.
+        // Nay gọi rồng ở đâu, loại nào cũng tính.
+        doneTask(player, ConstTask.TASK_39_2);
     }
 
     /**
