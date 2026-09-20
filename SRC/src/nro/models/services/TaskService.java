@@ -586,8 +586,9 @@ public class TaskService {
             // ---- 45 Kibit (Thánh địa Kaio 50) -------------------------------
             case ConstNpc.KIBIT: {
                 if (mapId == 50) {
-                    return doneTask(player, ConstTask.TASK_37_4)
-                            || doneTask(player, ConstTask.TASK_40_4);
+                    // patch 26: bỏ bước cuối NV 37 "Mang Lõi Phép cho Kibit"; Kibit chỉ còn
+                    // dùng cho NV 40.
+                    return doneTask(player, ConstTask.TASK_40_4);
                 }
                 return false;
             }
