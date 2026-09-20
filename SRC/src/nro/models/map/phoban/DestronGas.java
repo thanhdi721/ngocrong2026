@@ -68,6 +68,9 @@ public class DestronGas implements Runnable {
             if (Util.canDoWithTime(lastTimeOpen, TIME_KHI_GAS_HUY_DIET) || (kickoutkghd && Util.canDoWithTime(timeKickOutKGHD, 60000))) {
                 finish();
                 dispose();
+                // FIX: trước đây dọn xong vẫn chạy tiếp phần thân bên dưới với clan = null
+                // và boss đã bị huỷ -> NullPointerException lặp mỗi vòng (150ms).
+                return;
             }
 
             boolean allCharactersDead = true;
@@ -245,6 +248,12 @@ public class DestronGas implements Runnable {
     }
 
     public void dispose() {
+        // FIX: dispose có thể bị gọi lại (hết giờ + đá người chơi ra) -> lần hai chạy trên
+        // dữ liệu đã bị huỷ. Chỉ cho chạy một lần cho mỗi lượt mở.
+        if (!isOpened || clan == null) {
+            this.isOpened = false;
+            return;
+        }
         for (Zone zone : zones) {
             for (int i = zone.items.size() - 1; i >= 0; i--) {
                 if (i < zone.items.size()) {
@@ -253,8 +262,12 @@ public class DestronGas implements Runnable {
             }
         }
         for (Boss boss : bosses) {
-            if (!boss.isDie()) {
-                boss.leaveMap();
+            try {
+                if (boss != null && !boss.isDie()) {
+                    boss.leaveMap();
+                }
+            } catch (Exception e) {
+                nro.models.utils.Logger.logException(DestronGas.class, e, "Lỗi cho boss rời phó bản Khí gas");
             }
         }
         this.removeTextKhiGasHuyDiet();

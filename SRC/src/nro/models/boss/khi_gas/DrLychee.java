@@ -139,6 +139,18 @@ public class DrLychee extends Boss {
 
     @Override
     public void leaveMap() {
+        // FIX: boss đã bị dispose (nPoint = null) mà leaveMap bị gọi lại -> NullPointerException
+        // lặp liên tục trong vòng update của phó bản. Nay bỏ qua an toàn.
+        if (this.nPoint == null) {
+            try {
+                ChangeMapService.gI().exitMap(this);
+            } catch (Exception ignored) {
+            }
+            this.lastZone = null;
+            this.changeStatus(BossStatus.REST);
+            GasDestroyManager.gI().removeBoss(this);
+            return;
+        }
         long bossDamage = Math.min((long) (this.nPoint.dame * 1.5), 200000000L);
         long bossMaxHealth = Math.min((long) (this.nPoint.hpMax * 1.5), 2000000000L);
         try {
