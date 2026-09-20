@@ -3113,13 +3113,14 @@ public class BossesData {
 
     //==========================================================================
     // BOSS MỚI: HEART (-108108) — phản diện chính tuyến mới
-    // Tạo hình mượn NPC 108 (head 2109 / body 2110 / leg 2111) — không cần tài nguyên client mới.
+    // Tạo hình: patch 32 đổi sang part 903/904/905 (Cải trang Zamasu). Bản cũ mượn NPC 108
+    // (part 2109-2111) nhưng bảng part chỉ có tới 2098 -> client đơ khi vào khu có boss.
     // Lời thoại, map, thời gian nghỉ theo 20c §5.2; HP/dame theo 21c §6.2.a (thang boss cốt truyện).
     //==========================================================================
     public static final BossData HEART = new BossData(
             "Heart", //name
             ConstPlayer.TRAI_DAT, //gender
-            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit — NPC 108
+            new short[]{903, 904, 905, -1, -1, -1}, //outfit — Cải trang Zamasu (patch 32: part 2109-2111 KHÔNG có trong bảng part, chỉ tới 2098)
             150000, //dame — chủ dự án chốt: Heart là boss kết truyện, dùng đúng số 20c
             new int[]{1500000000}, //hp 1,5 tỉ — chủ dự án chốt (trần engine 2,147 tỉ vì NPoint.hp là int)
             new int[]{166}, //map join — 166 Phòng thí nghiệm Myuu
@@ -3145,7 +3146,7 @@ public class BossesData {
     public static final BossData HEART_2 = new BossData(
             "Heart Hư Không", //name
             ConstPlayer.TRAI_DAT, //gender
-            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit
+            new short[]{903, 904, 905, -1, -1, -1}, //outfit — Cải trang Zamasu (patch 32)
             250000, //dame — chủ dự án chốt
             new int[]{2000000000}, //hp 2 tỉ — chủ dự án chốt
             new int[]{145}, //map join — 145 Võ Đài Siêu Cấp
@@ -3168,7 +3169,7 @@ public class BossesData {
     public static final BossData HEART_3 = new BossData(
             "Heart Toàn Ký", //name
             ConstPlayer.TRAI_DAT, //gender
-            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit
+            new short[]{903, 904, 905, -1, -1, -1}, //outfit — Cải trang Zamasu (patch 32)
             400000, //dame — chủ dự án chốt
             new int[]{2000000000}, //hp 2 tỉ — chủ dự án chốt
             new int[]{145}, //map join
@@ -3194,7 +3195,7 @@ public class BossesData {
     public static final BossData HEART_4 = new BossData(
             "Hư Không Vô Danh", //name
             ConstPlayer.TRAI_DAT, //gender
-            new short[]{2109, 2110, 2111, -1, -1, -1}, //outfit
+            new short[]{903, 904, 905, -1, -1, -1}, //outfit — Cải trang Zamasu (patch 32)
             500000, //dame — chủ dự án chốt
             new int[]{2000000000}, //hp 2 tỉ — chủ dự án chốt
             new int[]{145, 155}, //map join — 145 (nhánh NV 47) hoặc 155 (nhánh NV 50)
