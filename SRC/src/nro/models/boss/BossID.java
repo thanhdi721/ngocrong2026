@@ -196,4 +196,27 @@ public class BossID {
     public static final int CADIC_M = -924;
     public static final int BABY = -925;
     public static final int GAU_TUONG_CUOP = -926;
+
+    //========================BOSS BẢN NHIỆM VỤ (tuyến nhiệm vụ mới)========================
+    // Dải id dành riêng: -2100 … -2199. Đã kiểm tra không trùng với bất kỳ id nào khác
+    // trong file này (id gần nhất hai bên là -1822 BROLY và -82282 SUPER_BROLY).
+    // Các boss này CHỈ rơi đồ nhiệm vụ, KHÔNG rơi vàng / trang bị / ngọc rồng / đồ Thần Linh.
+    public static final int XEN_BO_HUNG_NV = -2100;   // NV 30 — bản nhiệm vụ của -100
+    public static final int COOLER_NV = -2101;        // NV 34 — bản nhiệm vụ của -29
+    public static final int MABU_14H_NV = -2102;      // NV 37 — bản nhiệm vụ của -214
+    public static final int BLACK_GOKU_NV = -2103;    // NV 38 — bản nhiệm vụ của -203
+    public static final int BABY_NV = -2104;          // NV 39 — bản nhiệm vụ của -925
+    public static final int CUMBER_NV = -2105;        // NV 42 — bản nhiệm vụ của -203999
+
+    //========================BOSS MỚI: HEART========================
+    public static final int HEART = -108108;          // NV 46 / 47 / 50 — 4 hình dạng
+
+    //========================BOSS RIÊNG CHƯƠNG 1–2 (tuyến nhiệm vụ mới)========================
+    // Dải id dành riêng: -2000 … -2099. Đã kiểm tra không trùng bất kỳ id nào khác trong file này.
+    // Hai con này KHÔNG có bản gốc trong game — chúng là boss cốt truyện hoàn toàn mới,
+    // chỉ hiện ra cho người chơi đang đứng đúng bước nhiệm vụ, và KHÔNG rơi gì cả
+    // (vật phẩm của NV 6 / NV 15 trao qua rewardDoneTask, xem docs/4-trien-khai/30-boss-npc-bo-sung.md).
+    // Giá trị phải khớp TaskService.BOSS_KE_THU_GOM / BOSS_JACO_VO_THUC.
+    public static final int KE_THU_GOM = -2000;       // NV 6 bước 1 — 1 hình dạng
+    public static final int JACO_VO_THUC = -2001;     // NV 15 bước 1 — 2 hình dạng
 }

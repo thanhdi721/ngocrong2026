@@ -173,6 +173,25 @@ public class Client implements Runnable {
         }
     }
 
+    /**
+     * FIX: bản sao an toàn danh sách người chơi cho luồng tự lưu định kỳ.
+     * Duyệt ngược theo chỉ số và bắt IndexOutOfBounds để không ném
+     * ConcurrentModificationException khi luồng game thêm/bớt người chơi.
+     */
+    public List<Player> getPlayersSnapshot() {
+        List<Player> snapshot = new ArrayList<>();
+        for (int i = players.size() - 1; i >= 0; i--) {
+            try {
+                Player pl = players.get(i);
+                if (pl != null) {
+                    snapshot.add(pl);
+                }
+            } catch (IndexOutOfBoundsException e) {
+            }
+        }
+        return snapshot;
+    }
+
     public Player getPlayerByID(int playerId) {
         for (int i = 0; i < players.size(); i++) {
             Player player = players.get(i);

@@ -307,6 +307,10 @@ public class SkillUtil {
         if (!checkskill) {
             pl.playerSkill.skills.add(skill);
         }
+        // TUYẾN MỚI: B9 — mọi đường học / nâng kỹ năng (Quy Lão Kame, Trưởng Lão Guru,
+        // Vua Vegeta, SkillService.learSkillSpecial, UseItem, HocTuyetKy) đều đi qua đây.
+        // Đặt móc ở một chỗ duy nhất để không sót nhánh nào.
+        nro.models.services.TaskService.gI().checkDoneTaskLearnSkill(pl, skill);
     }
 
     public static byte getTyleSkillAttack(Skill skill) {

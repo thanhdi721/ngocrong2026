@@ -19,6 +19,14 @@ public class LinhCanh extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            // TUYẾN MỚI (doc 29 §7) + ĐƯỜNG VÒNG NGƯỜI CHƠI LẺ (doc 32):
+            // phải gọi TRƯỚC mọi kiểm tra bang hội, nếu không thì bước TASK_21_0
+            // ("Gặp Lính canh") và cửa thứ hai của TASK_21_2 ("Lấy bản đồ hành quân")
+            // không bao giờ xong với người chơi chưa có bang.
+            // Xong bước thì TaskService đã gửi câu "Việc tiếp theo" -> không báo "chỉ tiếp bang hội" nữa.
+            if (nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                return;
+            }
             if (player.clan == null) {
                 NpcService.gI().createTutorial(player, tempId, this.avartar,
                         "Chỉ tiếp các bang hội, miễn tiếp khách vãng lai");
@@ -33,9 +41,11 @@ public class LinhCanh extends Npc {
                         "Bang hội phải có ít nhất 5 thành viên mới có thể tham gia");
                 return;
             }
-            if (player.clanMember.getNumDateFromJoinTimeToToday() < 1) {
+            if (player.clanMember != null && !player.clanMember.canJoinClanDungeon()) {
                 NpcService.gI().createTutorial(player, tempId, this.avartar,
-                        "Gia nhập bang hội trên 1 ngày mới được tham gia");
+                        "Gia nhập bang hội trên "
+                        + nro.models.clan.ClanMember.MIN_DAYS_JOIN_FOR_CLAN_DUNGEON
+                        + " ngày mới được tham gia");
                 return;
             }
             if (player.clan.doanhTrai != null) {

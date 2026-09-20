@@ -684,7 +684,8 @@ public class Service {
     }
 
     public void chat(Player player, String text) {
-        if (text.equals("part")) {
+        // FIX: chỉ admin mới được nạp lại part (ghi đè file data/update_data/part)
+        if (text.equals("part") && player != null && player.isAdmin() && player.getSession() != null) {
             Manager.loadPart();
             DataGame.updateData(player.getSession());
             return;

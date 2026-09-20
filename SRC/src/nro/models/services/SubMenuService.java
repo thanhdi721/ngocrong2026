@@ -38,6 +38,10 @@ public class SubMenuService {
     }
 
     public void controller(Player player, int playerTarget, int menuId) {
+        // FIX: chống gói tin giả mạo - bỏ qua nếu chưa có nhân vật trong phiên
+        if (player == null) {
+            return;
+        }
         Player plTarget = Client.gI().getPlayer(playerTarget);
         switch (menuId) {
 //            case MENU:
@@ -48,6 +52,11 @@ public class SubMenuService {
 //                }
 //                break;
             case BAN:
+                // FIX: chỉ admin mới được mở menu ban người chơi (cmd -30 sub 64, menuId 500)
+                if (!player.isAdmin()) {
+                    Service.gI().sendThongBao(player, "Không đủ quyền hạn!");
+                    break;
+                }
                 if (plTarget != null) {
                     String[] selects = new String[]{"Đồng ý", "Hủy"};
                     NpcService.gI().createMenuConMeo(player, ConstNpc.BAN_PLAYER, -1,
@@ -55,6 +64,11 @@ public class SubMenuService {
                 }
                 break;
             case BUFF_PET:
+                // FIX: chỉ admin mới được mở menu phát đệ tử (cmd -30 sub 64, menuId 501)
+                if (!player.isAdmin()) {
+                    Service.gI().sendThongBao(player, "Không đủ quyền hạn!");
+                    break;
+                }
                 if (plTarget != null) {
                     String[] selects = new String[]{"Đồng ý", "Hủy"};
                     NpcService.gI().createMenuConMeo(player, ConstNpc.BUFF_PET, -1,

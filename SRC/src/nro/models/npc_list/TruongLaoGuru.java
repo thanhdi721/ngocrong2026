@@ -28,6 +28,10 @@ public class TruongLaoGuru extends Npc {
         super(mapId, status, cx, cy, tempId, avartar);
     }
 
+
+    /** Menu riêng cho bước "Mở giới hạn sức mạnh" của nhiệm vụ (patch 22). */
+    private static final int MENU_PHA_GIOI_HAN_NV = 2215;
+
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
@@ -36,9 +40,17 @@ public class TruongLaoGuru extends Npc {
                     NpcService.gI().createTutorial(player, tempId, avartar, "Con hãy về hành tinh của mình mà thể hiện");
                     return;
                 }
+                // patch 22: bước "Mở giới hạn sức mạnh" chuyển từ Quốc Vương về sư phụ.
+                if (TaskService.gI().canOpenPowerByTask(player)) {
+                    this.createOtherMenu(player, MENU_PHA_GIOI_HAN_NV,
+                            "Cơ thể con đã chạm trần rồi.\nĐể ta phá giới hạn sức mạnh cho con, lần này miễn phí.",
+                            "Phá giới hạn", "Từ chối");
+                    return;
+                }
                 ArrayList<String> menu = new ArrayList<>();
                 menu.add("Nhiệm vụ");
                 menu.add("Học\nKỹ năng");
+                menu.add("Về khu\nvực bang"); // doc 45: chỉ số 2
 
                 String[] menus = menu.toArray(String[]::new);
                 createOtherMenu(player, ConstNpc.BASE_MENU,
@@ -50,6 +62,12 @@ public class TruongLaoGuru extends Npc {
     @Override
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
+            if (player.idMark.getIndexMenu() == MENU_PHA_GIOI_HAN_NV) {
+                if (select == 0 && TaskService.gI().canOpenPowerByTask(player)) {
+                    nro.models.services.OpenPowerService.gI().openPowerByTask(player);
+                }
+                return;
+            }
             if (player.idMark.isBaseMenu()) {
                 handleBaseMenu(player, select);
             } else if (player.idMark.getIndexMenu() == 12) {
@@ -64,6 +82,8 @@ public class TruongLaoGuru extends Npc {
                 NpcService.gI().createTutorial(player, tempId, avartar, player.playerTask.taskMain.subTasks.get(player.playerTask.taskMain.index).name);
             case 1 ->
                 handleSkillLearningMenu(player);
+            case 2 -> // Về khu vực bang (doc 45) — cùng logic với Quy Lão Kame
+                QuyLaoKame.goToClanTerritory(player);
         }
     }
 

@@ -10,6 +10,7 @@ import nro.models.player.NPoint;
 import nro.models.services.OpenPowerService;
 import nro.models.services.Service;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
 
 public class ToSuKaio extends Npc {
 
@@ -19,6 +20,13 @@ public class ToSuKaio extends Npc {
 
     @Override
     public void openBaseMenu(Player player) {
+        // FIX: báo hệ thống nhiệm vụ khi người chơi nói chuyện với NPC này. Trước đây NPC
+        // không gọi nên các bước nhiệm vụ "gặp / nói chuyện với" NPC này KHÔNG BAO GIỜ xong.
+        // Chỉ dừng lại khi vừa hoàn thành một bước (TaskService tự gửi câu "Việc tiếp theo");
+        // còn lại vẫn mở menu bình thường.
+        if (canOpenNpc(player) && nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+            return;
+        }
         if (canOpenNpc(player)) {
             String message = String.format("Tập luyện với Tổ sư Kaio sẽ tăng %s sức mạnh mỗi phút, có thể tăng giảm tùy vào khả năng đánh quái của con",
                     Util.formatNumber(TrainingService.gI().getTnsmMoiPhut(player)));
@@ -53,6 +61,15 @@ public class ToSuKaio extends Npc {
                     showLimitPowerMyself(player);
                 case 1 ->
                     handleLimitPowerPet(player, 0);
+                // TUYẾN MỚI: B10 — mở giới hạn miễn phí theo nhiệm vụ (bỏ trần 50 tỷ và phí vàng).
+                // Nếu không ở đúng bước thì nút vị trí 2 là "Từ chối", rơi vào nhánh npcChat như cũ.
+                case 2 -> {
+                    if (TaskService.gI().canOpenPowerByTask(player)) {
+                        OpenPowerService.gI().openPowerByTask(player);
+                    } else {
+                        this.npcChat(player, "Khi nào con cần thì quay lại gặp ta!");
+                    }
+                }
                 default ->
                     this.npcChat(player, "Khi nào con cần thì quay lại gặp ta!");
             }
@@ -66,6 +83,13 @@ public class ToSuKaio extends Npc {
     }
 
     private void showLimitPowerMenu(Player player) {
+        // TUYẾN MỚI: B10 — chỉ hiện nút "Phá giới hạn (nhiệm vụ)" khi đang ở đúng bước.
+        if (TaskService.gI().canOpenPowerByTask(player)) {
+            this.createOtherMenu(player, ConstNpc.MENU_NANG_GIOI_HAN,
+                    "Con muốn nâng giới hạn sức mạnh cho bản thân hay đệ tử?",
+                    "Bản thân", "Đệ tử", "Phá giới hạn\n(nhiệm vụ)", "Từ chối");
+            return;
+        }
         this.createOtherMenu(player, ConstNpc.MENU_NANG_GIOI_HAN,
                 "Con muốn nâng giới hạn sức mạnh cho bản thân hay đệ tử?",
                 "Bản thân", "Đệ tử", "Từ chối");

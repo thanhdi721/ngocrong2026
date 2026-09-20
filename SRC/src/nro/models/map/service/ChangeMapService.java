@@ -888,6 +888,8 @@ public class ChangeMapService {
                 case 1: //đồi hoa cúc
                 case 8: //đồi nấm tím
                 case 15: //đồi hoang
+                    // doc 39: trả về mốc GỐC TASK_1_0 (NV 0–3 dùng lại cơ chế tuyến gốc;
+                    // NV 2 bước 0 "thu thập 10 đùi gà" diễn ra ở đây)
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_1_0) {
                         return null;
                     }
@@ -895,6 +897,7 @@ public class ChangeMapService {
                 case 42: //vách aru
                 case 43: //vách moori
                 case 44: //vách kakarot
+                    // doc 39: trả về mốc GỐC TASK_2_0 — NV 3 bước 1 phải nhặt item 78 rải sẵn ở đây
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_2_0) {
                         return null;
                     }
@@ -902,13 +905,7 @@ public class ChangeMapService {
                 case 2: //thung lũng tre
                 case 9: //thị trấn moori
                 case 16: //làng plane
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_3_0) {
-                        return null;
-                    }
-                    break;
-                case 24: //trạm tàu vũ trụ trái đất
-                case 25: //trạm tàu vũ trụ namếc
-                case 26: //trạm tàu vũ trụ xayda
+                    // TUYẾN MỚI: mốc cũ TASK_3_0 -> TASK_4_0 (NV 4 "Thứ bò ra từ vết nứt")
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_4_0) {
                         return null;
                     }
@@ -916,76 +913,126 @@ public class ChangeMapService {
                 case 3: //rừng nấm
                 case 11: //thung lũng maima
                 case 17: //rừng nguyên sinh
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_7_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_7_0 -> TASK_5_0 (NV 5 "Ký ức của ông")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_5_0) {
                         return null;
                     }
                     break;
-                case 27: //rừng bamboo
-                case 28: //rừng dương xỉ
-                case 31: //núi hoa vàng
-                case 32: //núi hoa tím
-                case 35: //rừng cọ
-                case 36: //rừng đá
+                case 24: //trạm tàu vũ trụ trái đất
+                case 25: //trạm tàu vũ trụ namếc
+                case 26: //trạm tàu vũ trụ xayda
+                    // TUYẾN MỚI: mốc cũ TASK_4_0 -> TASK_7_1 (NV 7 "Chạy khỏi vết nứt" kết thúc ở trạm tàu)
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_7_1) {
+                        return null;
+                    }
+                    break;
+                case 84: //siêu thị
+                    // TUYẾN MỚI: trước đây KHÔNG khóa -> TASK_8_0 (NV 8 "Máy dò ký ức" gặp Bunma ở siêu thị)
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_8_0) {
+                        return null;
+                    }
+                    break;
+                case 5: //đảo kamê
+                case 13: //nhà trưởng lão guru
+                case 20: //vách núi đen
+                    // TUYẾN MỚI: trước đây KHÔNG khóa -> TASK_9_0 (NV 9 "Chuyến bay đầu tiên")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_9_0) {
+                        return null;
+                    }
+                    break;
+                case 153: //lãnh địa bang hội
+                    // TUYẾN MỚI: trước đây KHÔNG khóa -> TASK_13_0 (NV 13 "Không ai đi một mình")
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_13_0) {
                         return null;
                     }
                     break;
+                case 102: //nhà bunma
+                    // TUYẾN MỚI: mốc cũ TASK_21_0 -> TASK_14_0 (NV 14 "Chợ đen ký ức" diễn ra ở map 102).
+                    // Tách khỏi nhóm 92-96 bên dưới, nếu để chung TASK_24_0 người chơi kẹt cứng ở NV 14.
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_14_0) {
+                        return null;
+                    }
+                    break;
+                case 27: //rừng bamboo
+                case 31: //núi hoa vàng
+                case 35: //rừng cọ
+                    // TUYẾN MỚI: mốc cũ TASK_13_0 -> TASK_14_2 (NV 15 "Người bạn đã quên" diễn ra ở đây).
+                    // Tách khỏi nhóm 28-38 bên dưới vì NV 15 thuộc chương 2, còn nhóm kia mở ở NV 16.
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_14_2) {
+                        return null;
+                    }
+                    break;
+                case 28: //rừng dương xỉ
+                case 29: //nam kamê
                 case 30: //đảo bulong
+                case 32: //núi hoa tím
+                case 33: //nam guru
                 case 34: //đông nam guru
+                case 36: //rừng đá
+                case 37: //thung lũng đen
                 case 38: //bờ vực đen
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_15_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_13_0 / TASK_15_0 -> TASK_16_0 (NV 16 "Dấu vết dẫn về phía Nam").
+                    // 29/33/37 trước đây KHÔNG khóa, nay vào chung nhóm theo §8.
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_16_0) {
                         return null;
                     }
                     break;
                 case 6: //đông karin
                 case 10: //thung lũng namếc
                 case 19: //thành phố vegeta
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_16_0) {
-                        return null;
-                    }
-                    break;
-                case 68: //thung lũng nappa
-                case 69: //vực cấm
-                case 70: //núi appule
-                case 71: //căn cứ rasphery
-                case 72: //thung lũng rasphery
-                case 64: //núi dây leo
-                case 65: //núi cây quỷ
+                    // TUYẾN MỚI: mốc cũ TASK_16_0 -> TASK_18_0 (NV 18 "Tapion")
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_18_0) {
                         return null;
                     }
                     break;
                 case 63: //trại lính fide
+                case 64: //núi dây leo
+                case 65: //núi cây quỷ
                 case 66: //trại quỷ già
                 case 67: //vực chết
+                case 68: //thung lũng nappa
+                case 69: //vực cấm
+                case 70: //núi appule
+                case 71: //căn cứ rasphery
+                case 72: //thung lũng rasphery
                 case 73: //thung lũng chết
                 case 74: //đồi cây fide
                 case 75: //khe núi tử thần
                 case 76: //núi đá
                 case 77: //rừng đá
+                    // TUYẾN MỚI: mốc cũ TASK_18_0 (64,65,68-72) / TASK_19_0 -> TASK_19_0 cho cả cụm 63-77 (NV 19 "Trại lính hoang")
                     if (TaskService.gI().getIdTask(player) < ConstTask.TASK_19_0) {
                         return null;
                     }
                     break;
+                case 79: //núi khỉ đỏ
                 case 81: //hang quỷ chim
                 case 82: //núi khỉ đen
                 case 83: //hang khỉ đen
-                case 79: //núi khỉ đỏ
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_19_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_19_0 -> TASK_22_0 (NV 22 "Tiểu đội sát thủ")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_22_0) {
                         return null;
                     }
                     break;
                 case 80: //núi khỉ vàng
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_20_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_20_0 -> TASK_23_0 (NV 23 "Fide đại ca")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_23_0) {
                         return null;
                     }
-
-                case 102: //nhà bunma
+                    break; // FIX: mốc cũ thiếu break nên map 80 rơi xuống nhánh TASK_21_0 kế tiếp
                 case 92: //thành phố phía đông
                 case 93: //thành phố phía nam
                 case 94: //đảo balê
                 case 96: //cao nguyên
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_21_0 -> TASK_24_0 (NV 24 "Tín hiệu lạ từ phương Bắc").
+                    // Map 102 đã tách ra ở trên với mốc TASK_14_0.
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_24_0) {
+                        return null;
+                    }
+                    break;
+                case 104: //sân sau siêu thị
+                    // TUYẾN MỚI: trước đây KHÔNG khóa -> TASK_27_0 (NV 27 "Ba cỗ máy")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
                         return null;
                     }
                     break;
@@ -993,7 +1040,20 @@ public class ChangeMapService {
                 case 98: //ngọn núi phía bắc
                 case 99: //thung lũng phía bắc
                 case 100: //thị trấn ginder
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_24_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_24_0 -> TASK_28_0 (NV 28 "King Kong")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_28_0) {
+                        return null;
+                    }
+                    break;
+                case 166: //phòng thí nghiệm myuu
+                    // TUYẾN MỚI: trước đây KHÔNG khóa -> TASK_29_0 (NV 29 "Phòng thí nghiệm Myuu")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_29_0) {
+                        return null;
+                    }
+                    break;
+                case 103: //võ đài xên
+                    // TUYẾN MỚI: mốc cũ TASK_27_0 -> TASK_30_0 (NV 30 "Xên bọ hung" mở map 103)
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_30_0) {
                         return null;
                     }
                     break;
@@ -1003,12 +1063,8 @@ public class ChangeMapService {
                 case 108: //dòng sông băng
                 case 109: //rừng băng
                 case 110: //hang băng
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
-                        return null;
-                    }
-                    break;
-                case 103: //võ đài xên
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
+                    // TUYẾN MỚI: mốc cũ TASK_27_0 -> TASK_34_0 (NV 34 "Vùng đất băng giá")
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_34_0) {
                         return null;
                     }
                     break;
@@ -1017,10 +1073,16 @@ public class ChangeMapService {
                         return null;
                     }
                     break;
-                case 154:
-                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_27_0) {
+                case 154: //hành tinh bill
+                case 155: //hành tinh ngục tù
+                    // TUYẾN MỚI: mốc cũ TASK_27_0 (map 154) / không khóa (map 155) -> TASK_42_0.
+                    // §8: lối vào map 155 đi qua map 154 nên map 154 phải mở từ TASK_42_0,
+                    // nếu để TASK_44_0 thì NV 42 "Hành tinh ngục tù" không khởi động được.
+                    // Menu thử thách của Bill vẫn khóa tới TASK_44_0 (xử lý ở TrainingService, ngoài phạm vi file này).
+                    if (TaskService.gI().getIdTask(player) < ConstTask.TASK_42_0) {
                         return null;
                     }
+                    break;
             }
         }
         if (zoneJoin != null) {

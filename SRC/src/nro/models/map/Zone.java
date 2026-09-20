@@ -184,6 +184,9 @@ public class Zone {
         udItem();
         udPlayer();
         udNonInteractiveNPC();
+        // doc 42: sinh sẵn vật phẩm nhiệm vụ cho người đang ở đúng bước ở map không có quái
+        // (map 166 — Bản thiết kế bản sao, TASK_29_2). Map khác thoát ngay.
+        nro.models.task.QuestDrop.updateZone(this);
     }
 
     public Zone(Map map, int zoneId, int maxPlayer) {
@@ -285,16 +288,48 @@ public class Zone {
 
     public List<ItemMap> getItemMapsForPlayer(Player player) {
         List<ItemMap> list = new ArrayList<>();
+        // TUYẾN MỚI: tra một lần, dùng cho các bộ lọc vật phẩm nhiệm vụ bên dưới.
+        final int idTaskOfPlayer = TaskService.gI().getIdTask(player);
         for (ItemMap item : items) {
-            if (item.itemTemplate.id == 78) {
-                if (TaskService.gI().getIdTask(player) != ConstTask.TASK_3_1) {
-                    continue;
-                }
+            // doc 39: KHÔI PHỤC hai bộ lọc của tuyến gốc (NV 0–3 trả về cơ chế gốc):
+            //   - item 78 "đứa bé" / vật thể lạ (rải sẵn ở map 42/43/44) chỉ hiện khi TASK_3_1
+            //   - item 74 "đùi gà nướng" (rải sẵn ở map nhà 21/22/23) chỉ hiện từ TASK_3_0
+            if (item.itemTemplate.id == 78 && idTaskOfPlayer != ConstTask.TASK_3_1) {
+                continue;
             }
-            if (item.itemTemplate.id == 74) {
-                if (TaskService.gI().getIdTask(player) < ConstTask.TASK_3_0) {
-                    continue;
-                }
+            if (item.itemTemplate.id == 74 && idTaskOfPlayer < ConstTask.TASK_3_0) {
+                continue;
+            }
+            // TUYẾN MỚI: vật phẩm nhiệm vụ "Mảnh Vỡ Hư Không" và "Kỷ Vật Của Ông" (NV 5),
+            // chỉ chủ nhân nhìn thấy như item 726.
+            // FIX: id 2001/2002 -> 2009/2010. Bảng id đã chốt lại
+            // (docs/4-trien-khai/25-bang-id-vat-pham-moi.md): 2001 = "Vỏ Lõi rỗng",
+            // 2002 = "Mảnh Ký Ức 1", nên hai id cũ đã trỏ nhầm món.
+            if ((item.itemTemplate.id == 2009 || item.itemTemplate.id == 2010
+                    || item.itemTemplate.id == 2014 || item.itemTemplate.id == 2025)
+                    && item.playerId != player.id) {
+                continue;
+            }
+            // doc 42: vật phẩm nhiệm vụ do bảng QuestDrop sinh ra chỉ hiện với CHỦ NHÂN
+            // (chủ lưu riêng, không mất sau 45 giây như ItemMap.playerId).
+            if (nro.models.task.QuestDrop.isHiddenFor(item, player)) {
+                continue;
+            }
+            // TUYẾN MỚI: ba vật phẩm nhiệm vụ chỉ hiện với người đang đứng đúng bước.
+            // doc 42: không còn "rải sẵn" (Map.initItem chưa từng rải) — nay 2008/2026 rơi từ quái
+            // map 78/110 và 2023 sinh sẵn cho riêng người ở map 166 (QuestDrop); bộ lọc giữ lại
+            // làm lớp chặn thứ hai, chủ nhân luôn đang ở đúng bước khi vật phẩm được sinh ra.
+            //   2008 Mảnh Ký Ức 7        — map 78,  TASK_45_1
+            //   2026 Mảnh Ký Ức Đóng Băng — map 110, TASK_34_3
+            //   2023 Bản thiết kế bản sao — map 166, TASK_29_2
+            if (item.itemTemplate.id == 2008 && idTaskOfPlayer != ConstTask.TASK_45_1) {
+                continue;
+            }
+            if (item.itemTemplate.id == 2026 && idTaskOfPlayer != ConstTask.TASK_34_3) {
+                continue;
+            }
+            if (item.itemTemplate.id == 2023 && idTaskOfPlayer != ConstTask.TASK_29_2) {
+                continue;
             }
             if (item.itemTemplate.id == 726 && item.playerId != player.id) {
                 continue;
@@ -331,6 +366,12 @@ public class Zone {
                         if (itemMap.itemTemplate.type == 22) {
                             return;
                         }
+                        // doc 42: vật phẩm nhiệm vụ (bảng QuestDrop) chỉ chủ nhân nhặt được,
+                        // kể cả sau 45 giây khi ItemMap.update đã xóa playerId.
+                        if (!nro.models.task.QuestDrop.canPick(player, itemMap)) {
+                            Service.gI().sendThongBao(player, "Không thể nhặt vật phẩm nhiệm vụ của người khác");
+                            return;
+                        }
                         int playerId = Math.abs(itemMap.playerId > 100_000_000 ? 1_000_000_000 - (int) itemMap.playerId : (int) itemMap.playerId);
                         if (playerId == player.id || itemMap.playerId == player.id || itemMap.playerId == -1) {
                             Item item = ItemService.gI().createItemFromItemMap(itemMap);
@@ -344,6 +385,16 @@ public class Zone {
                             }
 
                             if (InventoryService.gI().addItemBag(player, item)) {
+                                // FIX (46): đánh dấu đã nhặt NGAY sau khi cộng vào túi. Trước đây biến `picked`
+                                // luôn false lúc kiểm tra nên isPickedUp không bao giờ được đặt => hai gói nhặt
+                                // cùng lúc (2 nick, hoặc nhặt tay + tự nhặt) đều qua synchronized và cùng nhận
+                                // vàng / ngọc / đồ (nhân đôi). Giữ ngoại lệ đùi gà ở nhà và cậu bé ở map 42–44.
+                                if (!(this.map.mapId >= 21 && this.map.mapId <= 23
+                                        && itemMap.itemTemplate != null && itemMap.itemTemplate.id == 74
+                                        || this.map.mapId >= 42 && this.map.mapId <= 44
+                                        && itemMap.itemTemplate != null && itemMap.itemTemplate.id == 78)) {
+                                    itemMap.isPickedUp = true;
+                                }
                                 int itemType = item.template.type;
                                 Message msg;
                                 try {

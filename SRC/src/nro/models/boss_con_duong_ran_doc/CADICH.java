@@ -6,7 +6,6 @@ import nro.models.boss.BossData;
 import nro.models.boss.BossID;
 import nro.models.consts.BossStatus;
 import nro.models.boss.Boss_Manager.SnakeWayManager;
-import nro.models.utils.Functions;
 import nro.models.consts.ConstPlayer;
 import static nro.models.consts.BossType.PHOBANCDRD;
 import nro.models.clan.Clan;
@@ -30,6 +29,8 @@ public class CADICH extends Boss {
     private long lastTimeSkillHD;
     private boolean gongBienKhi;
     private boolean bienKhi;
+    // FIX: mốc thời gian thay cho lời gọi ngủ khi gồng biến khỉ
+    private long timeGongBienKhi;
 
     public CADICH(Zone zone, Clan clan, int dame, int hp) throws Exception {
         super(PHOBANCDRD, BossID.CADICH, new BossData(
@@ -140,7 +141,15 @@ public class CADICH extends Boss {
 
     @Override
     public void attack() {
-        if (!gongBienKhi && !this.effectSkill.isCharging && Util.canDoWithTime(this.lastTimeAttack, 100) && this.typePk == ConstPlayer.PK_ALL) {
+        // FIX: Functions.sleep(2000) trong lúc gồng biến khỉ làm đứng luồng SnakeWayManager dùng chung
+        // cho mọi bang. Nay gồng được bấm giờ, lần cập nhật sau mới hoàn tất biến khỉ.
+        if (this.gongBienKhi) {
+            if (Util.canDoWithTime(this.timeGongBienKhi, 2000)) {
+                doneGongBienKhi();
+            }
+            return;
+        }
+        if (!this.effectSkill.isCharging && Util.canDoWithTime(this.lastTimeAttack, 100) && this.typePk == ConstPlayer.PK_ALL) {
             this.lastTimeAttack = System.currentTimeMillis();
             try {
                 Player pl = getPlayerAttack();
@@ -148,26 +157,12 @@ public class CADICH extends Boss {
                     return;
                 }
                 if (this.nPoint.hp < this.nPoint.hpMax / 2 && !bienKhi) {
+                    // FIX: chỉ bắt đầu gồng rồi trả luồng về, phần còn lại chạy ở doneGongBienKhi()
                     this.chat("Ha ha ha, ha ha ha");
                     this.bienKhi = true;
                     this.gongBienKhi = true;
+                    this.timeGongBienKhi = System.currentTimeMillis();
                     EffectSkillService.gI().sendEffectMonkey(this);
-                    Functions.sleep(2000);
-                    this.chat("Thế nào " + pl.name + "? Mi đã thấy phép biến hình của người Xayda rồi chứ?");
-                    this.gongBienKhi = false;
-                    int timeMonkey = 100000;
-                    this.effectSkill.isMonkey = true;
-                    this.effectSkill.timeMonkey = timeMonkey;
-                    this.effectSkill.lastTimeUpMonkey = System.currentTimeMillis();
-                    this.effectSkill.levelMonkey = 1;
-                    long hpmax = (long) this.nPoint.hpMax * 2L;
-                    this.nPoint.hpMax = (int) Math.min(hpmax, 2_000_000_000);
-                    this.nPoint.setHp(((int) this.nPoint.hpMax));
-                    EffectSkillService.gI().sendEffectMonkey(this);
-                    Service.gI().Send_Caitrang(this);
-                    Service.gI().point(this);
-                    Service.gI().Send_Info_NV(this);
-                    Service.gI().sendInfoPlayerEatPea(this);
                     return;
                 }
 
@@ -204,5 +199,25 @@ public class CADICH extends Boss {
                 ex.printStackTrace();
             }
         }
+    }
+
+    // FIX: phần sau của pha biến khỉ, trước đây nằm sau Functions.sleep(2000) trong attack()
+    private void doneGongBienKhi() {
+        Player pl = getPlayerAttack();
+        this.chat("Thế nào " + (pl != null ? pl.name : "ngươi") + "? Mi đã thấy phép biến hình của người Xayda rồi chứ?");
+        this.gongBienKhi = false;
+        int timeMonkey = 100000;
+        this.effectSkill.isMonkey = true;
+        this.effectSkill.timeMonkey = timeMonkey;
+        this.effectSkill.lastTimeUpMonkey = System.currentTimeMillis();
+        this.effectSkill.levelMonkey = 1;
+        long hpmax = (long) this.nPoint.hpMax * 2L;
+        this.nPoint.hpMax = (int) Math.min(hpmax, 2_000_000_000);
+        this.nPoint.setHp(((int) this.nPoint.hpMax));
+        EffectSkillService.gI().sendEffectMonkey(this);
+        Service.gI().Send_Caitrang(this);
+        Service.gI().point(this);
+        Service.gI().Send_Info_NV(this);
+        Service.gI().sendInfoPlayerEatPea(this);
     }
 }

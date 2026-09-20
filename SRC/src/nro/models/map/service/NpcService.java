@@ -26,15 +26,25 @@ public class NpcService {
         return i;
     }
 
+    /**
+     * Đếm số hộp thoại / menu NPC đã gửi cho client trên luồng hiện tại.
+     * TaskService dùng để biết một bước "nói chuyện với NPC" vừa hoàn thành có gửi câu thoại
+     * nào không — nếu không, client đứng chờ "Xin chờ" mãi (xem TaskService.checkDoneTaskTalkNpc).
+     */
+    public static final ThreadLocal<int[]> DIALOG_COUNT = ThreadLocal.withInitial(() -> new int[1]);
+
     public void createMenuRongThieng(Player player, int indexMenu, String npcSay, String... menuSelect) {
+        DIALOG_COUNT.get()[0]++;
         createMenu(player, indexMenu, ConstNpc.RONG_THIENG, 0, npcSay, menuSelect);
     }
 
     public void createMenuConMeo(Player player, int indexMenu, int avatar, String npcSay, String... menuSelect) {
+        DIALOG_COUNT.get()[0]++;
         createMenu(player, indexMenu, ConstNpc.CON_MEO, avatar, npcSay, menuSelect);
     }
 
     public void createMenuConMeo(Player player, int indexMenu, int avatar, String npcSay, String[] menuSelect, Object object) {
+        DIALOG_COUNT.get()[0]++;
         NpcFactory.PLAYERID_OBJECT.put(player.id, object);
         createMenuConMeo(player, indexMenu, avatar, npcSay, menuSelect);
     }
@@ -52,6 +62,8 @@ public class NpcService {
 
             msg = new Message(32);
             msg.writer().writeShort(npcTempId);
+
+            if (player.idMark != null) { player.idMark.setMenuNpcId(npcTempId); } // FIX: nhớ NPC mở menu
             msg.writer().writeUTF(npcSay);
             msg.writer().writeByte(menuSelect.length);
             for (String menu : menuSelect) {
@@ -68,6 +80,7 @@ public class NpcService {
     }
 
     public void createTutorial(Player player, int avatar, String npcSay) {
+        DIALOG_COUNT.get()[0]++;
         Message msg;
         try {
             msg = new Message(38);
@@ -83,6 +96,7 @@ public class NpcService {
     }
 
     public void createTutorial(Player player, int tempId, int avatar, String npcSay) {
+        DIALOG_COUNT.get()[0]++;
         Message msg;
         try {
             msg = new Message(38);

@@ -28,6 +28,17 @@ public class MenuController {
     }
 
     public void openMenuNPC(MySession session, int idnpc, Player player) {
+        try {
+            openMenuNPC0(session, idnpc, player);
+        } catch (Throwable t) {
+            // Không được im lặng: người chơi bấm NPC mà không thấy gì sẽ tưởng NPC hỏng.
+            Service.gI().hideWaitDialog(player);
+            Service.gI().sendThongBao(player, "Không mở được NPC này, hãy thử lại");
+            nro.models.utils.Logger.logException(MenuController.class, new Exception(t), "Lỗi mở NPC " + idnpc);
+        }
+    }
+
+    private void openMenuNPC0(MySession session, int idnpc, Player player) {
         TransactionService.gI().cancelTrade(player);
         Npc npc;
         if (idnpc == ConstNpc.CALICK && player.zone.map.mapId != 102) {
@@ -36,6 +47,21 @@ public class MenuController {
             npc = NpcManager.getNpc(ConstNpc.LY_TIEU_NUONG);
         } else {
             npc = player.zone.map.getNpc(player, idnpc);
+        }
+        if (npc == null && player.zone != null && player.zone.map != null) {
+            // Trước đây bấm NPC ở hơi xa thì server im lặng (chỉ tắt vòng xoay), người chơi
+            // tưởng NPC hỏng. Nay tìm lại NPC bất kể khoảng cách để báo "đứng quá xa".
+            Npc far = player.zone.map.getNpcAnyDistance(idnpc);
+            if (far != null) {
+                Service.gI().hideWaitDialog(player);
+                String tenNpc = "NPC";
+                try {
+                    tenNpc = nro.models.server.Manager.NPC_TEMPLATES.get(far.tempId).name;
+                } catch (Exception ignored) {
+                }
+                Service.gI().sendThongBao(player, "Hãy lại gần " + tenNpc + " hơn rồi bấm lại");
+                return;
+            }
         }
         if (npc != null) {
             npc.openBaseMenu(player);
@@ -46,6 +72,27 @@ public class MenuController {
 
     public void doSelectMenu(Player player, int npcId, int select) throws IOException {
         TransactionService.gI().cancelTrade(player);
+        // FIX: chỉ nhận lựa chọn gửi tới ĐÚNG NPC đã mở menu đang hiển thị. Trước đây client chế
+        // tác gửi được số thứ tự menu (indexMenu) của NPC này sang một NPC khác có trùng số menu
+        // (ví dụ BASE_MENU) → kích hoạt chức năng/đổi quà của NPC kia mà không qua menu của nó.
+        if (player.idMark == null || player.idMark.getMenuNpcId() != npcId) {
+            Service.gI().hideWaitDialog(player);
+            return;
+        }
+        // FIX (46): trước đây indexMenu KHÔNG bao giờ bị xoá sau khi xác nhận => client gửi lặp gói 32
+        // {npcId, select} bao nhiêu lần cũng được xử lý lại (hoàn tiền cây đậu, đổi quà, dịch chuyển...).
+        // Nay: nếu xử lý xong mà không có menu mới được mở thì xoá menu hiện tại.
+        int seq = player.idMark.getMenuSeq();
+        try {
+            doSelectMenu0(player, npcId, select);
+        } finally {
+            if (player.idMark != null && player.idMark.getMenuSeq() == seq) {
+                player.idMark.setIndexMenu(ConstNpc.IGNORE_MENU);
+            }
+        }
+    }
+
+    private void doSelectMenu0(Player player, int npcId, int select) throws IOException {
         switch (npcId) {
             case ConstNpc.RONG_THIENG, ConstNpc.CON_MEO ->
                 Objects.requireNonNull(NpcManager.getNpc((byte) npcId)).confirmMenu(player, select);

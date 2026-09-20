@@ -30,6 +30,22 @@ public class ConstTask {
     public static final byte MAP_QUAI_BAY_600 = -7;
     public static final byte MAP_LANG = -8;
     public static final byte MAP_QUY_LAO = -9;
+    /**
+     * SỬA LỖI MẤT GIAO DIỆN TÂN THỦ (doc 39): -4 MAP_VACH_NUI phải trả 39/40/41 như tuyến gốc
+     * (NV 3 bước 1 "vật thể lạ" — client hướng dẫn tân thủ viết cứng theo đó).
+     * Các bước NV 4+ cần vách núi 42 Aru / 43 Moori / 44 Kakarot (Bà Hạt Mít NV 17,
+     * Quốc Vương NV 33) dùng placeholder riêng này.
+     */
+    public static final byte MAP_VACH_NUI_LANG = -10;
+    /**
+     * RÕ MAP (docs/4-trien-khai/41): bốn placeholder mũi tên theo hành tinh cho các bước
+     * đánh quái / đánh boss ở chương 1–3 mà trước đây để -1 (không chỉ đường).
+     * Kèm placeholder chữ %15–%18 cùng tên map, %19–%20 tên quái vùng phía Nam.
+     */
+    public static final byte MAP_RUNG_XUONG = -11;   // 4 Rừng xương / 12 Vực maima / 18 Rừng thông Xayda
+    public static final byte MAP_RUNG_BAMBOO = -12;  // 27 Rừng Bamboo / 31 Núi hoa vàng / 35 Rừng cọ
+    public static final byte MAP_PHIA_NAM = -13;     // 29 Nam Kamê / 33 Nam Guru / 37 Thung lũng đen
+    public static final byte MAP_BO_BIEN = -14;      // 30 Đảo Bulông / 34 Đông Nam Guru / 38 Bờ vực đen
 
     //const change npc id
     public static final byte NPC_NHA = -2;
@@ -52,6 +68,13 @@ public class ConstTask {
     public static final String TEN_QUAI_3000 = "%12";
     public static final String TEN_MAP_600 = "%13";
     public static final String TEN_QUAI_1000 = "%14";
+    // RÕ MAP (docs/4-trien-khai/41) — PHẢI thay trước %1 / %2 trong transformName
+    public static final String TEN_MAP_RUNG_XUONG = "%15";
+    public static final String TEN_MAP_RUNG_BAMBOO = "%16";
+    public static final String TEN_MAP_PHIA_NAM = "%17";
+    public static final String TEN_MAP_BO_BIEN = "%18";
+    public static final String TEN_QUAI_PHIA_NAM = "%19";
+    public static final String TEN_QUAI_BO_BIEN = "%20";
 
     public static final int TASK_0_0 = 0;
     public static final int TASK_0_1 = 2;

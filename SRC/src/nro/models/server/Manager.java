@@ -249,7 +249,7 @@ public final class Manager {
         ResultSet rs = null;
         try (Connection con = LocalManager.getConnection();) {
             //load part
-            ps = con.prepareStatement("select * from part");
+            ps = con.prepareStatement("select * from part order by id");
             rs = ps.executeQuery();
             List<Part> parts = new ArrayList<>();
             while (rs.next()) {
@@ -267,21 +267,53 @@ public final class Manager {
                 parts.add(part);
                 dataArray.clear();
             }
-            DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"));
-            dos.writeShort(parts.size());
-            for (Part part : parts) {
-                dos.writeByte(part.type);
-                for (PartDetail partDetail : part.partDetails) {
-                    dos.writeShort(partDetail.iconId);
-                    dos.writeByte(partDetail.dx);
-                    dos.writeByte(partDetail.dy);
-                }
+            // FIX: kiểm tra dữ liệu đầu vào - không ghi đè file part khi bảng part rỗng/lỗi
+            if (parts.isEmpty()) {
+                Logger.error("loadPart: bang 'part' khong co du lieu, giu nguyen file data/update_data/part\n");
+                return;
             }
-            dos.flush();
-            dos.close();
+            // FIX: ghi ra file tạm rồi mới thay thế để không làm hỏng file part khi ghi dở
+            java.io.File fileTmp = new java.io.File("data/update_data/part.tmp");
+            java.io.File filePart = new java.io.File("data/update_data/part");
+            try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(fileTmp))) {
+                writePartData(dos, parts);
+                dos.flush();
+            }
+            java.nio.file.Files.move(fileTmp.toPath(), filePart.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             System.err.print("\nError at 299\n");
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Ghi file part cho client. Client đọc CỐ ĐỊNH số mảnh theo loại (đầu 3, thân 17, chân 14),
+     * không có byte đếm. Một dòng `part` sai số mảnh (vd part 1999 chỉ có 2 mảnh) làm client đọc
+     * lệch toàn bộ part phía sau -> NPC / cải trang từ part đó trở đi mất hình. Nay cắt / đệm
+     * đúng số mảnh (đệm bằng icon 2955 trong suốt) và báo dòng sai ra log.
+     */
+    private static void writePartData(DataOutputStream dos, List<Part> parts) throws java.io.IOException {
+        dos.writeShort(parts.size());
+        for (Part part : parts) {
+            int need = part.type == 0 ? 3 : part.type == 1 ? 17 : 14;
+            if (part.partDetails.size() != need) {
+                Logger.error("part " + part.id + " (type " + part.type + ") co " + part.partDetails.size()
+                        + " manh, can " + need + " -> tu dong can chinh khi ghi file\n");
+            }
+            dos.writeByte(part.type);
+            for (int k = 0; k < need; k++) {
+                if (k < part.partDetails.size()) {
+                    PartDetail partDetail = part.partDetails.get(k);
+                    dos.writeShort(partDetail.iconId);
+                    dos.writeByte(partDetail.dx);
+                    dos.writeByte(partDetail.dy);
+                } else {
+                    dos.writeShort(2955);
+                    dos.writeByte(0);
+                    dos.writeByte(0);
+                }
+            }
         }
     }
 
@@ -293,7 +325,7 @@ public final class Manager {
         ResultSet rs = null;
         try (Connection ConnectionDatabase = LocalManager.getConnection()) {
             //load part
-            ps = ConnectionDatabase.prepareStatement("select * from part");
+            ps = ConnectionDatabase.prepareStatement("select * from part order by id");
             rs = ps.executeQuery();
             List<Part> parts = new ArrayList<>();
             while (rs.next()) {
@@ -312,15 +344,7 @@ public final class Manager {
                 dataArray.clear();
             }
             DataOutputStream dos = new DataOutputStream(new FileOutputStream("data/update_data/part"));
-            dos.writeShort(parts.size());
-            for (Part part : parts) {
-                dos.writeByte(part.type);
-                for (PartDetail partDetail : part.partDetails) {
-                    dos.writeShort(partDetail.iconId);
-                    dos.writeByte(partDetail.dx);
-                    dos.writeByte(partDetail.dy);
-                }
-            }
+            writePartData(dos, parts);
             dos.flush();
             Logger.success(Logger.PURPLE + "Successfully loaded part (" + parts.size() + ")\n");
 
@@ -521,10 +545,13 @@ public final class Manager {
             Logger.success(Logger.RED + "Successfully loaded intrinsic (" + INTRINSICS.size() + ")\n");
 
             //load task
+            // TUYẾN MỚI: thêm ORDER BY. Manager gom bước con theo THỨ TỰ dòng trả về,
+            // không có ORDER BY thì MySQL được phép trả xen kẽ và TaskService sẽ tra nhầm index.
             ps = ConnectionDatabase.prepareStatement("SELECT id, task_main_template.name, detail, "
                     + "task_sub_template.name AS 'sub_name', max_count, notify, npc_id, map "
                     + "FROM task_main_template JOIN task_sub_template ON task_main_template.id = "
-                    + "task_sub_template.task_main_id");
+                    + "task_sub_template.task_main_id "
+                    + "ORDER BY task_main_template.id, task_sub_template.ducvupro");
             rs = ps.executeQuery();
             int taskId = -1;
             TaskMain task = null;
@@ -547,6 +574,10 @@ public final class Manager {
                 task.subTasks.add(subTask);
             }
             Logger.success(Logger.PURPLE + "Successfully loaded task (" + TASKS.size() + ")\n");
+
+            //load task main reward
+            // TUYẾN MỚI: bảng thưởng nhiệm vụ chính đọc từ DB thay cho switch hardcode cũ
+            nro.models.database.TaskRewardDAO.load(ConnectionDatabase);
 
             //load side task
             ps = ConnectionDatabase.prepareStatement("select * from side_task_template");
@@ -626,7 +657,13 @@ public final class Manager {
 
             try {
                 while (true) {
-                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template LIMIT ? OFFSET ?");
+                    // FIX: thêm ORDER BY id. ITEM_TEMPLATES là ArrayList và
+                    // ItemService.getTemplate(id) = ITEM_TEMPLATES.get(id) lấy theo CHỈ SỐ MẢNG,
+                    // nên thứ tự nạp PHẢI đúng theo id tăng dần. Trước đây không có ORDER BY:
+                    // thứ tự đúng chỉ nhờ may mắn (InnoDB trả theo khóa chính), sẽ hỏng sau
+                    // OPTIMIZE TABLE / đổi engine / nâng cấp MySQL, và khi đó TOÀN BỘ bảng item
+                    // của server lệch — client hiện sai tên và icon mọi vật phẩm.
+                    ps = ConnectionDatabase.prepareStatement("SELECT * FROM item_template ORDER BY id LIMIT ? OFFSET ?");
                     ps.setInt(1, batchSize);
                     ps.setInt(2, offset);
                     rs = ps.executeQuery();
@@ -756,11 +793,19 @@ public final class Manager {
             Logger.success(Logger.PURPLE + "Successfully loaded mob template (" + MOB_TEMPLATES.size() + ")\n");
 
             //load npc template
-            ps = ConnectionDatabase.prepareStatement("select * from npc_template");
+            // FIX (44-npc-admin-dep-trai.md): "order by id" — client và NpcFactory tra
+            // template theo VỊ TRÍ trong danh sách, nên thứ tự phải cố định theo id.
+            int firstNpcGap = -1;
+            ps = ConnectionDatabase.prepareStatement("select * from npc_template order by id");
             rs = ps.executeQuery();
             while (rs.next()) {
                 NpcTemplate npcTemp = new NpcTemplate();
                 npcTemp.id = rs.getByte("id");
+                if (npcTemp.id != NPC_TEMPLATES.size() && firstNpcGap < 0) {
+                    // id != vị trí: NPC này (và mọi NPC sau nó) sẽ hiện sai ngoại hình ở
+                    // client, và NpcFactory.createNPC(tempId) lấy nhầm avatar / văng lỗi.
+                    firstNpcGap = npcTemp.id;
+                }
                 npcTemp.name = rs.getString("name");
                 npcTemp.head = rs.getShort("head");
                 npcTemp.body = rs.getShort("body");
@@ -769,6 +814,10 @@ public final class Manager {
                 NPC_TEMPLATES.add(npcTemp);
             }
             Logger.success(Logger.RED + "Successfully loaded npc template (" + NPC_TEMPLATES.size() + ")\n");
+            if (firstNpcGap >= 0) {
+                Logger.warning("npc_template: id hở từ id " + firstNpcGap
+                        + " trở đi — các NPC này KHÔNG dùng được trên map (id phải bằng vị trí).\n");
+            }
             ps = ConnectionDatabase.prepareStatement("select * from data_badges");
             rs = ps.executeQuery();
             while (rs.next()) {

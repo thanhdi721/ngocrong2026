@@ -18,7 +18,17 @@ public class DrMyuu extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
-            if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+            if (TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                return;
+            }
+            // NV 46 bước 2 "Đuổi tới Võ Đài Siêu Cấp": map 145 không có cổng đi bộ.
+            if (TaskService.gI().getIdTask(player) >= nro.models.consts.ConstTask.TASK_46_2) {
+                this.createOtherMenu(player, ConstNpc.BASE_MENU,
+                        "Heart đã chạy tới Võ Đài Siêu Cấp. Ta mở cổng cho ngươi đuổi theo.",
+                        "Tới Võ Đài\nSiêu Cấp", "Từ chối");
+                return;
+            }
+            {
                 this.createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Năm 740, ta tìm thấy các kí sinh trùng của King Tuffle,\nsau đó ta đã nghiên cứu và chế tạo kí sinh trùng Baby.\nBaby có khả năng bám vào cơ thể người khác,\nkiểm soát sức mạnh của họ và làm việc theo ý của ta.\nTuy nhiên ta đã mất kiểm soát nó hoàn toàn...\n Người có thể giúp ta chế ngự nó không ?",
                         "Đồng ý",
@@ -31,9 +41,8 @@ public class DrMyuu extends Npc {
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
             if (player.idMark.isBaseMenu()) {
-                switch (select) {
-                    case 0 -> {
-                    }
+                if (select == 0 && TaskService.gI().getIdTask(player) >= nro.models.consts.ConstTask.TASK_46_2) {
+                    nro.models.map.service.ChangeMapService.gI().changeMap(player, 145, -1, 754, 160);
                 }
             }
         }

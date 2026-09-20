@@ -2,6 +2,8 @@ package nro.models.boss.Cold;
 
 
 import nro.models.boss.Boss;
+import nro.models.boss.BossDamageReduce;
+import nro.models.boss.BossDropRate;
 import nro.models.boss.BossID;
 import nro.models.boss.BossesData;
 import nro.models.item.Item;
@@ -24,11 +26,14 @@ public class Cooler extends Boss {
 
     public Cooler() throws Exception {
         super(BossID.COOLER, BossesData.COOLER, BossesData.COOLER_2);
+        this.damageReducePercentByLevel = BossDamageReduce.COOLER_TG;
     }
 
     @Override
     public void reward(Player plKill) {
         BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.TRUM_SAN_BOSS, 1);
+        // FIX: boss chết nhưng không báo hệ thống nhiệm vụ — thêm checkDoneTaskKillBoss cho người kết liễu
+        TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         int diem = 5;
         plKill.event.addEventPoint(diem);
         Service.gI().sendThongBao(plKill, "+5 Point");
@@ -37,7 +42,8 @@ public class Cooler extends Boss {
         int drop = 190; // 100% rơi item ID 190
         int quantity = Util.nextInt(20000, 30000);
         // Tạo itemMap cho item ID 190
-        if (Util.isTrue(5 , 100)) {
+        // FIX: bỏ số cứng 5%, tỉ lệ rơi đồ Thần Linh nay tính theo máu hiệu dụng của boss (BossDropRate, 1–5%)
+        if (BossDropRate.rollDoThanLinh(this)) {
         ItemMap it = ItemService.gI().randDoTLBoss(this.zone, 1, x, y, plKill.id);
         if (it != null) {
         Service.gI().dropItemMap(zone, it);
@@ -96,6 +102,9 @@ public class Cooler extends Boss {
                 return 0;
             }
             damage = this.nPoint.subDameInjureWithDeff(damage);
+            // Giảm sát thương nhận vào: đặt ngay trước subHP nên cộng dồn lên trên
+            // cơ chế chia sát thương sẵn có của boss này, không thay thế nó.
+            damage = applyDamageReduce(damage);
             this.nPoint.subHP(damage);
             if (isDie()) {
                 this.setDie(plAtt);

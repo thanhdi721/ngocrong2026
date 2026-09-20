@@ -18,6 +18,30 @@ public class IDMark {
     private int idItemUpTop;
     private int typeChangeMap; //capsule, ngọc rồng đen...
     private int indexMenu; //menu npc
+    // FIX (46): đếm số lần đặt menu, để MenuController biết confirmMenu có mở menu mới hay không;
+    // nếu không thì xoá menu => mỗi menu chỉ xác nhận được MỘT lần (chống gửi lặp gói 32).
+    private int menuSeq;
+
+    public void setIndexMenu(int indexMenu) {
+        this.indexMenu = indexMenu;
+        this.menuSeq++;
+    }
+
+    /**
+     * FIX: id NPC đã gửi menu đang mở cho người chơi. MenuController từ chối mọi lựa chọn
+     * gửi tới NPC khác — trước đây client gửi được số thứ tự menu của NPC này sang NPC khác
+     * có trùng số menu (ví dụ BASE_MENU) và kích hoạt chức năng của NPC kia.
+     * Integer.MIN_VALUE = chưa có menu nào được mở.
+     */
+    private int menuNpcId = Integer.MIN_VALUE;
+
+    public int getMenuNpcId() {
+        return this.menuNpcId;
+    }
+
+    public void setMenuNpcId(int npcId) {
+        this.menuNpcId = npcId;
+    }
     private int typeInput; //input
     private byte typeLuckyRound; //type lucky round
 

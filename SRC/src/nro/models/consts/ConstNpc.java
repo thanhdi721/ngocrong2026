@@ -146,6 +146,11 @@ public class ConstNpc {
     public static final byte PANCHY = 68;
     public static final byte THO_DAI_CA = 69;
     public static final byte BARDOCK = 70;
+    // TUYẾN MỚI: hai NPC dưới đây đã có sẵn trong bảng `npc_template` nhưng chưa
+    // có hằng số ở đây nên TaskService phải khai tạm (TaskService.NPC_BERRY /
+    // NPC_GRANOLA). Xem docs/4-trien-khai/30-boss-npc-bo-sung.md.
+    public static final byte BERRY = 71;    // Khu hang động (map 160) — NV 20 / NV 48
+    public static final byte GRANOLA = 76;  // Khu hang động (map 160) — NV 20
     public static final byte TORIBOT = 74;
     public static final byte CAY_NEU = 72;
     public static final byte EVENT = 75;
@@ -153,6 +158,13 @@ public class ConstNpc {
     public static final byte RUONG_SUU_TAM = 82;
     public static final byte DR_MYUU = 83;
     public static final byte XE_NUOC_MIA = 84;
+    // NPC đổi VND ra Thỏi vàng / Ngọc, đứng ở nhà 3 hành tinh (map 21, 22, 23).
+    // id 85 = ô trống đầu tiên liền sau 84: client và NpcFactory tra template
+    // theo VỊ TRÍ trong danh sách npc_template, nên id phải bằng vị trí (và ≤ 127
+    // vì Zone ghi tempId bằng writeByte). Xem docs/4-trien-khai/44-npc-admin-dep-trai.md.
+    public static final byte ADMIN_DEP_TRAI = 85;
+    // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
+    public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------
     //menu o len tang map mabu
     public static final int GO_UPSTAIRS_MENU = 10000;

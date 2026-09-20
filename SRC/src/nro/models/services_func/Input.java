@@ -54,6 +54,9 @@ public class Input {
     public static final int CHOOSE_LEVEL_BDKB = 504;
     public static final int NAP_THE = 505;
     public static final int CHANGE_NAME_BY_ITEM = 506;
+    // FIX: id vật phẩm "thẻ đổi tên". Đặt -1 = tính năng TẮT, vì id cũ (2006) nay là
+    // "Mảnh Ký Ức 5" của tuyến nhiệm vụ mới. Xem docs/4-trien-khai/25-bang-id-vat-pham-moi.md
+    public static final int ID_THE_DOI_TEN = -1;
     public static final int GIVE_IT = 507;
     public static final int GET_IT = 508;
     public static final int DANGKY = 509;
@@ -62,7 +65,7 @@ public class Input {
     public static final int CHOOSE_LEVEL_KGHD = 510;
     public static final int CHOOSE_LEVEL_CDRD = 511;
     public static final int DISSOLUTION_CLAN = 513;
-    public static final int TANG_NGOC_HONG = 514;
+    public static final int TANG_NGOC_HONG = 5140; // FIX: trước đây trùng 514 với SELECT_LUCKYNUMBER
     public static final int SELECT_LUCKYNUMBER = 514;
     public static final byte NUMERIC = 0;
     public static final byte ANY = 1;
@@ -100,7 +103,12 @@ public class Input {
             for (int i = 0; i < text.length; i++) {
                 text[i] = msg.reader().readUTF();
             }
-            switch (player.idMark.getTypeInput()) {
+            // FIX (46): xoá typeInput cho MỌI form ngay khi nhận — trước đây typeInput không bao giờ bị xoá
+            // nên client tự chế gửi lại gói -125 của form cũ bất cứ lúc nào (xa NPC, sau nhiều giờ).
+            // Nhánh nào cần hỏi lại đều gọi createForm(...) nên tự đặt lại typeInput.
+            int typeInputHienTai = player.idMark.getTypeInput();
+            player.idMark.setTypeInput(-1);
+            switch (typeInputHienTai) {
                 case BOTITEM -> {
                     int slot = Integer.parseInt(text[0]);
                     int idBan = Integer.parseInt(text[1]);
@@ -143,7 +151,11 @@ public class Input {
                 }
 
                 case TRADE_GOLD -> {
-                    int cuantity1 = Integer.parseInt(text[0]);
+                    // FIX (docs/4-trien-khai/44-npc-admin-dep-trai.md §6): mỗi form chỉ dùng
+                    // được MỘT lần — xoá typeInput để client tự chế không gửi lại gói -125
+                    // mà không qua NPC.
+                    player.idMark.setTypeInput(-1);
+                    int cuantity1 = Integer.parseInt(text[0].trim());
                     if (!player.getSession().actived) {
                         Service.gI().sendThongBao(player, "Vui lòng kích hoạt tài khoản!");
                         break;
@@ -152,10 +164,25 @@ public class Input {
                         Service.gI().sendThongBao(player, "Tối thiểu 10.000Đ và tối đa 5.000.000Đ");
                         break;
                     }
+                    // FIX: tỉ lệ tính theo từng 1.000đ, phần lẻ trước đây bị trừ mà không đổi ra gì.
+                    if (cuantity1 % 1000 != 0) {
+                        Service.gI().sendThongBao(player, "Số tiền phải là bội số của 1.000Đ");
+                        break;
+                    }
+                    // FIX: kiểm chỗ trống TRƯỚC khi trừ tiền — túi đầy thì addItemBag trả false
+                    // và thỏi vàng / vé biến mất trong khi VND đã bị trừ.
+                    if (InventoryService.gI().getCountEmptyBag(player) < 2) {
+                        Service.gI().sendThongBao(player, "Hành trang cần ít nhất 2 ô trống");
+                        break;
+                    }
                     if (player.getSession().vnd < cuantity1) {
                         Service.gI().sendThongBao(player, "Số dư không đủ, vui lòng nạp thêm");
                     } else {
-                        PlayerDAO.subvnd(player, cuantity1);
+                        // FIX: trước đây bỏ qua kết quả subvnd => DB lỗi vẫn phát thưởng.
+                        if (!PlayerDAO.subvnd(player, cuantity1)) {
+                            Service.gI().sendThongBao(player, "Không trừ được số dư, vui lòng thử lại sau!");
+                            break;
+                        }
 
                         int soLuongThoiVang = (cuantity1 / 1000) * 4;
                         Item item457 = ItemService.gI().createNewItem((short) 457, soLuongThoiVang);
@@ -179,15 +206,36 @@ public class Input {
                 }
 
                 case TRADE_GEM -> {
-                    int quantity = Integer.parseInt(text[0]);
+                    // FIX (44 §6): form dùng một lần, xem TRADE_GOLD.
+                    player.idMark.setTypeInput(-1);
+                    int quantity = Integer.parseInt(text[0].trim());
+                    // Chủ dự án chốt: đổi ngọc cũng phải kích hoạt tài khoản như đổi thỏi vàng.
+                    if (!player.getSession().actived) {
+                        Service.gI().sendThongBao(player, "Vui lòng kích hoạt tài khoản!");
+                        break;
+                    }
                     if (quantity < 10000 || quantity > 5_000_000) {
                         Service.gI().sendThongBao(player, "Tối thiểu 10.000Đ và tối đa 5.000.000Đ");
+                        break;
+                    }
+                    // FIX: inventory.gem là int — cộng thẳng có thể tràn thành số âm.
+                    if ((long) player.inventory.gem + quantity > 2_000_000_000L) {
+                        Service.gI().sendThongBao(player, "Ngọc sau khi đổi vượt giới hạn 2 tỷ, hãy tiêu bớt trước");
+                        break;
+                    }
+                    // FIX: vé 718 cần 1 ô trống, kiểm TRƯỚC khi trừ tiền.
+                    if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+                        Service.gI().sendThongBao(player, "Hành trang cần ít nhất 1 ô trống");
                         break;
                     }
                     if (player.getSession().vnd < quantity) {
                         Service.gI().sendThongBao(player, "Số dư không đủ, vui lòng nạp thêm");
                     } else {
-                        PlayerDAO.subvnd(player, quantity);
+                        // FIX: trước đây bỏ qua kết quả subvnd => DB lỗi vẫn phát ngọc.
+                        if (!PlayerDAO.subvnd(player, quantity)) {
+                            Service.gI().sendThongBao(player, "Không trừ được số dư, vui lòng thử lại sau!");
+                            break;
+                        }
 
                         player.inventory.gem += quantity;
                         Service.gI().sendMoney(player);
@@ -228,13 +276,13 @@ public class Input {
                                     ServerLog.logAdmin(pBuffItem.name, slItemBuff);
                                     break;
                                 case -2:
-                                    pBuffItem.inventory.gem = Math.min(pBuffItem.inventory.gem + slItemBuff, 2000000000);
+                                    pBuffItem.inventory.gem = (int) Math.max(0L, Math.min((long) pBuffItem.inventory.gem + slItemBuff, 2000000000L)); // FIX (46): long, chặn tràn
                                     txtBuff += slItemBuff + " ngọc\b";
                                     Service.gI().sendMoney(pBuffItem);
                                     ServerLog.logAdmin(pBuffItem.name, slItemBuff);
                                     break;
                                 case -3:
-                                    pBuffItem.inventory.ruby = Math.min(pBuffItem.inventory.ruby + slItemBuff, 2000000000);
+                                    pBuffItem.inventory.ruby = (int) Math.max(0L, Math.min((long) pBuffItem.inventory.ruby + slItemBuff, 2000000000L)); // FIX (46): long, chặn tràn
                                     txtBuff += slItemBuff + " ngọc khóa\b";
                                     Service.gI().sendMoney(pBuffItem);
                                     ServerLog.logAdmin(pBuffItem.name, slItemBuff);
@@ -282,6 +330,11 @@ public class Input {
                     }
                 }
                 case GIVE_IT -> {
+                    // FIX: form tặng vật phẩm là chức năng admin, phải tự kiểm tra quyền
+                    // (GET_IT và SEND_ITEM_OP đã có sẵn kiểm tra này)
+                    if (!player.isAdmin()) {
+                        return;
+                    }
                     String name = text[0];
                     int id = Integer.parseInt(text[1]);
                     int op = Integer.parseInt(text[2]);
@@ -353,14 +406,31 @@ public class Input {
                     Player target = player.menuPlayer;
                     if (target != null) {
                         try {
-                            int soGem = Integer.parseInt(text[0]);
-                            if (soGem <= 0) {
-                                Service.gI().sendThongBao(player, "Số ngọc xanh không hợp lệ");
+                            // FIX: trước đây tính bằng int — soGem = 2 tỷ thì soGem + phí 10% TRÀN
+                            // thành số âm, qua mặt bước "đủ ngọc", rồi gem -= (số âm) = người tặng
+                            // được CỘNG ~2 tỷ ngọc. Nay tính bằng long, chặn số quá lớn, chặn tự tặng,
+                            // chặn người nhận vượt giới hạn, và form chỉ dùng được một lần.
+                            player.idMark.setTypeInput(-1);
+                            long soGem = Long.parseLong(text[0].trim());
+                            if (soGem <= 0 || soGem > 1_000_000_000L) {
+                                Service.gI().sendThongBao(player, "Số ngọc xanh không hợp lệ (1 tới 1.000.000.000)");
+                                return;
+                            }
+                            if (target == player || target.id == player.id) {
+                                Service.gI().sendThongBao(player, "Không thể tự tặng cho chính mình");
+                                return;
+                            }
+                            if (Client.gI().getPlayer(target.id) == null) {
+                                Service.gI().sendThongBao(player, "Người nhận đã offline");
                                 return;
                             }
 
-                            int phi = (int) (soGem * 0.1); // Tính phí 10%
-                            int tongGem = soGem + phi;     // Tổng cần trừ
+                            long phi = soGem / 10;          // Tính phí 10%
+                            long tongGem = soGem + phi;     // Tổng cần trừ
+                            if ((long) target.inventory.gem + (soGem * 9 / 10) > 2_000_000_000L) {
+                                Service.gI().sendThongBao(player, "Người nhận đã gần đạt giới hạn ngọc, không nhận thêm được");
+                                return;
+                            }
 
                             if (player.inventory.gem < tongGem) {
                                 Service.gI().sendThongBao(player, "Bạn cần " + tongGem + " ngọc xanh để tặng (bao gồm phí 10%)");
@@ -373,12 +443,11 @@ public class Input {
                                 return;
                             }
 
-                            player.inventory.gem -= tongGem;
+                            player.inventory.gem -= (int) tongGem;
                             InventoryService.gI().subQuantityItemsBag(player, item718, 1);
                             InventoryService.gI().sendItemBags(player);
 
-                            int gemNhan = soGem;
-                            int gemThucNhan = (int) (gemNhan * 0.9);
+                            int gemThucNhan = (int) (soGem * 9 / 10);
                             target.inventory.gem += gemThucNhan;
 
                             Service.gI().sendMoney(player);
@@ -423,7 +492,15 @@ public class Input {
                         } else if (text[0].length() > 10) {
                             Service.gI().sendThongBaoOK(player, "Tên nhân vật chỉ đồng ý các ký tự a-z, 0-9 và chiều dài từ 5 đến 10 ký tự");
                         } else {
-                            Item theDoiTen = InventoryService.gI().findItem(player.inventory.itemsBag, 2006);
+                            // FIX: trước đây tìm item id 2006 làm "thẻ đổi tên".
+                            // 2006 KHÔNG tồn tại trong DB team2026 (di sản bản server khác), và
+                            // từ khi thêm vật phẩm nhiệm vụ thì 2006 = "Mảnh Ký Ức 5" => nhánh này
+                            // sẽ TRỪ MẤT mảnh ký ức của người chơi. Nguồn mở form duy nhất
+                            // (UseItem case 2006) đã bị bỏ, nhánh này giữ lại để phòng gói tin giả:
+                            // ID_THE_DOI_TEN = -1 nên luôn không tìm thấy => luôn báo lỗi, không trừ gì.
+                            // Muốn mở lại tính năng: tạo item mới NGOÀI dải 2000..2031 và đặt id đó
+                            // vào ID_THE_DOI_TEN, đồng thời thêm lại case trong UseItem.
+                            Item theDoiTen = InventoryService.gI().findItem(player.inventory.itemsBag, ID_THE_DOI_TEN);
                             if (theDoiTen == null) {
                                 Service.gI().sendThongBao(player, "Không tìm thấy thẻ đổi tên");
                             } else {
@@ -493,8 +570,22 @@ public class Input {
                     }
                 }
                 case BANSLL -> {
-                    int sltv = Math.abs(Integer.parseInt(text[0]));
-                    long cost = (long) sltv * 37000000;
+                    // FIX: trước đây dùng Math.abs(parseInt(...)). Math.abs(Integer.MIN_VALUE) VẪN ÂM
+                    // → nhập -2147483648: bước "đủ số lượng" bị qua mặt, subQuantityItemsBag trừ một
+                    // số âm = CỘNG 2,1 tỷ Thỏi vàng vào túi. Nay: form dùng 1 lần, chỉ nhận số dương.
+                    player.idMark.setTypeInput(-1);
+                    int sltv;
+                    try {
+                        sltv = Integer.parseInt(text[0].trim());
+                    } catch (NumberFormatException ex) {
+                        Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
+                        break;
+                    }
+                    if (sltv <= 0) {
+                        Service.gI().sendThongBao(player, "Số lượng phải lớn hơn 0");
+                        break;
+                    }
+                    long cost = (long) sltv * 37_000_000L;
                     Item ThoiVang = InventoryService.gI().findItemBag(player, 457);
                     if (ThoiVang != null) {
                         if (ThoiVang.quantity < sltv) {
@@ -520,22 +611,51 @@ public class Input {
                     }
                 }
                 case TANG_NGOC_HONG -> {
+                    // FIX: trước đây KIỂM TRA hồng ngọc nhưng lại TRỪ NGỌC XANH (subGem), rồi CỘNG hồng
+                    // ngọc cho người nhận → hai tài khoản tặng qua lại là nhân hồng ngọc vô hạn.
+                    // Nay trừ đúng hồng ngọc, chặn tự tặng, chặn tràn số, form dùng một lần.
+                    player.idMark.setTypeInput(-1);
                     Player pl = Client.gI().getPlayer(text[0]);
-                    int numruby = Integer.parseInt((text[1]));
+                    int numruby;
+                    try {
+                        numruby = Integer.parseInt(text[1].trim());
+                    } catch (Exception ex) {
+                        Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
+                        break;
+                    }
+                    if (pl != null && (pl == player || pl.id == player.id)) {
+                        Service.gI().sendThongBao(player, "Không thể tự tặng cho chính mình");
+                        break;
+                    }
+                    if (pl != null && (long) pl.inventory.ruby + numruby > 2_000_000_000L) {
+                        Service.gI().sendThongBao(player, "Người nhận đã gần đạt giới hạn hồng ngọc");
+                        break;
+                    }
                     if (pl != null) {
                         if (numruby > 0 && player.inventory.ruby >= numruby) {
-                            Item item = InventoryService.gI().findItemBag(player, 2002);
-                            player.inventory.subGem(numruby);
+                            // FIX: trước đây trừ item id 2002 làm "vé tặng ngọc".
+                            // 2002 KHÔNG tồn tại trong DB team2026, và nay 2002 = "Mảnh Ký Ức 1"
+                            // của tuyến nhiệm vụ mới => nhánh này sẽ TRỪ MẤT mảnh ký ức.
+                            // Vé tặng ngọc THẬT trong DB là item 718 (ConstItem.VE_TANG_NGOC),
+                            // đúng như nhánh TANG_NGOC ở trên đang dùng.
+                            // Thêm cả kiểm tra null: code cũ gọi subQuantityItemsBag(null) khi
+                            // người chơi không có vé.
+                            Item item = InventoryService.gI().findItemBag(player, 718);
+                            if (item == null || item.quantity < 1) {
+                                Service.gI().sendThongBao(player, "Bạn cần 1 vé để tặng ngọc");
+                                break;
+                            }
+                            player.inventory.ruby -= numruby;
                             PlayerService.gI().sendInfoHpMpMoney(player);
                             pl.inventory.ruby += numruby;
                             PlayerService.gI().sendInfoHpMpMoney(pl);
-                            Service.gI().sendThongBao(player, "Tặng ngọc thành công");
+                            Service.gI().sendThongBao(player, "Tặng hồng ngọc thành công");
                             Service.gI().sendThongBao(pl,
-                                    "Bạn được " + player.name + " tặng " + numruby + " ngọc xanh");
+                                    "Bạn được " + player.name + " tặng " + numruby + " hồng ngọc");
                             InventoryService.gI().subQuantityItemsBag(player, item, 1);
                             InventoryService.gI().sendItemBags(player);
                         } else {
-                            Service.gI().sendThongBao(player, "Không đủ ngọc xanh để tặng");
+                            Service.gI().sendThongBao(player, "Không đủ hồng ngọc để tặng");
                         }
                     } else {
                         Service.gI().sendThongBao(player, "Người chơi không tồn tại hoặc đang offline");

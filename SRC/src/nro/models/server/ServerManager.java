@@ -2,10 +2,11 @@ package nro.models.server;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import nro.models.database.HistoryTransactionDAO;
+import nro.models.database.PlayerDAO;
+import nro.models.player.Player;
 import nro.models.boss.Boss_Manager.BossManager;
 import nro.models.boss.Boss_Manager.OtherBossManager;
 import nro.models.boss.Boss_Manager.TreasureUnderSeaManager;
@@ -65,6 +66,15 @@ public class ServerManager {
     public static boolean isRunning;
     private ScheduledExecutorService topUpdater;
 
+    // FIX: tự lưu định kỳ dữ liệu người chơi để server sập không mất tiến trình
+    /** Mỗi nhân vật được lưu lại sau khoảng thời gian này (5 phút). */
+    public static final long AUTO_SAVE_INTERVAL = 5 * 60 * 1000L;
+    /** Nhịp quét, 5 giây một lần -> tải được rải đều thay vì dồn 1 lúc. */
+    private static final long AUTO_SAVE_TICK = 5000L;
+    /** Số nhân vật tối đa được lưu trong 1 nhịp quét. */
+    private static final int MAX_SAVE_PER_TICK = 10;
+    private ScheduledExecutorService autoSaver;
+
     public void init() {
         Manager.gI();
         //TaskService.gI().loadTask();
@@ -90,6 +100,12 @@ public class ServerManager {
                     Logger.logException(ServerManager.class, e);
                 }
             }, "ServerMain").start();
+
+            // Tỉ lệ vàng rơi từ quái (data/golddrop.properties) — thiếu file thì dùng mặc định.
+            nro.models.mob.GoldDropConfig.load();
+
+            // CPANEL: bảng điều khiển Swing (tự bỏ qua nếu headless hoặc server.cpanel=false)
+            nro.models.cpanel.CPanel.startIfEnabled();
 
             activeCommandLine();
         } catch (Exception e) {
@@ -119,6 +135,8 @@ public class ServerManager {
             new Thread(ShenronEventManager.gI(), "Update Shenron").start();
 
             BossManager.gI().loadBoss();
+            // Chỉnh số boss đã lưu từ cpanel (data/bosstuning.properties)
+            nro.models.boss.BossTuning.load();
             Manager.MAPS.forEach(nro.models.map.Map::initBoss);
             EventManager.gI().init();
 
@@ -132,6 +150,10 @@ public class ServerManager {
             new Thread(TreasureUnderSeaManager.gI(), "Update treasure under sea boss").start();
             new Thread(SnakeWayManager.gI(), "Update snake way boss").start();
             new Thread(GasDestroyManager.gI(), "Update gas destroy boss").start();
+            // FIX: start luồng cho manager boss của sự kiện đang bật (HungVuong/Halloween/
+            // Christmas/TrungThu/LunarNewYear EventManager). Trước đây không start -> boss
+            // sự kiện được tạo nhưng đứng im. Có chống start trùng trong EventManager.
+            EventManager.gI().startBossManagers();
 
             new Thread(BotManager.gI(), "Thread Bot Game").start();
             new Thread(ChonAiDay_Gem.gI(), "Thread MiniGame").start();
@@ -140,6 +162,7 @@ public class ServerManager {
             new Thread(ConSoMayManGem.gI(), "ConSoMayManGemThread").start();
 
             startTopUpdater();
+            startAutoSaver();
         } catch (Exception e) {
             Logger.logException(this.getClass(), e);
         }
@@ -153,6 +176,71 @@ public class ServerManager {
                 Manager.resetTopFlags();
             }
         }, 0, 3000, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * FIX: luồng riêng (daemon, 1 thread) tự lưu người chơi đang online.
+     * Không chạy trên luồng game nên không làm treo map/boss; mỗi nhịp chỉ lưu tối đa
+     * MAX_SAVE_PER_TICK nhân vật nên không dồn tải lên MySQL.
+     */
+    private void startAutoSaver() {
+        autoSaver = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "Auto Save Player");
+            t.setDaemon(true);
+            return t;
+        });
+        autoSaver.scheduleWithFixedDelay(this::autoSavePlayers,
+                AUTO_SAVE_INTERVAL, AUTO_SAVE_TICK, TimeUnit.MILLISECONDS);
+        Logger.success("Auto save player thread started (moi " + (AUTO_SAVE_INTERVAL / 60000) + " phut/nhan vat)\n");
+    }
+
+    private void autoSavePlayers() {
+        // Đang bảo trì thì Client.close() đang kick & lưu từng người, không lưu chồng
+        if (!isRunning || Maintenance.isRunning) {
+            return;
+        }
+        try {
+            long now = System.currentTimeMillis();
+            int saved = 0;
+            List<Player> players = Client.gI().getPlayersSnapshot();
+            for (Player pl : players) {
+                if (saved >= MAX_SAVE_PER_TICK) {
+                    break;
+                }
+                if (pl == null || pl.isOffline || pl.beforeDispose || !pl.isPl()) {
+                    continue;
+                }
+                // zone null = đang đổi map, bỏ qua nhịp này để lưu đúng vị trí
+                if (pl.zone == null || pl.zone.map == null) {
+                    continue;
+                }
+                if (pl.getSession() == null || !pl.getSession().joinedGame) {
+                    continue;
+                }
+                if (pl.idMark == null || !pl.idMark.isLoadedAllDataPlayer()) {
+                    continue;
+                }
+                if (now - pl.lastTimeAutoSave < AUTO_SAVE_INTERVAL) {
+                    continue;
+                }
+                pl.lastTimeAutoSave = now;
+                try {
+                    PlayerDAO.autoSavePlayer(pl);
+                    saved++;
+                } catch (Exception e) {
+                    Logger.error("Loi tu luu nhan vat " + pl.name + ": " + e.getMessage() + "\n");
+                }
+            }
+        } catch (Exception e) {
+            Logger.logException(ServerManager.class, e);
+        }
+    }
+
+    private void stopAutoSaver() {
+        if (autoSaver != null && !autoSaver.isShutdown()) {
+            autoSaver.shutdown();
+            System.out.println("Auto save player stopped.");
+        }
     }
 
     private boolean shouldUpdateTop() {
@@ -255,20 +343,19 @@ public class ServerManager {
     }
 
     public void resetNhanQuaHangNgay() {
-        String url = "jdbc:mysql://localhost:3306/ngocrong";
-        String username = "root";
-        String password = "";
         String resetJson = "[1,1,\"1970-01-01T00:00:00\"]";
 
-        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+        // FIX: dùng đúng database đang cấu hình trong Config.properties
+        // (trước đây hard-code jdbc:mysql://localhost:3306/ngocrong nên chạy sai/không chạy được DB thật)
+        try (Connection conn = LocalManager.getConnection()) {
             String sql = "UPDATE player SET checkNhanQua = ? WHERE checkNhanQua != ?";
-            PreparedStatement statement = conn.prepareStatement(sql);
+            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                statement.setString(1, resetJson);
+                statement.setString(2, resetJson);
 
-            statement.setString(1, resetJson);
-            statement.setString(2, resetJson);
-
-            int rowsUpdated = statement.executeUpdate();
-            Logger.success("Đã reset nhận quà hằng ngày cho " + rowsUpdated + " người chơi với dữ liệu: " + resetJson);
+                int rowsUpdated = statement.executeUpdate();
+                Logger.success("Đã reset nhận quà hằng ngày cho " + rowsUpdated + " người chơi với dữ liệu: " + resetJson);
+            }
         } catch (SQLException e) {
             System.err.println("Lỗi reset nhận quà hằng ngày: " + e.getMessage());
         }
@@ -276,6 +363,8 @@ public class ServerManager {
 
     public void close() {
         isRunning = false;
+        // FIX: dừng tự lưu trước khi bảo trì để Client.close() lưu bản cuối cùng
+        stopAutoSaver();
         try {
             ClanService.gI().close();
         } catch (Exception e) {

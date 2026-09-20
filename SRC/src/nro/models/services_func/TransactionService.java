@@ -160,7 +160,7 @@ public class TransactionService implements Runnable {
                         break;
                     }
                     if (trade != null) {
-                        trade.acceptTrade();
+                        trade.acceptTrade(pl);
                         if (trade.accept == 1) {
                             Service.gI().sendThongBao(pl, "Xin chờ đối phương đồng ý");
                         } else if (trade.accept == 2) {

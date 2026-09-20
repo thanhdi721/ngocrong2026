@@ -26,14 +26,17 @@ public class NpcService {
     }
 
     public void createMenuRongThieng(Player player, int indexMenu, String npcSay, String... menuSelect) {
+        nro.models.map.service.NpcService.DIALOG_COUNT.get()[0]++;
         createMenu(player, indexMenu, ConstNpc.RONG_THIENG, -1, npcSay, menuSelect);
     }
 
     public void createMenuConMeo(Player player, int indexMenu, int avatar, String npcSay, String... menuSelect) {
+        nro.models.map.service.NpcService.DIALOG_COUNT.get()[0]++;
         createMenu(player, indexMenu, ConstNpc.CON_MEO, avatar, npcSay, menuSelect);
     }
 
     public void createMenuConMeo(Player player, int indexMenu, int avatar, String npcSay, String[] menuSelect, Object object) {
+        nro.models.map.service.NpcService.DIALOG_COUNT.get()[0]++;
         NpcFactory.PLAYERID_OBJECT.put(player.id, object);
         createMenuConMeo(player, indexMenu, avatar, npcSay, menuSelect);
     }
@@ -47,6 +50,7 @@ public class NpcService {
             player.idMark.setIndexMenu(indexMenu);
             msg = new Message(32);
             msg.writer().writeShort(npcTempId);
+            if (player.idMark != null) { player.idMark.setMenuNpcId(npcTempId); } // FIX: nhớ NPC mở menu
             msg.writer().writeUTF(npcSay);
             msg.writer().writeByte(menuSelect.length);
             for (String menu : menuSelect) {
@@ -63,6 +67,7 @@ public class NpcService {
     }
 
     public void createTutorial(Player player, int avatar, String npcSay) {
+        nro.models.map.service.NpcService.DIALOG_COUNT.get()[0]++;
         Message msg;
         try {
             msg = new Message(38);
@@ -78,6 +83,7 @@ public class NpcService {
     }
 
     public void createTutorial(Player player, int tempId, int avatar, String npcSay) {
+        nro.models.map.service.NpcService.DIALOG_COUNT.get()[0]++;
         Message msg;
         try {
             msg = new Message(38);
@@ -102,6 +108,7 @@ public class NpcService {
     }
     
     public void createBigMessage(Player player, int avatar, String npcSay, byte type, String select, String confirn) {
+        nro.models.map.service.NpcService.DIALOG_COUNT.get()[0]++;
         Message msg;
         try {
             msg = new Message(-70);

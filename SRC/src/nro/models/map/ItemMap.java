@@ -113,7 +113,10 @@ public class ItemMap {
                     this.playerId = -1;
                 }
             }
-            if ((Util.canDoWithTime(createTime, 50000) && isNotNullItem() && itemTemplate.type != 22 || Util.canDoWithTime(createTime, 1800000)) && !this.isNamecBall) {
+            // FIX: vật phẩm nhiệm vụ (2000–2031) giữ trên đất 5 phút thay vì 50 giây. Trước đây
+            // không nhặt kịp là mất, phải hạ lại boss (boss nhiệm vụ nghỉ 15–30 phút) mới có lại.
+            long lifeTime = nro.models.services.ItemService.isTaskItem(this.itemTemplate.id) ? 300000 : 50000;
+            if ((Util.canDoWithTime(createTime, lifeTime) && isNotNullItem() && itemTemplate.type != 22 || Util.canDoWithTime(createTime, 1800000)) && !this.isNamecBall) {
                 if (this.zone != null && this.zone.map.mapId != 21 && this.zone.map.mapId != 22
                         && this.zone.map.mapId != 23 && this.itemTemplate.id != 78
                         && this.itemTemplate.id != 726 && !(MapService.gI().isMapDoanhTrai(this.zone.map.mapId) && this.itemTemplate.id >= 14 && this.itemTemplate.id <= 20)) {

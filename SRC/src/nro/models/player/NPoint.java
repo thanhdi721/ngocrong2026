@@ -1876,7 +1876,8 @@ public class NPoint {
         long tiemNangUse;
         if (type == 0) {
             int pointHp = point * 20;
-            tiemNangUse = point * (2 * (this.hpg + 1000) + pointHp - 20) / 2;
+            // FIX (46): tính bằng long — trước đây tính int rồi mới gán long, hpg lớn là tràn thành âm.
+            tiemNangUse = (long) point * (2L * (this.hpg + 1000) + pointHp - 20) / 2;
             if ((this.hpg + pointHp) <= getHpMpLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     hpg += pointHp;
@@ -1888,7 +1889,7 @@ public class NPoint {
         }
         if (type == 1) {
             int pointMp = point * 20;
-            tiemNangUse = point * (2 * (this.mpg + 1000) + pointMp - 20) / 2;
+            tiemNangUse = (long) point * (2L * (this.mpg + 1000) + pointMp - 20) / 2; // FIX: long
             if ((this.mpg + pointMp) <= getHpMpLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     mpg += pointMp;
@@ -1900,7 +1901,9 @@ public class NPoint {
         }
         if (type == 2) {
             TaskService.gI().checkDoneTaskNangCS(player);
-            tiemNangUse = point * (2 * this.dameg + point - 1) / 2 * 100;
+            // FIX (46): trước đây tính int: dameg = 21000, point = 1000 => 2,15 tỷ tràn thành -2,14 tỷ
+            // => doUseTiemNang trừ số âm = CỘNG ~2,1 tỷ tiềm năng và vẫn cộng 1000 sức đánh.
+            tiemNangUse = (long) point * (2L * this.dameg + point - 1) / 2 * 100;
             if ((this.dameg + point) <= getDameLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     dameg += point;
@@ -1912,7 +1915,12 @@ public class NPoint {
             }
         }
         if (type == 3) {
-            tiemNangUse = 2 * (this.defg + 5) / 2 * 100000;
+            // FIX (46): trước đây chỉ tính giá của 1 điểm nhưng cộng defg += point (gửi point = 500 là
+            // lên 500 giáp với giá 1 điểm). Nay cộng dồn giá của từng điểm.
+            tiemNangUse = 0;
+            for (int i = 0; i < point; i++) {
+                tiemNangUse += (long) (this.defg + i + 5) * 100000L;
+            }
             if ((this.defg + point) <= getDefLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
                     defg += point;
@@ -1923,9 +1931,16 @@ public class NPoint {
             }
         }
         if (type == 4) {
-            tiemNangUse = 50000000L;
+            // FIX (46): trước đây trả giá 1 điểm chí mạng nhưng cộng critg += point. Nay cộng dồn giá
+            // từng điểm (giá điểm thứ k = 50 triệu × 5^k), chặn tràn long.
+            tiemNangUse = 0;
+            long gia = 50000000L;
             for (int i = 0; i < this.critg; i++) {
-                tiemNangUse *= 5L;
+                gia = gia > Long.MAX_VALUE / 5 ? Long.MAX_VALUE : gia * 5L;
+            }
+            for (int i = 0; i < point; i++) {
+                tiemNangUse = (Long.MAX_VALUE - tiemNangUse < gia) ? Long.MAX_VALUE : tiemNangUse + gia;
+                gia = gia > Long.MAX_VALUE / 5 ? Long.MAX_VALUE : gia * 5L;
             }
             if ((this.critg + point) <= getCritLimit()) {
                 if (doUseTiemNang(tiemNangUse)) {
@@ -1936,10 +1951,18 @@ public class NPoint {
                 return;
             }
         }
+        // TUYẾN MỚI: B11 — gọi ở CUỐI hàm, chỉ khi việc nâng chỉ số đã thực sự xảy ra
+        // (mọi nhánh thất bại đều return sớm ở trên). type 2 được TaskService chuyển tiếp
+        // sang checkDoneTaskNangCS nên hành vi cũ không đổi.
+        TaskService.gI().checkDoneTaskBasePoint(player, type);
         Service.gI().point(player);
     }
 
     private boolean doUseTiemNang(long tiemNang) {
+        // FIX (46): không bao giờ chấp nhận giá <= 0 (chặn mọi kiểu tràn số còn sót).
+        if (tiemNang <= 0) {
+            return false;
+        }
         if (this.tiemNang < tiemNang) {
             Service.gI().sendThongBaoOK(player, "Bạn không đủ tiềm năng");
             return false;

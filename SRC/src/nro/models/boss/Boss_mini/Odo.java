@@ -42,6 +42,12 @@ import nro.models.utils.Util;
 
 public class Odo extends Boss {
 
+    /**
+     * FIX: tỉ lệ rơi mỗi "Hộp quà Goku Day" (1591 và 1594), tính riêng cho từng món.
+     * Trước đây hai món rơi 100% mỗi lần giết.
+     */
+    private static final int DROP_HOP_QUA_PERCENT = 5;
+
     private long lastTimeOdo;
     private long lastTimeHpRegen;
 
@@ -164,17 +170,17 @@ public class Odo extends Boss {
     @Override
     public void reward(Player plKill) {
         try {
-            int count1591 = Util.nextInt(1, 1);
-            int count1594 = Util.nextInt(1, 1);
-
-            for (int i = 0; i < count1591; i++) {
+            // FIX: trước đây count1591/count1594 đều là Util.nextInt(1, 1) = luôn bằng 1,
+            // nên mỗi lần giết Ở Dơ là chắc chắn rơi cả hộp quà 1591 lẫn 1594 (100%).
+            // Nay mỗi món gieo riêng 5% một lần — hai món độc lập với nhau.
+            if (Util.isTrue(DROP_HOP_QUA_PERCENT, 100)) {
                 int x = this.location.x + Util.nextInt(-20, 20);
                 int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
                 ItemMap item = new ItemMap(this.zone, 1591, 1, x, y, plKill.id);
                 Service.gI().dropItemMap(this.zone, item);
             }
 
-            for (int i = 0; i < count1594; i++) {
+            if (Util.isTrue(DROP_HOP_QUA_PERCENT, 100)) {
                 int x = this.location.x + Util.nextInt(-20, 20);
                 int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
                 ItemMap item = new ItemMap(this.zone, 1594, 1, x, y, plKill.id);

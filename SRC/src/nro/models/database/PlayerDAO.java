@@ -9,6 +9,7 @@ import nro.models.player.Inventory;
 import nro.models.player.Player;
 import nro.models.skill.Skill;
 import nro.models.map.service.MapService;
+import nro.models.map.Zone;
 import nro.models.utils.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -349,7 +350,61 @@ public class PlayerDAO {
         }
     }
 
+    /**
+     * FIX: khoá theo từng nhân vật. Luồng thoát game / bảo trì và luồng tự lưu định kỳ
+     * không bao giờ ghi chồng lên nhau, và bản ghi cuối cùng luôn là bản ghi mới nhất.
+     */
     public static void updatePlayer(Player player) {
+        if (player == null) {
+            return;
+        }
+        // FIX (rà soát 37): khoá trên player.saveLock, KHÔNG phải trên chính đối tượng Player
+        // (Player.injured là synchronized method -> sẽ bị chặn suốt lệnh UPDATE MySQL).
+        synchronized (player.saveLock) {
+            doUpdatePlayer(player);
+        }
+    }
+
+    /**
+     * FIX: lưu định kỳ nhân vật đang online (gọi từ luồng tự lưu của ServerManager).
+     * - Bỏ qua nhân vật đang thoát game (beforeDispose) để không ghi đè dữ liệu cuối cùng.
+     * - Cập nhật mapIdBeforeLogout theo map hiện tại, nếu không updatePlayer sẽ lưu map = 0.
+     */
+    public static void autoSavePlayer(Player player) {
+        if (player == null || player.isOffline || player.beforeDispose) {
+            return;
+        }
+        synchronized (player.saveLock) {
+            if (player.beforeDispose) {
+                return;
+            }
+            Zone zoneBefore = player.zone;
+            if (zoneBefore == null || zoneBefore.map == null || player.location == null) {
+                return;
+            }
+            player.mapIdBeforeLogout = zoneBefore.map.mapId;
+            // MapService.getMapCanJoin() (được gọi bên trong doUpdatePlayer) có thể ghi đè
+            // player.location khi nhân vật đang ở map phụ bản -> giữ lại toạ độ thật của
+            // nhân vật đang chơi, tránh bị "dịch chuyển" chỉ vì một lần tự lưu.
+            int x = player.location.x;
+            int y = player.location.y;
+            try {
+                doUpdatePlayer(player);
+            } finally {
+                // FIX (rà soát 37): CHỈ trả lại toạ độ khi nhân vật vẫn còn ở ĐÚNG khu cũ.
+                // Lệnh UPDATE mất hàng trăm ms; trong lúc đó người chơi có thể đã đổi map
+                // (ChangeMapService ghi thẳng pl.location.x/y, không qua khoá này).
+                // Trả lại toạ độ của map cũ vào map mới sẽ ném nhân vật ra ngoài biên
+                // bản đồ hoặc kẹt trong địa hình.
+                if (player.zone == zoneBefore && player.location != null && !player.beforeDispose) {
+                    player.location.x = x;
+                    player.location.y = y;
+                }
+            }
+        }
+    }
+
+    private static void doUpdatePlayer(Player player) {
         if (player != null && player.idMark.isLoadedAllDataPlayer()) {
             long st = System.currentTimeMillis();
             try {
@@ -860,12 +915,24 @@ public class PlayerDAO {
                 dataArray.clear();
 
                 //Data item event
+                // FIX: ghi đủ 16 phần tử đúng như MrBlue.loadPlayer đang đọc
+                // (trước đây chỉ ghi 6 -> load ném exception -> reset toàn bộ giới hạn item sự kiện về 0)
                 dataArray.add(player.itemEvent.remainingTVGSCount);
                 dataArray.add(player.itemEvent.lastTVGSTime);
                 dataArray.add(player.itemEvent.remainingHHCount);
                 dataArray.add(player.itemEvent.lastHHTime);
                 dataArray.add(player.itemEvent.remainingBNCount);
                 dataArray.add(player.itemEvent.lastBNTime);
+                dataArray.add(player.itemEvent.remainingBanhQuyCount);
+                dataArray.add(player.itemEvent.lastItemBanhQuy);
+                dataArray.add(player.itemEvent.remainingKeoNguoiTuyetCount);
+                dataArray.add(player.itemEvent.lastItemKeoNguoiTuyet);
+                dataArray.add(player.itemEvent.remainingCaTuyetCount);
+                dataArray.add(player.itemEvent.lastItemCaTuyet);
+                dataArray.add(player.itemEvent.remainingChuongDongCount);
+                dataArray.add(player.itemEvent.lastItemChuongDong);
+                dataArray.add(player.itemEvent.remainingKeoDuongCount);
+                dataArray.add(player.itemEvent.lastItemKeoDuong);
                 String dataItemEvent = dataArray.toJSONString();
                 dataArray.clear();
 
@@ -1088,24 +1155,75 @@ public class PlayerDAO {
         return lastTimeLogout > lastTimeLogin;
     }
 
+    /**
+     * Trừ VND của tài khoản. Trả {@code true} CHỈ KHI DB đã trừ thật.
+     *
+     * <p>FIX (44-npc-admin-dep-trai.md §6): bản cũ chạy
+     * {@code vnd = vnd - ?} không điều kiện và bỏ qua số dòng bị ảnh hưởng, nên
+     * (a) DB có thể bị trừ thành số âm khi {@code session.vnd} trong RAM lệch
+     * với DB, (b) {@code num <= 0} thì "trừ" thành cộng. Nay:
+     * <ul>
+     * <li>từ chối {@code num <= 0};</li>
+     * <li>khoá theo session để hai lệnh đổi song song của cùng một người không
+     * cùng lọt qua bước so số dư trong RAM;</li>
+     * <li>câu UPDATE có {@code AND vnd >= ?} và phải ảnh hưởng đúng 1 dòng —
+     * DB là trọng tài cuối cùng, không bao giờ âm.</li>
+     * </ul>
+     */
     public static boolean subvnd(Player player, int num) {
-        PreparedStatement ps = null;
-        try (Connection con = LocalManager.getConnection();) {
-            if (player.getSession().vnd >= num) {
-            } else {
-                return false;
-            }
-            ps = con.prepareStatement("update account set vnd = vnd - ? where id = ?");
-            ps.setInt(1, num);
-            ps.setInt(2, player.getSession().userId);
-            ps.executeUpdate();
-            player.getSession().vnd -= num;
-
-        } catch (Exception e) {
-            Logger.logException(PlayerDAO.class, e, "Lỗi update vnd " + player.name);
+        if (player == null || player.getSession() == null || num <= 0) {
             return false;
         }
-        return true;
+        synchronized (player.getSession()) {
+            if (player.getSession().vnd < num) {
+                return false;
+            }
+            try (Connection con = LocalManager.getConnection();
+                    PreparedStatement ps = con.prepareStatement(
+                            "update account set vnd = vnd - ? where id = ? and vnd >= ?")) {
+                ps.setInt(1, num);
+                ps.setInt(2, player.getSession().userId);
+                ps.setInt(3, num);
+                if (ps.executeUpdate() != 1) {
+                    return false;
+                }
+                player.getSession().vnd -= num;
+            } catch (Exception e) {
+                Logger.logException(PlayerDAO.class, e, "Lỗi update vnd " + player.name);
+                return false;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Đọc lại {@code vnd} và {@code tongnap} từ bảng {@code account} vào session.
+     * {@code session.vnd} chỉ được nạp lúc đăng nhập, nên tiền nạp qua web khi
+     * đang online sẽ không hiện nếu không đọc lại. Chỉ ĐỌC, không ghi DB.
+     *
+     * @return {@code true} nếu đọc được
+     */
+    public static boolean reloadVnd(Player player) {
+        if (player == null || player.getSession() == null) {
+            return false;
+        }
+        synchronized (player.getSession()) {
+            try (Connection con = LocalManager.getConnection();
+                    PreparedStatement ps = con.prepareStatement(
+                            "select vnd, tongnap from account where id = ?")) {
+                ps.setInt(1, player.getSession().userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        player.getSession().vnd = rs.getInt("vnd");
+                        player.getSession().tongnap = rs.getInt("tongnap");
+                        return true;
+                    }
+                }
+            } catch (Exception e) {
+                Logger.logException(PlayerDAO.class, e, "Lỗi đọc vnd " + player.name);
+            }
+            return false;
+        }
     }
 
     public static boolean MuaThanhVien(Player player, int num) {

@@ -21,6 +21,9 @@ public class MrPoPo extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
+            // TUYẾN MỚI: gọi TRƯỚC mọi nhánh kiểm tra bang hội, nếu không thì
+            // bước nói chuyện ở NV 43 không bao giờ xong với người chơi chưa có bang.
+            nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this);
             if (this.mapId == 0) {
                 if (player.clan != null) {
                     this.createOtherMenu(player, ConstNpc.BASE_MENU, "Thượng Đế vừa phát hiện ra 1 loại khí đang âm thầm\nhủy diệt mọi mầm sống trên Trái Đất,\nnó được gọi là Destron Gas.\nTa sẽ đưa các cậu đến nơi ấy, các cậu đã sẵn sàng chưa?",

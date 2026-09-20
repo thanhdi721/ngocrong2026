@@ -6,6 +6,7 @@ import nro.models.player.Player;
 import nro.models.services.InventoryService;
 import nro.models.services.Service;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
 
 /**
  *
@@ -190,6 +191,8 @@ public class PhaLeHoaTrangBi {
                 }
                 CombineService.gI().sendEffectSuccessCombine(player);
                 CombineService.gI().baHatMit.npcChat(player, "Chúc mừng con nhé");
+                // TUYẾN MỚI: B3 — pha lê hóa THÀNH CÔNG -> ghi nhận TASK_26_1
+                TaskService.gI().checkDoneTaskCombine(player, TaskService.COMBINE_PHA_LE_HOA);
             } else {
                 CombineService.gI().sendEffectFailCombine(player);
 

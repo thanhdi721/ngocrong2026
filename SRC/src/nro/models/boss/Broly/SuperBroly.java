@@ -11,6 +11,7 @@ import nro.models.map.Zone;
 import nro.models.player.Player;
 import nro.models.services.PetService;
 import nro.models.services.SkillService;
+import nro.models.services.TaskService;
 import nro.models.map.service.ChangeMapService;
 import nro.models.skill.Skill;
 import nro.models.services.PlayerService;
@@ -50,6 +51,8 @@ public class SuperBroly extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        // FIX: boss chết nhưng không báo hệ thống nhiệm vụ — thêm checkDoneTaskKillBoss cho người kết liễu
+        TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         if (plKill.pet == null) {
             PetService.gI().createNormalPet(plKill);
         }

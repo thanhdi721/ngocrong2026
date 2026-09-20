@@ -21,6 +21,7 @@ import nro.models.player.Pet;
 import nro.models.player.Player;
 import nro.models.skill.Skill;
 import nro.models.task.TaskMain;
+import nro.models.task.SubTaskMain;
 import nro.models.server.Client;
 import nro.models.server.Manager;
 import nro.models.network.MySession;
@@ -197,6 +198,19 @@ public class MrBlue {
                 }
             }
             player.haveTennisSpaceShip = rs.getBoolean("have_tennis_space_ship");
+
+            // FIX: đọc các cột điểm top ngay trong loadPlayer.
+            // Trước đây chỉ login() mới đọc, nên nhân vật offline nạp bằng loadById() rồi
+            // updatePlayer() (BlackBallWar, ClanService, Whis, SummonDragonNamek...) ghi đè điểm về 0.
+            try {
+                player.point_sukien = rs.getInt("point_sukien");
+                player.point_sukien1 = rs.getInt("point_sukien1");
+                player.point_sukien2 = rs.getInt("point_sukien2");
+                player.thachdauwhis = rs.getInt("thachdauwhis");
+                player.point_maydam = rs.getInt("point_maydam");
+                player.total_damage_maydam = rs.getLong("total_damage_maydam");
+            } catch (Exception e) {
+            }
 
             int clanId = rs.getInt("clan_id");
             if (clanId != -1) {
@@ -585,59 +599,63 @@ public class MrBlue {
             if (dataArray.size() > 11) {
                 timeMayDo = Integer.parseInt(String.valueOf(dataArray.get(11)));
             }
+            // FIX: đọc đúng thứ tự mà PlayerDAO.updatePlayer đã ghi (trước đây lệch 1 ô từ index 12
+            // nên thời gian buff bị gán nhầm sang item khác sau khi đăng nhập lại)
+            // Thứ tự ghi: 12 Cỏ bốn lá, 13 Kho báu x2, 14 Bùa Santa, 15 Bữa ăn, 16 icon bữa ăn,
+            // 17 TDLT, 18 CMS, 19 GTPT, 20 ĐK, 21 RX, 22 Bữa ăn 2, 23 icon bữa ăn 2, 24 dự phòng,
+            // 25 NCD, 26 Nước mía 1, 27 Nước mía 2, 28 Nước mía 3, 29 Kilis, 30-31 dự phòng
             if (dataArray.size() > 12) {
-                timeKhoBauX2 = Integer.parseInt(String.valueOf(dataArray.get(12)));
+                timeCoBonLa = Long.parseLong(String.valueOf(dataArray.get(12)));
             }
             if (dataArray.size() > 13) {
+                timeKhoBauX2 = Integer.parseInt(String.valueOf(dataArray.get(13)));
             }
             if (dataArray.size() > 14) {
-                timeMeal = Integer.parseInt(String.valueOf(dataArray.get(14)));
+                timeBuaSanta = Integer.parseInt(String.valueOf(dataArray.get(14)));
             }
             if (dataArray.size() > 15) {
-                iconMeal = Integer.parseInt(String.valueOf(dataArray.get(15)));
+                timeMeal = Integer.parseInt(String.valueOf(dataArray.get(15)));
             }
             if (dataArray.size() > 16) {
-                timeUseTDLT = Integer.parseInt(String.valueOf(dataArray.get(16)));
+                iconMeal = Integer.parseInt(String.valueOf(dataArray.get(16)));
             }
             if (dataArray.size() > 17) {
-                timeUseCMS = Integer.parseInt(String.valueOf(dataArray.get(17)));
+                timeUseTDLT = Integer.parseInt(String.valueOf(dataArray.get(17)));
             }
             if (dataArray.size() > 18) {
-                timeUseGTPT = Integer.parseInt(String.valueOf(dataArray.get(18)));
+                timeUseCMS = Integer.parseInt(String.valueOf(dataArray.get(18)));
             }
             if (dataArray.size() > 19) {
-                timeUseDK = Integer.parseInt(String.valueOf(dataArray.get(19)));
+                timeUseGTPT = Integer.parseInt(String.valueOf(dataArray.get(19)));
             }
             if (dataArray.size() > 20) {
-                timeUseRX = Integer.parseInt(String.valueOf(dataArray.get(20)));
+                timeUseDK = Integer.parseInt(String.valueOf(dataArray.get(20)));
             }
             if (dataArray.size() > 21) {
-                timeMeal2 = Integer.parseInt(String.valueOf(dataArray.get(21)));
+                timeUseRX = Integer.parseInt(String.valueOf(dataArray.get(21)));
             }
             if (dataArray.size() > 22) {
-                iconMeal2 = Integer.parseInt(String.valueOf(dataArray.get(22)));
+                timeMeal2 = Integer.parseInt(String.valueOf(dataArray.get(22)));
             }
             if (dataArray.size() > 23) {
+                iconMeal2 = Integer.parseInt(String.valueOf(dataArray.get(23)));
             }
             if (dataArray.size() > 24) {
-                timeUseNCD = Integer.parseInt(String.valueOf(dataArray.get(24)));
             }
             if (dataArray.size() > 25) {
-                timeBuaSanta = Integer.parseInt(String.valueOf(dataArray.get(25)));
+                timeUseNCD = Integer.parseInt(String.valueOf(dataArray.get(25)));
             }
             if (dataArray.size() > 26) {
-                timeKilis = (int) Long.parseLong(String.valueOf(dataArray.get(26)));
+                timeNuocMia1 = Long.parseLong(String.valueOf(dataArray.get(26)));
             }
             if (dataArray.size() > 27) {
-                timeNuocMia1 = (int) Long.parseLong(String.valueOf(dataArray.get(27)));
+                timeNuocMia2 = Long.parseLong(String.valueOf(dataArray.get(27)));
             }
             if (dataArray.size() > 28) {
-                timeNuocMia2 = (int) Long.parseLong(String.valueOf(dataArray.get(28)));
+                timeNuocMia3 = Long.parseLong(String.valueOf(dataArray.get(28)));
             }
             if (dataArray.size() > 29) {
-                timeNuocMia3 = (int) Long.parseLong(String.valueOf(dataArray.get(28)));
-            }
-            if (dataArray.size() > 30) {
+                timeKilis = Long.parseLong(String.valueOf(dataArray.get(29)));
             }
 
             player.itemTime.lastTimeBoHuyet = System.currentTimeMillis() - (ItemTime.TIME_ITEM - timeBoHuyet);
@@ -665,6 +683,11 @@ public class MrBlue {
             player.itemTime.lastTimeUseRX = System.currentTimeMillis();
             player.itemTime.lastTimeEatMeal2 = System.currentTimeMillis() - (ItemTime.TIME_EAT_MEAL - timeMeal2);
             player.itemTime.lastTimeUseNCD = System.currentTimeMillis() - (ItemTime.TIME_NCD - timeUseNCD);
+            // FIX: khôi phục cả mốc thời gian của Kilis / Nước mía (trước chỉ bật cờ nên buff tắt ngay ở tick kế tiếp)
+            player.itemTime.lastTimeUseKilis = System.currentTimeMillis() - (ItemTime.TIME_KILIS - timeKilis);
+            player.itemTime.lastTimeUseNuocMia1 = System.currentTimeMillis() - (ItemTime.TIME_NUOC_MIA1 - timeNuocMia1);
+            player.itemTime.lastTimeUseNuocMia2 = System.currentTimeMillis() - (ItemTime.TIME_NUOC_MIA2 - timeNuocMia2);
+            player.itemTime.lastTimeUseNuocMia3 = System.currentTimeMillis() - (ItemTime.TIME_NUOC_MIA3 - timeNuocMia3);
 
             player.itemTime.iconMeal = iconMeal;
             player.itemTime.isEatMeal = timeMeal != 0;
@@ -698,9 +721,42 @@ public class MrBlue {
 
             //data nhiệm vụ
             dataArray = (JSONArray) JSONValue.parse(rs.getString("data_task"));
-            TaskMain taskMain = TaskService.gI().getTaskMainById(player, Byte.parseByte(String.valueOf(dataArray.get(0))));
-            taskMain.index = Byte.parseByte(String.valueOf(dataArray.get(1)));
-            taskMain.subTasks.get(taskMain.index).count = Short.parseShort(String.valueOf(dataArray.get(2)));
+            int savedTaskId = Integer.parseInt(String.valueOf(dataArray.get(0)));
+            TaskMain taskMain = TaskService.gI().getTaskMainById(player, savedTaskId);
+            // FIX (rà soát 37): tuyến nhiệm vụ mới có SỐ BƯỚC khác tuyến cũ cùng id.
+            // Không kiểm tra thì nhân vật cũ (id nhiệm vụ không còn, hoặc index vượt số bước)
+            // sẽ ném NullPointerException / IndexOutOfBoundsException NGAY LÚC ĐĂNG NHẬP
+            // và không vào được game. Thiếu nhiệm vụ -> lùi về nhiệm vụ 0; index vượt -> kẹp lại.
+            if (taskMain == null || taskMain.id != savedTaskId || taskMain.subTasks.isEmpty()) {
+                Logger.error("loadPlayer: khong tim thay task id " + savedTaskId
+                        + " cho nhan vat " + player.name + ", dat lai ve nhiem vu 0\n");
+                taskMain = TaskService.gI().getTaskMainById(player, 0);
+            }
+            if (taskMain == null || taskMain.subTasks.isEmpty()) {
+                taskMain = new TaskMain();
+                taskMain.id = 0;
+                taskMain.name = "";
+                taskMain.detail = "";
+            }
+            int savedIndex = Integer.parseInt(String.valueOf(dataArray.get(1)));
+            if (savedIndex < 0) {
+                savedIndex = 0;
+            }
+            if (savedIndex >= taskMain.subTasks.size()) {
+                savedIndex = taskMain.subTasks.size() - 1;
+            }
+            taskMain.index = savedIndex;
+            if (savedIndex >= 0) {
+                short savedCount = Short.parseShort(String.valueOf(dataArray.get(2)));
+                SubTaskMain curStm = taskMain.subTasks.get(savedIndex);
+                if (savedCount < 0) {
+                    savedCount = 0;
+                }
+                if (savedCount > curStm.maxCount) {
+                    savedCount = curStm.maxCount;
+                }
+                curStm.count = savedCount;
+            }
             if (dataArray.size() > 3) {
                 taskMain.lastTime = Long.parseLong(String.valueOf(dataArray.get(3)));
             } else {
@@ -977,7 +1033,8 @@ public class MrBlue {
 
             // Sư phụ không tấn công
             try {
-                player.doesNotAttack = rs.getBoolean("masterDoesAttack");
+                // FIX: đọc đúng tên cột `masterDoesNotAttack` (trước đây đọc `masterDoesAttack` nên luôn lỗi -> false)
+                player.doesNotAttack = rs.getBoolean("masterDoesNotAttack");
                 player.lastTimePlayerNotAttack = System.currentTimeMillis();
             } catch (Exception e) {
                 player.doesNotAttack = false;
@@ -1038,22 +1095,40 @@ public class MrBlue {
             //data item event
             try {
                 dataArray = (JSONArray) JSONValue.parse(rs.getString("data_item_event"));
-                player.itemEvent.remainingTVGSCount = Integer.parseInt(dataArray.get(0).toString());
-                player.itemEvent.lastTVGSTime = Long.parseLong(dataArray.get(1).toString());
-                player.itemEvent.remainingHHCount = Integer.parseInt(dataArray.get(2).toString());
-                player.itemEvent.lastHHTime = Long.parseLong(dataArray.get(3).toString());
-                player.itemEvent.remainingBNCount = Integer.parseInt(dataArray.get(4).toString());
-                player.itemEvent.lastBNTime = Long.parseLong(dataArray.get(5).toString());
-                player.itemEvent.remainingBanhQuyCount = Integer.parseInt(dataArray.get(6).toString());
-                player.itemEvent.lastItemBanhQuy = Long.parseLong(dataArray.get(7).toString());
-                player.itemEvent.remainingKeoNguoiTuyetCount = Integer.parseInt(dataArray.get(8).toString());
-                player.itemEvent.lastItemKeoNguoiTuyet = Long.parseLong(dataArray.get(9).toString());
-                player.itemEvent.remainingCaTuyetCount = Integer.parseInt(dataArray.get(10).toString());
-                player.itemEvent.lastItemCaTuyet = Long.parseLong(dataArray.get(11).toString());
-                player.itemEvent.remainingChuongDongCount = Integer.parseInt(dataArray.get(12).toString());
-                player.itemEvent.lastItemChuongDong = Long.parseLong(dataArray.get(13).toString());
-                player.itemEvent.remainingKeoDuongCount = Integer.parseInt(dataArray.get(14).toString());
-                player.itemEvent.lastItemKeoDuong = Long.parseLong(dataArray.get(15).toString());
+                // FIX: đọc theo số phần tử thực tế - dữ liệu cũ chỉ có 6 phần tử,
+                // trước đây get(6) ném exception làm reset sạch cả 6 giá trị đầu mỗi lần load
+                if (dataArray.size() > 1) {
+                    player.itemEvent.remainingTVGSCount = Integer.parseInt(dataArray.get(0).toString());
+                    player.itemEvent.lastTVGSTime = Long.parseLong(dataArray.get(1).toString());
+                }
+                if (dataArray.size() > 3) {
+                    player.itemEvent.remainingHHCount = Integer.parseInt(dataArray.get(2).toString());
+                    player.itemEvent.lastHHTime = Long.parseLong(dataArray.get(3).toString());
+                }
+                if (dataArray.size() > 5) {
+                    player.itemEvent.remainingBNCount = Integer.parseInt(dataArray.get(4).toString());
+                    player.itemEvent.lastBNTime = Long.parseLong(dataArray.get(5).toString());
+                }
+                if (dataArray.size() > 7) {
+                    player.itemEvent.remainingBanhQuyCount = Integer.parseInt(dataArray.get(6).toString());
+                    player.itemEvent.lastItemBanhQuy = Long.parseLong(dataArray.get(7).toString());
+                }
+                if (dataArray.size() > 9) {
+                    player.itemEvent.remainingKeoNguoiTuyetCount = Integer.parseInt(dataArray.get(8).toString());
+                    player.itemEvent.lastItemKeoNguoiTuyet = Long.parseLong(dataArray.get(9).toString());
+                }
+                if (dataArray.size() > 11) {
+                    player.itemEvent.remainingCaTuyetCount = Integer.parseInt(dataArray.get(10).toString());
+                    player.itemEvent.lastItemCaTuyet = Long.parseLong(dataArray.get(11).toString());
+                }
+                if (dataArray.size() > 13) {
+                    player.itemEvent.remainingChuongDongCount = Integer.parseInt(dataArray.get(12).toString());
+                    player.itemEvent.lastItemChuongDong = Long.parseLong(dataArray.get(13).toString());
+                }
+                if (dataArray.size() > 15) {
+                    player.itemEvent.remainingKeoDuongCount = Integer.parseInt(dataArray.get(14).toString());
+                    player.itemEvent.lastItemKeoDuong = Long.parseLong(dataArray.get(15).toString());
+                }
             } catch (Exception e) {
                 player.itemEvent.remainingTVGSCount = 0;
                 player.itemEvent.lastTVGSTime = 0;

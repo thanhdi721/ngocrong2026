@@ -10,6 +10,7 @@ import nro.models.npc.Npc;
 import nro.models.map.service.NpcManager;
 import nro.models.combine.PhanRaTrangBiKichHoat.PhanRaTrangBi;
 import nro.models.services.InventoryService;
+import nro.models.services.Service;
 
 /**
  *
@@ -84,9 +85,24 @@ public class CombineService {
             return;
         }
         player.combineNew.clearItemCombine();
+        // FIX (46): xoá menu xác nhận cũ — các nhánh báo lỗi của từng kiểu nâng cấp không tạo menu mới,
+        // nên trước đây menu "Nâng cấp" của lần xem HỢP LỆ trước vẫn còn và áp lên bộ đồ mới (không hợp lệ).
+        player.idMark.setIndexMenu(ConstNpc.IGNORE_MENU);
         if (index.length > 0) {
             for (int i = 0; i < index.length; i++) {
-                player.combineNew.itemsCombine.add(player.inventory.itemsBag.get(index[i]));
+                // FIX (46): chặn chỉ số sai và chỉ số LẶP (vd. [k, k, k, capsule] đếm 1 chồng khoáng thành 3).
+                if (index[i] < 0 || index[i] >= player.inventory.itemsBag.size()) {
+                    player.combineNew.clearItemCombine();
+                    return;
+                }
+                Item it = player.inventory.itemsBag.get(index[i]);
+                for (Item daChon : player.combineNew.itemsCombine) {
+                    if (daChon == it) {
+                        player.combineNew.clearItemCombine();
+                        return;
+                    }
+                }
+                player.combineNew.itemsCombine.add(it);
             }
         }
         switch (player.combineNew.typeCombine) {
@@ -170,7 +186,56 @@ public class CombineService {
      *
      * @param player
      */
+    /**
+     * FIX (46): kiểm tra lại nguyên liệu lúc XÁC NHẬN. showInfoCombine chỉ lưu THAM CHIẾU tới món đồ;
+     * trước đây giữa lúc xem và lúc bấm xác nhận người chơi cất món vào rương / mặc lên người / giao dịch
+     * (túi bị thay bằng bản sao) thì subQuantityItemsBag không tìm thấy món để trừ nhưng thành phẩm vẫn
+     * được phát => nâng cấp / ép sao / nhập ngọc rồng / phân rã... miễn phí nguyên liệu, lặp vô hạn.
+     */
+    private boolean nguyenLieuConHopLe(Player player) {
+        java.util.List<Item> list = player.combineNew.itemsCombine;
+        if (list == null || list.isEmpty()) {
+            return false;
+        }
+        if (nro.models.services_func.TransactionService.gI().check(player)) {
+            return false;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            Item it = list.get(i);
+            if (it == null || !it.isNotNullItem() || it.quantity <= 0) {
+                return false;
+            }
+            for (int j = 0; j < i; j++) {
+                if (list.get(j) == it) {
+                    return false;
+                }
+            }
+            boolean trongTui = false;
+            for (Item b : player.inventory.itemsBag) {
+                if (b == it) {
+                    trongTui = true;
+                    break;
+                }
+            }
+            if (!trongTui) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void tuChoiNguyenLieu(Player player) {
+        player.idMark.setIndexMenu(ConstNpc.IGNORE_MENU);
+        player.combineNew.clearItemCombine();
+        player.combineNew.clearParamCombine();
+        Service.gI().sendThongBao(player, "Vật phẩm đã thay đổi, hãy chọn lại");
+    }
+
     public void startCombine(Player player) {
+        if (!nguyenLieuConHopLe(player)) {
+            tuChoiNguyenLieu(player);
+            return;
+        }
         switch (player.combineNew.typeCombine) {
             case EP_SAO_TRANG_BI:
                 EpSaoTrangBi.epSaoTrangBi(player);
@@ -236,7 +301,7 @@ public class CombineService {
                 PhanRaSach.phanRaSach(player);
                 break;
             case CHE_TAO_TRANG_BI_THIEN_SU:
-                CheTaoTrangBiThienSu.CheTaoTS(player);
+                CheTaoTrangBiThienSu.cheTao(player);
                 break;
             case DUI_DUC:
                 CheTaoDuiDuc.CheTaoDuiDuc(player);
@@ -253,6 +318,10 @@ public class CombineService {
     }
     
     public void startCombineVip(Player player, int n) {
+        if (!nguyenLieuConHopLe(player)) { // FIX (46): xem nguyenLieuConHopLe
+            tuChoiNguyenLieu(player);
+            return;
+        }
         switch (player.combineNew.typeCombine) {
             case PHA_LE_HOA_TRANG_BI:
                 PhaLeHoaTrangBi.phaLeHoa(player, n);

@@ -1,5 +1,6 @@
 package nro.models.npc_list;
 
+import nro.models.database.PlayerDAO;
 import nro.models.item.Item;
 import nro.models.item.Item.ItemOption;
 import nro.models.npc.Npc;
@@ -127,7 +128,12 @@ public class ToriBot extends Npc {
             return;
         }
 
-        pl.getSession().vnd -= cost;
+        // FIX: trừ VND qua PlayerDAO để ghi xuống bảng account, trước đây chỉ trừ trong session
+        // nên đăng nhập lại là tiền quay về (mua VIP miễn phí không giới hạn).
+        if (!PlayerDAO.subvnd(pl, cost)) {
+            Service.gI().sendThongBao(pl, "Không thể trừ điểm mùa, vui lòng thử lại!");
+            return;
+        }
         if (vipLevel > pl.vip) {
             pl.vip = (byte) vipLevel;
         }

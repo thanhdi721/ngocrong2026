@@ -15,6 +15,7 @@ import nro.models.server.ServerNotify;
 import nro.models.services.PlayerService;
 import nro.models.services.Service;
 import nro.models.services.SkillService;
+import nro.models.services.TaskService;
 import nro.models.map.service.ChangeMapService;
 import nro.models.utils.SkillUtil;
 import nro.models.utils.Util;
@@ -32,6 +33,8 @@ public class NhanBan extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        // FIX: boss chết nhưng không báo hệ thống nhiệm vụ — thêm checkDoneTaskKillBoss cho người kết liễu
+        TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         ItemMap it = new ItemMap(zone, 638, 1, this.location.x, this.location.y, plKill.id);
         it.options.clear();
         it.options.add(new Item.ItemOption(93, 30));

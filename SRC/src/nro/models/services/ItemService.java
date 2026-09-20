@@ -24,6 +24,22 @@ public class ItemService {
 
     private static ItemService i;
 
+    // FIX: Dải id VẬT PHẨM NHIỆM VỤ của tuyến nhiệm vụ chính mới.
+    // Xem SRC/sql/patch/01-vat-pham-moi.sql và docs/4-trien-khai/25-bang-id-vat-pham-moi.md
+    // Dải PHẢI liên tục vì ItemService.getTemplate(id) = Manager.ITEM_TEMPLATES.get(id)
+    // lấy theo chỉ số mảng, và ItemData gửi bảng item xuống client theo thứ tự, không kèm id.
+    public static final int ID_TASK_ITEM_MIN = 2000;
+    public static final int ID_TASK_ITEM_MAX = 2031;
+
+    /**
+     * FIX: true nếu id nằm trong dải vật phẩm nhiệm vụ mới (2000..2031).
+     * Dùng để chặn BÁN / VỨT / MẶC — vì gold = 0 KHÔNG chặn được bán
+     * (ShopService.sellItem có "if (cost == 0) cost = 1;" nên vẫn bán 1 vàng/cái).
+     */
+    public static boolean isTaskItem(int templateId) {
+        return templateId >= ID_TASK_ITEM_MIN && templateId <= ID_TASK_ITEM_MAX;
+    }
+
     public static ItemService gI() {
         if (i == null) {
             i = new ItemService();
@@ -595,7 +611,12 @@ public class ItemService {
     }
 
     public Item randomRac2() {
-        short[] racs = {585, 704, 2048, 379, 384, 385, 381, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 934, 935};
+        // FIX: bỏ id 2048 — id này không tồn tại trong DB team2026 (di sản bản server khác).
+        // Nó nằm ngoài dải vật phẩm nhiệm vụ mới (2000..2031) nên hiện vẫn vô hại, nhưng
+        // sẽ "sống lại" và phát nhầm đồ nếu sau này item_template được mở rộng quá id 2048.
+        // (Lỗi cũ chưa sửa ở dòng dưới: Util.nextInt(racs.length - 1) khiến phần tử CUỐI
+        //  mảng không bao giờ được chọn — không liên quan tới vật phẩm nhiệm vụ.)
+        short[] racs = {585, 704, 379, 384, 385, 381, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 934, 935};
         int idItem = racs[Util.nextInt(racs.length - 1)];
         if (Util.isTrue(1, 100)) {
             idItem = 956;
@@ -635,7 +656,14 @@ public class ItemService {
     }
 
     public Item vatphamsk(boolean hsd) {
-        int[] itemId = {2025, 2026, 2036, 2037, 2038, 2039, 2040, 2019, 2020, 2021, 2022, 2023, 2024, 954, 955, 952, 953, 924, 860, 742};
+        // FIX: đã bỏ 13 id >= 2000 (2019..2026, 2036..2040) khỏi mảng này.
+        // Chúng là di sản của một bản server khác và KHÔNG tồn tại trong DB team2026.
+        // Trước đây chúng chết lặng (IndexOutOfBoundsException bị try/catch nuốt),
+        // nhưng từ khi thêm vật phẩm nhiệm vụ id 2000..2031 thì 2019..2026 đã có thật
+        // => mở "Hộp quà giáng sinh" (item 648, qua OpenItem648 -> vatphamsk) sẽ phát
+        // nhầm VẬT PHẨM NHIỆM VỤ kèm option ngẫu nhiên, phá tiến độ tuyến nhiệm vụ.
+        // Giữ lại 7 id có thật trong DB.
+        int[] itemId = {954, 955, 952, 953, 924, 860, 742};
         byte[] option = {77, 80, 81, 103, 50, 94, 5};
         byte[] option_v2 = {14, 16, 17, 19, 27, 28, 47, 87}; //77 %hp // 80 //81 //103 //50 //94 //5 % sdcm
         byte optionid = 0;

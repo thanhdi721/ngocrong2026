@@ -781,9 +781,9 @@ public class Controller implements IMessageHandler {
 
                             if (TaskService.gI().getIdTask(player) == ConstTask.TASK_0_0) {
                                 NpcService.gI().createTutorial(player, -1,
-                                        "Chào Mừng " + player.name + " Đến Với: " + ServerManager.NAME + "\n"
-                                        + "Nhiệm vụ đầu tiên của bạn là di chuyển\n"
-                                        + "Bạn hãy di chuyển nhân vật theo mũi tên chỉ hướng");
+                                        "Chào mừng " + player.name + " đến với " + ServerManager.NAME + ".\n"
+                                        + "Ngươi vừa tỉnh dậy bên vách núi, không nhớ mình đã ngất đi bao lâu.\n"
+                                        + "Hãy di chuyển nhân vật theo mũi tên chỉ hướng.");
                             } else {
                                 // -70 thông báo bigmessage
                                 //sendThongBaoServer(player);
@@ -931,6 +931,12 @@ public class Controller implements IMessageHandler {
             ItemTimeService.gI().sendCanAutoPlay(player);
             player.start();
         } catch (Exception e) {
+            // FIX: trước đây khối catch để trống — lỗi ở bất kỳ bước nào phía trên đều bị nuốt
+            // mất, không có log, và các bước còn lại (kể cả player.start()) bị bỏ qua âm thầm.
+            // Triệu chứng phía client: vào game được nhưng thiếu giao diện / thiếu dữ liệu.
+            nro.models.utils.Logger.error("Lỗi khi gửi thông tin đăng nhập cho người chơi: "
+                    + (session != null && session.player != null ? session.player.name : "?") + "\n");
+            e.printStackTrace();
         }
     }
 

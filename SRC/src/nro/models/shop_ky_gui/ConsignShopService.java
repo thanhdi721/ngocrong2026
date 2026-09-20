@@ -12,6 +12,7 @@ import nro.models.item.Item;
 import nro.models.item.Item.ItemOption;
 import nro.models.map.service.NpcService;
 import nro.models.network.Message;
+import nro.models.player.Inventory;
 import nro.models.player.Player;
 import nro.models.services.InventoryService;
 import nro.models.services.ItemService;
@@ -24,6 +25,10 @@ import nro.models.services.Service;
  */
 
 public class ConsignShopService {
+
+    // FIX: trần giá ký gửi (trước đây các điều kiện kiểm tra dùng && nên vô hiệu)
+    private static final int MAX_GOLD_CONSIGN = 200_000_000;
+    private static final int MAX_GEM_CONSIGN = 1_000_000;
 
     private static ConsignShopService instance;
 
@@ -112,7 +117,10 @@ public class ConsignShopService {
         return false;
     }
 
-    public void buyItem(Player pl, int id) {
+    // FIX (46 §Ký gửi): mỗi phiên chạy trên luồng riêng. Trước đây hai người cùng bấm mua một món
+    // (hoặc người bán bấm Huỷ đúng lúc người khác mua) thì cả hai cùng thấy "chưa bán" => món bị
+    // phát HAI lần (nhân đồ). Nay mua / huỷ / nhận tiền / đăng bán đều khoá chung trên singleton.
+    public synchronized void buyItem(Player pl, int id) {
         if (pl.nPoint.power < 17000000000L) {
             Service.gI().sendThongBao(pl, "Yêu cầu sức mạnh lớn hơn 17 tỷ");
             openShopKyGui(pl);
@@ -126,6 +134,11 @@ public class ConsignShopService {
         if (it.player_sell == pl.id) {
             Service.gI().sendThongBao(pl, "Không thể mua vật phẩm bản thân đăng bán");
             openShopKyGui(pl);
+            return;
+        }
+        // FIX: kiểm tra chỗ trống TRƯỚC khi trừ tiền (trước đây túi đầy => mất tiền, mất đồ).
+        if (InventoryService.gI().getCountEmptyBag(pl) == 0) {
+            Service.gI().sendThongBao(pl, "Hành trang đã đầy");
             return;
         }
         boolean isBuy = false;
@@ -267,7 +280,7 @@ public class ConsignShopService {
         openShopKyGui(pl);
     }
 
-    public void claimOrDel(Player pl, byte action, int id) {
+    public synchronized void claimOrDel(Player pl, byte action, int id) {
         ConsignItem it = getItemBuy(pl, id);
         switch (action) {
             case 1: // hủy vật phẩm
@@ -278,6 +291,11 @@ public class ConsignShopService {
                 if (it.player_sell != pl.id) {
                     Service.gI().sendThongBao(pl, "Vật phẩm không thuộc quyền sở hữu");
                     openShopKyGui(pl);
+                    return;
+                }
+                // FIX: túi đầy thì addItemBag thất bại => đồ bị xoá khỏi ký gửi mà không về túi.
+                if (InventoryService.gI().getCountEmptyBag(pl) == 0) {
+                    Service.gI().sendThongBao(pl, "Hành trang đã đầy");
                     return;
                 }
                 Item item = ItemService.gI().createNewItem(it.itemId);
@@ -303,11 +321,15 @@ public class ConsignShopService {
                     return;
                 }
                 if (it.goldSell > 0) {
-                    Item tvAdd = ItemService.gI().createNewItem((short) 457);
-                    tvAdd.quantity = it.goldSell - it.goldSell * 10 / 100;
-                    InventoryService.gI().addItemBag(pl, tvAdd);
+                    // FIX: người mua trả vàng nên người bán phải nhận lại vàng (trước đây nhận Thỏi vàng => tạo vàng vô hạn)
+                    long goldReceive = (long) it.goldSell - (long) it.goldSell * 10 / 100;
+                    pl.inventory.gold += goldReceive;
+                    if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
+                        pl.inventory.gold = Inventory.LIMIT_GOLD;
+                    }
                 } else if (it.gemSell > 0) {
-                    pl.inventory.gem += it.gemSell - it.gemSell * 10 / 100;
+                    // FIX: gem là int — chặn tràn số.
+                    pl.inventory.gem = (int) Math.min((long) pl.inventory.gem + (it.gemSell - it.gemSell * 10 / 100), 2_000_000_000L);
                 }
                 if (ConsignShopManager.gI().listItem.remove(it)) {
                     Service.gI().sendMoney(pl);
@@ -375,8 +397,36 @@ public class ConsignShopService {
         }
     }
 
-    public void KiGui(Player pl, int id, int money, byte moneyType, int quantity) {
+    public synchronized void KiGui(Player pl, int id, int money, byte moneyType, int quantity) {
         try {
+            // FIX: kiểm tra ô hành trang / món hợp lệ TRƯỚC khi thu phí (trước đây thu 1 Thỏi vàng rồi
+            // mới kiểm tra => gửi chỉ số sai là mất phí), và chỉ nhận món mà giao diện cho phép ký gửi
+            // (trước đây client sửa gói gửi được BẤT KỲ món nào trong túi, kể cả món không giao dịch được).
+            if (id < 0 || id >= pl.inventory.itemsBag.size()) {
+                openShopKyGui(pl);
+                return;
+            }
+            Item goc = pl.inventory.itemsBag.get(id);
+            if (goc == null || !goc.isNotNullItem() || !itemCanConsign(goc)) {
+                Service.gI().sendThongBao(pl, "Vật phẩm không thể kí gửi");
+                openShopKyGui(pl);
+                return;
+            }
+            if (goc.template.id == 457) {
+                // Thỏi vàng vừa là món vừa là phí: phải còn đủ cả hai.
+                if (goc.quantity < (long) quantity + 1) {
+                    Service.gI().sendThongBao(pl, "Không đủ Thỏi vàng");
+                    openShopKyGui(pl);
+                    return;
+                }
+            }
+            if (money <= 0 || quantity < 1 || quantity > 99 || quantity > goc.quantity
+                    || (moneyType == 0 && money > MAX_GOLD_CONSIGN) || (moneyType == 1 && money > MAX_GEM_CONSIGN)
+                    || (moneyType != 0 && moneyType != 1)) {
+                Service.gI().sendThongBao(pl, "Thông tin ký gửi không hợp lệ");
+                openShopKyGui(pl);
+                return;
+            }
             if (!SubThoiVang(pl, 1)) {
                 Service.gI().sendThongBao(pl, "Bạn cần có ít nhất 1 thỏi vàng để làm phí đăng bán");
                 return;
@@ -395,15 +445,18 @@ public class ConsignShopService {
                 return;
             }
 
-            if (quantity > 99 && quantity < 0) {
+            // FIX: điều kiện cũ dùng && nên không bao giờ đúng => giới hạn số lượng vô hiệu
+            if (quantity < 1 || quantity > 99) {
                 Service.gI().sendThongBao(pl, "Ký gửi tối đa x99");
                 openShopKyGui(pl);
                 return;
             }
             switch (moneyType) {
                 case 0:// vàng
-                    if (money > 100000 && money < 0) {
-                        Service.gI().sendThongBao(pl, "không thể ký gửi quá 100000 thỏi vàng");
+                    // FIX: điều kiện cũ dùng && nên không bao giờ đúng => không có giới hạn giá.
+                    // Mốc trần lấy theo hướng dẫn của NPC Ký gửi ("10k-200Tr vàng").
+                    if (money < 1 || money > MAX_GOLD_CONSIGN) {
+                        Service.gI().sendThongBao(pl, "Giá ký gửi bằng vàng phải từ 1 đến 200.000.000");
                     } else {
                         InventoryService.gI().subQuantityItemsBag(pl, pl.inventory.itemsBag.get(id), quantity);
                         ConsignShopManager.gI().listItem.add(new ConsignItem(getMaxId() + 1, it.template.id, (int) pl.id, getTabKiGui(it), money, -1, quantity, (byte) 0, it.itemOptions, false));
@@ -415,7 +468,8 @@ public class ConsignShopService {
                     }
                     break;
                 case 1:// Ngọc Xanh
-                    if (money > 1000000 && money < 0) {
+                    // FIX: điều kiện cũ dùng && nên không bao giờ đúng => không có giới hạn giá
+                    if (money < 1 || money > MAX_GEM_CONSIGN) {
                         Service.gI().sendThongBao(pl, "không thể ký gửi quá 1000000 ngọc");
                     } else {
                         InventoryService.gI().subQuantityItemsBag(pl, pl.inventory.itemsBag.get(id), quantity);

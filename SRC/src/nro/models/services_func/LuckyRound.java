@@ -87,6 +87,12 @@ public class LuckyRound {
         try {
             msg.reader().readByte();
             byte count = msg.reader().readByte();
+            // FIX (46): số lần quay là byte do client gửi, trước đây không chặn. count âm => giá âm =>
+            // trừ số âm = CỘNG ngọc / vàng / vé; count >= 9 với vàng => 9 × 250 triệu tràn int thành
+            // -2,04 tỷ => được CỘNG ~2 tỷ vàng + 9 phần thưởng. Giao diện chỉ có 7 viên.
+            if (count < 1 || count > 7) {
+                return;
+            }
             switch (player.idMark.getTypeLuckyRound()) {
                 case USING_GEM:
                     openBallByGem(player, count);
@@ -111,12 +117,12 @@ public class LuckyRound {
     }
 
     private void openBallByGem(Player player, byte count) {
-        int gemNeed = (count * PRICE_GEM);
+        long gemNeed = (long) count * PRICE_GEM; // FIX: long
         if (player.inventory.gem < gemNeed) {
             Service.gI().sendThongBao(player, "Bạn không đủ ngọc để mở");
         } else {
             if (count + player.inventory.itemsBoxCrackBall.size() <= MAX_ITEM_IN_BOX) {
-                player.inventory.gem -= gemNeed;
+                player.inventory.gem -= (int) gemNeed;
                 List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, true);
                 addItemToBox(player, list);
                 sendReward(player, list);
@@ -128,7 +134,7 @@ public class LuckyRound {
     }
 
     private void openBallByGold(Player player, byte count) {
-        int goldNeed = (count * PRICE_GOLD);
+        long goldNeed = (long) count * PRICE_GOLD; // FIX: long, trước đây tràn int
         if (player.inventory.gold < goldNeed) {
             Service.gI().sendThongBao(player, "Bạn không đủ vàng để mở");
         } else {

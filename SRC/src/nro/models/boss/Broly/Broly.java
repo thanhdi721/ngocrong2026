@@ -174,6 +174,11 @@ public class Broly extends Boss {
 
     @Override
     public void die(Player plKill) {
+        // FIX: die() cũ không gọi reward() nên người giết không nhận thưởng và không được tính nhiệm vụ
+        // (Boss.reward mặc định gọi TaskService.checkDoneTaskKillBoss). Giữ nguyên việc leaveMap() sinh Super Broly.
+        if (plKill != null && !plKill.isBot) {
+            reward(plKill);
+        }
         this.changeStatus(BossStatus.DIE);
     }
 

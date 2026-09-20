@@ -222,6 +222,13 @@ public class UseItem {
                             Service.gI().sendThongBao(player, "Không thể bỏ vật phẩm này.");
                             return;
                         }
+                        // FIX: chặn VỨT vật phẩm nhiệm vụ (id 2000..2031) ngay ở chặng xác nhận,
+                        // để người chơi không thấy hộp thoại "Bạn chắc chắn muốn vứt...".
+                        // Chặng thứ hai nằm ở InventoryService.throwItem.
+                        if (item.isNotNullItem() && ItemService.isTaskItem(item.template.id)) {
+                            Service.gI().sendThongBao(player, "Không thể bỏ vật phẩm nhiệm vụ.");
+                            return;
+                        }
                         if (!item.isNotNullItem()) {
                             return;
                         }
@@ -254,6 +261,9 @@ public class UseItem {
 
     private void useItem(Player pl, Item item, int indexBag) {
         if (item != null && item.isNotNullItem()) {
+            // Nhớ id TRƯỚC khi dùng: vật phẩm dùng hết bị xoá trắng ngay trong lúc xử lý,
+            // gọi trigger nhiệm vụ sau đó sẽ không còn đọc được id nữa.
+            final int usedItemId = item.template.id;
 
             if (item.template.id == 570) {
                 if (!Util.isAfterMidnight(pl.lastTimeRewardWoodChest)) {
@@ -875,9 +885,14 @@ public class UseItem {
                                     Service.gI().sendThongBao(pl, "Bạn đã có quả trứng nên không thể sử dụng");
                                 }
                                 break;
-                            case 2006:
-                                Input.gI().createFormChangeNameByItem(pl);
-                                break;
+                            // FIX: đã BỎ "case 2006: Input.gI().createFormChangeNameByItem(pl);"
+                            // 2006 từng là id "thẻ đổi tên" của một bản server khác và KHÔNG có
+                            // trong DB team2026 (không item nào tên "đổi tên"). Từ khi thêm vật
+                            // phẩm nhiệm vụ, 2006 = "Mảnh Ký Ức 5" (TYPE 8) => bấm "Dùng" vào
+                            // mảnh ký ức sẽ mở form đổi tên nhân vật, và Input.CHANGE_NAME_BY_ITEM
+                            // sẽ TRỪ MẤT mảnh ký ức đó.
+                            // Muốn mở lại tính năng đổi tên bằng vật phẩm: tạo item mới ngoài dải
+                            // 2000..2031 rồi thêm case với id đó (và sửa cả Input.java:431).
                             case 1758: {
                                 Player player = pl;
                                 if (player.pet != null) {
@@ -932,7 +947,7 @@ public class UseItem {
                         }
                         break;
                 }
-                TaskService.gI().checkDoneTaskUseItem(pl, item);
+                TaskService.gI().checkDoneTaskUseItem(pl, usedItemId);
                 InventoryService.gI().sendItemBags(pl);
             } else {
                 Service.gI().sendThongBaoOK(pl, "Sức mạnh không đủ yêu cầu");
@@ -1851,7 +1866,11 @@ public class UseItem {
             pl.mapBeforeCapsule = null;
         }
         pl.changeMapVIP = true;
-        ChangeMapService.gI().changeMapBySpaceShip(pl, pl.mapCapsule.get(index).map.mapId, zoneId, -1);
+        int mapIdDen = pl.mapCapsule.get(index).map.mapId;
+        // FIX (46): viên Capsule (item 193) bị trừ lúc MỞ bảng chọn map, nhưng trạng thái CHANGE_CAPSULE
+        // và danh sách map không bị xoá => sau đó gửi lại gói -91 [index] lúc nào cũng dịch chuyển miễn phí.
+        pl.idMark.setTypeChangeMap(-1);
+        ChangeMapService.gI().changeMapBySpaceShip(pl, mapIdDen, zoneId, -1);
     }
 
     public void eatPea(Player player) {

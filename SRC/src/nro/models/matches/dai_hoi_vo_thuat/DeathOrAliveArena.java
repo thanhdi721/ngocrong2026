@@ -19,6 +19,7 @@ import nro.models.map.Zone;
 import nro.models.matches.DHVT;
 import nro.models.npc.Npc;
 import nro.models.utils.Util;
+import nro.models.services.TaskService;
 
 public class DeathOrAliveArena {
 
@@ -202,6 +203,8 @@ public class DeathOrAliveArena {
 
     private void reward() {
         player.haveRewardVDST = true;
+        // TUYẾN MỚI: B5 — thắng võ đài sinh tử -> ghi nhận TASK_44_2
+        TaskService.gI().checkDoneTaskWinMatch(player, 1);
     }
 
     private void traThuongHatMit(boolean playerWin) {

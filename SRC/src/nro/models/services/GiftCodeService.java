@@ -49,15 +49,16 @@ public class GiftCodeService {
 
                 switch (idItem) {
                     case -1 -> {
-                        player.inventory.gold = Math.min(player.inventory.gold + (long) quantity, 2000000000L);
+                        // FIX (46): trần cũ 2 tỷ làm người đang có > 2 tỷ vàng bị HẠ xuống 2 tỷ khi nhập code.
+                        player.inventory.gold = Math.min(player.inventory.gold + (long) quantity, nro.models.player.Inventory.LIMIT_GOLD);
                         textGift += "|2|" + quantity + " vàng\b";
                     }
                     case -2 -> {
-                        player.inventory.gem = Math.min(player.inventory.gem + quantity, 200000000);
+                        player.inventory.gem = (int) Math.max(player.inventory.gem, Math.min((long) player.inventory.gem + quantity, 2_000_000_000L)); // FIX (46): không hạ ngọc sẵn có, chặn tràn
                         textGift += "|3|" + quantity + " ngọc\b";
                     }
                     case -3 -> {
-                        player.inventory.ruby = Math.min(player.inventory.ruby + quantity, 200000000);
+                        player.inventory.ruby = (int) Math.max(player.inventory.ruby, Math.min((long) player.inventory.ruby + quantity, 2_000_000_000L)); // FIX (46)
                         textGift += "|4|" + quantity + " ngọc khóa\b";
                     }
                     default -> {

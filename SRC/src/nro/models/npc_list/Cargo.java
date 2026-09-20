@@ -23,13 +23,12 @@ public class Cargo extends Npc {
     public void openBaseMenu(Player pl) {
         if (canOpenNpc(pl)) {
             if (!TaskService.gI().checkDoneTaskTalkNpc(pl, this)) {
-                if (pl.playerTask.taskMain.id == 7) {
-                    NpcService.gI().createTutorial(pl, this.avartar, "Hãy lên đường cứu đứa bé nhà tôi\nChắc bây giờ nó đang sợ hãi lắm rồi");
-                } else {
-                    this.createOtherMenu(pl, ConstNpc.BASE_MENU,
-                            "Tàu Vũ Trụ của ta có thể đưa cậu đến hành tinh khác chỉ trong 3 giây. Cậu muốn đi đâu?",
-                            "Đến\nTrái Đất", "Đến\nXayda", "Siêu thị");
-                }
+                // TUYẾN MỚI: bỏ nhánh thoại "Hãy lên đường cứu đứa bé nhà tôi" của nhiệm vụ 7 tuyến cũ.
+                // Tuyến mới NV 7 "Chạy khỏi vết nứt" KẾT THÚC tại trạm tàu vũ trụ, người chơi phải dùng
+                // được menu tàu ngay từ TASK_7_2 nên không được chặn menu ở đây nữa.
+                this.createOtherMenu(pl, ConstNpc.BASE_MENU,
+                        "Tàu Vũ Trụ của ta có thể đưa cậu đến hành tinh khác chỉ trong 3 giây. Cậu muốn đi đâu?",
+                        "Đến\nTrái Đất", "Đến\nXayda", "Siêu thị");
             }
         }
     }

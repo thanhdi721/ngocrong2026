@@ -17,6 +17,7 @@ import nro.models.player.Player;
 import nro.models.network.Message;
 import java.io.IOException;
 import nro.models.server.Maintenance;
+import nro.models.server.Manager;
 import nro.models.utils.Util;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +51,9 @@ public class Mob {
 
     public byte pDame;
     public int pTiemNang;
+
+    /** Tỉ lệ rơi Ngọc Rồng 4–7 sao từ quái, tính trên 10.000. 10 = 1/1000 (chủ dự án chốt). */
+    public static final int DROP_NGOC_RONG_PER_10000 = 10;
     private long maxTiemNang;
 
     public long lastTimeDie;
@@ -183,8 +187,13 @@ public class Mob {
                 if (plAtt.isPl() && plAtt.satellite != null && plAtt.satellite.isDefend) {
                     plAtt.satellite.isDefend = false;
                 }
-                Service.gI().addSMTN(plAtt, (byte) 2, getTiemNangForPlayer(plAtt, damage), true);
-                TrainingService.gI().tangTnsmLuyenTap(plAtt, getTiemNangForPlayer(plAtt, damage));
+                // FIX: máy đo sức mạnh chỉ để đo sát thương, KHÔNG được cho kinh nghiệm.
+                // Trước đây mọi đòn trúng máy đo đều cộng sức mạnh/tiềm năng như quái thường
+                // (lỗi có sẵn từ bản gốc) → người chơi đứng đánh máy đo để cày.
+                if (this.tempId != ConstMob.MAY_DO_SUC_MANH) {
+                    Service.gI().addSMTN(plAtt, (byte) 2, getTiemNangForPlayer(plAtt, damage), true);
+                    TrainingService.gI().tangTnsmLuyenTap(plAtt, getTiemNangForPlayer(plAtt, damage));
+                }
                 plAtt.total_damage_maydam += damage;
                 Service.gI().updatePlayerTotalDamage(plAtt);
                 long realDamage = this.point.hp / 100 > 0 ? this.point.hp / 100 : 1;
@@ -618,12 +627,9 @@ public class Mob {
         }
 
         //========================TASK========================
-        if (player.isPl() && TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
-            if (player.gender == 0 && this.tempId == 11 || player.gender == 1 && this.tempId == 12 || player.gender == 2 && this.tempId == 10) {
-                list.add(new ItemMap(zone, 20, 1, x, yEnd, player.id));
-                TaskService.gI().checkDoneTaskFind7Stars(player);
-            }
-        }
+        // TUYẾN MỚI: bỏ nhánh rơi Ngọc 7 sao (item 20) ở mốc cũ TASK_8_1.
+        // Tuyến cũ dùng TASK_8_1 cho "Nhiệm vụ tìm ngọc"; tuyến mới TASK_8_1 là bước MUA Rada cấp 1
+        // của NV 8 "Máy dò ký ức" nên nhánh này sẽ phát nhầm vật phẩm nếu giữ lại.
 
         //========================Map Bang Hội========================
         if (MapService.gI().isMapUpPorata(mapid)) {
@@ -653,9 +659,10 @@ public class Mob {
         }
 
         //======================== Vàng Ngọc ========================
+        // Tỉ lệ / lượng vàng lấy từ GoldDropConfig (sửa được trong tab "Vàng rơi" của cpanel).
         if (MapService.gI().isMap3Planets(mapid)) {
-            if (Util.isTrue(1, 20)) {
-                int vang = Util.nextInt(500, 3000);
+            if (dropGold(GoldDropConfig.THREE_PLANETS)) {
+                int vang = randGold(GoldDropConfig.THREE_PLANETS);
                 if (vang < 1000) {
                     list.add(new ItemMap(zone, 76, vang, x, yEnd, player.id));
                 } else if (vang < 2000) {
@@ -666,8 +673,8 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapNappa(mapid)) {
-            if (Util.isTrue(1, 100)) {
-                int vang = Util.nextInt(2000, 6000);
+            if (dropGold(GoldDropConfig.NAPPA)) {
+                int vang = randGold(GoldDropConfig.NAPPA);
                 if (vang < 3000) {
                     list.add(new ItemMap(zone, 188, vang, x, yEnd, player.id));
                 } else if (vang < 5000) {
@@ -690,7 +697,10 @@ public class Mob {
                 player.event.luotNhanNgocMienPhi = 0;
             }
         }
-        if (MapService.gI().AllMap(mapid)) {
+        // FIX: nhóm đồ sự kiện "Thức ăn cho thần" trước đây rơi ở MỌI map mà không gắn với
+        // sự kiện nào → không tắt được. Nay chỉ rơi khi bật sự kiện thuc_an_cho_than
+        // (tab Sự kiện của cpanel, hoặc event.thuc_an_cho_than=true trong Config.properties).
+        if (nro.models.event.EventManager.THUC_AN_CHO_THAN && MapService.gI().AllMap(mapid)) {
             if (Util.isTrue(5, 100)) {
                 ItemMap it = new ItemMap(zone, 1798, 1, x, yEnd, player.id);
                 list.add(it);
@@ -718,8 +728,8 @@ public class Mob {
         }
 
         if (MapService.gI().isMapCold(mapid)) {
-            if (Util.isTrue(30, 100)) {
-                int vang = Util.nextInt(150000, 250000);
+            if (dropGold(GoldDropConfig.COLD)) {
+                int vang = randGold(GoldDropConfig.COLD);
                 if (vang < 10000) {
                     list.add(new ItemMap(zone, 189, vang, x, yEnd, player.id)); // Rơi vàng cấp 189
                 } else if (vang < 14000) {
@@ -730,8 +740,8 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapTuongLai(mapid)) {
-            if (Util.isTrue(15, 100)) {
-                int vang = Util.nextInt(80000, 150000);
+            if (dropGold(GoldDropConfig.FUTURE)) {
+                int vang = randGold(GoldDropConfig.FUTURE);
                 if (vang < 6000) {
                     list.add(new ItemMap(zone, 188, vang, x, yEnd, player.id));
                 } else if (vang < 10000) {
@@ -742,8 +752,8 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapPhoBan(mapid)) {
-            if (Util.isTrue(1, 100)) {
-                int vang = Util.nextInt(80000, 200000);
+            if (dropGold(GoldDropConfig.DUNGEON)) {
+                int vang = randGold(GoldDropConfig.DUNGEON);
                 if (player.itemTime.isUseCoBonLa) {
                     vang = (int) (vang * 1.15);
                 }
@@ -797,7 +807,10 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
-            int baseTileDrop = 2;
+            // patch 35 (chủ dự án chốt): tỉ lệ rơi đồ kích hoạt tính trên 99990 thay vì 9999.
+            // 42/99990 ≈ 2,1 lần tỉ lệ cũ, và mẫu số lớn để phần lẻ của các mốc cộng thêm
+            // (kháng tất cả, cỏ bốn lá) KHÔNG bị làm tròn mất như trước.
+            int baseTileDrop = DROP_DO_KICH_HOAT;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -823,7 +836,7 @@ public class Mob {
             }
 
             // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            if (Util.isTrue((int) Math.round(tileDrop), DROP_DO_KICH_HOAT_PER)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -844,7 +857,10 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapUpSKH(mapid)) {
-            int baseTileDrop = 2;
+            // patch 35 (chủ dự án chốt): tỉ lệ rơi đồ kích hoạt tính trên 99990 thay vì 9999.
+            // 42/99990 ≈ 2,1 lần tỉ lệ cũ, và mẫu số lớn để phần lẻ của các mốc cộng thêm
+            // (kháng tất cả, cỏ bốn lá) KHÔNG bị làm tròn mất như trước.
+            int baseTileDrop = DROP_DO_KICH_HOAT;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -870,7 +886,7 @@ public class Mob {
             }
 
             // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            if (Util.isTrue((int) Math.round(tileDrop), DROP_DO_KICH_HOAT_PER)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -999,7 +1015,9 @@ public class Mob {
         }
 
         if (MapService.gI().isMapCold(mapid)) {
-            if (Util.isTrue(20, 100)) {
+            // Chủ dự án chốt (2026-09-20): đá nâng cấp (Lục bảo / Saphia / Ruby / Titan /
+            // Thạch anh tím) rơi ở map Băng hạ từ 20% (1/5 con) xuống 1/500 con.
+            if (Util.isTrue(1, 500)) {
                 int rand = Util.nextInt(0, 4);
                 ItemMap it = new ItemMap(zone, 220 + rand, 1, x, yEnd, player.id);
                 it.options.add(new Item.ItemOption(71 - rand, 0));
@@ -1019,18 +1037,10 @@ public class Mob {
             list.add(it);
         }
 
-        if (MapService.gI().isMap3Planets(mapid) || MapService.gI().isMapNappa(mapid) || MapService.gI().isMapTuongLai(mapid) || MapService.gI().isMapCold(mapid)) {
-            int dropRate = 10;
-            if (player.itemTime.isUseCoBonLa) {
-                dropRate = (int) (dropRate * 1.15);
-            }
-
-            if (Util.isTrue(dropRate, 70) || (player.isActive() && Util.isTrue(1, 100))) {
-                int rand = Util.nextInt(0, 1);
-                ItemMap it = new ItemMap(zone, 19 + rand, 1, x, yEnd, player.id);
-                list.add(it);
-            }
-        }
+        // FIX (chủ dự án chốt): BỎ nguồn rơi Ngọc Rồng 6–7 sao riêng của các map 3 hành tinh /
+        // Nappa / Tương lai / Cold. Trước đây tỉ lệ là isTrue(10, 70) ≈ 14% mỗi con quái
+        // (cộng thêm 1% cho tài khoản kích hoạt) → cứ ~7 con là rơi 1 viên 6–7 sao.
+        // Ngọc Rồng giờ chỉ còn MỘT nguồn rơi từ quái, tỉ lệ 1/1000 — xem DROP_NGOC_RONG_PER_10000 bên dưới.
         if (player.setClothes.checkSetDes() && MapService.gI().isMapNgucTu(mapid)) {
             if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue(10, 100)) {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
@@ -1045,12 +1055,15 @@ public class Mob {
         }
 
         if (this.zone.map.mapId >= 0) {
-            int dropRate = 1;
+            // FIX (chủ dự án chốt): Ngọc Rồng 4–7 sao rơi từ quái 1/1000 (trước đây 1/100).
+            // Tính trên thang 10.000 để Cỏ bốn lá (+15%) còn có tác dụng — thang 100 cũ làm
+            // (int)(1 * 1.15) = 1 nên Cỏ bốn lá chưa từng tăng tỉ lệ này.
+            int dropRate = DROP_NGOC_RONG_PER_10000;
             if (player.itemTime.isUseCoBonLa) {
-                dropRate = (int) (dropRate * 1.15);
+                dropRate = dropRate * 115 / 100;
             }
 
-            if (Util.isTrue(dropRate, 100)) { // nro
+            if (Util.isTrue(dropRate, 10000)) { // nro
                 list.add(new ItemMap(zone, Util.nextInt(17, 20), 1, x, this.location.y, player.id));
             }
         }
@@ -1076,6 +1089,9 @@ public class Mob {
             case ConstMob.KHUNG_LONG:
             case ConstMob.LON_LOI:
             case ConstMob.QUY_DAT:
+                // doc 39: KHÔI PHỤC tuyến gốc — NV 2 bước 0 "thu thập 10 đùi gà": rơi item 73
+                // cho riêng người chơi khi đang ở TASK_2_0. (Bỏ nhánh "Mảnh Vỡ Hư Không" 2009
+                // ở TASK_2_2 vì NV 2 gốc chỉ có 2 bước.)
                 if (TaskService.gI().getIdTask(player) == ConstTask.TASK_2_0) {
                     itemMap = new ItemMap(zone, 73, 1, location.x, location.y, player.id);
                 }
@@ -1083,13 +1099,15 @@ public class Mob {
             case ConstMob.THAN_LAN_ME:
             case ConstMob.QUY_BAY_ME:
             case ConstMob.PHI_LONG_ME:
-                if (TaskService.gI().getIdTask(player) == ConstTask.TASK_8_1) {
-                    if (Util.isTrue(10, 10)) {
-                        itemMap = new ItemMap(zone, 20, 1, location.x, location.y, player.id);
-                    } else {
-                        Service.gI().sendThongBao(player, "Con thằn lằn mẹ này không giữ ngọc, hãy tìm con thằn lằn mẹ khác");
-                    }
-                }
+                // TUYẾN MỚI: bỏ nhánh rơi Ngọc 7 sao (item 20) ở mốc cũ TASK_8_1.
+                // NV 8 tuyến mới chỉ yêu cầu HẠ 25 con quái mẹ, không rơi vật phẩm.
+                break;
+        }
+        // doc 42: MỌI vật phẩm nhiệm vụ tuyến mới rơi từ quái (2010, 2014, 2025, 2026, 2027,
+        // 2028, 2008) nay tra ở MỘT bảng chung nro.models.task.QuestDrop — chỉ rơi khi người
+        // kết liễu đang ở đúng bước, gắn chủ + option 30. Xem docs/4-trien-khai/42.
+        if (itemMap == null) {
+            itemMap = nro.models.task.QuestDrop.onMobKilled(player, this);
         }
         if (itemMap != null) {
             return itemMap;
@@ -1273,6 +1291,33 @@ public class Mob {
             msg.cleanup();
         } catch (IOException e) {
         }
+    }
+
+
+    /**
+     * Tỉ lệ rơi đồ kích hoạt: DROP_DO_KICH_HOAT / DROP_DO_KICH_HOAT_PER mỗi con quái,
+     * áp dụng ở 9 map đầu game (isMapUpSKH) và Map riêng tư.
+     *
+     * <p>Chủ dự án chốt: đồ nghề đầy đủ (cỏ bốn lá + kháng tất cả 100%) vẫn phải cày
+     * khoảng 15 ngày mới đủ một set, tính theo 4 giờ/ngày và 40 quái/phút.
+     *
+     * <p>6/99990 ≈ 1 món mỗi 16.660 quái khi không có gì; cắn cỏ bốn lá (×1,5) còn
+     * ~11.110 quái; thêm kháng tất cả 100% (×1,2) còn ~9.090 quái. Trung bình phải rơi
+     * ~16 món mới đủ 5 ô (rada và áo hiếm hơn hẳn) -> đủ set ~144.000 quái khi có đủ đồ.
+     *
+     * <p>Muốn nhanh gấp đôi thì để 12, chậm một nửa thì để 3.
+     */
+    private static final int DROP_DO_KICH_HOAT = 6;
+    private static final int DROP_DO_KICH_HOAT_PER = 99990;
+
+    /** Có rơi vàng cho nhóm map này không (tỉ lệ rate/per của GoldDropConfig). */
+    private static boolean dropGold(GoldDropConfig.Group g) {
+        return g.rate > 0 && Util.isTrue(g.rate, g.per);
+    }
+
+    /** Lượng vàng rơi một lần của nhóm map này. */
+    private static int randGold(GoldDropConfig.Group g) {
+        return g.max <= g.min ? g.min : Util.nextInt(g.min, g.max);
     }
 
 }

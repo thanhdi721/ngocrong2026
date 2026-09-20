@@ -467,7 +467,11 @@ public class MapService {
     }
     
     public boolean isMapCadic(int mapId) {
-        return mapId >= 165;
+        // FIX: trước đây là "mapId >= 165" nên nhận nhầm cả map 166 (Phòng thí nghiệm Myuu)
+        // và 183/184/185 (Thành cổ - sự kiện Hùng Vương) là map Cadic.
+        // Hệ quả: boss ở các map đó bị loại khỏi danh sách boss gửi cho người chơi,
+        // và phần thưởng đánh quái ở đó bị tính theo luật riêng của map Cadic.
+        return mapId == 165;
     }
 
     public boolean isMapBossFinal(int mapId) {

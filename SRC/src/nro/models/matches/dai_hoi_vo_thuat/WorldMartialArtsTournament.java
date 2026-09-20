@@ -198,6 +198,8 @@ public final class WorldMartialArtsTournament implements Runnable {
                     WorldMartialArtsTournamentManager.gI().listWait.add(plWin.id);
                 }
                 plWin.martialArtsTournamentWins++;
+                // TUYẾN MỚI: B5 — thắng một vòng đại hội võ thuật -> ghi nhận TASK_44_2
+                TaskService.gI().checkDoneTaskWinMatch(plWin, 2);
             }
             if (plWin != null && plWin.zone != null) {
                 plWin.thongBaoChangeMap = true;

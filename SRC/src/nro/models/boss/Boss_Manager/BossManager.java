@@ -99,6 +99,15 @@ import nro.models.map.service.MapService;
 import java.util.ArrayList;
 import java.util.List;
 import nro.models.boss.Baby.Baby;
+import nro.models.boss.heart.Heart;
+import nro.models.boss.quest.BabyNhiemVu;
+import nro.models.boss.quest.BlackGokuNhiemVu;
+import nro.models.boss.quest.CoolerNhiemVu;
+import nro.models.boss.quest.CumberNhiemVu;
+import nro.models.boss.quest.JacoVoThuc;
+import nro.models.boss.quest.KeThuGom;
+import nro.models.boss.quest.MabuNhiemVu;
+import nro.models.boss.quest.XenBoHungNhiemVu;
 import nro.models.boss.Boss_mini.MatTroi;
 import nro.models.boss.cumber.Cumber;
 import nro.models.map.Zone;
@@ -162,6 +171,32 @@ public class BossManager implements Runnable {
         this.createBoss(BossID.BABY, 2);
         this.createBoss(BossID.MAT_TROI, 20);
 
+        // ================= BOSS BẢN NHIỆM VỤ (-2100 … -2199) + Heart =================
+        // CHỦ DỰ ÁN CHỐT (18/09/2026): các con này LUÔN xuất hiện, ai vào được map là
+        // đánh được, không cần đang làm nhiệm vụ. Chết xong nghỉ ngẫu nhiên 15–30 phút
+        // rồi hiện lại ở một khu bất kỳ (QuestBoss.rest + findRandomZone). Vẫn tránh
+        // đứng chung khu với boss thế giới bản gốc.
+        // Mỗi loại 3 bản để 200 người cùng làm một nhiệm vụ không phải xếp hàng
+        // (mỗi bản đi vào một khu khác nhau) — con số này chỉnh được tự do.
+        this.createBoss(BossID.XEN_BO_HUNG_NV, 3);
+        this.createBoss(BossID.COOLER_NV, 3);
+        this.createBoss(BossID.MABU_14H_NV, 3);
+        this.createBoss(BossID.BLACK_GOKU_NV, 3);
+        this.createBoss(BossID.BABY_NV, 3);
+        this.createBoss(BossID.CUMBER_NV, 3);
+        this.createBoss(BossID.HEART, 3);
+
+        // ================= BOSS RIÊNG CHƯƠNG 1–2 (-2000, -2001) =================
+        // Cùng cơ chế QuestBoss như trên. 20a §C đề xuất mỗi con 1 bản; ở đây để 3
+        // vì NV 6 và NV 15 nằm trong chương 1–2 — MỌI nhân vật mới đều phải đi qua,
+        // nên đây là hai cửa đông người nhất cả tuyến. Con số này chỉnh được tự do.
+        // RÕ MAP (docs/4-trien-khai/41): 3 -> 6. mapJoin của hai con này trải 3 HÀNH TINH
+        // (Kẻ Thu Gom 4/12/18, Jaco 27/31/35) và ở NV 6 người chơi CHƯA đi tàu sang hành
+        // tinh khác được (trạm tàu mở ở TASK_7_1). Với 3 bản, mỗi map chỉ có đúng 1 bản
+        // (QuestBoss.findRandomZone rải đều, ưu tiên map ít bản nhất) — bản đó vừa chết
+        // là cả hành tinh phải chờ 15–30 phút. 6 bản = 2 bản mỗi map, luôn còn 1 bản đứng.
+        this.createBoss(BossID.KE_THU_GOM, 6);
+        this.createBoss(BossID.JACO_VO_THUC, 6);
     }
 
     public void createBoss(int bossID, int total) {
@@ -361,6 +396,24 @@ public class BossManager implements Runnable {
                     new RongNhi();
                 case BossID.BABY ->
                     new Baby();
+                case BossID.XEN_BO_HUNG_NV ->
+                    new XenBoHungNhiemVu();
+                case BossID.COOLER_NV ->
+                    new CoolerNhiemVu();
+                case BossID.MABU_14H_NV ->
+                    new MabuNhiemVu();
+                case BossID.BLACK_GOKU_NV ->
+                    new BlackGokuNhiemVu();
+                case BossID.BABY_NV ->
+                    new BabyNhiemVu();
+                case BossID.CUMBER_NV ->
+                    new CumberNhiemVu();
+                case BossID.HEART ->
+                    new Heart();
+                case BossID.KE_THU_GOM ->
+                    new KeThuGom();
+                case BossID.JACO_VO_THUC ->
+                    new JacoVoThuc();
                 default ->
                     null;
             };
