@@ -109,7 +109,7 @@ public class TaskService {
 
     // ---- ĐƯỜNG VÒNG CHO NGƯỜI CHƠI LẺ (doc 32) ---------------------------
     /**
-     * Hệ số quy đổi quái TRONG phó bản của hai bước "đếm quái" (TASK_35_2 và
+     * Hệ số quy đổi quái TRONG phó bản của hai bước "đếm quái" (TASK_35_1 và
      * TASK_43_1). max_count của hai bước đó đã được nhân 2 trong SQL để chứa
      * đường vòng, nên quái trong phó bản phải cộng 2 điểm mới giữ nguyên khối
      * lượng cũ của người đi phó bản (60 quái CĐRĐ, 80 quái Khí gas).
@@ -286,9 +286,9 @@ public class TaskService {
         switch (idTask) {
             case ConstTask.TASK_10_2:
             case ConstTask.TASK_23_0:
-            case ConstTask.TASK_31_5:
+            case ConstTask.TASK_31_4:
             case ConstTask.TASK_33_3:
-            case ConstTask.TASK_49_5:
+            case ConstTask.TASK_49_4:
                 checkDoneTaskPower(player, player.nPoint.power);
                 break;
             // doc 43: bỏ B8 (TASK_12_0 "có đệ tử") — NV 12 không còn bước đệ tử.
@@ -553,7 +553,7 @@ public class TaskService {
             // ---- 19 Thượng Đế (Thần điện 45) --------------------------------
             case ConstNpc.THUONG_DE: {
                 if (mapId == 45) {
-                    return doneTask(player, ConstTask.TASK_35_4)
+                    return doneTask(player, ConstTask.TASK_35_3)
                             || doneTask(player, ConstTask.TASK_43_5);
                 }
                 return false;
@@ -632,7 +632,7 @@ public class TaskService {
             // ---- 64 Thiên Sứ Whis -------------------------------------------
             case ConstNpc.DAI_THIEN_SU: {
                 if (mapId == 78) {
-                    return doneTask(player, ConstTask.TASK_45_4);
+                    return doneTask(player, ConstTask.TASK_45_3);
                 }
                 if (mapId == 145) {
                     return doneTask(player, ConstTask.TASK_46_5);
@@ -679,9 +679,9 @@ public class TaskService {
             doneTask(player, ConstTask.TASK_23_0);
         }
         if (power >= 2_000_000_000L) {
-            doneTask(player, ConstTask.TASK_31_5);
+            doneTask(player, ConstTask.TASK_31_4);
             // patch 19: bỏ bước "Dùng Bình chứa Commeson" -> bước cuối lùi từ index 6 về 5
-            doneTask(player, ConstTask.TASK_49_5);
+            doneTask(player, ConstTask.TASK_49_4);
         }
         if (power >= 3_000_000_000L) {
             doneTask(player, ConstTask.TASK_33_3);
@@ -746,8 +746,8 @@ public class TaskService {
         switch (idTask) {
             case ConstTask.TASK_10_2:  // 250.000 sức mạnh
             case ConstTask.TASK_23_0:  // 80 triệu
-            case ConstTask.TASK_31_5:  // 2 tỷ
-            case ConstTask.TASK_49_5:  // 2 tỷ (nhánh)
+            case ConstTask.TASK_31_4:  // 2 tỷ
+            case ConstTask.TASK_49_4:  // 2 tỷ (nhánh)
             case ConstTask.TASK_33_3:  // 3 tỷ
                 checkDoneTaskPower(player, player.nPoint.power);
                 break;
@@ -853,7 +853,7 @@ public class TaskService {
                 }
                 break;
             case 2024: // Lõi Ký Ức chưa hoàn chỉnh — lễ hợp nhất 7 mảnh
-                if (isCurrentTask(player, ConstTask.TASK_45_3)) {
+                if (isCurrentTask(player, ConstTask.TASK_45_2)) {
                     if (!hasAllMemoryShards(player)) {
                         Service.gI().sendThongBao(player,
                                 "Bạn cần đủ 7 Mảnh Ký Ức (2002 đến 2008) mới làm lễ hợp nhất được");
@@ -864,7 +864,7 @@ public class TaskService {
                     }
                     subItem(player, 2024, 1);
                     addItemToBag(player, (short) 2000, 1);
-                    doneTask(player, ConstTask.TASK_45_3);
+                    doneTask(player, ConstTask.TASK_45_2);
                 }
                 break;
             case 2000: // Lõi Hư Không — hai nhánh kết
@@ -1195,8 +1195,8 @@ public class TaskService {
 
         // ---- Bản sao của chính người chơi (NV 31 / NV 49) --------------------
         if (boss.id == Util.createIdBossClone((int) player.id)) {
-            doneTask(player, ConstTask.TASK_31_4);
-            doneTask(player, ConstTask.TASK_49_4);
+            doneTask(player, ConstTask.TASK_31_3);
+            doneTask(player, ConstTask.TASK_49_3);
             return;
         }
 
@@ -1381,7 +1381,7 @@ public class TaskService {
     // bước 0 chỉ đếm Thằn lằn bay ở Rừng xương, đánh ở Rừng nấm không tính) trong khi chữ
     // không nói gì về map — người chơi không thể biết.
     // Ràng buộc map CHỈ còn ở các ngoại lệ có lý do, đánh dấu "NGOẠI LỆ GIỮ MAP":
-    //   * TASK_21_1 / TASK_35_2-3 / TASK_43_1-4: đường vòng thay phó bản (doc 32) — phải cày
+    //   * TASK_21_1 / TASK_35_1-3 / TASK_43_1-4: đường vòng thay phó bản (doc 32) — phải cày
     //     đúng cụm map thay thế, quái trong phó bản cộng 2 điểm.
     //   * TASK_41_1 "vành đai rừng": bước theo VÙNG (map 27–38) — nay MỌI quái trong vùng đều
     //     tính (trước chỉ 5 loài, Heo da xanh / Heo Xayda / Không tặc… không tính).
@@ -1470,7 +1470,7 @@ public class TaskService {
                 // doc 41: bỏ ràng buộc 30/34/38.
                 doneTask(player, ConstTask.TASK_16_2);
                 if (mob.tempId == ConstMob.QUY_MAP && isMapConDuongRanDoc(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
+                    addTaskProgress(player, ConstTask.TASK_35_1, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
                 break;
             case ConstMob.TAMBOURINE: // 25
@@ -1479,7 +1479,7 @@ public class TaskService {
                 // doc 41: bỏ ràng buộc 6/10/19.
                 doneTask(player, ConstTask.TASK_18_2);
                 if (mob.tempId != ConstMob.AKKUMAN && isMapConDuongRanDoc(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
+                    addTaskProgress(player, ConstTask.TASK_35_1, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
                 break;
             case ConstMob.KHONG_TAC: // 31
@@ -1488,7 +1488,7 @@ public class TaskService {
                 // doc 41: bỏ ràng buộc 29/33/37 — còn có ở 30/34/38.
                 doneTask(player, ConstTask.TASK_16_1);
                 if (mob.tempId == ConstMob.QUY_DIA_NGUC && isMapConDuongRanDoc(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
+                    addTaskProgress(player, ConstTask.TASK_35_1, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
                 break;
             case ConstMob.NAPPA: // 39
@@ -1524,7 +1524,7 @@ public class TaskService {
                 break;
             case ConstMob.DOI_DA_XANH: // 49
                 if (isMapConDuongRanDoc(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
+                    addTaskProgress(player, ConstTask.TASK_35_1, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
                 // ĐƯỜNG VÒNG NV 21 — Dơi da xanh có ở map 63 và 67
                 if (isMapDoanhTraiNgoai(mapId)) {
@@ -1537,7 +1537,7 @@ public class TaskService {
                 break;
             case ConstMob.QUY_CHIM: // 50
                 if (isMapConDuongRanDoc(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_35_2, WEIGHT_MOB_TRONG_PHO_BAN);
+                    addTaskProgress(player, ConstTask.TASK_35_1, WEIGHT_MOB_TRONG_PHO_BAN);
                 }
                 // doc 41: bỏ ràng buộc map 126 — Quỷ chim còn ở 76/77/81/82 (Xayda) …
                 doneTask(player, ConstTask.TASK_37_2);
@@ -1653,7 +1653,7 @@ public class TaskService {
     // ======================================================================
     /**
      * B1 — hoàn thành một phó bản. typeMap dùng hằng {@link nro.models.consts.ConstMap}:
-     * MAP_DOANH_TRAI (TASK_21_1), MAP_CON_DUONG_RAN_DOC (TASK_35_3),
+     * MAP_DOANH_TRAI (TASK_21_1), MAP_CON_DUONG_RAN_DOC (TASK_35_2),
      * MAP_KHI_GAS_HUY_DIET (TASK_43_4).
      *
      * <p>Nơi gọi phải duyệt MỌI Player trong instance và gọi hàm này cho từng người.</p>
@@ -1672,7 +1672,7 @@ public class TaskService {
                 doneTaskAtOnce(player, ConstTask.TASK_21_3);
                 break;
             case ConstMap.MAP_CON_DUONG_RAN_DOC:
-                doneTaskAtOnce(player, ConstTask.TASK_35_3);
+                doneTaskAtOnce(player, ConstTask.TASK_35_2);
                 break;
             case ConstMap.MAP_KHI_GAS_HUY_DIET:
                 doneTaskAtOnce(player, ConstTask.TASK_43_4);
@@ -2054,17 +2054,8 @@ public class TaskService {
         if (countPlayerInZone(player, requireSameClan) < nMember) {
             return false;
         }
-        int idTask = getIdTask(player);
-        switch (idTask) {
-            case ConstTask.TASK_31_3:
-            case ConstTask.TASK_49_3:
-            case ConstTask.TASK_35_1:
-            case ConstTask.TASK_45_2:
-                doneTask(player, idTask);
-                return true;
-            default:
-                return true;
-        }
+        // patch 23: bốn bước "rủ 1 người đi cùng" (NV 31/35/45/49) đã bị bỏ.
+        return true;
     }
 
     /**
@@ -2072,42 +2063,9 @@ public class TaskService {
      * Tự tra luật của từng bước: TASK_35_1 cần cùng bang, các bước còn lại thì không.
      */
     public void checkDoneTaskTogetherInZone(Player player) {
-        if (player == null || !player.isPl() || player.zone == null) {
-            return;
-        }
-        int idTask = getIdTask(player);
-        int mapId = (player.zone.map != null) ? player.zone.map.mapId : -1;
-        switch (idTask) {
-            case ConstTask.TASK_31_3:
-            case ConstTask.TASK_49_3:
-                // Võ đài Xên bọ hung — 2 người thật, KHÔNG cần cùng bang
-                if (mapId == 103 && countPlayerInZone(player, false) >= NMEMBER_DO_TASK_TOGETHER) {
-                    doneTask(player, idTask);
-                }
-                break;
-            case ConstTask.TASK_35_1:
-                // Cửa 1 (cũ) — trong phó bản Con đường rắn độc, BẮT BUỘC cùng bang
-                if (mapId == 143 && countPlayerInZone(player, true) >= NMEMBER_DO_TASK_TOGETHER) {
-                    doneTask(player, idTask);
-                    break;
-                }
-                // Cửa 2 (doc 32) — ĐƯỜNG VÒNG cho người không có bang: đứng cùng ít nhất
-                // một người chơi thật ở cụm map thay thế (73/74/76/77/81/82). Vẫn giữ ý đồ
-                // "không đi một mình" của thiết kế, chỉ bỏ ràng buộc cùng bang.
-                if (isMapRanDocNgoai(mapId)
-                        && countPlayerInZone(player, false) >= NMEMBER_DO_TASK_TOGETHER) {
-                    doneTask(player, idTask);
-                }
-                break;
-            case ConstTask.TASK_45_2:
-                // Lễ hợp nhất ở Lãnh địa Fize — KHÔNG cần cùng bang
-                if (mapId == 78 && countPlayerInZone(player, false) >= NMEMBER_DO_TASK_TOGETHER) {
-                    doneTask(player, idTask);
-                }
-                break;
-            default:
-                break;
-        }
+        // patch 23: bốn bước "rủ 1 người đi cùng" (NV 31/35/45/49) đã bị bỏ theo yêu cầu
+        // chủ dự án (server ít người online thì không ai rủ được ai). Giữ hàm rỗng vì
+        // Player.update vẫn gọi mỗi vòng.
     }
 
     // ----------------------------------------------------------------------
@@ -2825,8 +2783,8 @@ public class TaskService {
      * để một mạng quái không cộng đúp khi vừa lúc bước 2 xong và nhảy sang bước 3.
      */
     private void addRanDocNgoaiProgress(Player player) {
-        if (!addTaskProgress(player, ConstTask.TASK_35_2, 1)) {
-            addTaskProgress(player, ConstTask.TASK_35_3, 1);
+        if (!addTaskProgress(player, ConstTask.TASK_35_1, 1)) {
+            addTaskProgress(player, ConstTask.TASK_35_2, 1);
         }
     }
 

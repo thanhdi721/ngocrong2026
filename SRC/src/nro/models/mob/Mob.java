@@ -1009,7 +1009,9 @@ public class Mob {
         }
 
         if (MapService.gI().isMapCold(mapid)) {
-            if (Util.isTrue(20, 100)) {
+            // Chủ dự án chốt (2026-09-20): đá nâng cấp (Lục bảo / Saphia / Ruby / Titan /
+            // Thạch anh tím) rơi ở map Băng hạ từ 20% (1/5 con) xuống 1/500 con.
+            if (Util.isTrue(1, 500)) {
                 int rand = Util.nextInt(0, 4);
                 ItemMap it = new ItemMap(zone, 220 + rand, 1, x, yEnd, player.id);
                 it.options.add(new Item.ItemOption(71 - rand, 0));
