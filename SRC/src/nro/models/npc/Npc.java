@@ -173,7 +173,8 @@ public abstract class Npc implements IAtionNpc {
             }
         }
         if (player.zone.map.mapId == this.mapId
-                && (Util.getDistance(this.cx, this.cy, player.location.x, player.location.y) <= 60 || !MapService.gI().isMapBlackBallWar(mapId))) {
+                && (Util.getDistance(this.cx, this.cy, player.location.x, player.location.y) <= nro.models.map.Map.NPC_TALK_RANGE
+                || !MapService.gI().isMapBlackBallWar(mapId))) {
             player.idMark.setNpcChose(this);
             return true;
         } else if (this.tempId == ConstNpc.LY_TIEU_NUONG) {

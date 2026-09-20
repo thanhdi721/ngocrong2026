@@ -37,6 +37,21 @@ public class MenuController {
         } else {
             npc = player.zone.map.getNpc(player, idnpc);
         }
+        if (npc == null && player.zone != null && player.zone.map != null) {
+            // Trước đây bấm NPC ở hơi xa thì server im lặng (chỉ tắt vòng xoay), người chơi
+            // tưởng NPC hỏng. Nay tìm lại NPC bất kể khoảng cách để báo "đứng quá xa".
+            Npc far = player.zone.map.getNpcAnyDistance(idnpc);
+            if (far != null) {
+                Service.gI().hideWaitDialog(player);
+                String tenNpc = "NPC";
+                try {
+                    tenNpc = nro.models.server.Manager.NPC_TEMPLATES.get(far.tempId).name;
+                } catch (Exception ignored) {
+                }
+                Service.gI().sendThongBao(player, "Hãy lại gần " + tenNpc + " hơn rồi bấm lại");
+                return;
+            }
+        }
         if (npc != null) {
             npc.openBaseMenu(player);
         } else {

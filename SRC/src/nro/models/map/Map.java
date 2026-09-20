@@ -355,9 +355,23 @@ public class Map implements Runnable {
         };
     }
 
+    /** Bán kính bấm được NPC. Nới từ 60 lên 150: bấm NPC ở hơi xa trước đây KHÔNG báo gì cả. */
+    public static final int NPC_TALK_RANGE = 150;
+
     public Npc getNpc(Player player, int tempId) {
         for (Npc npc : npcs) {
-            if (npc.tempId == tempId && (MapService.gI().isMapBlackBallWar(mapId) || Util.getDistance(player, npc) <= 60)) {
+            if (npc.tempId == tempId
+                    && (MapService.gI().isMapBlackBallWar(mapId) || Util.getDistance(player, npc) <= NPC_TALK_RANGE)) {
+                return npc;
+            }
+        }
+        return null;
+    }
+
+    /** Tìm NPC theo id, không xét khoảng cách — dùng để báo "đứng quá xa" thay vì im lặng. */
+    public Npc getNpcAnyDistance(int tempId) {
+        for (Npc npc : npcs) {
+            if (npc.tempId == tempId) {
                 return npc;
             }
         }
