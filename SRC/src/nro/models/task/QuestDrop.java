@@ -166,9 +166,11 @@ public final class QuestDrop {
             // NV 38 b4 — Nhẫn thời không sai lệch, 100% từ Black Goku (bản NV -2103 và bản thế giới)
             new Rule(ConstTask.TASK_38_4, SourceType.BOSS,
                     ids(BossID.BLACK_GOKU_NV, BossID.BLACK_GOKU), ANY_MAP, 992, 100, 1),
-            // NV 45 b1 — Mảnh Ký Ức 7: thay "rải sẵn" bằng rơi 30% từ quái Lãnh địa Fize (78)
+            // NV 45 b1 — Mảnh Ký Ức 7: rơi 30% từ quái Hành tinh ngục tù (155).
+            // patch 30: trước đây lấy quái Mộc nhân ở map 78 Lãnh địa Fize, nhưng map đó
+            // KHÔNG có file địa hình (data/map/tile_map_data/78) nên vào là treo client.
             new Rule(ConstTask.TASK_45_1, SourceType.MOB,
-                    ids(ConstMob.MOC_NHAN), ids(78), 2008, 30, 1)
+                    ids(ConstMob.KHI_LONG_XANH, ConstMob.TABURINE_DO), ids(155), 2008, 30, 1)
     ));
 
     /** Map có nguồn MAP_SPAWN — tra nhanh trong Zone.update. */

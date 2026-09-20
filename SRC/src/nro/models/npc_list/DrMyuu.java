@@ -42,7 +42,7 @@ public class DrMyuu extends Npc {
         if (canOpenNpc(player)) {
             if (player.idMark.isBaseMenu()) {
                 if (select == 0 && TaskService.gI().getIdTask(player) >= nro.models.consts.ConstTask.TASK_46_2) {
-                    nro.models.map.service.ChangeMapService.gI().changeMapBySpaceShip(player, 145, -1, 700);
+                    nro.models.map.service.ChangeMapService.gI().changeMap(player, 145, -1, 754, 160);
                 }
             }
         }

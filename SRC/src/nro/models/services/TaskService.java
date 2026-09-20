@@ -632,7 +632,7 @@ public class TaskService {
             }
             // ---- 64 Thiên Sứ Whis -------------------------------------------
             case ConstNpc.DAI_THIEN_SU: {
-                if (mapId == 78) {
+                if (mapId == 155 || mapId == 78) {
                     return doneTask(player, ConstTask.TASK_45_3);
                 }
                 if (mapId == 145) {
@@ -1018,8 +1018,8 @@ public class TaskService {
             case 155:
                 doneTask(player, ConstTask.TASK_42_1);
                 doneTask(player, ConstTask.TASK_50_2);
-                break;
-            case 78:
+                // patch 30: NV 45 chuyển từ map 78 (Lãnh địa Fize — KHÔNG có file địa hình,
+                // vào là treo) sang Hành tinh ngục tù.
                 doneTask(player, ConstTask.TASK_45_0);
                 break;
             case 145:

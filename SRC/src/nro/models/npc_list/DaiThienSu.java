@@ -40,14 +40,14 @@ public class DaiThienSu extends Npc {
             }
             // Map 145 không có cổng đi bộ: Thiên Sứ Whis nối Lãnh địa Fize (78) <-> Võ Đài Siêu Cấp (145).
             int taskId = TaskService.gI().getIdTask(player);
-            if (this.mapId == 78 && taskId >= ConstTask.TASK_46_0) {
+            if (this.mapId == 155 && taskId >= ConstTask.TASK_46_0) {
                 this.createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Ta là Đại Thiên Sứ, người trông coi trật tự của các vũ trụ.\nNgươi cần gì ở ta?",
                         "Tới Võ Đài\nSiêu Cấp", "Từ chối");
             } else if (this.mapId == 145) {
                 this.createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Ta là Đại Thiên Sứ, người trông coi trật tự của các vũ trụ.\nNgươi cần gì ở ta?",
-                        "Về Lãnh\nđịa Fize", "Từ chối");
+                        "Về Hành tinh\nngục tù", "Từ chối");
             } else {
                 this.createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Ta là Đại Thiên Sứ, người trông coi trật tự của các vũ trụ.\nNgươi cần gì ở ta?",
@@ -66,10 +66,10 @@ public class DaiThienSu extends Npc {
                 return;
             }
             if (player.idMark.isBaseMenu()) {
-                if (select == 0 && this.mapId == 78 && TaskService.gI().getIdTask(player) >= ConstTask.TASK_46_0) {
-                    nro.models.map.service.ChangeMapService.gI().changeMapBySpaceShip(player, 145, -1, 700);
+                if (select == 0 && this.mapId == 155 && TaskService.gI().getIdTask(player) >= ConstTask.TASK_46_0) {
+                    nro.models.map.service.ChangeMapService.gI().changeMap(player, 145, -1, 754, 160);
                 } else if (select == 0 && this.mapId == 145) {
-                    nro.models.map.service.ChangeMapService.gI().changeMapBySpaceShip(player, 78, -1, 600);
+                    nro.models.map.service.ChangeMapService.gI().changeMap(player, 155, -1, 127, 792);
                 } else {
                     Service.gI().hideWaitDialog(player);
                 }

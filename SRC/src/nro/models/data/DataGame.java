@@ -41,7 +41,8 @@ public class DataGame {
     // Mỗi lần thêm/sửa dòng npc_template hoặc tên map PHẢI tăng số này (tối đa 127).
     // 3 -> 4: đổi hình NPC 76 Granola (patch 15) + thêm cửa vào map 166 và NPC 83
     //         Dr. Myuu (patch 18). Hai thứ này đi trong gói vMap, không phải vsData.
-    public static byte vsMap = 4;
+    // 4 -> 5: thêm NPC 64 Thiên Sứ Whis vào map 155 (patch 30).
+    public static byte vsMap = 5;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.

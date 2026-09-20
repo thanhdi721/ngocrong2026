@@ -41,18 +41,11 @@ public class Whis extends Npc {
         }
 
         switch (this.mapId) {
-            case 154 -> {
-                // Lãnh địa Fize (78) không có cổng đi bộ vào: Whis đưa tới từ NV 45.
-                if (nro.models.services.TaskService.gI().getIdTask(player) >= nro.models.consts.ConstTask.TASK_45_0) {
-                    createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Thử đánh với ta xem nào.\nNgươi còn 1 lượt nữa cơ mà.",
-                            "Nói chuyện", "Học\ntuyệt kỹ", "Top 100", "[LV:" + (player.traning.getTop() + 1) + "]", "Lãnh địa\nFize");
-                } else {
-                    createOtherMenu(player, ConstNpc.BASE_MENU,
-                            "Thử đánh với ta xem nào.\nNgươi còn 1 lượt nữa cơ mà.",
-                            "Nói chuyện", "Học\ntuyệt kỹ", "Top 100", "[LV:" + (player.traning.getTop() + 1) + "]");
-                }
-            }
+            case 154 ->
+                // patch 30: bỏ nút "Lãnh địa Fize" — map 78 không có file địa hình, vào là treo.
+                createOtherMenu(player, ConstNpc.BASE_MENU,
+                        "Thử đánh với ta xem nào.\nNgươi còn 1 lượt nữa cơ mà.",
+                        "Nói chuyện", "Học\ntuyệt kỹ", "Top 100", "[LV:" + (player.traning.getTop() + 1) + "]");
             case 164 ->
                 createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Ta có thể giúp gì cho ngươi?", "Quay về", "Từ chối");
@@ -103,11 +96,7 @@ public class Whis extends Npc {
                 showSkillLearningMenu(player, biKiepTuyetKy);
             case 3 ->
                 TrainingService.gI().callBoss(player, BossID.WHIS, false);
-            case 4 -> {
-                if (this.mapId == 154 && nro.models.services.TaskService.gI().getIdTask(player) >= nro.models.consts.ConstTask.TASK_45_0) {
-                    ChangeMapService.gI().changeMapBySpaceShip(player, 78, -1, 600);
-                }
-            }
+
         }
     }
 
