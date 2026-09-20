@@ -89,6 +89,12 @@ public class Whis extends TrainingBoss {
         this.chatE();
         this.lastTimeAFK = System.currentTimeMillis();
 
+        // FIX: lớp này tự viết lại die() nên KHÔNG chạy Boss.die -> reward() -> báo nhiệm vụ.
+        // Hậu quả: NV 44 bước "Đánh bại Whis" hạ bao nhiêu lần cũng đứng 0/1.
+        if (plKill != null) {
+            nro.models.services.TaskService.gI().checkDoneTaskKillBoss(plKill, this);
+        }
+
         if (playerAtt != null && plKill != null) {
             Service.gI().sendPlayerVS(playerAtt, plKill, (byte) 0);
         } else if (playerAtt != null) {
