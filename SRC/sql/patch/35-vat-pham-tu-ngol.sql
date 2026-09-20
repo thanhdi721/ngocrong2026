@@ -22,10 +22,13 @@
 -- jar mới đã tăng DataGame.vsItem và vsData.
 -- Chạy MỘT LẦN. Cần khởi động lại server.
 --
--- Nếu đã lỡ chạy bản patch cũ (icon 40000+), xoá sạch rồi chạy lại file này:
---   DELETE FROM `item_template` WHERE `id` BETWEEN 2032 AND 2074;
---   DELETE FROM `part`          WHERE `id` BETWEEN 2099 AND 2212;
+-- File TỰ DỌN trước khi ghi: chạy lại bao nhiêu lần cũng được, và tự đè bản patch cũ
+-- (bản đánh số icon từ 40000 làm server không khởi động được).
 -- =====================================================================
+
+-- (0) DỌN: xoá dải id của chính patch này nếu đã ghi trước đó
+DELETE FROM `item_template` WHERE `id` BETWEEN 2032 AND 2074;
+DELETE FROM `part`          WHERE `id` BETWEEN 2099 AND 2212;
 
 INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES
 (2099, 0, '[[32350,3,-12],[32351,-1,-13],[2555,0,0]]'),
