@@ -314,12 +314,34 @@ public class DataGame {
         }
     }
 
+    /** Nhớ những icon client xin mà máy chủ không có, để chỉ báo một lần mỗi id. */
+    private static final java.util.Set<Integer> MISSING_ICONS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     public static void sendIcon(MySession session, int id) {
         Message msg;
         try {
-            final byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
+            byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
+
+            // FIX: thiếu file ở đúng mức phóng to của client thì TRƯỚC ĐÂY server im lặng,
+            // client chờ mãi -> khung giao diện trắng trơn. Nay thử các mức còn lại rồi mới bỏ,
+            // và ghi log đúng id thiếu (mỗi id chỉ báo một lần).
+            if (icon == null) {
+                for (int z = 1; z <= 4 && icon == null; z++) {
+                    if (z != session.zoomLevel) {
+                        icon = FileIO.readFile("data/icon/x" + z + "/" + id + ".png");
+                    }
+                }
+                if (icon != null && MISSING_ICONS.add(id)) {
+                    Logger.warning("Thiếu icon " + id + " ở mức x" + session.zoomLevel
+                            + ", đã gửi tạm ảnh ở mức khác\n");
+                }
+            }
 
             if (icon == null) {
+                if (MISSING_ICONS.add(id)) {
+                    Logger.error("Client xin icon " + id + " nhưng KHÔNG có file data/icon/x*/"
+                            + id + ".png\n");
+                }
                 return;
             }
 
