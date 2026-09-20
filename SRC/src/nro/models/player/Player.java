@@ -548,6 +548,10 @@ public class Player implements Runnable {
                         //   B13 — bước "làm cùng người khác" ở map 103 / 143 / 78
                         TaskService.gI().updateTimedSubTaskTick(this);
                         TaskService.gI().checkDoneTaskTogetherInZone(this);
+                        // B15 — bước có điều kiện là TRẠNG THÁI (HP gốc, sức mạnh, bang hội,
+                        // 7 viên ngọc, đã mở giới hạn): xét lại định kỳ để không kẹt khi
+                        // người chơi đã đạt điều kiện TRƯỚC lúc bước đó bắt đầu.
+                        TaskService.gI().checkPassiveTaskConditions(this);
                         autoSendBadges();
                         BadgesTaskService.updateDoneTask(this);
                         sendTextTimeDaiLyGift();

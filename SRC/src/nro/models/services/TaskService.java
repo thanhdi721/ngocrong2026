@@ -719,10 +719,69 @@ public class TaskService {
             checkDoneTaskNangCS(player);
             return;
         }
-        if (type == 0 && isCurrentTask(player, ConstTask.TASK_33_1)) {
-            if (player.nPoint.hpg >= player.nPoint.getHpMpLimit()) {
-                doneTask(player, ConstTask.TASK_33_1);
-            }
+        if (type == 0) {
+            checkPassiveTaskConditions(player);
+        }
+    }
+
+    /**
+     * Xét lại các bước mà điều kiện là một TRẠNG THÁI (chứ không phải hành động):
+     * HP gốc chạm trần, sức mạnh đủ mốc, đang ở trong bang, đủ 7 viên Ngọc Rồng.
+     *
+     * <p>FIX: trước đây mỗi bước chỉ được xét khi có sự kiện tương ứng (cộng điểm,
+     * tăng sức mạnh, vào bang, nhặt ngọc). Ai ĐÃ đạt điều kiện TRƯỚC khi bước đó
+     * thành bước hiện tại thì không còn sự kiện nào để kích hoạt -> kẹt vĩnh viễn
+     * (ví dụ HP gốc đã 220.220 trước khi tới bước "Nâng HP gốc lên 220.000").
+     * Nay hàm này được gọi định kỳ trong Player.update nên bước tự xong.
+     */
+    public void checkPassiveTaskConditions(Player player) {
+        if (player == null || !player.isPl() || player.nPoint == null || player.playerTask == null) {
+            return;
+        }
+        int idTask = getIdTask(player);
+        switch (idTask) {
+            case ConstTask.TASK_33_1: // Nâng HP gốc lên mức trần của bậc giới hạn hiện tại
+                if (player.nPoint.hpg >= player.nPoint.getHpMpLimit()) {
+                    doneTask(player, ConstTask.TASK_33_1);
+                }
+                break;
+            case ConstTask.TASK_10_2:  // 250.000 sức mạnh
+            case ConstTask.TASK_23_0:  // 80 triệu
+            case ConstTask.TASK_31_5:  // 2 tỷ
+            case ConstTask.TASK_49_5:  // 2 tỷ (nhánh)
+            case ConstTask.TASK_33_3:  // 3 tỷ
+                checkDoneTaskPower(player, player.nPoint.power);
+                break;
+            case ConstTask.TASK_13_0:  // đang ở trong bang
+                checkDoneTaskJoinClan(player);
+                break;
+            case ConstTask.TASK_39_1:  // đủ 7 viên Ngọc Rồng trong hành trang
+                checkDoneTaskCollect7Stars(player);
+                break;
+            // Các bước "mở giới hạn": nếu người chơi ĐÃ mở tới bậc đó từ trước thì
+            // Quốc Vương / Tổ Sư Kaio không hiện nút nữa -> phải tự cho qua bước.
+            case ConstTask.TASK_33_2:
+                if (player.nPoint.limitPower >= 1) {
+                    doneTask(player, ConstTask.TASK_33_2);
+                }
+                break;
+            case ConstTask.TASK_44_4:
+                if (player.nPoint.limitPower >= 2) {
+                    doneTask(player, ConstTask.TASK_44_4);
+                }
+                break;
+            case ConstTask.TASK_47_3:
+                if (player.nPoint.limitPower >= 3) {
+                    doneTask(player, ConstTask.TASK_47_3);
+                }
+                break;
+            case ConstTask.TASK_50_3:
+                if (player.nPoint.limitPower >= 3) {
+                    doneTask(player, ConstTask.TASK_50_3);
+                }
+                break;
+            default:
+                break;
         }
     }
 
