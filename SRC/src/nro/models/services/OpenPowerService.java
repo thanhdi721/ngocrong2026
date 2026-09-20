@@ -52,7 +52,7 @@ public class OpenPowerService {
      * (không dùng {@code itemTime.isOpenPower}), và <b>không cần chạm trần sức mạnh</b>.</p>
      *
      * <p>Chỉ chạy khi {@code TaskService.canOpenPowerByTask} trả true — hàm đó ràng
-     * cặp <i>bước nhiệm vụ ↔ bậc giới hạn hiện tại</i> (TASK_33_3 ↔ 0, TASK_44_4 ↔ 1,
+     * cặp <i>bước nhiệm vụ ↔ bậc giới hạn hiện tại</i> (TASK_33_2 ↔ 0, TASK_44_4 ↔ 1,
      * TASK_47_3 / TASK_50_3 ↔ 2) nên sau khi tăng một bậc thì lần gọi kế tiếp tự thất bại:
      * mỗi bước nhiệm vụ chỉ mở được đúng một lần.</p>
      *

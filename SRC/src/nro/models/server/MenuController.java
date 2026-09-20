@@ -28,6 +28,17 @@ public class MenuController {
     }
 
     public void openMenuNPC(MySession session, int idnpc, Player player) {
+        try {
+            openMenuNPC0(session, idnpc, player);
+        } catch (Throwable t) {
+            // Không được im lặng: người chơi bấm NPC mà không thấy gì sẽ tưởng NPC hỏng.
+            Service.gI().hideWaitDialog(player);
+            Service.gI().sendThongBao(player, "Không mở được NPC này, hãy thử lại");
+            nro.models.utils.Logger.logException(MenuController.class, new Exception(t), "Lỗi mở NPC " + idnpc);
+        }
+    }
+
+    private void openMenuNPC0(MySession session, int idnpc, Player player) {
         TransactionService.gI().cancelTrade(player);
         Npc npc;
         if (idnpc == ConstNpc.CALICK && player.zone.map.mapId != 102) {

@@ -287,7 +287,7 @@ public class TaskService {
             case ConstTask.TASK_10_2:
             case ConstTask.TASK_23_0:
             case ConstTask.TASK_31_5:
-            case ConstTask.TASK_33_4:
+            case ConstTask.TASK_33_3:
             case ConstTask.TASK_49_5:
                 checkDoneTaskPower(player, player.nPoint.power);
                 break;
@@ -534,8 +534,8 @@ public class TaskService {
             // ---- 42 Quốc Vương (vách núi 42/43/44) --------------------------
             case ConstNpc.QUOC_VUONG: {
                 if (isMapVachNuiLang(player, mapId)) {
-                    return doneTask(player, ConstTask.TASK_33_1)
-                            || doneTask(player, ConstTask.TASK_33_5);
+                    // patch 20: bỏ bước "Gặp Quốc Vương" -> chỉ còn bước báo cáo (index 4)
+                    return doneTask(player, ConstTask.TASK_33_4);
                 }
                 return false;
             }
@@ -681,7 +681,7 @@ public class TaskService {
             doneTask(player, ConstTask.TASK_49_5);
         }
         if (power >= 3_000_000_000L) {
-            doneTask(player, ConstTask.TASK_33_4);
+            doneTask(player, ConstTask.TASK_33_3);
         }
     }
 
@@ -719,9 +719,9 @@ public class TaskService {
             checkDoneTaskNangCS(player);
             return;
         }
-        if (type == 0 && isCurrentTask(player, ConstTask.TASK_33_2)) {
+        if (type == 0 && isCurrentTask(player, ConstTask.TASK_33_1)) {
             if (player.nPoint.hpg >= player.nPoint.getHpMpLimit()) {
-                doneTask(player, ConstTask.TASK_33_2);
+                doneTask(player, ConstTask.TASK_33_1);
             }
         }
     }
@@ -1773,13 +1773,13 @@ public class TaskService {
 
     /**
      * B10 — mở giới hạn sức mạnh bằng nhiệm vụ. Móc ở OpenPowerService sau limitPower++.
-     * Ba mốc: TASK_33_3 (0→1), TASK_44_4 (1→2), TASK_47_3 / TASK_50_3 (2→3).
+     * Ba mốc: TASK_33_2 (0→1), TASK_44_4 (1→2), TASK_47_3 / TASK_50_3 (2→3).
      */
     public void checkDoneTaskOpenPower(Player player) {
         if (player == null || !player.isPl()) {
             return;
         }
-        doneTask(player, ConstTask.TASK_33_3);
+        doneTask(player, ConstTask.TASK_33_2);
         doneTask(player, ConstTask.TASK_44_4);
         doneTask(player, ConstTask.TASK_47_3);
         doneTask(player, ConstTask.TASK_50_3);
@@ -1795,7 +1795,7 @@ public class TaskService {
         }
         int idTask = getIdTask(player);
         byte lp = player.nPoint.limitPower;
-        if (idTask == ConstTask.TASK_33_3 && lp == 0) {
+        if (idTask == ConstTask.TASK_33_2 && lp == 0) {
             return true;
         }
         if (idTask == ConstTask.TASK_44_4 && lp == 1) {

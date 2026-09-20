@@ -56,3 +56,16 @@ Kèm theo (áp dụng cho MỌI bước "dùng vật phẩm"): `UseItem.useItem`
 TRƯỚC khi dùng rồi gọi `TaskService.checkDoneTaskUseItem(player, id)`. Trước đây dùng
 cái cuối cùng trong hành trang thì `Item.dispose()` xoá trắng `template` ngay trong lúc
 xử lý, trigger nhiệm vụ đọc vào vật phẩm rỗng và bỏ qua.
+
+## Bấm NPC không phản hồi + NV 33 bỏ bước gặp Quốc Vương (patch 20)
+
+Ba lỗi làm "bấm NPC không ra gì" (server im lặng, chỉ tắt vòng chờ):
+1. `Map.initNpc` nhét cả `null` vào `npcs` khi `NpcFactory.createNPC` dựng lỗi → `getNpc`
+   duyệt tới phần tử null là văng lỗi, **mọi NPC đứng sau nó trên cùng map** bấm không ra gì.
+   Nay bỏ qua null và ghi log id NPC dựng lỗi; các vòng duyệt null-safe.
+2. Bán kính bấm NPC 60 px quá hẹp (`Map.NPC_TALK_RANGE` nay 150) và khi quá xa thì
+   `MenuController` báo "Hãy lại gần ... hơn" thay vì im lặng.
+3. `MenuController.openMenuNPC` bọc try/catch, lỗi bất kỳ cũng báo cho người chơi + ghi log.
+
+NV 33 bỏ bước "Gặp Quốc Vương": còn 5 bước, các mốc lùi một bậc
+(`TASK_33_2`→`33_1` nâng HP, `33_3`→`33_2` mở giới hạn, `33_4`→`33_3` 3 tỷ, `33_5`→`33_4` báo cáo).

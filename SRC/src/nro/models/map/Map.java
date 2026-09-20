@@ -169,7 +169,16 @@ public class Map implements Runnable {
 
     public void initNpc(byte[] npcId, short[] npcX, short[] npcY) {
         for (int i = 0; i < npcId.length; i++) {
-            this.npcs.add(NpcFactory.createNPC(this.mapId, 1, npcX[i], npcY[i], npcId[i]));
+            // FIX: NpcFactory.createNPC trả null khi dựng NPC lỗi. Trước đây null vẫn bị nhét
+            // vào danh sách, khiến getNpc duyệt tới phần tử đó là văng lỗi -> MỌI NPC đứng
+            // SAU nó trên cùng map bấm không ra gì (im lặng hoàn toàn).
+            Npc npc = NpcFactory.createNPC(this.mapId, 1, npcX[i], npcY[i], npcId[i]);
+            if (npc == null) {
+                Logger.error("Map " + this.mapId + ": không dựng được NPC id " + npcId[i]
+                        + " (x=" + npcX[i] + ", y=" + npcY[i] + ") -> bỏ qua\n");
+                continue;
+            }
+            this.npcs.add(npc);
         }
     }
 
@@ -360,7 +369,7 @@ public class Map implements Runnable {
 
     public Npc getNpc(Player player, int tempId) {
         for (Npc npc : npcs) {
-            if (npc.tempId == tempId
+            if (npc != null && npc.tempId == tempId
                     && (MapService.gI().isMapBlackBallWar(mapId) || Util.getDistance(player, npc) <= NPC_TALK_RANGE)) {
                 return npc;
             }
@@ -371,7 +380,7 @@ public class Map implements Runnable {
     /** Tìm NPC theo id, không xét khoảng cách — dùng để báo "đứng quá xa" thay vì im lặng. */
     public Npc getNpcAnyDistance(int tempId) {
         for (Npc npc : npcs) {
-            if (npc.tempId == tempId) {
+            if (npc != null && npc.tempId == tempId) {
                 return npc;
             }
         }
