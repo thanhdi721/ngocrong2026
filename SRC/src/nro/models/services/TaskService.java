@@ -897,6 +897,8 @@ public class TaskService {
             case 103:
                 doneTask(player, ConstTask.TASK_31_2);
                 doneTask(player, ConstTask.TASK_49_2);
+                // Lỡ dùng bình trước đó thì cấp lại, nếu không sẽ kẹt ở bước "Dùng Bình chứa Commeson".
+                ensureCommesonBottle(player);
                 break;
             case 42:
             case 43:
@@ -1124,7 +1126,9 @@ public class TaskService {
         // ---- Bản sao của chính người chơi (NV 31 / NV 49) --------------------
         if (boss.id == Util.createIdBossClone((int) player.id)) {
             doneTask(player, ConstTask.TASK_31_4);
-            doneTask(player, ConstTask.TASK_49_4);
+            if (doneTask(player, ConstTask.TASK_49_4)) {
+                ensureCommesonBottle(player);
+            }
             return;
         }
 
@@ -2044,16 +2048,45 @@ public class TaskService {
         if (newTaskId == 49) {
             // Trao 1 Bình chứa Commeson (638) bản KHÔNG hạn sử dụng — không nằm trong
             // task_main_reward vì bước TASK_49_1 không bao giờ chạy qua addDoneSubTask.
-            Item binh = ItemService.gI().createNewItem((short) 638);
-            if (binh != null && binh.isNotNullItem()) {
-                binh.itemOptions.clear();
-                binh.itemOptions.add(new Item.ItemOption(30, 0));
-                if (InventoryService.gI().addItemBag(player, binh)) {
-                    InventoryService.gI().sendItemBags(player);
-                    Service.gI().sendThongBao(player, "Bạn nhận được 1 Bình chứa Commeson");
-                }
-            }
+            giveCommesonBottle(player);
         }
+    }
+
+    /**
+     * Trao 1 Bình chứa Commeson (638) bản không hạn sử dụng.
+     *
+     * <p>Bình là vật phẩm DÙNG ĐƯỢC bất cứ lúc nào: người chơi lỡ dùng trước khi tới
+     * bước "Dùng Bình chứa Commeson" là mất luôn và kẹt nhiệm vụ. Vì vậy hàm này còn
+     * được gọi lại ở bước 4 / bước 5 của NV 49 khi trong hành trang không còn bình.
+     */
+    public boolean giveCommesonBottle(Player player) {
+        Item binh = ItemService.gI().createNewItem((short) 638);
+        if (binh == null || !binh.isNotNullItem()) {
+            return false;
+        }
+        binh.itemOptions.clear();
+        binh.itemOptions.add(new Item.ItemOption(30, 0));
+        if (!InventoryService.gI().addItemBag(player, binh)) {
+            Service.gI().sendThongBao(player, "Hành trang đầy, không nhận được Bình chứa Commeson");
+            return false;
+        }
+        InventoryService.gI().sendItemBags(player);
+        Service.gI().sendThongBao(player, "Bạn nhận được 1 Bình chứa Commeson");
+        return true;
+    }
+
+    /** Cấp lại bình nếu đang ở bước cần dùng mà trong hành trang không còn. */
+    public void ensureCommesonBottle(Player player) {
+        if (player == null || !player.isPl()) {
+            return;
+        }
+        if (!isCurrentTask(player, ConstTask.TASK_49_4) && !isCurrentTask(player, ConstTask.TASK_49_5)) {
+            return;
+        }
+        if (InventoryService.gI().findItemBag(player, 638) != null) {
+            return;
+        }
+        giveCommesonBottle(player);
     }
 
     /**
