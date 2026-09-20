@@ -42,7 +42,9 @@ public class Cui extends Npc {
                             // -> gộp thành MỘT bước TASK_20_3 (nhánh Granola) và TASK_20_3 tương đương TASK_48_3
                             // (nhánh Jaco) của NV 20 "Kẻ săn tiền thưởng": đếm chung 3 boss Kuku / Mập đầu đinh / Rambo,
                             // không bắt thứ tự nên menu cho chọn cả ba.
-                            if (taskId == ConstTask.TASK_20_3 || taskId == ConstTask.TASK_48_3) {
+                            // Cả bước nhặt thẻ / biên bản (20_4, 48_4) vì vật phẩm rơi từ chính 3 boss này.
+                            if (taskId == ConstTask.TASK_20_3 || taskId == ConstTask.TASK_48_3
+                                    || taskId == ConstTask.TASK_20_4 || taskId == ConstTask.TASK_48_4) {
                                 this.createOtherMenu(pl, ConstNpc.MENU_FIND_KUKU,
                                         "Đội quân của Fide đang ở Thung lũng Nappa, ta sẽ đưa ngươi đến đó",
                                         "Đến chỗ\nKuku\n(" + Util.numberToMoney(COST_FIND_BOSS) + " vàng)",

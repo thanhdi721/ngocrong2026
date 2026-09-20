@@ -120,7 +120,13 @@ public final class QuestDrop {
             // NV 16 b3 — Vỏ đạn khắc dấu, 25% (chuyển từ Mob.dropItemTask)
             new Rule(ConstTask.TASK_16_3, SourceType.MOB,
                     ids(ConstMob.BULON, ConstMob.UKULELE, ConstMob.QUY_MAP), ANY_MAP, 2014, 25, 1),
-            // NV 20 b4 — Thẻ tiền thưởng Granola, 100% từ Kuku / Mập Đầu Đinh / Rambo
+            // NV 20 b3+b4 — Thẻ tiền thưởng Granola, 100% từ Kuku / Mập Đầu Đinh / Rambo.
+            // Rơi cả ở bước 3 (đang hạ boss): trước đây chỉ rơi ở bước 4 nên 3 boss vừa hạ không
+            // cho thẻ nào, người chơi phải hạ thêm. Thẻ nhặt ở bước 3 được cộng khi sang bước 4.
+            new Rule(ConstTask.TASK_20_3, SourceType.BOSS,
+                    ids(BossID.KUKU, BossID.MAP_DAU_DINH, BossID.RAMBO), ANY_MAP, 2016, 100, 1),
+            new Rule(ConstTask.TASK_48_3, SourceType.BOSS,
+                    ids(BossID.KUKU, BossID.MAP_DAU_DINH, BossID.RAMBO), ANY_MAP, 2017, 100, 1),
             new Rule(ConstTask.TASK_20_4, SourceType.BOSS,
                     ids(BossID.KUKU, BossID.MAP_DAU_DINH, BossID.RAMBO), ANY_MAP, 2016, 100, 1),
             // NV 48 b4 — Biên bản truy nã Ngân Hà, 100% từ cùng 3 boss (nhánh Jaco)

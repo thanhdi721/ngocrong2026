@@ -1142,8 +1142,12 @@ public class TaskService {
             case BossID.KUKU:
             case BossID.MAP_DAU_DINH:
             case BossID.RAMBO:
-                doneTask(player, ConstTask.TASK_20_3);
-                doneTask(player, ConstTask.TASK_48_3);
+                if (doneTask(player, ConstTask.TASK_20_3)) {
+                    creditItemsInBag(player, ConstTask.TASK_20_4, 2016);
+                }
+                if (doneTask(player, ConstTask.TASK_48_3)) {
+                    creditItemsInBag(player, ConstTask.TASK_48_4, 2017);
+                }
                 break;
             // ---- NV 22: Tiểu đội sát thủ, đếm CHUNG 5 con -----------------
             case BossID.SO_4:
@@ -2392,6 +2396,26 @@ public class TaskService {
         } catch (Exception e) {
             Logger.logException(TaskService.class, e, "Lỗi trao thưởng nhiệm vụ");
             return false;
+        }
+    }
+
+    /**
+     * Vừa sang bước "nhặt N vật phẩm" mà trong hành trang đã có sẵn vật phẩm đó (nhặt từ bước
+     * trước) thì cộng luôn vào tiến độ, không bắt nhặt lại.
+     */
+    private void creditItemsInBag(Player player, int idTaskCustom, int itemId) {
+        if (!isCurrentTask(player, idTaskCustom)) {
+            return;
+        }
+        nro.models.item.Item it = InventoryService.gI().findItemBag(player, itemId);
+        if (it == null || it.quantity <= 0) {
+            return;
+        }
+        TaskMain tm = player.playerTask.taskMain;
+        SubTaskMain stm = tm.subTasks.get(tm.index);
+        int need = stm.maxCount - stm.count;
+        if (need > 0) {
+            addDoneSubTask(player, Math.min(need, it.quantity));
         }
     }
 
