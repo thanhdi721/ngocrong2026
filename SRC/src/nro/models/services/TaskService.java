@@ -1405,6 +1405,12 @@ public class TaskService {
         if (isMapVanhDaiRung(mapId)) {
             doneTask(player, ConstTask.TASK_41_1);
         }
+        // patch 24 — NV 35 bước 2: Con đường rắn độc 7 ngày mới đi được 1 lần và mỗi lần
+        // chỉ ~40 quái, nên đường vòng đổi sang cày quái vùng Băng (105–110): quái nào cũng tính.
+        // Ai đi được phó bản thì xong ngay (checkDoneTaskDungeon -> doneTaskAtOnce).
+        if (mapId >= 105 && mapId <= 110) {
+            addTaskProgress(player, ConstTask.TASK_35_2, 1);
+        }
         // patch 21 — NV 33 bước 1: thay bước "Nâng HP gốc lên 220.000" (điều kiện trạng thái,
         // dễ kẹt) bằng hạ quái ở đồi cạnh làng (%3 = Đồi hoa cúc / Đồi nấm tím / Đồi hoang).
         // Quái nào ở đó cũng tính.
