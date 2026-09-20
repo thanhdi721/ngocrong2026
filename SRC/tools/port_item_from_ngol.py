@@ -32,7 +32,11 @@ OUR_ICON = os.path.join(HERE, "data", "icon")
 NGOL_ICON = os.path.join(NGOL, "resources", "normal", "image")
 PATCH_DIR = os.path.join(HERE, "sql", "patch")
 
-NEW_ICON_BASE = 40000          # dải số icon dành cho ảnh mang từ nguồn khác về
+# Dải số icon cấp cho ảnh mang từ nguồn khác về.
+# BẮT BUỘC <= 32767: Manager.loadDatabase đọc id icon bằng Short.parseShort, số lớn hơn
+# làm server không khởi động được ("Value out of range").
+NEW_ICON_BASE = 32349
+MAX_ICON_ID = 32767
 ZOOMS = [("1", "x1"), ("2", "x2"), ("3", "x3"), ("4", "x4")]
 
 
@@ -135,6 +139,8 @@ def main(argv):
                 report.append("  thiếu file ảnh icon %d bên NGOL" % ic)
                 continue
             if os.path.exists(dst) and file_hash(src) != file_hash(dst):
+                if next_icon > MAX_ICON_ID:
+                    raise SystemExit("Hết chỗ đánh số icon mới (đã tới %d, trần là %d)" % (next_icon, MAX_ICON_ID))
                 icon_map[ic] = next_icon    # trùng số, khác ảnh -> đánh số mới
                 next_icon += 1
             else:
