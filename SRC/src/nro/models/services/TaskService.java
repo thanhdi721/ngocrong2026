@@ -375,7 +375,7 @@ public class TaskService {
                         || doneTask(player, ConstTask.TASK_10_0)
                         || doneTask(player, ConstTask.TASK_16_4)
                         || doneTask(player, ConstTask.TASK_17_3)
-                        || doneTask(player, ConstTask.TASK_21_3)
+                        || doneTask(player, ConstTask.TASK_21_5)
                         || doneTask(player, ConstTask.TASK_23_5)
                         || doneTask(player, ConstTask.TASK_26_4);
             }
@@ -483,14 +483,14 @@ public class TaskService {
                     // từ xác lính tuần tra mà người chơi vừa dọn ở cụm map 63–67.
                     // Người có bang vẫn có thể lấy ở map 57 như cũ — hai cửa cùng một bước.
                     return doneTask(player, ConstTask.TASK_21_0)
-                            || doneTask(player, ConstTask.TASK_21_2);
+                            || doneTask(player, ConstTask.TASK_21_4);
                 }
                 return false;
             }
             // ---- 26 Độc Nhãn (map 57, chỉ khi đã phá xong doanh trại) -------
             case ConstNpc.DOC_NHAN: {
                 if (mapId == 57 && isWinDoanhTrai(player)) {
-                    return doneTask(player, ConstTask.TASK_21_2);
+                    return doneTask(player, ConstTask.TASK_21_4);
                 }
                 return false;
             }
@@ -1435,16 +1435,19 @@ public class TaskService {
                     }
                 }
                 break;
-            // ---- ĐƯỜNG VÒNG NV 21: quái tuần tra cụm Trại lính Fide (63–67) ----
-            // NGOẠI LỆ GIỮ MAP: đường vòng thay phó bản Doanh trại, phải cày đúng cụm này.
-            case ConstMob.THAN_LAN_XANH: // 43
-            case ConstMob.QUY_DAU_NHON: // 44
-            case ConstMob.QUY_DAU_VANG: // 45
-            case ConstMob.QUY_DA_TIM: // 46
+            // ---- NV 21 (patch 16): bỏ yêu cầu phó bản Doanh trại (cần 5 người), thay bằng
+            // ba bước cày quái vùng Fide — ai solo cũng làm được.
+            //   b1 500 Quỷ già (Trại quỷ già 66, Vực chết 67)
+            //   b2 600 Lính tai dài (Đồi cây Fide 74, Khe núi tử thần 75, Núi đá 76)
+            //   b3 700 Lính đầu trọc (Đồi cây Fide 74, Khe núi tử thần 75)
             case ConstMob.QUY_GIA: // 47
-                if (isMapDoanhTraiNgoai(mapId)) {
-                    addTaskProgress(player, ConstTask.TASK_21_1, 1);
-                }
+                addTaskProgress(player, ConstTask.TASK_21_1, 1);
+                break;
+            case ConstMob.LINH_TAI_DAI: // 52
+                addTaskProgress(player, ConstTask.TASK_21_2, 1);
+                break;
+            case ConstMob.LINH_DAU_TROC: // 51
+                addTaskProgress(player, ConstTask.TASK_21_3, 1);
                 break;
             case ConstMob.DOI_DA_XANH: // 49
                 if (isMapConDuongRanDoc(mapId)) {
@@ -1590,7 +1593,10 @@ public class TaskService {
         // cày quái (doc 32) => phá xong phó bản phải cộng TRỌN phần còn thiếu.
         switch (typeMap) {
             case ConstMap.MAP_DOANH_TRAI:
+                // Phá phó bản vẫn xong trọn bước cày quái đang dở (ai có bang thì đi nhanh hơn).
                 doneTaskAtOnce(player, ConstTask.TASK_21_1);
+                doneTaskAtOnce(player, ConstTask.TASK_21_2);
+                doneTaskAtOnce(player, ConstTask.TASK_21_3);
                 break;
             case ConstMap.MAP_CON_DUONG_RAN_DOC:
                 doneTaskAtOnce(player, ConstTask.TASK_35_3);

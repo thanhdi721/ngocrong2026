@@ -23,7 +23,10 @@ public class LinhCanh extends Npc {
             // phải gọi TRƯỚC mọi kiểm tra bang hội, nếu không thì bước TASK_21_0
             // ("Gặp Lính canh") và cửa thứ hai của TASK_21_2 ("Lấy bản đồ hành quân")
             // không bao giờ xong với người chơi chưa có bang.
-            nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this);
+            // Xong bước thì TaskService đã gửi câu "Việc tiếp theo" -> không báo "chỉ tiếp bang hội" nữa.
+            if (nro.models.services.TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
+                return;
+            }
             if (player.clan == null) {
                 NpcService.gI().createTutorial(player, tempId, this.avartar,
                         "Chỉ tiếp các bang hội, miễn tiếp khách vãng lai");

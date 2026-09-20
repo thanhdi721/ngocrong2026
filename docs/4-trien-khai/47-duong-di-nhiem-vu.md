@@ -35,3 +35,12 @@ Chủ dự án không muốn người chơi NV 20 vào Khu hang động (160) v�
 Berry (71) và Granola (76) đứng thêm ở Thung lũng Nappa (68) cạnh Cui; mọi bước gặp
 Berry / Granola làm ở 68 (code vẫn nhận ở 160 cho người đang dở). Gỡ nút "Khu hang động"
 của Cui (thay cho mục 2 ở trên). Khu hang động lại chỉ vào bằng Nhẫn thời không từ NV 32.
+
+## NV 21 bỏ phó bản Doanh trại (patch 16)
+
+Phó bản cần bang ≥ 5 người nên người chơi solo kẹt. NV 21 nay 6 bước:
+gặp Lính canh → 500 Quỷ già (66, 67) → 600 Lính tai dài (74, 75, 76) →
+700 Lính đầu trọc (74, 75) → lấy bản đồ ở Lính canh → về gặp sư phụ.
+Phá phó bản vẫn xong trọn bước cày quái đang dở. Mốc code: "lấy bản đồ"
+`TASK_21_2` → `TASK_21_4`, "về gặp sư phụ" `TASK_21_3` → `TASK_21_5`.
+`ducvupro` là khoá chính nên 4 dòng cũ (76–79) bị xoá, ghi lại 6 dòng ở dải 301–306.
