@@ -28,8 +28,6 @@ public class Potage extends Npc {
             return;
         }
         if (canOpenNpc(player)) {
-            // Lỡ dùng Bình chứa Commeson sớm thì xin lại ở đây (NV 49 bước 4 / bước 5).
-            TaskService.gI().ensureCommesonBottle(player);
             // TUYẾN MỚI: B14 — đang ở bước TASK_31_1 thì mở menu 2 nút rẽ nhánh,
             // KHÔNG đụng vào menu Commeson cũ (dùng id menu riêng nên không lẫn).
             if (this.mapId == 140 && TaskService.gI().getIdTask(player) == ConstTask.TASK_31_1) {

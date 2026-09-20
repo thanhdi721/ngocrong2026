@@ -44,3 +44,15 @@ gặp Lính canh → 500 Quỷ già (66, 67) → 600 Lính tai dài (74, 75, 76)
 Phá phó bản vẫn xong trọn bước cày quái đang dở. Mốc code: "lấy bản đồ"
 `TASK_21_2` → `TASK_21_4`, "về gặp sư phụ" `TASK_21_3` → `TASK_21_5`.
 `ducvupro` là khoá chính nên 4 dòng cũ (76–79) bị xoá, ghi lại 6 dòng ở dải 301–306.
+
+## NV 49 bỏ bước dùng Bình chứa Commeson (patch 19)
+
+Bình (638) dùng được bất cứ lúc nào nên người chơi lỡ dùng sớm là kẹt. Bỏ hẳn bước:
+NV 49 còn 6 bước, "Đạt 2 tỷ sức mạnh" lùi từ `TASK_49_6` về `TASK_49_5`; bỏ trigger
+`checkDoneTaskUseItem` case 638 và các chỗ cấp lại bình. Bình vẫn tặng khi chọn nhánh
+thu nhận bản sao, chỉ là quà.
+
+Kèm theo (áp dụng cho MỌI bước "dùng vật phẩm"): `UseItem.useItem` nhớ id vật phẩm
+TRƯỚC khi dùng rồi gọi `TaskService.checkDoneTaskUseItem(player, id)`. Trước đây dùng
+cái cuối cùng trong hành trang thì `Item.dispose()` xoá trắng `template` ngay trong lúc
+xử lý, trigger nhiệm vụ đọc vào vật phẩm rỗng và bỏ qua.

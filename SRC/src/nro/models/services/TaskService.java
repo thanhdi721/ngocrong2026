@@ -288,7 +288,7 @@ public class TaskService {
             case ConstTask.TASK_23_0:
             case ConstTask.TASK_31_5:
             case ConstTask.TASK_33_4:
-            case ConstTask.TASK_49_6:
+            case ConstTask.TASK_49_5:
                 checkDoneTaskPower(player, player.nPoint.power);
                 break;
             // doc 43: bỏ B8 (TASK_12_0 "có đệ tử") — NV 12 không còn bước đệ tử.
@@ -677,7 +677,8 @@ public class TaskService {
         }
         if (power >= 2_000_000_000L) {
             doneTask(player, ConstTask.TASK_31_5);
-            doneTask(player, ConstTask.TASK_49_6);
+            // patch 19: bỏ bước "Dùng Bình chứa Commeson" -> bước cuối lùi từ index 6 về 5
+            doneTask(player, ConstTask.TASK_49_5);
         }
         if (power >= 3_000_000_000L) {
             doneTask(player, ConstTask.TASK_33_4);
@@ -821,11 +822,8 @@ public class TaskService {
                     }
                 }
                 break;
-            case 638: // Bình chứa Commeson (nhánh NV 49)
-                if (mapId == 103) {
-                    doneTask(player, ConstTask.TASK_49_5);
-                }
-                break;
+            // patch 19: BỎ bước "Dùng Bình chứa Commeson" của NV 49 — bình chỉ còn là
+            // phần thưởng khi chọn nhánh thu nhận bản sao, dùng lúc nào cũng được.
             default:
                 break;
         }
@@ -913,8 +911,6 @@ public class TaskService {
             case 103:
                 doneTask(player, ConstTask.TASK_31_2);
                 doneTask(player, ConstTask.TASK_49_2);
-                // Lỡ dùng bình trước đó thì cấp lại, nếu không sẽ kẹt ở bước "Dùng Bình chứa Commeson".
-                ensureCommesonBottle(player);
                 break;
             case 42:
             case 43:
@@ -1142,9 +1138,7 @@ public class TaskService {
         // ---- Bản sao của chính người chơi (NV 31 / NV 49) --------------------
         if (boss.id == Util.createIdBossClone((int) player.id)) {
             doneTask(player, ConstTask.TASK_31_4);
-            if (doneTask(player, ConstTask.TASK_49_4)) {
-                ensureCommesonBottle(player);
-            }
+            doneTask(player, ConstTask.TASK_49_4);
             return;
         }
 
@@ -2089,20 +2083,6 @@ public class TaskService {
         InventoryService.gI().sendItemBags(player);
         Service.gI().sendThongBao(player, "Bạn nhận được 1 Bình chứa Commeson");
         return true;
-    }
-
-    /** Cấp lại bình nếu đang ở bước cần dùng mà trong hành trang không còn. */
-    public void ensureCommesonBottle(Player player) {
-        if (player == null || !player.isPl()) {
-            return;
-        }
-        if (!isCurrentTask(player, ConstTask.TASK_49_4) && !isCurrentTask(player, ConstTask.TASK_49_5)) {
-            return;
-        }
-        if (InventoryService.gI().findItemBag(player, 638) != null) {
-            return;
-        }
-        giveCommesonBottle(player);
     }
 
     /**
