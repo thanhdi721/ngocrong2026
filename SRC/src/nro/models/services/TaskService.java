@@ -1379,11 +1379,11 @@ public class TaskService {
                         doneTask(player, ConstTask.TASK_46_4);
                         break;
                     case 3:
-                        if (mapId == 155) {
-                            doneTask(player, ConstTask.TASK_50_5);
-                        } else {
-                            doneTask(player, ConstTask.TASK_47_5);
-                        }
+                        // FIX: trước đây chỉ tính TASK_50_5 khi hạ ở map 155. Boss dạng cuối
+                        // xuất hiện ở CẢ 145 lẫn 155 nên ai đi nhánh NV 50 mà hạ nó ở 145 thì
+                        // không được tính. doneTask chỉ ăn đúng bước đang làm nên gọi cả hai.
+                        doneTask(player, ConstTask.TASK_47_5);
+                        doneTask(player, ConstTask.TASK_50_5);
                         break;
                     default:
                         break;
