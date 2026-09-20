@@ -739,7 +739,16 @@ public class TaskService {
      * Nay hàm này được gọi định kỳ trong Player.update nên bước tự xong.
      */
     public void checkPassiveTaskConditions(Player player) {
-        if (player == null || !player.isPl() || player.nPoint == null || player.playerTask == null) {
+        try {
+            checkPassiveTaskConditions0(player);
+        } catch (Exception e) {
+            Logger.logException(TaskService.class, e, "Lỗi xét điều kiện trạng thái của nhiệm vụ");
+        }
+    }
+
+    private void checkPassiveTaskConditions0(Player player) {
+        if (player == null || !player.isPl() || player.nPoint == null || player.playerTask == null
+                || player.playerTask.taskMain == null) {
             return;
         }
         int idTask = getIdTask(player);
