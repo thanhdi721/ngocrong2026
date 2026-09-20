@@ -225,10 +225,8 @@ public class BossesData {
             new short[]{168, 169, 170, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             10000, //dame
             new int[]{2_500_000}, //hp
-            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
-            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
-            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
-            new int[]{73, 74, 75, 76, 77}, //map join
+            // Chủ dự án chốt (2026-09-20): trả tiểu đội Namếc về đúng các map Namếc như bản gốc.
+            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
             //           new int[]{86}, //map join
             new int[][]{
                 {Skill.LIEN_HOAN, 7, 1000},
@@ -253,10 +251,8 @@ public class BossesData {
             new short[]{174, 175, 176, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             10000, //dame
             new int[]{3_000_000}, //hp
-            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
-            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
-            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
-            new int[]{73, 74, 75, 76, 77}, //map join
+            // Chủ dự án chốt (2026-09-20): trả tiểu đội Namếc về đúng các map Namếc như bản gốc.
+            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
             new int[][]{
                 {Skill.LIEN_HOAN, 7, 1000},
                 {Skill.ANTOMIC, 4, 1000},},//skill
@@ -279,10 +275,8 @@ public class BossesData {
             new short[]{171, 172, 173, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             12200, //dame
             new int[]{3_500_000}, //hp
-            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
-            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
-            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
-            new int[]{73, 74, 75, 76, 77}, //map join
+            // Chủ dự án chốt (2026-09-20): trả tiểu đội Namếc về đúng các map Namếc như bản gốc.
+            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
             new int[][]{
                 {Skill.GALICK, 7, 1000},
                 {Skill.ANTOMIC, 3, 3000},},//skill//skill
@@ -305,10 +299,8 @@ public class BossesData {
             new short[]{177, 178, 179, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             13200, //dame
             new int[]{4_000_000}, //hp
-            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
-            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
-            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
-            new int[]{73, 74, 75, 76, 77}, //map join
+            // Chủ dự án chốt (2026-09-20): trả tiểu đội Namếc về đúng các map Namếc như bản gốc.
+            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
             new int[][]{
                 {Skill.LIEN_HOAN, 7, 1000},
                 {Skill.KAMEJOKO, 4, 10000},},//skill//skill
@@ -331,10 +323,8 @@ public class BossesData {
             new short[]{180, 181, 182, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
             15000, //dame
             new int[]{5000000}, //hp
-            // FIX: bỏ map đầu game Namếc (7, 8, 9, 10, 11, 12, 13 Đảo Guru, 25 Trạm tàu vũ trụ,
-            // 33 Nam Guru, 34 Đông Nam Guru, 43 Vách núi Moori) vì tiểu đội dame 10.000–15.000
-            // giết người chơi đang làm nhiệm vụ đầu 1 đòn; chuyển sang khu Fide/Nappa (NV ≥ 19)
-            new int[]{73, 74, 75, 76, 77}, //map join
+            // Chủ dự án chốt (2026-09-20): trả tiểu đội Namếc về đúng các map Namếc như bản gốc.
+            new int[]{7, 8, 9, 10, 11, 12, 13, 25, 34, 33, 43}, //map join
             new int[][]{
                 ////                {Skill.SOCOLA, 7, 1000},
                 {Skill.MASENKO, 7, 1000},

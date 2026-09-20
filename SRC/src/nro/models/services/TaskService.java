@@ -1155,13 +1155,8 @@ public class TaskService {
             case BossID.SO_2:
             case BossID.SO_1:
             case BossID.TIEU_DOI_TRUONG:
-            // FIX: tính cả Tiểu đội sát thủ bản Namek — trước đây chỉ bản Trái Đất được tính,
-            // người chơi hạ bản Namek (map 73–77) không nhận tiến độ.
-            case BossID.SO_4_NM:
-            case BossID.SO_3_NM:
-            case BossID.SO_2_NM:
-            case BossID.SO_1_NM:
-            case BossID.TIEU_DOI_TRUONG_NM:
+                // Chủ dự án chốt (2026-09-20): CHỈ tiểu đội sát thủ bản thường được tính.
+                // Bản Namek (SO_x_NM, TIEU_DOI_TRUONG_NM) không tính cho nhiệm vụ.
                 doneTask(player, ConstTask.TASK_22_2);
                 break;
             // ---- NV 23: Fide đại ca ---------------------------------------

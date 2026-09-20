@@ -134,9 +134,8 @@ public final class QuestDrop {
                     ids(BossID.KUKU, BossID.MAP_DAU_DINH, BossID.RAMBO), ANY_MAP, 2017, 100, 1),
             // NV 22 b3 — Máy đo ký ức, 100% từ tên bị hạ cuối của Tiểu đội sát thủ (bất kỳ tên nào)
             new Rule(ConstTask.TASK_22_3, SourceType.BOSS,
-                    // FIX: tính cả bản Namek, khớp với bước 22.2 (TaskService.checkDoneTaskKillBoss)
-                    ids(BossID.TIEU_DOI_TRUONG, BossID.SO_1, BossID.SO_2, BossID.SO_3, BossID.SO_4,
-                            BossID.TIEU_DOI_TRUONG_NM, BossID.SO_1_NM, BossID.SO_2_NM, BossID.SO_3_NM, BossID.SO_4_NM),
+                    // Chỉ tiểu đội sát thủ bản thường, khớp bước 22.2 (bản Namek không tính).
+                    ids(BossID.TIEU_DOI_TRUONG, BossID.SO_1, BossID.SO_2, BossID.SO_3, BossID.SO_4),
                     ANY_MAP, 2018, 100, 1),
             // NV 25 b2 — Lõi năng lượng Android, 100% từ Android 19 / Dr.Kôrê
             new Rule(ConstTask.TASK_25_2, SourceType.BOSS,

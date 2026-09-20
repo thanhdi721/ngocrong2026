@@ -110,14 +110,18 @@ src/nro/models/services_dungeon/DestronGasService.java
 src/nro/models/cpanel/CharacterTab.java
 src/nro/models/cpanel/EventTab.java
 src/nro/models/cpanel/BuffTab.java
+src/nro/models/cpanel/TopTab.java
 src/nro/models/cpanel/AccountTab.java
+src/nro/models/cpanel/BossTuneDialog.java
 src/nro/models/cpanel/OnlineTab.java
 src/nro/models/cpanel/ServerTab.java
+src/nro/models/cpanel/GoldDropTab.java
 src/nro/models/cpanel/BuffOps.java
 src/nro/models/cpanel/CharacterOps.java
 src/nro/models/cpanel/EventOps.java
 src/nro/models/cpanel/CPanel.java
 src/nro/models/cpanel/AccountDao.java
+src/nro/models/cpanel/BossTab.java
 src/nro/models/services_func/BuyBackService.java
 src/nro/models/services_func/UseItem.java
 src/nro/models/services_func/EffectMapService.java
@@ -229,6 +233,7 @@ src/nro/models/server/Controller.java
 src/nro/models/server/Maintenance.java
 src/nro/models/server/ServerManager.java
 src/nro/models/server/ServerLog.java
+src/nro/models/boss/BossTuning.java
 src/nro/models/boss/BossDamageReduce.java
 src/nro/models/boss/BossData.java
 src/nro/models/boss/BossID.java
@@ -360,6 +365,7 @@ src/nro/models/data/ResultSetImpl.java
 src/nro/models/mob/MobPoint.java
 src/nro/models/mob/BigBoss.java
 src/nro/models/mob/Mob.java
+src/nro/models/mob/GoldDropConfig.java
 src/nro/models/mob/MobMe.java
 src/nro/models/mob/MobEffectSkill.java
 src/nro/models/event/XeNuocMia.java

@@ -71,6 +71,7 @@ public final class CPanel {
     private static JTextArea logArea;
     private static OnlineTab onlineTab;
     private static ServerTab serverTab;
+    private static BossTab bossTab;
 
     private CPanel() {
     }
@@ -145,6 +146,10 @@ public final class CPanel {
         tabs.addTab("Server", serverTab);
         tabs.addTab("Buff đồ", new BuffTab());
         tabs.addTab("Sự kiện", new EventTab());
+        bossTab = new BossTab();
+        tabs.addTab("Boss", bossTab);
+        tabs.addTab("Vàng rơi", new GoldDropTab());
+        tabs.addTab("Top vàng/ngọc", new TopTab());
 
         logArea = new JTextArea(6, 80);
         logArea.setEditable(false);
@@ -169,6 +174,7 @@ public final class CPanel {
 
         onlineTab.startAutoRefresh();
         serverTab.startAutoRefresh();
+        bossTab.startAutoRefresh();
     }
 
     private static void onClose() {
@@ -186,6 +192,9 @@ public final class CPanel {
             }
             if (serverTab != null) {
                 serverTab.stopAutoRefresh();
+            }
+            if (bossTab != null) {
+                bossTab.stopAutoRefresh();
             }
             frame.dispose();
             log("Đã đóng bảng điều khiển (server vẫn chạy).");

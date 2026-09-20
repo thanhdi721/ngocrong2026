@@ -659,9 +659,10 @@ public class Mob {
         }
 
         //======================== Vàng Ngọc ========================
+        // Tỉ lệ / lượng vàng lấy từ GoldDropConfig (sửa được trong tab "Vàng rơi" của cpanel).
         if (MapService.gI().isMap3Planets(mapid)) {
-            if (Util.isTrue(1, 20)) {
-                int vang = Util.nextInt(500, 3000);
+            if (dropGold(GoldDropConfig.THREE_PLANETS)) {
+                int vang = randGold(GoldDropConfig.THREE_PLANETS);
                 if (vang < 1000) {
                     list.add(new ItemMap(zone, 76, vang, x, yEnd, player.id));
                 } else if (vang < 2000) {
@@ -672,8 +673,8 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapNappa(mapid)) {
-            if (Util.isTrue(1, 100)) {
-                int vang = Util.nextInt(2000, 6000);
+            if (dropGold(GoldDropConfig.NAPPA)) {
+                int vang = randGold(GoldDropConfig.NAPPA);
                 if (vang < 3000) {
                     list.add(new ItemMap(zone, 188, vang, x, yEnd, player.id));
                 } else if (vang < 5000) {
@@ -727,8 +728,8 @@ public class Mob {
         }
 
         if (MapService.gI().isMapCold(mapid)) {
-            if (Util.isTrue(30, 100)) {
-                int vang = Util.nextInt(150000, 250000);
+            if (dropGold(GoldDropConfig.COLD)) {
+                int vang = randGold(GoldDropConfig.COLD);
                 if (vang < 10000) {
                     list.add(new ItemMap(zone, 189, vang, x, yEnd, player.id)); // Rơi vàng cấp 189
                 } else if (vang < 14000) {
@@ -739,8 +740,8 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapTuongLai(mapid)) {
-            if (Util.isTrue(15, 100)) {
-                int vang = Util.nextInt(80000, 150000);
+            if (dropGold(GoldDropConfig.FUTURE)) {
+                int vang = randGold(GoldDropConfig.FUTURE);
                 if (vang < 6000) {
                     list.add(new ItemMap(zone, 188, vang, x, yEnd, player.id));
                 } else if (vang < 10000) {
@@ -751,8 +752,8 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapPhoBan(mapid)) {
-            if (Util.isTrue(1, 100)) {
-                int vang = Util.nextInt(80000, 200000);
+            if (dropGold(GoldDropConfig.DUNGEON)) {
+                int vang = randGold(GoldDropConfig.DUNGEON);
                 if (player.itemTime.isUseCoBonLa) {
                     vang = (int) (vang * 1.15);
                 }
@@ -1282,6 +1283,17 @@ public class Mob {
             msg.cleanup();
         } catch (IOException e) {
         }
+    }
+
+
+    /** Có rơi vàng cho nhóm map này không (tỉ lệ rate/per của GoldDropConfig). */
+    private static boolean dropGold(GoldDropConfig.Group g) {
+        return g.rate > 0 && Util.isTrue(g.rate, g.per);
+    }
+
+    /** Lượng vàng rơi một lần của nhóm map này. */
+    private static int randGold(GoldDropConfig.Group g) {
+        return g.max <= g.min ? g.min : Util.nextInt(g.min, g.max);
     }
 
 }

@@ -101,6 +101,9 @@ public class ServerManager {
                 }
             }, "ServerMain").start();
 
+            // Tỉ lệ vàng rơi từ quái (data/golddrop.properties) — thiếu file thì dùng mặc định.
+            nro.models.mob.GoldDropConfig.load();
+
             // CPANEL: bảng điều khiển Swing (tự bỏ qua nếu headless hoặc server.cpanel=false)
             nro.models.cpanel.CPanel.startIfEnabled();
 
@@ -132,6 +135,8 @@ public class ServerManager {
             new Thread(ShenronEventManager.gI(), "Update Shenron").start();
 
             BossManager.gI().loadBoss();
+            // Chỉnh số boss đã lưu từ cpanel (data/bosstuning.properties)
+            nro.models.boss.BossTuning.load();
             Manager.MAPS.forEach(nro.models.map.Map::initBoss);
             EventManager.gI().init();
 

@@ -731,6 +731,24 @@ public class Boss extends Player implements IBoss {
         return 0;
     }
 
+    /** Bảng % chặn sát thương theo hình dạng (cpanel tab Boss sửa được lúc đang chạy). */
+    public int[] getDamageReducePercentByLevel() {
+        return this.damageReducePercentByLevel;
+    }
+
+    public void setDamageReducePercentByLevel(int[] table) {
+        this.damageReducePercentByLevel = table;
+    }
+
+    /** Thời gian nghỉ giữa hai lần ra map, tính bằng giây. */
+    public int getSecondsRest() {
+        return this.secondsRest;
+    }
+
+    public void setSecondsRest(int seconds) {
+        this.secondsRest = seconds;
+    }
+
     /**
      * Phần trăm sát thương bị chặn trước khi trừ máu, tính theo hình dạng hiện tại.
      *
