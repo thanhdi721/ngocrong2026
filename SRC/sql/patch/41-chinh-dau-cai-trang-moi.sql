@@ -14,11 +14,11 @@
 UPDATE `part` SET `DATA` = '[[29768,-11,-51],[29771,-20,-47],[2955,0,0]]' WHERE `id` = 2223 AND `TYPE` = 0;
 UPDATE `part` SET `DATA` = '[[29769,-11,-51],[29771,-20,-47],[2955,0,0]]' WHERE `id` = 2224 AND `TYPE` = 0;
 UPDATE `part` SET `DATA` = '[[29770,-11,-51],[29771,-20,-47],[2955,0,0]]' WHERE `id` = 2225 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29803,-26,-59],[29806,-25,-62],[2955,0,0]]' WHERE `id` = 2228 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29804,-26,-59],[29806,-25,-62],[2955,0,0]]' WHERE `id` = 2229 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29805,-26,-59],[29806,-25,-62],[2955,0,0]]' WHERE `id` = 2230 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[30694,-40,-57],[30697,-31,-51],[2955,0,0]]' WHERE `id` = 2233 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[30695,-40,-57],[30697,-31,-51],[2955,0,0]]' WHERE `id` = 2234 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[30696,-40,-57],[30697,-31,-51],[2955,0,0]]' WHERE `id` = 2235 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29803,-27,-63],[29806,-26,-66],[2955,0,0]]' WHERE `id` = 2228 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29804,-27,-63],[29806,-26,-66],[2955,0,0]]' WHERE `id` = 2229 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29805,-27,-63],[29806,-26,-66],[2955,0,0]]' WHERE `id` = 2230 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[30694,-39,-57],[30697,-30,-51],[2955,0,0]]' WHERE `id` = 2233 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[30695,-39,-57],[30697,-30,-51],[2955,0,0]]' WHERE `id` = 2234 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[30696,-39,-57],[30697,-30,-51],[2955,0,0]]' WHERE `id` = 2235 AND `TYPE` = 0;
 
 SELECT `id`, `DATA` FROM `part` WHERE `id` IN (2223,2224,2225,2228,2229,2230,2233,2234,2235);
