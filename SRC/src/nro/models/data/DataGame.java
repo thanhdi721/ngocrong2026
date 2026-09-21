@@ -339,8 +339,11 @@ public class DataGame {
 
             if (icon == null) {
                 if (MISSING_ICONS.add(id)) {
+                    String ref = nro.models.server.Manager.ICON_REFS.get(id);
                     Logger.error("Client xin icon " + id + " nhưng KHÔNG có file data/icon/x*/"
-                            + id + ".png\n");
+                            + id + ".png -> " + (ref != null ? "đang được dùng bởi " + ref
+                            : "không có part / vật phẩm / avatar / túi nào của máy chủ dùng icon này"
+                            + " (client tự xin từ dữ liệu cache cũ hoặc dữ liệu riêng của client)") + "\n");
                 }
                 return;
             }

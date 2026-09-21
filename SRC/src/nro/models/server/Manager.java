@@ -107,6 +107,8 @@ public final class Manager {
     public static final List<String> NOTIFY = new ArrayList<>();
     public static final List<BadgesTaskTemplate> TASKS_BADGES_TEMPLATE = new ArrayList<>();
     public static final List<BagesTemplate> BAGES_TEMPLATES = new ArrayList<>();
+    /** icon -> dữ liệu đầu tiên dùng nó (part / vật phẩm / avatar / túi), để lần ra icon thiếu file. */
+    public static final Map<Integer, String> ICON_REFS = new java.util.concurrent.ConcurrentHashMap<>();
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
     public static List<TOP> Topsukien1;
@@ -175,6 +177,7 @@ public final class Manager {
         }
 
         this.loadDatabase();
+        checkMissingIcons();
         NpcFactory.createNpcConMeo();
         NpcFactory.createNpcRongThieng();
         this.initMap();
@@ -259,6 +262,8 @@ public final class Manager {
                 dataArray = (JSONArray) jv.parse(rs.getString("data").replaceAll("\\\"", ""));
                 for (int j = 0; j < dataArray.size(); j++) {
                     JSONArray pd = (JSONArray) jv.parse(String.valueOf(dataArray.get(j)));
+                    ICON_REFS.putIfAbsent(Integer.parseInt(String.valueOf(pd.get(0)).trim()),
+                            "part " + part.id + " (" + (part.type == 0 ? "đầu" : part.type == 1 ? "thân" : "chân") + ")");
                     part.partDetails.add(new PartDetail(Short.parseShort(String.valueOf(pd.get(0))),
                             Byte.parseByte(String.valueOf(pd.get(1))),
                             Byte.parseByte(String.valueOf(pd.get(2)))));
@@ -284,6 +289,44 @@ public final class Manager {
         } catch (Exception e) {
             System.err.print("\nError at 299\n");
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Liệt kê icon mà part / vật phẩm / avatar / túi đang dùng nhưng KHÔNG có file ảnh ở mức
+     * phóng to nào. Client xin những icon này sẽ không nhận được gì (hình trắng / lỗi client).
+     */
+    private static void checkMissingIcons() {
+        try {
+            List<Integer> missing = new ArrayList<>();
+            for (Integer id : ICON_REFS.keySet()) {
+                if (id == null || id < 0) {
+                    continue;
+                }
+                boolean found = false;
+                for (int z = 1; z <= 4 && !found; z++) {
+                    found = new java.io.File("data/icon/x" + z + "/" + id + ".png").exists();
+                }
+                if (!found) {
+                    missing.add(id);
+                }
+            }
+            if (missing.isEmpty()) {
+                Logger.success("Kiểm tra icon: mọi icon trong dữ liệu đều có file ảnh\n");
+                return;
+            }
+            Collections.sort(missing);
+            StringBuilder sb = new StringBuilder("Kiểm tra icon: " + missing.size()
+                    + " icon đang được dùng nhưng KHÔNG có file data/icon/x*/<id>.png:\n");
+            for (int i = 0; i < missing.size() && i < 100; i++) {
+                sb.append("  icon ").append(missing.get(i)).append(" <- ").append(ICON_REFS.get(missing.get(i))).append('\n');
+            }
+            if (missing.size() > 100) {
+                sb.append("  ... và ").append(missing.size() - 100).append(" icon khác\n");
+            }
+            Logger.error(sb.toString());
+        } catch (Exception e) {
+            Logger.error("Lỗi kiểm tra icon: " + e + "\n");
         }
     }
 
@@ -335,6 +378,8 @@ public final class Manager {
                 dataArray = (JSONArray) JSONValue.parse(rs.getString("data").replaceAll("\\\"", ""));
                 for (int j = 0; j < dataArray.size(); j++) {
                     JSONArray pd = (JSONArray) JSONValue.parse(String.valueOf(dataArray.get(j)));
+                    ICON_REFS.putIfAbsent(Integer.parseInt(String.valueOf(pd.get(0)).trim()),
+                            "part " + part.id + " (" + (part.type == 0 ? "đầu" : part.type == 1 ? "thân" : "chân") + ")");
                     part.partDetails.add(new PartDetail(Short.parseShort(String.valueOf(pd.get(0))),
                             Byte.parseByte(String.valueOf(pd.get(1))),
                             Byte.parseByte(String.valueOf(pd.get(2)))));
@@ -492,6 +537,7 @@ public final class Manager {
             while (rs.next()) {
                 HeadAvatar headAvatar = new HeadAvatar(rs.getInt("head_id"), rs.getInt("avatar_id"));
                 HEAD_AVATARS.add(headAvatar);
+                ICON_REFS.putIfAbsent(headAvatar.avatarId, "head_avatar của part đầu " + headAvatar.headId);
             }
             Logger.success(Logger.RED + "Successfully loaded head avatar (" + HEAD_AVATARS.size() + ")\n");
 
@@ -511,6 +557,10 @@ public final class Manager {
                     flagBag.iconEffect[j] = Short.parseShort(iconData[j].trim());
                 }
                 FLAGS_BAGS.add(flagBag);
+                ICON_REFS.putIfAbsent((int) flagBag.iconId, "flag_bag " + flagBag.id);
+                for (short ic : flagBag.iconEffect) {
+                    ICON_REFS.putIfAbsent((int) ic, "flag_bag " + flagBag.id + " (icon_data)");
+                }
             }
             Logger.success(Logger.PURPLE + "Successfully loaded flag bag (" + FLAGS_BAGS.size() + ")\n");
 
@@ -689,6 +739,7 @@ public final class Manager {
                         itemTemp.leg = rs.getInt("leg");
 
                         ITEM_TEMPLATES.add(itemTemp);
+                        ICON_REFS.putIfAbsent((int) itemTemp.iconID, "vật phẩm " + itemTemp.id + " " + itemTemp.name);
                     } while (rs.next());
                     offset += batchSize;
                 }
