@@ -52,7 +52,9 @@ public class DataGame {
     // Không tăng => item mới hiện tên rỗng / icon trắng với mọi người chơi cũ.
     // Mỗi lần thêm/bớt/sửa dòng item_template PHẢI tăng số này thêm 1 (tối đa 127).
     // 10 -> 11: thêm 43 vật phẩm id 2032–2074 mang từ NGOL (patch 35).
-    public static byte vsItem = 11;
+    // 11 -> 12: bỏ cắt gói vật phẩm thành nhiều khúc (cache NRitem2 của client chỉ giữ khúc
+    //          cuối). Tăng để client xoá cache hỏng và tải lại đủ bộ.
+    public static byte vsItem = 12;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
@@ -338,14 +340,23 @@ public class DataGame {
             }
 
             if (icon == null) {
+                // Vẫn trả về ảnh trong suốt (icon 2955) mang đúng số client xin, để client không
+                // chờ mãi / lỗi vẽ; chỉ là ô trống thay vì đơ.
+                icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/2955.png");
+                if (icon == null) {
+                    icon = FileIO.readFile("data/icon/x2/2955.png");
+                }
                 if (MISSING_ICONS.add(id)) {
                     String ref = nro.models.server.Manager.ICON_REFS.get(id);
                     Logger.error("Client xin icon " + id + " nhưng KHÔNG có file data/icon/x*/"
                             + id + ".png -> " + (ref != null ? "đang được dùng bởi " + ref
                             : "không có part / vật phẩm / avatar / túi nào của máy chủ dùng icon này"
-                            + " (client tự xin từ dữ liệu cache cũ hoặc dữ liệu riêng của client)") + "\n");
+                            + " (client tự xin từ dữ liệu cache cũ hoặc dữ liệu riêng của client)")
+                            + " — đã gửi ảnh trong suốt thay thế\n");
                 }
-                return;
+                if (icon == null) {
+                    return;
+                }
             }
 
             msg = new Message(-67);
