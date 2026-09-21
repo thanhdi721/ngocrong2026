@@ -11,12 +11,12 @@
 -- Chạy cùng jar có DataGame.vsData = 15 (client tải lại part). Chạy lại vẫn an toàn.
 -- =====================================================================
 
-UPDATE `part` SET `DATA` = '[[29768,-11,-51],[29771,-20,-47],[2955,0,0]]' WHERE `id` = 2223 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29769,-11,-51],[29771,-20,-47],[2955,0,0]]' WHERE `id` = 2224 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29770,-11,-51],[29771,-20,-47],[2955,0,0]]' WHERE `id` = 2225 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29803,-27,-63],[29806,-26,-66],[2955,0,0]]' WHERE `id` = 2228 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29804,-27,-63],[29806,-26,-66],[2955,0,0]]' WHERE `id` = 2229 AND `TYPE` = 0;
-UPDATE `part` SET `DATA` = '[[29805,-27,-63],[29806,-26,-66],[2955,0,0]]' WHERE `id` = 2230 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29768,-11,-49],[29771,-20,-45],[2955,0,0]]' WHERE `id` = 2223 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29769,-11,-49],[29771,-20,-45],[2955,0,0]]' WHERE `id` = 2224 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29770,-11,-49],[29771,-20,-45],[2955,0,0]]' WHERE `id` = 2225 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29803,-28,-65],[29806,-27,-68],[2955,0,0]]' WHERE `id` = 2228 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29804,-28,-65],[29806,-27,-68],[2955,0,0]]' WHERE `id` = 2229 AND `TYPE` = 0;
+UPDATE `part` SET `DATA` = '[[29805,-28,-65],[29806,-27,-68],[2955,0,0]]' WHERE `id` = 2230 AND `TYPE` = 0;
 UPDATE `part` SET `DATA` = '[[30694,-39,-57],[30697,-30,-51],[2955,0,0]]' WHERE `id` = 2233 AND `TYPE` = 0;
 UPDATE `part` SET `DATA` = '[[30695,-39,-57],[30697,-30,-51],[2955,0,0]]' WHERE `id` = 2234 AND `TYPE` = 0;
 UPDATE `part` SET `DATA` = '[[30696,-39,-57],[30697,-30,-51],[2955,0,0]]' WHERE `id` = 2235 AND `TYPE` = 0;
