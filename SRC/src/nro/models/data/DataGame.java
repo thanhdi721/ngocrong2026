@@ -40,7 +40,8 @@ public class DataGame {
     // 15 -> 16: nâng thân 2077/2079, chỉnh đầu 2078 (patch 42).
     // 16 -> 17: chỉnh lần 3 cải trang 2077/2078/2079 (patch 43).
     // 17 -> 18: chỉnh lần 4: 2079 thân lên 4; 2077 thân xuống 2, đầu xuống 2; 2078 đầu lên 2, sang trái 1 (patch 44).
-    public static byte vsData = 18;
+    // 19 -> 20: chỉnh lần 6: 2079 thân lên 8, đầu lên 4 sang phải 2 (patch 46).
+    public static byte vsData = 20;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
