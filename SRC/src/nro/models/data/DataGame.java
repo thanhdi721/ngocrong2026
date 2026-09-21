@@ -41,7 +41,8 @@ public class DataGame {
     // 16 -> 17: chỉnh lần 3 cải trang 2077/2078/2079 (patch 43).
     // 17 -> 18: chỉnh lần 4: 2079 thân lên 4; 2077 thân xuống 2, đầu xuống 2; 2078 đầu lên 2, sang trái 1 (patch 44).
     // 19 -> 20: chỉnh lần 6: 2079 thân lên 8, đầu lên 4 sang phải 2 (patch 46).
-    public static byte vsData = 20;
+    // 20 -> 21: 2079 Nữ Thần: đầu lên 3 sang trái 1, tắt đầu động (hết nháy) (patch 47).
+    public static byte vsData = 21;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -63,7 +64,8 @@ public class DataGame {
     //          cuối). Tăng để client xoá cache hỏng và tải lại đủ bộ.
     // 12 -> 13: patch 39 gỡ 11 cải trang thiếu ảnh (1841–1851).
     // 13 -> 14: thêm 5 cải trang 2075–2079 (patch 40).
-    public static byte vsItem = 14;
+    // 14 -> 15: bỏ đầu động của cải trang 2079 (patch 47).
+    public static byte vsItem = 15;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
