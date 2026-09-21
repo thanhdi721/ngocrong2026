@@ -336,7 +336,36 @@ public final class Manager {
      * lệch toàn bộ part phía sau -> NPC / cải trang từ part đó trở đi mất hình. Nay cắt / đệm
      * đúng số mảnh (đệm bằng icon 2955 trong suốt) và báo dòng sai ra log.
      */
-    private static void writePartData(DataOutputStream dos, List<Part> parts) throws java.io.IOException {
+    private static void writePartData(DataOutputStream dos, List<Part> rows) throws java.io.IOException {
+        // Client tra part THEO VỊ TRÍ: vị trí i phải đúng là part id i. DB gốc từng có một dòng
+        // gõ nhầm id (1919 thành 1949) -> trùng 1949, hổng 1919 -> mọi part 1919..1948 lệch một ô.
+        // Nay xếp theo id: trùng id thì giữ dòng đầu và báo lỗi, id hổng thì lấp part trong suốt.
+        int maxId = -1;
+        for (Part part : rows) {
+            maxId = Math.max(maxId, part.id);
+        }
+        Part[] byId = new Part[maxId + 1];
+        for (Part part : rows) {
+            if (part.id < 0) {
+                continue;
+            }
+            if (byId[part.id] != null) {
+                Logger.error("part: id " + part.id + " bi TRUNG trong DB -> bo dong sau, hay sua DB (xem patch 38)\n");
+                continue;
+            }
+            byId[part.id] = part;
+        }
+        List<Part> parts = new ArrayList<>(byId.length);
+        for (int i = 0; i < byId.length; i++) {
+            if (byId[i] == null) {
+                Logger.error("part: THIEU id " + i + " trong DB -> lap tam part trong suot de khong lech cac part sau\n");
+                Part blank = new Part();
+                blank.id = i;
+                blank.type = 0;
+                byId[i] = blank;
+            }
+            parts.add(byId[i]);
+        }
         dos.writeShort(parts.size());
         for (Part part : parts) {
             int need = part.type == 0 ? 3 : part.type == 1 ? 17 : 14;

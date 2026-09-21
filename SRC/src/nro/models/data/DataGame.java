@@ -34,7 +34,8 @@ public class DataGame {
     // 9 -> 10: file part sửa lệch từ part 1999 (patch 14) — client phải tải lại part.
     // 10 -> 11: đổi hình NPC 76 Granola (patch 15).
     // 11 -> 12: thêm 114 dòng part của 38 cải trang mang từ NGOL (patch 35).
-    public static byte vsData = 12;
+    // 12 -> 13: sửa part 1919 bị ghi nhầm 1949 (patch 38), part cải trang gỡ bỏ (patch 39).
+    public static byte vsData = 13;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -54,7 +55,8 @@ public class DataGame {
     // 10 -> 11: thêm 43 vật phẩm id 2032–2074 mang từ NGOL (patch 35).
     // 11 -> 12: bỏ cắt gói vật phẩm thành nhiều khúc (cache NRitem2 của client chỉ giữ khúc
     //          cuối). Tăng để client xoá cache hỏng và tải lại đủ bộ.
-    public static byte vsItem = 12;
+    // 12 -> 13: patch 39 gỡ 11 cải trang thiếu ảnh (1841–1851).
+    public static byte vsItem = 13;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
