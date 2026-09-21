@@ -876,7 +876,7 @@ public class Player implements Runnable {
             return 412;
         } else if (fusion != null && fusion.typeFusion != ConstPlayer.NON_FUSION) {
             if (nPoint != null && nPoint.isGogeta) {
-                return 2105; // patch 35: part Gogeta mang từ NGOL (trước trỏ 2100 — không tồn tại)
+                return 2100;
             } else if (fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE) {
                 return idOutfitFusion[this.gender == ConstPlayer.NAMEC ? 2 : 0][0];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA) {
@@ -933,7 +933,7 @@ public class Player implements Runnable {
             return idOutfitGod[this.gender][1];
         } else if (fusion != null && fusion.typeFusion != ConstPlayer.NON_FUSION) {
             if (nPoint != null && nPoint.isGogeta) {
-                return 2106; // patch 35: part Gogeta mang từ NGOL (trước trỏ 2101 — không tồn tại)
+                return 2101;
             } else if (fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE) {
                 return idOutfitFusion[this.gender == ConstPlayer.NAMEC ? 2 : 0][1];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA) {
@@ -993,7 +993,7 @@ public class Player implements Runnable {
             return idOutfitGod[this.gender][2];
         } else if (fusion != null && fusion.typeFusion != ConstPlayer.NON_FUSION) {
             if (nPoint != null && nPoint.isGogeta) {
-                return 2107; // patch 35: part Gogeta mang từ NGOL (trước trỏ 2102 — không tồn tại)
+                return 2102;
             } else if (fusion.typeFusion == ConstPlayer.LUONG_LONG_NHAT_THE) {
                 return idOutfitFusion[this.gender == ConstPlayer.NAMEC ? 2 : 0][2];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA) {
