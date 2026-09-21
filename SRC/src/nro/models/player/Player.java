@@ -1030,10 +1030,12 @@ public class Player implements Runnable {
         } else if (this.idNRNM >= 353 && this.idNRNM <= 359) {
             return 30;
         }
-        // doc 39: khôi phục mốc gốc TASK_3_2 (đang cõng "đứa bé" về báo cáo ông) — cờ túi 28.
-        // Giữ thêm mốc TASK_5_2 trở đi của tuyến mới (NV 5 "Ký ức của ông").
+        // doc 39: mốc gốc TASK_3_2 — đang cõng "đứa bé" về báo cáo ông (cờ túi 28).
+        // FIX: bản trước ghi thêm "|| idTask >= TASK_5_2" nên từ NV 5 trở đi người chơi CÕNG
+        // ĐỨA BÉ VĨNH VIỄN, đồng thời che luôn túi đeo lưng và cờ bang của họ. Chỉ còn đúng
+        // một bước được cõng.
         int idTaskFlagBag = TaskService.gI().getIdTask(this);
-        if (idTaskFlagBag == ConstTask.TASK_3_2 || idTaskFlagBag >= ConstTask.TASK_5_2) {
+        if (idTaskFlagBag == ConstTask.TASK_3_2) {
             return 28;
         }
         if (this.inventory.itemsBody.size() >= 11) {
