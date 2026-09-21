@@ -26,8 +26,14 @@ import nro.models.utils.Util;
  */
 public class AdminDepTrai extends Npc {
 
+    /** Giá mở thành viên (kích hoạt tài khoản), tính bằng VND. */
+    public static final int GIA_MO_THANH_VIEN = 10_000;
+
+    /** Menu xác nhận mở thành viên. */
+    private static final int MENU_MO_THANH_VIEN = 2230;
+
     private static final String[] MENU_CHINH = {
-        "Đổi VND\nra Thỏi vàng", "Đổi VND\nra Ngọc", "Xem số dư", "Đóng"};
+        "Đổi VND\nra Thỏi vàng", "Đổi VND\nra Ngọc", "Mở\nthành viên", "Nhập\nGiftcode", "Xem số dư", "Đóng"};
 
     private static final String[] MENU_SO_DU = {
         "Đổi VND\nra Thỏi vàng", "Đổi VND\nra Ngọc", "Đóng"};
@@ -44,7 +50,8 @@ public class AdminDepTrai extends Npc {
         this.createOtherMenu(player, ConstNpc.BASE_MENU,
                 "Chào " + player.name + "! Ta là ADMIN Đẹp Trai — đẹp trai nhất 3 hành tinh.\n"
                 + "Có VND trong tài khoản thì ta đổi ra Thỏi vàng hoặc Ngọc cho, nhanh gọn lẹ!\n"
-                + "10.000đ = 40 Thỏi vàng  |  10.000đ = 10.000 Ngọc",
+                + "10.000đ = 40 Thỏi vàng  |  10.000đ = 10.000 Ngọc\n"
+                + "Mở thành viên: " + Util.numberFormat(GIA_MO_THANH_VIEN) + "đ  |  Nhập giftcode miễn phí",
                 MENU_CHINH);
     }
 
@@ -58,9 +65,15 @@ public class AdminDepTrai extends Npc {
             switch (select) {
                 case 0 -> moFormDoiThoiVang(player);
                 case 1 -> moFormDoiNgoc(player);
-                case 2 -> xemSoDu(player);
+                case 2 -> hoiMoThanhVien(player);
+                case 3 -> Input.gI().createFormGiftCode(player);
+                case 4 -> xemSoDu(player);
                 default -> {
                 }
+            }
+        } else if (indexMenu == MENU_MO_THANH_VIEN) {
+            if (select == 0) {
+                moThanhVien(player);
             }
         } else if (indexMenu == ConstNpc.MENU_ADMIN_DEP_TRAI_SO_DU) {
             switch (select) {
@@ -84,6 +97,46 @@ public class AdminDepTrai extends Npc {
     private void moFormDoiNgoc(Player player) {
         PlayerDAO.reloadVnd(player);
         Input.gI().createFormTradeGem(player);
+    }
+
+    /** Hỏi xác nhận trước khi trừ tiền. */
+    private void hoiMoThanhVien(Player player) {
+        if (player.getSession() == null) {
+            return;
+        }
+        if (player.getSession().actived) {
+            Service.gI().sendThongBao(player, "Tài khoản của ngươi đã là thành viên rồi");
+            return;
+        }
+        PlayerDAO.reloadVnd(player);
+        int vnd = Math.max(0, player.getSession().vnd);
+        this.createOtherMenu(player, MENU_MO_THANH_VIEN,
+                "Mở thành viên để đổi được Thỏi vàng / Ngọc và vào các phó bản bang hội.\n"
+                + "Giá: " + Util.numberFormat(GIA_MO_THANH_VIEN) + "đ\n"
+                + "Số dư của ngươi: " + Util.numberFormat(vnd) + "đ",
+                "Đồng ý", "Từ chối");
+    }
+
+    private void moThanhVien(Player player) {
+        if (player.getSession() == null) {
+            return;
+        }
+        if (player.getSession().actived) {
+            Service.gI().sendThongBao(player, "Tài khoản của ngươi đã là thành viên rồi");
+            return;
+        }
+        PlayerDAO.reloadVnd(player);
+        if (player.getSession().vnd < GIA_MO_THANH_VIEN) {
+            Service.gI().sendThongBao(player, "Không đủ " + Util.numberFormat(GIA_MO_THANH_VIEN)
+                    + "đ, hãy nạp thêm rồi quay lại");
+            return;
+        }
+        if (PlayerDAO.MuaThanhVien(player, GIA_MO_THANH_VIEN)) {
+            Service.gI().sendThongBao(player, "Mở thành viên thành công! Còn "
+                    + Util.numberFormat(Math.max(0, player.getSession().vnd)) + "đ");
+        } else {
+            Service.gI().sendThongBao(player, "Không mở được thành viên, số dư có thể vừa thay đổi. Thử lại nhé");
+        }
     }
 
     private void xemSoDu(Player player) {
