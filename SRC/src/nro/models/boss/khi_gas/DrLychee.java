@@ -95,7 +95,10 @@ public class DrLychee extends Boss {
         }
     }
 
-        private void dropCt(int x) {
+        /** Chủ dự án chốt (2026-09-21): sức đánh / HP / KI của cải trang Khí gas tối đa 30%. */
+    private static final int MAX_CHI_SO = 30;
+
+    private void dropCt(int x) {
         ItemMap it = new ItemMap(zone, 738, 1, this.location.x + x, this.zone.map.yPhysicInTop(this.location.x,
                 this.location.y - 24), -1);
         it.options.clear();
@@ -113,9 +116,9 @@ public class DrLychee extends Boss {
         }
 
         int hsd = Util.nextInt(3, ParamMax);
-        it.options.add(new Item.ItemOption(50, ParamMax + Util.nextInt(8, 11)));
-        it.options.add(new Item.ItemOption(77, ParamMax + Util.nextInt(8, 11)));
-        it.options.add(new Item.ItemOption(103, ParamMax + Util.nextInt(8, 11)));
+        it.options.add(new Item.ItemOption(50, Math.min(MAX_CHI_SO, ParamMax + Util.nextInt(8, 11))));
+        it.options.add(new Item.ItemOption(77, Math.min(MAX_CHI_SO, ParamMax + Util.nextInt(8, 11))));
+        it.options.add(new Item.ItemOption(103, Math.min(MAX_CHI_SO, ParamMax + Util.nextInt(8, 11))));
         it.options.add(new Item.ItemOption(94, ParamMax + Util.nextInt(0, 3)));
         it.options.add(new Item.ItemOption(93, hsd > 21 ? 21 : hsd));
         it.options.add(new Item.ItemOption(30, 0));
