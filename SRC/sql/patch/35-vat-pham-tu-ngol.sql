@@ -17,6 +17,14 @@
 --      ảnh mang về được đánh số mới trong dải 32349–32666.
 --   3. Trần id icon: <= 32767 (Manager đọc bằng Short.parseShort).
 --
+--   4. 16 cải trang NGOL 2132–2147 (Goku / Namec / Vegeta Super Saiyan 2, 3, God, Blue,
+--      Ultra Instinct — id mới 2049–2064) HỎNG NGAY TỪ KHO ẢNH NGOL: phần đầu của chúng
+--      trỏ vào ảnh cái chân (vd head 1495 dùng icon 14425/14426 = hình quần). Vẫn giữ dòng
+--      vật phẩm cho id liên tục, nhưng đổi icon sang ảnh mặt (avatar) và BỎ mặc được
+--      (head/body/leg = -1), không thêm head_avatar cho chúng.
+--   5. Hợp thể Gogeta trong Player.java gán cứng part 2100–2102 (chưa từng có trong DB);
+--      jar mới trỏ sang part Gogeta mang về: 2105 / 2106 / 2107.
+--
 -- 709 ảnh icon đã chép sẵn vào SRC/data/icon/x1..x4 (đủ 4 mức phóng to, đã kiểm không
 -- thiếu file, không ảnh nào đè lên ảnh đang dùng).
 --
@@ -166,22 +174,6 @@ INSERT INTO `head_avatar` (`head_id`, `avatar_id`) VALUES
 (2141, 32535),
 (2144, 32538),
 (2147, 32570),
-(2150, 32593),
-(2153, 32596),
-(2156, 32599),
-(2159, 32602),
-(2162, 32605),
-(2165, 32637),
-(2168, 32640),
-(2171, 32643),
-(2174, 32646),
-(2177, 32649),
-(2180, 32652),
-(2183, 32655),
-(2186, 32658),
-(2189, 32661),
-(2192, 32664),
-(2195, 32667),
 (2198, 17083),
 (2201, 17121),
 (2204, 17154),
@@ -206,22 +198,22 @@ INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `lev
 (2046, 5, 3, 'Goku SSJ Cấp 2', 'Cải Trang  ', 0, 32533, -1, 0, 0, 0, 0, 2141, 2142, 2143),
 (2047, 5, 3, 'Goku SSJ Blue', 'Cải Trang  ', 0, 32536, -1, 0, 0, 0, 0, 2144, 2145, 2146),
 (2048, 5, 3, 'Goku SSJ God', 'Cải Trang  ', 0, 32539, -1, 0, 0, 0, 0, 2147, 2148, 2149),
-(2049, 5, 3, 'Goku Super Saiyan 2', 'Cải trang trong bộ sưu tập Goku', 0, 32571, -1, 0, 0, 0, 0, 2150, 2151, 2152),
-(2050, 5, 3, 'Goku Super Saiyan 3', 'Cải trang chỉ dành cho Xayda', 0, 32594, -1, 0, 0, 0, 0, 2153, 2154, 2155),
-(2051, 5, 3, 'Goku  Super God', 'Cải trang trong bộ sưu tập Goku', 0, 32597, -1, 0, 0, 0, 0, 2156, 2157, 2158),
-(2052, 5, 3, 'Goku Super Blue', 'Cải trang trong bộ sưu tập Goku', 0, 32600, -1, 0, 0, 0, 0, 2159, 2160, 2161),
-(2053, 5, 3, 'Goku Ultra Instinct', 'Cải trang trong bộ sưu tập Goku', 0, 32603, -1, 0, 0, 0, 0, 2162, 2163, 2164),
-(2054, 5, 3, 'Namec Super Saiyan 2', 'Cải trang trong bộ sưu tập Namec', 0, 32606, -1, 0, 0, 0, 0, 2165, 2166, 2167),
-(2055, 5, 3, 'Namec Super Saiyan 3', 'Cải trang chỉ dành cho Namec', 0, 32638, -1, 0, 0, 0, 0, 2168, 2169, 2170),
-(2056, 5, 3, 'Namec Super God', 'Cải trang trong bộ sưu tập Namec', 0, 32641, -1, 0, 0, 0, 0, 2171, 2172, 2173),
-(2057, 5, 3, 'Namec Super Blue', 'Cải trang trong bộ sưu tập Namec', 0, 32644, -1, 0, 0, 0, 0, 2174, 2175, 2176),
-(2058, 5, 3, 'Namec Ultra Instinct', 'Cải trang trong bộ sưu tập Namec', 0, 32647, -1, 0, 0, 0, 0, 2177, 2178, 2179),
-(2059, 5, 3, 'Namec God Of Destruction', 'Cải trang trong bộ sưu tập Namec', 0, 32650, -1, 0, 0, 0, 0, 2180, 2181, 2182),
-(2060, 5, 3, 'Vegeta Super Saiyan 2', 'Cải trang trong bộ sưu tập Vegeta', 0, 32653, -1, 0, 0, 0, 0, 2183, 2184, 2185),
-(2061, 5, 3, 'Vegeta Super Saiyan 3', 'Cải trang trong bộ sưu tập Vegeta', 0, 32656, -1, 0, 0, 0, 0, 2186, 2187, 2188),
-(2062, 5, 3, 'Vegeta Super God', 'Cải trang trong bộ sưu tập Vegeta', 0, 32659, -1, 0, 0, 0, 0, 2189, 2190, 2191),
-(2063, 5, 3, 'Vegeta Super Blue', 'Cải trang trong bộ sưu tập Vegeta', 0, 32662, -1, 0, 0, 0, 0, 2192, 2193, 2194),
-(2064, 5, 3, 'Vegeta Ultra Instinct', 'Cải trang trong bộ sưu tập Vegeta', 0, 32665, -1, 0, 0, 0, 0, 2195, 2196, 2197),
+(2049, 5, 3, 'Goku Super Saiyan 2', 'Cải trang trong bộ sưu tập Goku', 0, 32593, -1, 0, 0, 0, 0, -1, -1, -1),
+(2050, 5, 3, 'Goku Super Saiyan 3', 'Cải trang chỉ dành cho Xayda', 0, 32596, -1, 0, 0, 0, 0, -1, -1, -1),
+(2051, 5, 3, 'Goku  Super God', 'Cải trang trong bộ sưu tập Goku', 0, 32599, -1, 0, 0, 0, 0, -1, -1, -1),
+(2052, 5, 3, 'Goku Super Blue', 'Cải trang trong bộ sưu tập Goku', 0, 32602, -1, 0, 0, 0, 0, -1, -1, -1),
+(2053, 5, 3, 'Goku Ultra Instinct', 'Cải trang trong bộ sưu tập Goku', 0, 32605, -1, 0, 0, 0, 0, -1, -1, -1),
+(2054, 5, 3, 'Namec Super Saiyan 2', 'Cải trang trong bộ sưu tập Namec', 0, 32637, -1, 0, 0, 0, 0, -1, -1, -1),
+(2055, 5, 3, 'Namec Super Saiyan 3', 'Cải trang chỉ dành cho Namec', 0, 32640, -1, 0, 0, 0, 0, -1, -1, -1),
+(2056, 5, 3, 'Namec Super God', 'Cải trang trong bộ sưu tập Namec', 0, 32643, -1, 0, 0, 0, 0, -1, -1, -1),
+(2057, 5, 3, 'Namec Super Blue', 'Cải trang trong bộ sưu tập Namec', 0, 32646, -1, 0, 0, 0, 0, -1, -1, -1),
+(2058, 5, 3, 'Namec Ultra Instinct', 'Cải trang trong bộ sưu tập Namec', 0, 32649, -1, 0, 0, 0, 0, -1, -1, -1),
+(2059, 5, 3, 'Namec God Of Destruction', 'Cải trang trong bộ sưu tập Namec', 0, 32652, -1, 0, 0, 0, 0, -1, -1, -1),
+(2060, 5, 3, 'Vegeta Super Saiyan 2', 'Cải trang trong bộ sưu tập Vegeta', 0, 32655, -1, 0, 0, 0, 0, -1, -1, -1),
+(2061, 5, 3, 'Vegeta Super Saiyan 3', 'Cải trang trong bộ sưu tập Vegeta', 0, 32658, -1, 0, 0, 0, 0, -1, -1, -1),
+(2062, 5, 3, 'Vegeta Super God', 'Cải trang trong bộ sưu tập Vegeta', 0, 32661, -1, 0, 0, 0, 0, -1, -1, -1),
+(2063, 5, 3, 'Vegeta Super Blue', 'Cải trang trong bộ sưu tập Vegeta', 0, 32664, -1, 0, 0, 0, 0, -1, -1, -1),
+(2064, 5, 3, 'Vegeta Ultra Instinct', 'Cải trang trong bộ sưu tập Vegeta', 0, 32667, -1, 0, 0, 0, 0, -1, -1, -1),
 (2065, 27, 3, 'Hộp SKH Thô', 'Mở nhận skh thô các hành tinh', 0, 20318, -1, 1, 0, 0, 0, -1, -1, -1),
 (2066, 27, 3, 'Đổi Skill 2 Đệ Tử', 'Dùng để đổi skill đệ tử khi bạn quá đen', 0, 7099, -1, 0, 0, 0, 0, -1, -1, -1),
 (2067, 27, 3, 'Đổi Skill 3 Đệ Tử', 'Dùng để đổi skill đệ tử khi bạn quá đen', 0, 27144, -1, 0, 0, 0, 0, -1, -1, -1),
