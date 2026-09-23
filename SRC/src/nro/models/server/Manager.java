@@ -109,6 +109,8 @@ public final class Manager {
     public static final List<BagesTemplate> BAGES_TEMPLATES = new ArrayList<>();
     /** icon -> dữ liệu đầu tiên dùng nó (part / vật phẩm / avatar / túi), để lần ra icon thiếu file. */
     public static final Map<Integer, String> ICON_REFS = new java.util.concurrent.ConcurrentHashMap<>();
+    /** CSDL đã có cột player.vqtd chưa (vòng quay Thượng Đế). Thiếu thì bỏ qua khi lưu. */
+    public static volatile boolean HAS_VQTD = false;
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
     public static List<TOP> Topsukien1;
@@ -389,7 +391,31 @@ public final class Manager {
         }
     }
 
+    /**
+     * Tự thêm cột còn thiếu, để chạy jar mới mà quên chạy patch cũng không hỏng phần lưu
+     * nhân vật. Cột `vqtd` giữ số lượt quay Thượng Đế và các mốc quà đã nhận (patch 58).
+     */
+    private void ensureSchema() {
+        try {
+            nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery(
+                    "select count(*) as n from information_schema.columns"
+                    + " where table_schema = database() and table_name = 'player' and column_name = 'vqtd'");
+            boolean co = rs.next() && rs.getInt("n") > 0;
+            rs.dispose();
+            if (!co) {
+                nro.models.data.LocalManager.executeUpdate("ALTER TABLE `player` ADD COLUMN `vqtd` TEXT NULL");
+                Logger.warning("Da them cot player.vqtd (vong quay Thuong De)\n");
+            }
+            HAS_VQTD = true;
+        } catch (Exception e) {
+            HAS_VQTD = false;
+            Logger.error("Thieu cot player.vqtd va khong tu them duoc: " + e
+                    + " -> so luot quay Thuong De se KHONG duoc luu, hay chay patch 58\n");
+        }
+    }
+
     private void loadDatabase() {
+        ensureSchema();
         long st = System.currentTimeMillis();
         JSONArray dataArray;
         JSONObject dataObject;

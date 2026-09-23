@@ -846,6 +846,7 @@ public class UseItem {
                             case 403: //sách nâng chiêu 2 đệ tử
                             case 404: //sách nâng chiêu 3 đệ tử
                             case 759: //sách nâng chiêu 4 đệ tử
+                            case 2123: //sách nâng chiêu 5 đệ tử (thưởng vòng quay)
                                 upSkillPet(pl, item);
                                 break;
                             case 726:
@@ -1953,6 +1954,14 @@ public class UseItem {
                     break;
                 case 404: //skill 3
                     if (SkillUtil.upSkillPet(pl.pet.playerSkill.skills, 2)) {
+                        Service.gI().chatJustForMe(pl, pl.pet, "Cám ơn sư phụ");
+                        InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                    } else {
+                        Service.gI().sendThongBao(pl, "Không thể thực hiện");
+                    }
+                    break;
+                case 2123: //skill 5
+                    if (SkillUtil.upSkillPet(pl.pet.playerSkill.skills, 4)) {
                         Service.gI().chatJustForMe(pl, pl.pet, "Cám ơn sư phụ");
                         InventoryService.gI().subQuantityItemsBag(pl, item, 1);
                     } else {

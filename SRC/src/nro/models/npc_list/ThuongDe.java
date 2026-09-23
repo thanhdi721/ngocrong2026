@@ -14,6 +14,8 @@ import nro.models.shop.ShopService;
 
 public class ThuongDe extends Npc {
 
+    private static final int MENU_QUAY_NHANH = 2240;
+
     public ThuongDe(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
     }
@@ -101,14 +103,16 @@ public class ThuongDe extends Npc {
                             case 3 ->
                                 ChangeMapService.gI().changeMapBySpaceShip(player, 48, -1, 354);
                             case 4 ->
+                                // Chỉ còn MỘT vòng quay, trả bằng Thỏi vàng (1 thỏi / 1 lượt).
                                 this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
-                                        "Con muốn làm gì nào?", "Quay bằng\nvàng",
-                                        "Vòng quay\nđặc biệt",
+                                        "Con muốn làm gì nào?\n" + LuckyRound.gI().tienDoMoc(player),
+                                        "Quay\n1 thỏi vàng\nmỗi lượt",
+                                        "Quay nhanh\n10-50 lượt",
                                         "Rương phụ\n("
                                         + (player.inventory.itemsBoxCrackBall.size()
                                         - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall))
                                         + " món)",
-                                        "Xóa hết\ntrong rương", "Đóng");
+                                        "Xóa hết\ntrong rương", "Mốc\nquà", "Đóng");
                         }
                     } else if (player.idMark.getIndexMenu() == 2001) {
                         switch (select) {
@@ -137,14 +141,27 @@ public class ThuongDe extends Npc {
                             default ->
                                 TrainingService.gI().callBoss(player, BossID.THUONG_DE, false);
                         }
+                    } else if (player.idMark.getIndexMenu() == MENU_QUAY_NHANH) {
+                        if (select >= 0 && select < LuckyRound.QUAY_NHANH.length) {
+                            LuckyRound.gI().quayNhanh(player, LuckyRound.QUAY_NHANH[select]);
+                        }
                     } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_CHOOSE_LUCKY_ROUND) {
                         switch (select) {
                             case 0 ->
-                                LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GOLD);
+                                LuckyRound.gI().openCrackBallUI(player);
                             case 1 ->
-                                LuckyRound.gI().openCrackBallVipUI(player, LuckyRound.USING_GOLD);
+                                this.createOtherMenu(player, MENU_QUAY_NHANH,
+                                        "Quay nhanh tốn 1 Thỏi vàng mỗi lượt, phần thưởng vào thẳng rương phụ.\n"
+                                        + LuckyRound.gI().tienDoMoc(player),
+                                        "Quay\n" + LuckyRound.QUAY_NHANH[0] + " lượt",
+                                        "Quay\n" + LuckyRound.QUAY_NHANH[1] + " lượt",
+                                        "Quay\n" + LuckyRound.QUAY_NHANH[2] + " lượt",
+                                        "Quay\n" + LuckyRound.QUAY_NHANH[3] + " lượt", "Đóng");
                             case 2 ->
                                 ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
+                            case 4 ->
+                                NpcService.gI().createTutorial(player, tempId, avartar,
+                                        LuckyRound.gI().bangMoc(player));
                             case 3 ->
                                 NpcService.gI().createMenuConMeo(player,
                                         ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, this.avartar,

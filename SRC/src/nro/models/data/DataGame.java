@@ -74,7 +74,8 @@ public class DataGame {
     // 18 -> 19: sửa icon cải trang 2103 (patch 52).
     // 19 -> 20: linh thú 2114–2119 trả lại part để đeo được (patch 53).
     // 20 -> 21: thêm 3 linh thú 2120–2122 (patch 54).
-    public static byte vsItem = 21;
+    // 21 -> 22: thêm vật phẩm 2123 Nâng kỹ năng 5 đệ tử (patch 58).
+    public static byte vsItem = 22;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

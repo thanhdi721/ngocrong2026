@@ -1050,8 +1050,9 @@ public class PlayerDAO {
                         + "baovetaikhoan = ?, data_card = ?, lasttimepkcommeson = ?, bandokhobau = ?, doanhtrai = ?, conduongrandoc = ?, masterDoesNotAttack = ?, "
                         + "nhanthoivang = ?, ruonggo = ?, sieuthanthuy = ?, vodaisinhtu = ?, rongxuong = ?, data_item_event = ?, data_luyentap = ?, data_clan_task = ?, data_vip = ?, "
                         + "rank = ?, data_achievement = ?, giftcode = ?, event_point = ?, data_event = ?, dataBadges = ?, dataTaskBadges = ?, BoughtSkill = ?, LearnSkill = ?, "
-                        + "firstTimeLogin = ?,  dailyGift = ?, point_sukien = ?, thachdauwhis = ?, point_sukien1 = ?, point_maydam = ?, total_damage_maydam = ?, data_duahau_egg = ?, checkNhanQua = ?, nhiem_vu_kol = ?, point_sukien2 = ? where id = ?";
-                LocalManager.executeUpdate(query,
+                        + "firstTimeLogin = ?,  dailyGift = ?, point_sukien = ?, thachdauwhis = ?, point_sukien1 = ?, point_maydam = ?, total_damage_maydam = ?, data_duahau_egg = ?, checkNhanQua = ?, nhiem_vu_kol = ?, point_sukien2 = ?"
+                        + (nro.models.server.Manager.HAS_VQTD ? ", vqtd = ?" : "") + " where id = ?";
+                java.util.List<Object> thamSo = new java.util.ArrayList<>(java.util.Arrays.asList(
                         player.head,
                         player.haveTennisSpaceShip,
                         (player.clan != null ? player.clan.id : -1),
@@ -1112,8 +1113,13 @@ public class PlayerDAO {
                         DuaHauEgg,
                         checkNhanQua,
                         dataKol,
-                        player.point_sukien2,
-                        player.id);
+                        player.point_sukien2));
+                if (nro.models.server.Manager.HAS_VQTD) {
+                    thamSo.add(player.vqtdSpin + "|" + player.vqtdClaim);
+                }
+                thamSo.add(player.id);
+                LocalManager.executeUpdate(query, thamSo.toArray());
+
                 SuperRankDAO.updateData(player);
                 if (player.isOffline) {
                     Logger.log(Logger.PURPLE, TimeUtil.getCurrHour() + "h" + TimeUtil.getCurrMin() + "m: Player " + player.name + " updated successfully! " + (System.currentTimeMillis() - st) + "ms\n");

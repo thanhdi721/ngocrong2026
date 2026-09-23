@@ -212,6 +212,17 @@ public class MrBlue {
             } catch (Exception e) {
             }
 
+            // Vòng quay Thượng Đế: "số lượt|cờ mốc đã nhận"
+            try {
+                String vqtd = rs.getString("vqtd");
+                if (vqtd != null && vqtd.contains("|")) {
+                    String[] sp = vqtd.split("\\|");
+                    player.vqtdSpin = Integer.parseInt(sp[0].trim());
+                    player.vqtdClaim = Integer.parseInt(sp[1].trim());
+                }
+            } catch (Exception e) {
+            }
+
             int clanId = rs.getInt("clan_id");
             if (clanId != -1) {
                 try {

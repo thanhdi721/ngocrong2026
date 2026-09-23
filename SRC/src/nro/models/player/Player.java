@@ -193,6 +193,10 @@ public class Player implements Runnable {
     public List<Zone> mapCapsule;
     public Pet pet;
     public NewPet newPet;
+
+    /** Vòng quay Thượng Đế: tổng số lượt đã quay và cờ các mốc quà đã nhận (cột `vqtd`). */
+    public int vqtdSpin;
+    public int vqtdClaim;
     public MobMe mobMe;
     public Location location;
     public SetClothes setClothes;

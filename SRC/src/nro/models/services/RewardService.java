@@ -34,142 +34,93 @@ public class RewardService {
     }
 
     //========================LUCKY ROUND========================
+    /**
+     * Bảng thưởng vòng quay Thượng Đế. Tổng đúng 100%, tính theo phần vạn (1 = 0,01%).
+     * Đổi tỉ lệ thì sửa mảng LUCKY_ROUND_RATE bên dưới, nhớ giữ tổng = 10.000.
+     */
+    private static final int RATE_GOLD = 7320;          // 73,20%  vàng 5.000–50.000
+    private static final int RATE_MANH_DOI_TRUONG = 188; //  1,88%  Mảnh Đội trưởng Vàng
+    private static final int RATE_DA_NANG_CAP = 42;     //  0,42%  đá lục bảo / saphia / ruby / titan / thạch anh ×1–5
+    private static final int RATE_NGOC_RONG = 12;       //  0,12%  Ngọc Rồng 5–6 sao ×1–5
+    private static final int RATE_MANH_THU_CUOI = 12;   //  0,12%  mảnh thú cưỡi ×1–5
+    private static final int RATE_SKILL_DE_TU = 100;    //  1,00%  mỗi loại sách nâng kỹ năng đệ tử (4 loại)
+    private static final int RATE_CO_BON_LA = 400;      //  4,00%  Cỏ bốn lá ×1–5
+    private static final int RATE_BUFF = 350;           //  3,50%  mỗi loại: cuồng nộ 2, bổ huyết 2, bổ khí 2, giáp xên 2
+    private static final int RATE_BUA_X2_DE_TU = 226;   //  2,26%  Bùa x2 tn, sm đệ tử
+
+    private static final short[] DA_NANG_CAP = {220, 221, 222, 223, 224};
+    private static final short[] NGOC_RONG = {18, 19};
+    private static final short[] MANH_THU_CUOI = {828, 829, 830, 831, 832, 833, 834, 835};
+    private static final short[] SKILL_DE_TU = {403, 404, 759, 2123};
+    private static final short[] BUFF = {1150, 1152, 1151, 1153};
+
     public List<Item> getListItemLuckyRound(Player player, int num, boolean vip) {
         List<Item> list = new ArrayList<>();
         for (int i = 0; i < num; i++) {
-            Item it = ItemService.gI().createNewItem((short) 189); // Vàng mặc định
-            it.quantity = Util.nextInt(5, 50) * 1000;
-            boolean success = Util.isTrue(1, 2);
-
-            if (Util.isTrue(1, 2)) {
-                // VIP - Thay thế vật phẩm nếu thỏa mãn điều kiện
-                if (Util.isTrue(5, 100)) {
-                    it = ItemService.gI().createNewItem((short) 1208); // Ả Rập
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new ItemOption(50, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new ItemOption(77, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new ItemOption(103, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new Item.ItemOption(154, 0)); // Không bán lại
-                    // Xác suất 99% thêm option 93
-                    if (!Util.isTrue(1, 100)) {
-                        it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
-                    }
-                    it.quantity = 1;
-                } else if (Util.isTrue(5, 100)) {
-                    it = ItemService.gI().createNewItem((short) 1209); // Ả Rập
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new ItemOption(50, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new ItemOption(77, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new ItemOption(103, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new Item.ItemOption(154, 0)); // Không bán lại
-                    // Xác suất 99% thêm option 93
-                    if (!Util.isTrue(1, 100)) {
-                        it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
-                    }
-                    it.quantity = 1;
-                } else if (Util.isTrue(5, 100)) {
-                    it = ItemService.gI().createNewItem((short) 1210); // Ả Rập
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new ItemOption(50, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new ItemOption(77, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new ItemOption(103, Util.nextInt(20, 25)));
-                    it.itemOptions.add(new Item.ItemOption(154, 0)); // Không bán lại
-                    // Xác suất 99% thêm option 93
-                    if (!Util.isTrue(1, 100)) {
-                        it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
-                    }
-                    it.quantity = 1;
-
-                } else if (Util.isTrue(5, 100)) {
-                    it = ItemService.gI().createNewItem((short) 884);// hit
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new ItemOption(50, Util.nextInt(20)));
-                    it.itemOptions.add(new ItemOption(77, Util.nextInt(20)));
-                    it.itemOptions.add(new ItemOption(103, Util.nextInt(20)));
-                    it.itemOptions.add(new ItemOption(5, Util.nextInt(30)));
-                    it.itemOptions.add(new Item.ItemOption(154, 0)); // Không bán lại
-                    // Xác suất 99% thêm option 93
-                    if (!Util.isTrue(1, 100)) {
-                        it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
-                    }
-                    it.quantity = 1;
-                } else if (Util.isTrue(5, 100)) {
-                    it = ItemService.gI().createNewItem((short) 860); //mị nương
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new ItemOption(50, Util.nextInt(24)));
-                    it.itemOptions.add(new ItemOption(77, Util.nextInt(24)));
-                    it.itemOptions.add(new Item.ItemOption(117, 15));
-                    it.itemOptions.add(new Item.ItemOption(154, 0)); // Không bán lại
-                    // Xác suất 99% thêm option 93
-                    if (!Util.isTrue(1, 100)) {
-                        it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
-                    }
-                    it.quantity = 1;
-                } else if (Util.isTrue(1, 100)) {
-                    // Thay thế bó hoa gold 1 (ID 955)
-                    it = ItemService.gI().createNewItem((short) 955); // Bó hoa hồng 1
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(1, 10))); // Sức đánh
-                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(1, 10))); // HP
-                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(1, 10))); // Ki
-                    // Xác suất 99% thêm option 93
-                    if (!Util.isTrue(1, 100)) {
-                        it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 15))); // HSD
-                    }
-                    it.quantity = 1;
-                } else if (Util.isTrue(5, 100)) {
-                    it = ItemService.gI().createNewItem((short) 956);// Đá bảo vệ
-                    it.itemOptions.clear();
-                    it.quantity = 1;
-                }
-
-                // Nếu không chọn được vật phẩm từ danh sách VIP thì gọi itemRand để lấy vật phẩm mặc định
-                if (it.quantity == 0) {
-                    it = itemRand(it, success);
-                }
-            } else {
-                // Không VIP
-                if (Util.isTrue(1, 2)) {
-                    // Các item mặc định khi không có item VIP
-                    int[] itemId = {467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 1000};
-                    int itemid = itemId[Util.nextInt(itemId.length)];
-                    if (Util.isTrue(20, 100)) {
-                        int[] itemId2 = {467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 999, 1000, 1001};
-                        itemid = itemId2[Util.nextInt(itemId2.length)];
-                    }
-                    byte[] option = {77, 80, 81, 103, 50, 94, 5};
-                    byte optionid;
-                    byte param;
-                    Item vpdl = ItemService.gI().createNewItem((short) itemid);
-                    vpdl.itemOptions.clear();
-                    optionid = option[Util.nextInt(0, 6)];
-                    param = (byte) Util.nextInt(5, 10);
-                    vpdl.itemOptions.add(new Item.ItemOption(optionid, param));
-                    vpdl.itemOptions.add(new Item.ItemOption(30, 0));
-                    vpdl.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 30)));
-                    it = vpdl;
-                    it.quantity = 1;
-                } else if (Util.isTrue(1, 100)) {
-                    // Thay thế với các item ngẫu nhiên khác
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(18, 20));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 30)) {
-                    // Các vật phẩm từ 220 đến 224
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(220, 224));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 100)) {
-                    // Các vật phẩm từ 828 đến 842
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(828, 842));
-                    it.quantity = Util.nextInt(1, 5);
-                }
-
-                // Nếu không chọn được vật phẩm từ danh sách không VIP thì gọi itemRand
-                it = itemRand(it, success);
-            }
-
-            list.add(it);
+            list.add(rollLuckyRound());
         }
         return list;
+    }
+
+    /**
+     * Tạo vật phẩm cho vòng quay. ItemService.getTemplate lấy theo CHỈ SỐ mảng nên id chưa có
+     * trong DB (vd 2123 khi chưa chạy patch 58) sẽ ném lỗi; khi đó rơi về vàng để người chơi
+     * không mất lượt quay.
+     */
+    private Item itemAnToan(short id, int quantity) {
+        try {
+            Item it = ItemService.gI().createNewItem(id, quantity);
+            if (it != null && it.template != null) {
+                return it;
+            }
+        } catch (Exception e) {
+            nro.models.utils.Logger.error("Vòng quay: thiếu vật phẩm id " + id + " -> trả vàng thay thế\n");
+        }
+        Item gold = ItemService.gI().createNewItem((short) 189);
+        gold.quantity = Util.nextInt(5, 50) * 1000;
+        return gold;
+    }
+
+    /** Quay MỘT lượt. */
+    private Item rollLuckyRound() {
+        int roll = Util.nextInt(1, 10000);
+        int acc = RATE_GOLD;
+        if (roll <= acc) {
+            return itemAnToan((short) 189, Util.nextInt(5, 50) * 1000);
+        }
+        acc += RATE_MANH_DOI_TRUONG;
+        if (roll <= acc) {
+            return itemAnToan((short) 956, 1);
+        }
+        acc += RATE_DA_NANG_CAP;
+        if (roll <= acc) {
+            return itemAnToan(DA_NANG_CAP[Util.nextInt(DA_NANG_CAP.length)], Util.nextInt(1, 5));
+        }
+        acc += RATE_NGOC_RONG;
+        if (roll <= acc) {
+            return itemAnToan(NGOC_RONG[Util.nextInt(NGOC_RONG.length)], Util.nextInt(1, 5));
+        }
+        acc += RATE_MANH_THU_CUOI;
+        if (roll <= acc) {
+            return itemAnToan(MANH_THU_CUOI[Util.nextInt(MANH_THU_CUOI.length)], Util.nextInt(1, 5));
+        }
+        for (short id : SKILL_DE_TU) {
+            acc += RATE_SKILL_DE_TU;
+            if (roll <= acc) {
+                return itemAnToan(id, 1);
+            }
+        }
+        acc += RATE_CO_BON_LA;
+        if (roll <= acc) {
+            return itemAnToan((short) 1635, Util.nextInt(1, 5));
+        }
+        for (short id : BUFF) {
+            acc += RATE_BUFF;
+            if (roll <= acc) {
+                return itemAnToan(id, 1);
+            }
+        }
+        return itemAnToan((short) 1628, 1);   // phần còn lại: bùa x2 đệ tử
     }
 
 // Phương thức itemRand sẽ trả về vật phẩm mặc định nếu không thành công
