@@ -335,3 +335,27 @@ cột head/body/leg để -1, không dùng `head_avatar`.
 
 Jar cũng sửa lỗi cũ: `sendNewPet()` chỉ chạy lúc đăng nhập nên đeo linh thú giữa phiên phải
 thoát ra vào lại mới thấy. Nay đeo vào ô 7 là hiện ngay (`InventoryService.itemBagToBody`).
+
+## Đợt 3 (patch 53–56)
+
+* `53` — 6 linh thú đeo được: trả lại `part` + head/body/leg (client cần mới cho đeo). Jar xử lý
+  CHUNG mọi vật phẩm loại 27 có 3 part, ở cả `UseItem` (nút Sử dụng) lẫn `Player.sendNewPet` (lúc
+  đăng nhập), nên sau này thêm linh thú chỉ cần thêm dòng trong `item_template`.
+  Patch cũng sửa dữ liệu sai sẵn có: "Pet Thỏ mập" (1040) ghi chân 1093 (là part THÂN) -> 1094.
+* `54` — thêm 3 linh thú: 2120 Cua Bong Bóng, 2121 Trâu ngáo, 2122 Lân Đần (part 2358–2366).
+* `55` — thay avatar tự dựng bằng AVATAR THẬT của HUNR (họ để trong `nr_others` key 'avatar',
+  352 dòng). Riêng 2089 Cải trang Fide đen avatar bên họ trỏ nhầm vào đôi giày nên vẫn tự dựng.
+* `56` — giftcode `testct6` cho 3 linh thú mới.
+* `vsItem` 21, `vsData` 24.
+
+### Hết res mang được — vì sao
+
+| Nhóm | Số món | Lý do không mang được |
+|---|---|---|
+| Vật phẩm dùng (loại 27 không part) | 252 | Chỉ là icon + hiệu ứng trong code, không phải res hình |
+| Danh hiệu | 49 | Vẽ bằng ảnh `medal_*`; thư mục res HUNR chỉ có 1 file medal |
+| Bùa / hỗ trợ | 41 | Icon thôi, không có hình nhân vật |
+| Đồ đeo lưng, phụ kiện (Nón thiên thần, Chong chóng, Gậy pháp thuật…) | 25 | Vẽ từ `bg_item_template` + ảnh trong `data/item_bg_temp`; HUNR KHÔNG gửi kèm thư mục ảnh này |
+| Thú cưỡi | 21 | Ảnh `mount_30014…30029` không có trong res HUNR. 46 bộ ảnh mount bên mình đều đã có vật phẩm dùng |
+| Ngọc bội, hào quang, pet bay, pet bóng | 17 | Không có part; hào quang thì ảnh `aura_*` bên mình đã có sẵn và nhiều hơn HUNR |
+| Cải trang / pet thiếu ảnh hoặc part sai | 54 | Thiếu icon, thiếu part, hoặc part khai sai loại trong DB HUNR |

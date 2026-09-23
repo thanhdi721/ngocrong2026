@@ -11,7 +11,8 @@ Việc nó làm:
      (đầu 3 / thân 17 / chân 14) cùng đủ ảnh 4 mức phóng to.
   3. Đánh số lại icon: số nào bên mình đang dùng (dù thiếu file) hoặc đã có file thì cấp số mới
      từ dải trống, trần 32767 (Manager.loadDatabase đọc id icon bằng Short.parseShort).
-  4. Tự dựng avatar: ghép mảnh đầu theo dx/dy rồi phóng to ~256px (HUNR không có bảng head_avatar).
+  4. Avatar: lấy từ bảng `nr_others` key 'avatar' của HUNR; món nào không có thì tự ghép
+     mảnh đầu rồi phóng to ~256px.
   5. Sinh patch SQL: item nối tiếp id lớn nhất hiện có, part nối tiếp part lớn nhất hiện có
      (hai bảng phải liên tục vì client tra theo thứ tự).
 """
@@ -30,7 +31,8 @@ HUNR_ICON = HUNR + "/resources/image/%s/small/Small%d.png"
 OUR_ICON = HERE + "/data/icon"
 PATCH_DIR = HERE + "/sql/patch"
 OUR_SQL = ROOT + "/database team2026.sql"
-OUR_PATCHES = ["01-vat-pham-moi", "35-vat-pham-tu-ngol", "40-cai-trang-vip-moi", "48-cai-trang-tu-hunr"]
+OUR_PATCHES = ["01-vat-pham-moi", "35-vat-pham-tu-ngol", "40-cai-trang-vip-moi", "48-cai-trang-tu-hunr",
+               "49-cai-trang-pet-tu-hunr"]
 
 MAX_ICON_ID = 32767
 AVATAR_PX = 256        # cỡ avatar ở mức x4, theo các avatar sẵn có (248–256 px)
@@ -40,8 +42,8 @@ ZOOMS = ("1", "2", "3", "4")
 SKIP_NAMES = {"dsdd", "ư3ewqe", "434343", "s", "cải trang sự kiện"}
 # Loại vật phẩm bên HUNR lấy được: 5 cải trang; 18/19/21/38 là pet của họ — bên mình không có
 # hệ pet riêng nên mang về dưới dạng CẢI TRANG (đủ 3 part nên mặc được, đệ tử mặc cũng được).
-HUNR_TYPES = (5, 18, 19, 21, 38)
-PATCH_NAME = "49-cai-trang-pet-tu-hunr.sql"
+HUNR_TYPES = (5, 18, 19, 21, 27, 38)
+PATCH_NAME = "54-linh-thu-them-tu-hunr.sql"
 
 
 def read(p):
@@ -64,6 +66,17 @@ def hunr_parts(sql):
         out[int(m.group(1))] = (int(m.group(2)),
                                 [(int(p["id"]), int(p["dx"]), int(p["dy"])) for p in pieces])
     return out
+
+
+def hunr_avatars(sql):
+    """HUNR để avatar trong nr_others key 'avatar': [{"head": <id part đầu>, "avatar": <id icon>}]."""
+    import json as _json
+    i = sql.index("INSERT INTO `nr_others`")
+    sec = sql[i:sql.index("-- ----------------------------", i + 10)]
+    m = re.search(r"\(\d+, 'avatar', '(\[.*?\])'\)", sec)
+    if not m:
+        return {}
+    return {int(x["head"]): int(x["avatar"]) for x in _json.loads(m.group(1).replace('\\"', '"'))}
 
 
 def hunr_items(sql):
@@ -123,6 +136,7 @@ def main(argv):
     apply = "--apply" in argv
     sql = read(HUNR_SQL)
     parts, items = hunr_parts(sql), hunr_items(sql)
+    hunr_av = hunr_avatars(sql)
     our_names, our_icons, max_item, max_part = our_data()
 
     chosen = []
@@ -186,14 +200,24 @@ def main(argv):
             data = "[" + ",".join("[%d,%d,%d]" % (map_icon(ic) if ic >= 0 else ic, dx, dy)
                                   for ic, dx, dy in pieces) + "]"
             out_parts.append("(%d, %d, '%s')" % (pid, typ, data))
-        av_icon = next(free)
-        taken.add(av_icon)
-        avatars.append((av_icon, ps[0]))
-        out_avs.append("(%d, %d)" % (head_id, av_icon))
+        is_pet = it["type"] != 5          # 18/19/21/27/38 bên HUNR đều là linh thú đi theo
+        real_av = None if is_pet else hunr_av.get(it["head"])
+        if real_av is not None and icon_files_ok(real_av):
+            av_icon = map_icon(real_av)          # avatar thật bên HUNR, chỉ cần chép ảnh
+        elif is_pet:
+            av_icon = -1                         # linh thú không cần avatar
+        else:
+            av_icon = next(free)                 # không có thì tự ghép từ mảnh đầu
+            taken.add(av_icon)
+            avatars.append((av_icon, ps[0]))
+        if av_icon >= 0:
+            out_avs.append("(%d, %d)" % (head_id, av_icon))
         icon = map_icon(it["icon"])
         name = it["name"].strip().replace("'", "''")
-        out_items.append("(%d, 5, 3, '%s', 'Cải trang', 0, %d, %d, 0, 0, 0, 0, %d, %d, %d)"
-                         % (item_id, name, icon, head_id, head_id, body_id, leg_id))
+        out_items.append("(%d, %d, 3, '%s', '%s', 0, %d, %d, 0, 0, 0, 0, %d, %d, %d)"
+                         % (item_id, 27 if is_pet else 5, name,
+                            "Linh thú đi theo" if is_pet else "Cải trang",
+                            icon, head_id, head_id, body_id, leg_id))
         report.append("  %4d -> %4d  %-42s part %d/%d/%d  icon %d  avatar %d"
                       % (it["id"], item_id, it["name"][:42], head_id, body_id, leg_id, icon, av_icon))
 
@@ -235,7 +259,8 @@ def main(argv):
                           max_item, max_part, max_item + 1, item_id,
                           max_part + 1, part_id, max_part + 1, part_id))
         f.write("INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES\n" + ",\n".join(out_parts) + ";\n\n")
-        f.write("INSERT INTO `head_avatar` (`head_id`, `avatar_id`) VALUES\n" + ",\n".join(out_avs) + ";\n\n")
+        if out_avs:
+            f.write("INSERT INTO `head_avatar` (`head_id`, `avatar_id`) VALUES\n" + ",\n".join(out_avs) + ";\n\n")
         f.write("INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `level`,"
                 " `icon_id`, `part`, `is_up_to_up`, `power_require`, `gold`, `gem`, `head`, `body`, `leg`)"
                 " VALUES\n" + ",\n".join(out_items) + ";\n\n")

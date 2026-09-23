@@ -44,7 +44,8 @@ public class DataGame {
     // 20 -> 21: 2079 Nữ Thần: đầu lên 3 sang trái 1, tắt đầu động (hết nháy) (patch 47).
     // 21 -> 22: thêm 102 part của 34 cải trang mang từ HUNR (patch 48).
     // 22 -> 23: thêm 18 part của 6 pet mang từ HUNR (patch 49).
-    public static byte vsData = 23;
+    // 23 -> 24: thêm 9 part của 3 linh thú (patch 54).
+    public static byte vsData = 24;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -72,7 +73,8 @@ public class DataGame {
     // 17 -> 18: 6 món 2114–2119 đổi từ cải trang sang linh thú (patch 51).
     // 18 -> 19: sửa icon cải trang 2103 (patch 52).
     // 19 -> 20: linh thú 2114–2119 trả lại part để đeo được (patch 53).
-    public static byte vsItem = 20;
+    // 20 -> 21: thêm 3 linh thú 2120–2122 (patch 54).
+    public static byte vsItem = 21;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
