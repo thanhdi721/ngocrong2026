@@ -71,7 +71,8 @@ public class DataGame {
     // 16 -> 17: thêm 6 pet 2114–2119 (patch 49).
     // 17 -> 18: 6 món 2114–2119 đổi từ cải trang sang linh thú (patch 51).
     // 18 -> 19: sửa icon cải trang 2103 (patch 52).
-    public static byte vsItem = 19;
+    // 19 -> 20: linh thú 2114–2119 trả lại part để đeo được (patch 53).
+    public static byte vsItem = 20;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

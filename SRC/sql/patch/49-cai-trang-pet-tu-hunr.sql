@@ -40,11 +40,11 @@ INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES
 (2357, 2, '[[2955,0,0],[17737,-11,-7],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]');
 
 INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `level`, `icon_id`, `part`, `is_up_to_up`, `power_require`, `gold`, `gem`, `head`, `body`, `leg`) VALUES
-(2114, 27, 3, 'Pet Lôi Thần', 'Linh thú đi theo', 0, 17700, -1, 0, 0, 0, 0, -1, -1, -1),
-(2115, 27, 3, 'King Kong', 'Linh thú đi theo', 0, 17707, -1, 0, 0, 0, 0, -1, -1, -1),
-(2116, 27, 3, 'Cá xanh', 'Linh thú đi theo', 0, 17715, -1, 0, 0, 0, 0, -1, -1, -1),
-(2117, 27, 3, 'Cá cam', 'Linh thú đi theo', 0, 17722, -1, 0, 0, 0, 0, -1, -1, -1),
-(2118, 27, 3, 'Pet Pikachu', 'Linh thú đi theo', 0, 17723, -1, 0, 0, 0, 0, -1, -1, -1),
-(2119, 27, 3, 'Lân Linh Lung', 'Linh thú đi theo', 0, 17739, -1, 0, 0, 0, 0, -1, -1, -1);
+(2114, 27, 3, 'Pet Lôi Thần', 'Linh thú đi theo', 0, 17700, 2340, 0, 0, 0, 0, 2340, 2341, 2342),
+(2115, 27, 3, 'King Kong', 'Linh thú đi theo', 0, 17707, 2343, 0, 0, 0, 0, 2343, 2344, 2345),
+(2116, 27, 3, 'Cá xanh', 'Linh thú đi theo', 0, 17715, 2346, 0, 0, 0, 0, 2346, 2347, 2348),
+(2117, 27, 3, 'Cá cam', 'Linh thú đi theo', 0, 17722, 2349, 0, 0, 0, 0, 2349, 2350, 2351),
+(2118, 27, 3, 'Pet Pikachu', 'Linh thú đi theo', 0, 17723, 2352, 0, 0, 0, 0, 2352, 2353, 2354),
+(2119, 27, 3, 'Lân Linh Lung', 'Linh thú đi theo', 0, 17739, 2355, 0, 0, 0, 0, 2355, 2356, 2357);
 
 SELECT `id`, `NAME`, `icon_id`, `head`, `body`, `leg` FROM `item_template` WHERE `id` BETWEEN 2114 AND 2119;
