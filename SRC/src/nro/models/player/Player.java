@@ -1363,6 +1363,13 @@ public class Player implements Runnable {
         if (isPl() && inventory != null && inventory.itemsBody.get(7) != null) {
             Item it = inventory.itemsBody.get(7);
             if (it != null && it.isNotNullItem() && newPet == null) {
+                // Linh thú "đời mới": lấy luôn 3 part khai trong item_template, không cần case riêng.
+                if (it.template.type == 27 && it.template.head >= 0
+                        && it.template.body >= 0 && it.template.leg >= 0) {
+                    PetService.Pet2(this, it.template.head, it.template.body, it.template.leg);
+                    Service.gI().point(this);
+                    return;
+                }
                 switch (it.template.id) {
                     case 892 -> {
                         PetService.Pet2(this, 882, 883, 884);
@@ -1638,36 +1645,6 @@ public class Player implements Runnable {
                     }
                     case 1771 -> {
                         PetService.Pet2(this, 1680, 1681, 1682);
-                        Service.gI().point(this);
-                    }
-                    // Linh thú mang từ source HUNR (patch 49 / 51)
-                    case 2114 -> {
-                        PetService.Pet2(this, 2340, 2341, 2342);
-                        Service.gI().point(this);
-                    }
-                    // Linh thú mang từ source HUNR (patch 49 / 51)
-                    case 2115 -> {
-                        PetService.Pet2(this, 2343, 2344, 2345);
-                        Service.gI().point(this);
-                    }
-                    // Linh thú mang từ source HUNR (patch 49 / 51)
-                    case 2116 -> {
-                        PetService.Pet2(this, 2346, 2347, 2348);
-                        Service.gI().point(this);
-                    }
-                    // Linh thú mang từ source HUNR (patch 49 / 51)
-                    case 2117 -> {
-                        PetService.Pet2(this, 2349, 2350, 2351);
-                        Service.gI().point(this);
-                    }
-                    // Linh thú mang từ source HUNR (patch 49 / 51)
-                    case 2118 -> {
-                        PetService.Pet2(this, 2352, 2353, 2354);
-                        Service.gI().point(this);
-                    }
-                    // Linh thú mang từ source HUNR (patch 49 / 51)
-                    case 2119 -> {
-                        PetService.Pet2(this, 2355, 2356, 2357);
                         Service.gI().point(this);
                     }
                 }

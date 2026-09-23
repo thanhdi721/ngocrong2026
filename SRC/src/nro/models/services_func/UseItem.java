@@ -299,6 +299,15 @@ public class UseItem {
                         InventoryService.gI().itemBagToBody(pl, indexBag);
                     }
                     default:
+                        // Linh thú "đời mới": loại 27 và có sẵn 3 part trong item_template.
+                        // Dùng chung một nhánh, khỏi phải thêm case cho từng id như bên dưới.
+                        if (item.template.type == 27 && item.template.head >= 0
+                                && item.template.body >= 0 && item.template.leg >= 0) {
+                            InventoryService.gI().itemBagToBody(pl, indexBag);
+                            PetService.Pet2(pl, item.template.head, item.template.body, item.template.leg);
+                            Service.gI().point(pl);
+                            break;
+                        }
                         switch (item.template.id) {
                             case 992: // Nhan thoi khong
                                 pl.type = 2;
