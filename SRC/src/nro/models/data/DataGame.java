@@ -75,7 +75,8 @@ public class DataGame {
     // 19 -> 20: linh thú 2114–2119 trả lại part để đeo được (patch 53).
     // 20 -> 21: thêm 3 linh thú 2120–2122 (patch 54).
     // 21 -> 22: thêm vật phẩm 2123 Nâng kỹ năng 5 đệ tử (patch 58).
-    public static byte vsItem = 22;
+    // 22 -> 23: Bùa x2 đệ tử 1628 cho gộp chồng (patch 59).
+    public static byte vsItem = 23;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

@@ -57,6 +57,18 @@ public class ThuongDe extends Npc {
         }
     }
 
+    /** Menu quay nhanh. ketQua != null thì hiện luôn bảng phần thưởng của lượt vừa quay. */
+    private void moMenuQuayNhanh(Player player, String ketQua) {
+        String[] nut = new String[LuckyRound.QUAY_NHANH.length + 1];
+        for (int i = 0; i < LuckyRound.QUAY_NHANH.length; i++) {
+            nut[i] = "Quay\n" + LuckyRound.QUAY_NHANH[i] + " lượt";
+        }
+        nut[nut.length - 1] = "Đóng";
+        String noiDung = (ketQua != null ? ketQua + "\n\nQuay tiếp?\n" : "Quay nhanh tốn 1 Thỏi vàng mỗi lượt, thưởng vào thẳng rương phụ.\n")
+                + LuckyRound.gI().tienDoMoc(player);
+        this.createOtherMenu(player, MENU_QUAY_NHANH, noiDung, nut);
+    }
+
     @Override
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
@@ -143,20 +155,16 @@ public class ThuongDe extends Npc {
                         }
                     } else if (player.idMark.getIndexMenu() == MENU_QUAY_NHANH) {
                         if (select >= 0 && select < LuckyRound.QUAY_NHANH.length) {
-                            LuckyRound.gI().quayNhanh(player, LuckyRound.QUAY_NHANH[select]);
+                            String ketQua = LuckyRound.gI().quayNhanh(player, LuckyRound.QUAY_NHANH[select]);
+                            // Hiện kết quả NGAY TRONG MENU rồi hỏi quay tiếp, khỏi bấm "Tiếp tục" từng dòng.
+                            moMenuQuayNhanh(player, ketQua);
                         }
                     } else if (player.idMark.getIndexMenu() == ConstNpc.MENU_CHOOSE_LUCKY_ROUND) {
                         switch (select) {
                             case 0 ->
                                 LuckyRound.gI().openCrackBallUI(player);
                             case 1 ->
-                                this.createOtherMenu(player, MENU_QUAY_NHANH,
-                                        "Quay nhanh tốn 1 Thỏi vàng mỗi lượt, phần thưởng vào thẳng rương phụ.\n"
-                                        + LuckyRound.gI().tienDoMoc(player),
-                                        "Quay\n" + LuckyRound.QUAY_NHANH[0] + " lượt",
-                                        "Quay\n" + LuckyRound.QUAY_NHANH[1] + " lượt",
-                                        "Quay\n" + LuckyRound.QUAY_NHANH[2] + " lượt",
-                                        "Quay\n" + LuckyRound.QUAY_NHANH[3] + " lượt", "Đóng");
+                                moMenuQuayNhanh(player, null);
                             case 2 ->
                                 ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
                             case 4 ->

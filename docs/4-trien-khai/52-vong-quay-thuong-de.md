@@ -59,14 +59,20 @@ Dòng đầu menu hiện tiến độ, ví dụ "Đã quay 320 lượt, còn 680
 ## Quay nhanh
 
 Giao diện vòng quay của client chỉ có 7 viên nên tối đa 7 lượt mỗi lần bấm. Nút **Quay nhanh** chạy
-hẳn ở server, không qua giao diện đó: chọn **10 / 20 / 30 / 50 lượt**, trừ thỏi vàng một lần, phần
-thưởng vào thẳng rương phụ, rồi hiện bảng tổng kết kiểu "Vàng x1.234.000, Cỏ bốn lá x6...".
+hẳn ở server, không qua giao diện đó: chọn **10 / 20 / 30 / 50 / 100 / 200 lượt**, trừ thỏi vàng một
+lần, phần thưởng vào thẳng rương phụ.
+
+Kết quả hiện **ngay trong menu** rồi hỏi luôn "Quay tiếp?", nên bấm quay liên tục không phải đóng mở
+hộp thoại. Trước đây dùng hộp thoại `createTutorial`, client tách mỗi dòng thành một trang nên phải
+bấm "Tiếp tục" nhiều lần. Bảng kết quả gộp 3 món mỗi dòng cho khỏi tràn khung: quay 200 lượt nhiều
+nhất khoảng 11 dòng.
 
 Sửa các mức lượt ở mảng `LuckyRound.QUAY_NHANH`.
 
 Phần thưởng cùng loại được **gộp thành một chồng**, và chỉ gộp món chồng được, không mang chỉ số
 (Bùa x2 đệ tử không chồng được nên để riêng). Mô phỏng 20.000 lần quay 50 lượt: trung bình chỉ tốn
-8,8 ô rương phụ, nhiều nhất 17 ô. Không đủ chỗ thì server báo trước và **không trừ thỏi vàng**.
+8,8 ô rương phụ, nhiều nhất 17 ô; quay 100 lượt trung bình 12 ô, quay 200 lượt trung bình 16 ô và
+nhiều nhất 26 ô trên tổng 100. Không đủ chỗ thì server báo trước và **không trừ thỏi vàng**.
 
 ## Vật phẩm mới
 

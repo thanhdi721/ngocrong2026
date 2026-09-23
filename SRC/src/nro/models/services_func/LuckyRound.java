@@ -190,20 +190,21 @@ public class LuckyRound {
     }
 
     /** Số lượt cho nút quay nhanh. Client chỉ quay được 7 viên mỗi lần nên phần này chạy ở server. */
-    public static final int[] QUAY_NHANH = {10, 20, 30, 50};
+    public static final int[] QUAY_NHANH = {10, 20, 30, 50, 100, 200};
 
     /**
      * Quay nhiều lượt một lúc, không qua giao diện vòng quay: trừ thỏi vàng, dồn phần thưởng
-     * vào rương phụ rồi hiện bảng tổng kết.
+     * vào rương phụ. Trả về bảng tổng kết để NPC hiện ngay trong menu (khỏi bấm "Tiếp tục"
+     * từng dòng như hộp thoại), hoặc null nếu không quay được.
      */
-    public void quayNhanh(Player player, int count) {
-        if (count < 1 || count > 100) {
-            return;
+    public String quayNhanh(Player player, int count) {
+        if (count < 1 || count > 200) {
+            return null;
         }
         int need = count * PRICE_THOI_VANG;
         if (demThoiVang(player) < need) {
             Service.gI().sendThongBao(player, "Bạn không đủ Thỏi vàng để quay (cần " + need + ")");
-            return;
+            return null;
         }
 
         List<Item> list = RewardService.gI().getListItemLuckyRound(player, count, false);
@@ -236,7 +237,7 @@ public class LuckyRound {
         if (choTrong < gop.size()) {
             Service.gI().sendThongBao(player, "Rương phụ chỉ còn " + choTrong
                     + " chỗ, cần " + gop.size() + " chỗ. Hãy dọn bớt rồi quay tiếp");
-            return;
+            return null;
         }
 
         truThoiVang(player, need);
@@ -245,12 +246,15 @@ public class LuckyRound {
         player.vqtdSpin += count;
         traoQuaMoc(player);
 
-        StringBuilder sb = new StringBuilder("Quay nhanh " + count + " lượt, tốn " + need + " Thỏi vàng\n");
+        // Gộp 3 món mỗi dòng cho khỏi tràn khung menu khi quay 100–200 lượt.
+        StringBuilder sb = new StringBuilder("Quay " + count + " lượt, tốn " + need + " Thỏi vàng:");
+        int cot = 0;
         for (Item it : gop) {
-            sb.append("\n").append(it.template.name).append(" x").append(it.quantity);
+            sb.append(cot % 3 == 0 ? "\n" : ", ").append(it.template.name).append(" x").append(it.quantity);
+            cot++;
         }
-        sb.append("\n\nTất cả đã vào rương phụ.\n").append(tienDoMoc(player));
-        nro.models.map.service.NpcService.gI().createTutorial(player, 1139, sb.toString());
+        sb.append("\n(đã vào rương phụ)");
+        return sb.toString();
     }
 
     /** Bảng mốc quà, hiện khi bấm "Mốc quà". */
