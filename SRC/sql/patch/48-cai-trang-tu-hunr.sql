@@ -182,7 +182,7 @@ INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `lev
 (2100, 5, 3, 'Cải trang Vegeta', 'Cải trang', 0, 17206, 2298, 0, 0, 0, 0, 2298, 2299, 2300),
 (2101, 5, 3, 'Cải Trang Goku áo cờ Việt Nam', 'Cải trang', 0, 17278, 2301, 0, 0, 0, 0, 2301, 2302, 2303),
 (2102, 5, 3, 'Goku Boy Phố', 'Cải trang', 0, 17310, 2304, 0, 0, 0, 0, 2304, 2305, 2306),
-(2103, 5, 3, 'Goku Nổi Loạn', 'Cải trang', 0, 17359, 2307, 0, 0, 0, 0, 2307, 2308, 2309),
+(2103, 5, 3, 'Goku Nổi Loạn', 'Cải trang', 0, 17342, 2307, 0, 0, 0, 0, 2307, 2308, 2309),
 (2104, 5, 3, 'Thần Namek tối thượng', 'Cải trang', 0, 17374, 2310, 0, 0, 0, 0, 2310, 2311, 2312),
 (2105, 5, 3, 'Cải Trang Goku Super Saiyan White', 'Cải trang', 0, 17406, 2313, 0, 0, 0, 0, 2313, 2314, 2315),
 (2106, 5, 3, 'Cải Trang Goku Super Saiyan Red', 'Cải trang', 0, 17438, 2316, 0, 0, 0, 0, 2316, 2317, 2318),
