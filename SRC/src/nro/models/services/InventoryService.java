@@ -419,7 +419,13 @@ public class InventoryService {
         }
         Item item = player.inventory.itemsBag.get(index);
         if (item.isNotNullItem()) {
+            boolean linhThu = item.template.type == 27;
             player.inventory.itemsBag.set(index, putItemBody(player, item));
+            // FIX: trước đây linh thú chỉ hiện sau khi thoát ra vào lại, vì sendNewPet chỉ chạy
+            // lúc đăng nhập. Nay đeo vào là ra ngay.
+            if (linhThu && !player.isPet) {
+                player.sendNewPet();
+            }
             sendItemBags(player);
             sendItemBody(player);
             Service.gI().point(player);

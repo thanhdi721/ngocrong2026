@@ -1,10 +1,11 @@
 -- =====================================================================
--- MANG 6 CẢI TRANG / PET TỪ SOURCE HUNR (sinh bởi tools/port_item_from_hunr.py)
+-- MANG 6 LINH THÚ TỪ SOURCE HUNR (sinh bởi tools/port_item_from_hunr.py)
 -- =====================================================================
 -- Vật phẩm 2114..2119, part 2340..2357, avatar tự dựng từ mảnh đầu.
 --
 -- * Ảnh đã chép sẵn vào data/icon/x1..x4, icon trùng số với mình thì đã đánh số lại.
--- * HUNR không có bảng head_avatar nên avatar được ghép từ mảnh đầu rồi phóng to.
+-- * Đây là LINH THÚ (loại 27, đeo ô 7), không phải cải trang: part được khai trong
+--   Player.sendNewPet(), cột head/body/leg để -1, không cần head_avatar.
 -- * Chưa có chỉ số: phát qua shop / giftcode / cpanel "Buff đồ" rồi thêm option.
 --
 -- Chạy cùng jar có DataGame.vsItem và vsData đã tăng. Khởi động lại server.
@@ -38,20 +39,12 @@ INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES
 (2356, 1, '[[2955,0,0],[17731,2,-19],[17732,-11,-17],[17733,-11,-18],[17734,-13,-16],[17735,-14,-16],[17736,-9,-17],[17734,-6,-8],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]'),
 (2357, 2, '[[2955,0,0],[17737,-11,-7],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]');
 
-INSERT INTO `head_avatar` (`head_id`, `avatar_id`) VALUES
-(2340, 17699),
-(2343, 17706),
-(2346, 17714),
-(2349, 17721),
-(2352, 17730),
-(2355, 17738);
-
 INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `level`, `icon_id`, `part`, `is_up_to_up`, `power_require`, `gold`, `gem`, `head`, `body`, `leg`) VALUES
-(2114, 5, 3, 'Pet Lôi Thần', 'Cải trang', 0, 17700, 2340, 0, 0, 0, 0, 2340, 2341, 2342),
-(2115, 5, 3, 'King Kong', 'Cải trang', 0, 17707, 2343, 0, 0, 0, 0, 2343, 2344, 2345),
-(2116, 5, 3, 'Cá xanh', 'Cải trang', 0, 17715, 2346, 0, 0, 0, 0, 2346, 2347, 2348),
-(2117, 5, 3, 'Cá cam', 'Cải trang', 0, 17722, 2349, 0, 0, 0, 0, 2349, 2350, 2351),
-(2118, 5, 3, 'Pet Pikachu', 'Cải trang', 0, 17723, 2352, 0, 0, 0, 0, 2352, 2353, 2354),
-(2119, 5, 3, 'Lân Linh Lung', 'Cải trang', 0, 17739, 2355, 0, 0, 0, 0, 2355, 2356, 2357);
+(2114, 27, 3, 'Pet Lôi Thần', 'Linh thú đi theo', 0, 17700, -1, 0, 0, 0, 0, -1, -1, -1),
+(2115, 27, 3, 'King Kong', 'Linh thú đi theo', 0, 17707, -1, 0, 0, 0, 0, -1, -1, -1),
+(2116, 27, 3, 'Cá xanh', 'Linh thú đi theo', 0, 17715, -1, 0, 0, 0, 0, -1, -1, -1),
+(2117, 27, 3, 'Cá cam', 'Linh thú đi theo', 0, 17722, -1, 0, 0, 0, 0, -1, -1, -1),
+(2118, 27, 3, 'Pet Pikachu', 'Linh thú đi theo', 0, 17723, -1, 0, 0, 0, 0, -1, -1, -1),
+(2119, 27, 3, 'Lân Linh Lung', 'Linh thú đi theo', 0, 17739, -1, 0, 0, 0, 0, -1, -1, -1);
 
 SELECT `id`, `NAME`, `icon_id`, `head`, `body`, `leg` FROM `item_template` WHERE `id` BETWEEN 2114 AND 2119;

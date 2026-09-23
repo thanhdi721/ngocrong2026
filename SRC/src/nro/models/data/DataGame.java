@@ -69,7 +69,8 @@ public class DataGame {
     // 14 -> 15: bỏ đầu động của cải trang 2079 (patch 47).
     // 15 -> 16: thêm 34 cải trang 2080–2113 (patch 48).
     // 16 -> 17: thêm 6 pet 2114–2119 (patch 49).
-    public static byte vsItem = 17;
+    // 17 -> 18: 6 món 2114–2119 đổi từ cải trang sang linh thú (patch 51).
+    public static byte vsItem = 18;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

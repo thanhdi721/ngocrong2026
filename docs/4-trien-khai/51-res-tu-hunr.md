@@ -317,3 +317,21 @@ Không mang được thêm:
 | Pet Kẻ Xâm Lăng | part "đầu" bên HUNR khai là loại thân (17 mảnh) |
 | Thú cưỡi Dải Ngân Hà, Cầu vòng bay | ảnh mount 34 và 21 bên mình ĐÃ có và đã có vật phẩm dùng, chỉ khác tên |
 | Hiệp sĩ, Bunny Baby, Baby Rồng Xanh, Panda Chan, … | thiếu part hoặc thiếu icon bên HUNR |
+
+## Sửa: 6 món HUNR là LINH THÚ, không phải cải trang (patch 51)
+
+Bản đầu của patch 49 để chúng là cải trang (loại 5) nên mặc vào thì nhân vật biến thành con thú.
+Bên mình linh thú là vật phẩm **loại 27, đeo ô số 7**; part khai trong `Player.sendNewPet()`,
+cột head/body/leg để -1, không dùng `head_avatar`.
+
+| id | Tên | part |
+|---|---|---|
+| 2114 | Pet Lôi Thần | 2340/2341/2342 |
+| 2115 | King Kong | 2343/2344/2345 |
+| 2116 | Cá xanh | 2346/2347/2348 |
+| 2117 | Cá cam | 2349/2350/2351 |
+| 2118 | Pet Pikachu | 2352/2353/2354 |
+| 2119 | Lân Linh Lung | 2355/2356/2357 |
+
+Jar cũng sửa lỗi cũ: `sendNewPet()` chỉ chạy lúc đăng nhập nên đeo linh thú giữa phiên phải
+thoát ra vào lại mới thấy. Nay đeo vào ô 7 là hiện ngay (`InventoryService.itemBagToBody`).
