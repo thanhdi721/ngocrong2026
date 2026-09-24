@@ -46,7 +46,8 @@ public class DataGame {
     // 22 -> 23: thêm 18 part của 6 pet mang từ HUNR (patch 49).
     // 23 -> 24: thêm 9 part của 3 linh thú (patch 54).
     // 24 -> 25: thêm 3 part bản nhỏ của Nữ Thần Băng Tinh (patch 60).
-    public static byte vsData = 25;
+    // 25 -> 26: chỉnh đầu nữ thần bản nhỏ (patch 61).
+    public static byte vsData = 26;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ

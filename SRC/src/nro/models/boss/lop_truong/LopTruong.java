@@ -570,16 +570,16 @@ public class LopTruong extends Boss {
         }
         this.lastTimeAttack = System.currentTimeMillis();
         try {
-            this.playerSkill.skillSelect = this.playerSkill.skills.get(
-                    Util.nextInt(0, this.playerSkill.skills.size() - 1));
+            this.playerSkill.skillSelect = chonChieu();
             if (Util.getDistance(this, doiThu) <= getRangeCanAttackWithSkillSelect()) {
                 // Thỉnh thoảng đổi chỗ cho sinh động, nhưng thưa thôi để người chơi còn đánh trúng.
                 if (Util.isTrue(3, 20) && Util.canDoWithTime(lanDoiCho, 1500)) {
                     lanDoiCho = System.currentTimeMillis();
                     if (nro.models.utils.SkillUtil.isUseSkillChuong(this)) {
-                        this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(20, 200)),
+                        // Lùi vừa phải thôi: lùi xa quá thì người chơi đang đánh bị hụt liên tục.
+                        this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(20, 70)),
                                 Util.nextInt(10) % 2 == 0 ? doiThu.location.y
-                                        : doiThu.location.y - Util.nextInt(0, 70));
+                                        : doiThu.location.y - Util.nextInt(0, 40));
                     } else {
                         this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(10, 40)),
                                 Util.nextInt(10) % 2 == 0 ? doiThu.location.y
@@ -595,6 +595,30 @@ public class LopTruong extends Boss {
     }
 
     private long lanDoiCho;
+
+    /**
+     * Chọn chiêu có trọng số: đấm liên hoàn là chính (đánh gần, người chơi đứng đánh không bị
+     * hụt), chưởng chỉ điểm xuyết cho đẹp mắt.
+     */
+    private nro.models.skill.Skill chonChieu() {
+        int r = Util.nextInt(1, 100);
+        int muon;
+        if (r <= 70) {
+            muon = Skill.LIEN_HOAN;            // 70% đấm liên hoàn
+        } else if (r <= 85) {
+            muon = Skill.LIEN_HOAN_CHUONG;     // 15%
+        } else if (r <= 95) {
+            muon = Skill.SUPER_KAME;           // 10%
+        } else {
+            muon = Skill.TAI_TAO_NANG_LUONG;   //  5%
+        }
+        for (nro.models.skill.Skill sk : this.playerSkill.skills) {
+            if (sk != null && sk.template != null && sk.template.id == muon) {
+                return sk;
+            }
+        }
+        return this.playerSkill.skills.get(Util.nextInt(0, this.playerSkill.skills.size() - 1));
+    }
 
     /**
      * Đòn của boss kia chỉ là diễn, không trừ máu. Ở đợt 20k, sát thương người chơi bị
