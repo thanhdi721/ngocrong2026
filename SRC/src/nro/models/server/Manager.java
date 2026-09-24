@@ -111,6 +111,8 @@ public final class Manager {
     public static final Map<Integer, String> ICON_REFS = new java.util.concurrent.ConcurrentHashMap<>();
     /** CSDL đã có cột player.vqtd chưa (vòng quay Thượng Đế). Thiếu thì bỏ qua khi lưu. */
     public static volatile boolean HAS_VQTD = false;
+    /** CSDL đã có cột player.aura_npc chưa (hào quang NPC bật cho người chơi). */
+    public static volatile boolean HAS_AURA_NPC = false;
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
     public static List<TOP> Topsukien1;
@@ -393,26 +395,33 @@ public final class Manager {
 
     /**
      * Tự thêm cột còn thiếu, để chạy jar mới mà quên chạy patch cũng không hỏng phần lưu
-     * nhân vật. Cột `vqtd` giữ số lượt quay Thượng Đế và các mốc quà đã nhận (patch 58).
+     * nhân vật. Cột `vqtd` giữ số lượt quay Thượng Đế và các mốc quà đã nhận (patch 58),
+     * cột `aura_npc` giữ hào quang NPC GoKu Nỗi Loạn bật cho người chơi (patch 63).
      */
     private void ensureSchema() {
+        HAS_VQTD = baoDamCot("vqtd", "TEXT NULL", "vong quay Thuong De", 58);
+        HAS_AURA_NPC = baoDamCot("aura_npc", "INT NOT NULL DEFAULT -1", "hao quang NPC", 63);
+    }
+
+    /** Thêm một cột của bảng player nếu chưa có; trả về true khi cột dùng được. */
+    private boolean baoDamCot(String ten, String kieu, String dungDeLam, int patch) {
         try {
             // Không dùng count(*): MySQL trả kiểu Long, LocalResultSet.getInt ép sang Integer nên
             // văng ClassCastException. Chỉ cần biết có dòng nào không.
             nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery(
                     "select column_name from information_schema.columns"
-                    + " where table_schema = database() and table_name = 'player' and column_name = 'vqtd'");
+                    + " where table_schema = database() and table_name = 'player' and column_name = '" + ten + "'");
             boolean co = rs.next();
             rs.dispose();
             if (!co) {
-                nro.models.data.LocalManager.executeUpdate("ALTER TABLE `player` ADD COLUMN `vqtd` TEXT NULL");
-                Logger.warning("Da them cot player.vqtd (vong quay Thuong De)\n");
+                nro.models.data.LocalManager.executeUpdate("ALTER TABLE `player` ADD COLUMN `" + ten + "` " + kieu);
+                Logger.warning("Da them cot player." + ten + " (" + dungDeLam + ")\n");
             }
-            HAS_VQTD = true;
+            return true;
         } catch (Exception e) {
-            HAS_VQTD = false;
-            Logger.error("Thieu cot player.vqtd va khong tu them duoc: " + e
-                    + " -> so luot quay Thuong De se KHONG duoc luu, hay chay patch 58\n");
+            Logger.error("Thieu cot player." + ten + " va khong tu them duoc: " + e
+                    + " -> " + dungDeLam + " se KHONG duoc luu, hay chay patch " + patch + "\n");
+            return false;
         }
     }
 

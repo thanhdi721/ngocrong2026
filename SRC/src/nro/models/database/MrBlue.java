@@ -223,6 +223,13 @@ public class MrBlue {
             } catch (Exception e) {
             }
 
+            // Hào quang NPC bật (-1 là tắt)
+            try {
+                player.auraNpc = rs.getInt("aura_npc");
+            } catch (Exception e) {
+                player.auraNpc = -1;
+            }
+
             int clanId = rs.getInt("clan_id");
             if (clanId != -1) {
                 try {

@@ -163,6 +163,9 @@ public class ConstNpc {
     // theo VỊ TRÍ trong danh sách npc_template, nên id phải bằng vị trí (và ≤ 127
     // vì Zone ghi tempId bằng writeByte). Xem docs/4-trien-khai/44-npc-admin-dep-trai.md.
     public static final byte ADMIN_DEP_TRAI = 85;
+    // NPC bật hào quang Goku Purple, đứng cạnh Chi Chi ở đảo Kamê (map 5).
+    // id 86 = ô trống kế tiếp sau 85, vẫn giữ luật "id = vị trí trong npc_template".
+    public static final byte GOKU_NOI_LOAN = 86;
     // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
     public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------

@@ -197,6 +197,12 @@ public class Player implements Runnable {
     /** Vòng quay Thượng Đế: tổng số lượt đã quay và cờ các mốc quà đã nhận (cột `vqtd`). */
     public int vqtdSpin;
     public int vqtdClaim;
+
+    /**
+     * Hào quang do NPC bật (cột `aura_npc`): -1 là tắt, còn lại là id hào quang
+     * (file {@code data/img_by_name/x1..x4/aura_[id]_0.png}). Bật thì đè lên hào quang thẻ rađa.
+     */
+    public int auraNpc = -1;
     public MobMe mobMe;
     public Location location;
     public SetClothes setClothes;
@@ -766,6 +772,9 @@ public class Player implements Runnable {
     }
 
     public byte getAura() {
+        if (this.auraNpc >= 0 && isPl()) {
+            return (byte) this.auraNpc;   // hào quang NPC bật, ưu tiên hơn thẻ rađa
+        }
         if (!isPl() || this.Cards.isEmpty()) {
             return -1;
         }

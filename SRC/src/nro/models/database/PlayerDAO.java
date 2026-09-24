@@ -1051,7 +1051,8 @@ public class PlayerDAO {
                         + "nhanthoivang = ?, ruonggo = ?, sieuthanthuy = ?, vodaisinhtu = ?, rongxuong = ?, data_item_event = ?, data_luyentap = ?, data_clan_task = ?, data_vip = ?, "
                         + "rank = ?, data_achievement = ?, giftcode = ?, event_point = ?, data_event = ?, dataBadges = ?, dataTaskBadges = ?, BoughtSkill = ?, LearnSkill = ?, "
                         + "firstTimeLogin = ?,  dailyGift = ?, point_sukien = ?, thachdauwhis = ?, point_sukien1 = ?, point_maydam = ?, total_damage_maydam = ?, data_duahau_egg = ?, checkNhanQua = ?, nhiem_vu_kol = ?, point_sukien2 = ?"
-                        + (nro.models.server.Manager.HAS_VQTD ? ", vqtd = ?" : "") + " where id = ?";
+                        + (nro.models.server.Manager.HAS_VQTD ? ", vqtd = ?" : "")
+                        + (nro.models.server.Manager.HAS_AURA_NPC ? ", aura_npc = ?" : "") + " where id = ?";
                 java.util.List<Object> thamSo = new java.util.ArrayList<>(java.util.Arrays.asList(
                         player.head,
                         player.haveTennisSpaceShip,
@@ -1116,6 +1117,9 @@ public class PlayerDAO {
                         player.point_sukien2));
                 if (nro.models.server.Manager.HAS_VQTD) {
                     thamSo.add(player.vqtdSpin + "|" + player.vqtdClaim);
+                }
+                if (nro.models.server.Manager.HAS_AURA_NPC) {
+                    thamSo.add(player.auraNpc);
                 }
                 thamSo.add(player.id);
                 LocalManager.executeUpdate(query, thamSo.toArray());

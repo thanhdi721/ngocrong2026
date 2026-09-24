@@ -60,7 +60,8 @@ public class DataGame {
     // 4 -> 5: thêm NPC 64 Thiên Sứ Whis vào map 155 (patch 30).
     // 5 -> 6: đổi bộ tile của map 166 Phòng thí nghiệm Myuu (patch 31).
     // 6 -> 7: đổi hình npc_template 108 Heart và 110 (patch 32).
-    public static byte vsMap = 7;
+    // 7 -> 8: thêm npc_template 86 "GoKu Nỗi Loạn" đứng cạnh Chi Chi ở map 5 (patch 63).
+    public static byte vsMap = 8;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.
