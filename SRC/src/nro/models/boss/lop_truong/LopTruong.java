@@ -50,11 +50,17 @@ public class LopTruong extends Boss {
     private static final int[] MAP_JOIN = {102, 92, 93, 94, 96, 97, 98, 99, 100};
 
     private static final int[][] SKILL = {
-        {Skill.MA_PHONG_BA, 7, 3000},
-        {Skill.SUPER_KAME, 7, 3000},
-        {Skill.LIEN_HOAN_CHUONG, 7, 2000},
+        {Skill.LIEN_HOAN, 7, 800},          // đấm liên hoàn — đánh gần, nhìn có động tác
+        {Skill.LIEN_HOAN_CHUONG, 7, 2000},  // Cadic liên hoàn chưởng
+        {Skill.SUPER_KAME, 7, 3000},        // Super Kamejoko
         {Skill.TAI_TAO_NANG_LUONG, 2, 60000},
     };
+
+    /** Chiêu đánh gần: phải áp sát mới ra đòn, cho ra dáng đấm nhau. */
+    private static boolean laChieuGan(int skillId) {
+        return skillId == Skill.LIEN_HOAN || skillId == Skill.DRAGON || skillId == Skill.DEMON
+                || skillId == Skill.GALICK || skillId == Skill.KAIOKEN;
+    }
 
     public static final int DOT_2_TY = 0;
     public static final int DOT_20K = 1;
@@ -91,7 +97,7 @@ public class LopTruong extends Boss {
     private static int luotChui;                  // để hai con nói luân phiên
     private static final java.util.Set<Long> DA_CHAO = new java.util.HashSet<>();
 
-    private static final int KHOANG_CACH = 90;     // hai boss đứng cách nữ thần bao xa
+    private static final int KHOANG_CACH = 70;     // hai boss đứng cách nữ thần bao xa (pixel)
     private static final long NHIP_DANH = 600;     // mỗi đòn / mỗi lần di chuyển khi đánh nhau
     private static final long NHIP_THOAI = 2500;   // mỗi câu trong màn cãi nhau
     private static final long NHIP_CHUI = 5000;    // vừa đánh vừa chửi
@@ -396,13 +402,14 @@ public class LopTruong extends Boss {
      * để bong bóng thoại của cả ba cùng lọt vào màn hình người chơi.
      */
     private static void xepChoDung(Zone zone) {
-        int giua = zone.map.mapWidth / 2;
-        int y = zone.map.yPhysicInTop(giua, 0);
         if (nuThan != null && nuThan.zone == zone) {
-            nuThan.moveTo(giua, y);
+            int[] cho = choDung(zone, 0);
+            nro.models.services.PlayerService.gI().playerMove(nuThan, cho[0], cho[1]);
         }
-        cap[0].moveTo(giua - KHOANG_CACH, zone.map.yPhysicInTop(giua - KHOANG_CACH, 0));
-        cap[1].moveTo(giua + KHOANG_CACH, zone.map.yPhysicInTop(giua + KHOANG_CACH, 0));
+        int[] trai = choDung(zone, -KHOANG_CACH);
+        int[] phai = choDung(zone, KHOANG_CACH);
+        nro.models.services.PlayerService.gI().playerMove(cap[0], trai[0], trai[1]);
+        nro.models.services.PlayerService.gI().playerMove(cap[1], phai[0], phai[1]);
         daXepCho = true;
     }
 
@@ -519,6 +526,29 @@ public class LopTruong extends Boss {
         lanKetThuc = System.currentTimeMillis();
     }
 
+    /** Toạ độ đứng: nữ thần giữa map, hai boss hai bên, cùng một mặt nền phía trên. */
+    static int[] choDung(Zone zone, int lech) {
+        int x = zone.map.mapWidth / 2 + lech;
+        if (x < 60) {
+            x = 60;
+        } else if (x > zone.map.mapWidth - 60) {
+            x = zone.map.mapWidth - 60;
+        }
+        return new int[]{x, zone.map.yPhysicInTop(x, 100)};
+    }
+
+    /** Vào map là đứng sẵn cạnh nữ thần, khỏi phải kéo về sau. */
+    @Override
+    public void joinMapByZone(Zone zone) {
+        if (zone == null) {
+            return;
+        }
+        this.zone = zone;
+        int lech = (cap != null && cap.length == 2 && cap[1] == this) ? KHOANG_CACH : -KHOANG_CACH;
+        int[] cho = choDung(zone, lech);
+        nro.models.map.service.ChangeMapService.gI().changeMap(this, zone, cho[0], cho[1]);
+    }
+
     //========================== hành vi từng con ==========================
     private LopTruong doiThu;
     private boolean dangDanhNhau;
@@ -538,16 +568,27 @@ public class LopTruong extends Boss {
         }
         this.lastTimeAttack = System.currentTimeMillis();
         try {
+            // Chọn chiêu TRƯỚC, rồi mới di chuyển cho đúng tầm của chiêu đó: chiêu đấm thì áp sát,
+            // chiêu chưởng thì lùi ra bắn. Trước đây nhảy lung tung rồi mới bắn nên nhìn cứng.
             this.playerSkill.skillSelect = this.playerSkill.skills.get(
                     Util.nextInt(0, this.playerSkill.skills.size() - 1));
-            int kc = Util.getDistance(this, doiThu);
-            // Lao vào, nhảy vòng, đổi bên — cho ra dáng đánh nhau chứ không đứng một chỗ bắn chiêu.
-            if (kc > 60 || Util.isTrue(1, 2)) {
-                int ben = Util.getOne(-1, 1);
-                int x = doiThu.location.x + ben * Util.nextInt(25, 60);
-                int y = doiThu.location.y - (Util.isTrue(1, 3) ? Util.nextInt(30, 70) : 0);
-                this.moveTo(x, y);
+            int skillId = this.playerSkill.skillSelect.template.id;
+            if (skillId == Skill.TAI_TAO_NANG_LUONG) {
+                nro.models.services.SkillService.gI().useSkill(this, this, null, -1, null);
+                return;
             }
+            int ben = this.location.x <= doiThu.location.x ? -1 : 1;
+            int x;
+            int y = doiThu.location.y;
+            if (laChieuGan(skillId)) {
+                x = doiThu.location.x + ben * Util.nextInt(18, 34);        // áp sát đấm
+            } else {
+                x = doiThu.location.x + ben * Util.nextInt(110, 220);      // lùi ra bắn chưởng
+                if (Util.isTrue(1, 3)) {
+                    y -= Util.nextInt(30, 70);                             // thỉnh thoảng bay lên
+                }
+            }
+            nro.models.services.PlayerService.gI().playerMove(this, x, y);
             if (Util.getDistance(this, doiThu) <= getRangeCanAttackWithSkillSelect()) {
                 nro.models.services.SkillService.gI().useSkill(this, doiThu, null, -1, null);
             }

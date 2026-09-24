@@ -7,8 +7,10 @@ Bản dựng đầu tiên để chạy thử. Code trong `SRC/src/nro/models/bos
 * **8 con**: Lốp Trưởng 1 → 8, hình lấy từ 8 cải trang Goku Super Saiyan (2105–2112, part 2313–2336).
 * **Mỗi lượt chỉ ra 2 con**, bốc ngẫu nhiên, cùng một khu; **Nữ Thần Băng Tinh** (hình cải trang 2079)
   đứng giữa map.
-* Vừa ra map, ba nhân vật được **kéo về đứng sát nhau** ở giữa map: nữ thần ở giữa, hai boss hai bên,
-  cách 90 pixel (`KHOANG_CACH`), để bong bóng thoại của cả ba cùng lọt vào màn hình.
+* Ba nhân vật **ra map là đứng sẵn cạnh nhau** ở giữa map: nữ thần ở giữa, hai boss hai bên, cách
+  70 pixel (`KHOANG_CACH`), cùng một mặt nền phía trên, để cả ba cùng lọt vào một màn hình.
+  Vị trí được đặt ngay lúc vào map (`joinMapByZone`), không phải kéo về sau — `Boss.moveTo` chỉ đi
+  thêm 40–60 pixel mỗi lần nên không bao giờ tới đúng chỗ.
 * Có người vào khu → hai con **cãi nhau tranh gái 19 câu** (2,5 giây một câu, khoảng 48 giây), nữ
   thần chen vào giữa, rồi lao vào đánh nhau.
 * Trong lúc đánh: hai boss **vừa đánh vừa chửi** (5 giây một câu, luân phiên, 10 câu), nữ thần **cổ
@@ -52,7 +54,12 @@ giống hệt Super Black Goku.
 
 ## Kỹ năng boss
 
-Ma Phong Ba, Super Kamejoko, Cadic Liên Hoàn Chưởng (cấp 7) và Tái Tạo Năng Lượng cấp 2.
+Đấm Liên Hoàn, Cadic Liên Hoàn Chưởng, Super Kamejoko (cấp 7) và Tái Tạo Năng Lượng cấp 2.
+Đã bỏ Ma Phong Ba.
+
+Cách đánh: chọn chiêu trước rồi mới di chuyển cho đúng tầm của chiêu đó — chiêu đấm thì áp sát
+18–34 pixel, chiêu chưởng thì lùi ra 110–220 pixel và thỉnh thoảng bay lên. Nhờ vậy nhìn ra động
+tác đấm đá chứ không đứng một chỗ bắn chiêu. Gặp Tái Tạo Năng Lượng thì đứng gồng như người chơi.
 
 ## Chỗ chỉnh nhanh
 

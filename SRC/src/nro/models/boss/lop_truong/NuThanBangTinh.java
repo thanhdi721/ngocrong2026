@@ -47,25 +47,20 @@ public class NuThanBangTinh extends Boss {
         this.changeStatus(BossStatus.REST);
     }
 
+    /** Vào map là đứng ngay giữa, không rơi ngẫu nhiên như boss thường. */
+    @Override
+    public void joinMapByZone(Zone zone) {
+        if (zone == null) {
+            return;
+        }
+        this.zone = zone;
+        int[] cho = LopTruong.choDung(zone, 0);
+        ChangeMapService.gI().changeMap(this, zone, cho[0], cho[1]);
+    }
+
     @Override
     public void rest() {
         // chỉ ra map khi phần điều phối gọi raMap()
-    }
-
-    private boolean daDungGiua;
-
-    @Override
-    public void update() {
-        super.update();
-        // Đứng giữa map cho hai anh kia đánh nhau xung quanh.
-        if (this.zone != null && !daDungGiua) {
-            int x = this.zone.map.mapWidth / 2;
-            int y = this.zone.map.yPhysicInTop(x, 0);
-            this.moveTo(x, y);
-            daDungGiua = true;
-        } else if (this.zone == null) {
-            daDungGiua = false;
-        }
     }
 
     @Override
