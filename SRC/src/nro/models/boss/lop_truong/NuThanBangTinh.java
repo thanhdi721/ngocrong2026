@@ -15,8 +15,13 @@ import nro.models.player.Player;
  */
 public class NuThanBangTinh extends Boss {
 
-    /** Part của cải trang Nữ Thần Băng Tinh (patch 40 + các patch chỉnh sau). */
-    private static final short[] HINH = {2233, 2236, 2237};
+    /**
+     * Part BẢN NHỎ của Nữ Thần Băng Tinh (patch 60, bằng 55% cải trang 2079).
+     *
+     * <p>Client vẽ bong bóng thoại ở độ cao cố định phía trên mốc chân, nên dùng hình cải
+     * trang gốc (cao gần gấp đôi người thường) thì bóng thoại rơi xuống ngang chân.
+     */
+    private static final short[] HINH = {2367, 2368, 2369};
 
     public NuThanBangTinh() throws Exception {
         super(BossID.NU_THAN_BANG_TINH, true, true, new BossData(

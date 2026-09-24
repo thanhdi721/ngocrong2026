@@ -5,8 +5,8 @@ Bản dựng đầu tiên để chạy thử. Code trong `SRC/src/nro/models/bos
 ## Luật chơi
 
 * **8 con**: Lốp Trưởng 1 → 8, hình lấy từ 8 cải trang Goku Super Saiyan (2105–2112, part 2313–2336).
-* **Mỗi lượt chỉ ra 2 con**, bốc ngẫu nhiên, cùng một khu; **Nữ Thần Băng Tinh** (hình cải trang 2079)
-  đứng giữa map.
+* **Mỗi lượt chỉ ra 2 con**, bốc ngẫu nhiên, cùng một khu; **Nữ Thần Băng Tinh** đứng giữa map,
+  dùng **bản nhỏ 55%** của cải trang 2079 (part 2367/2368/2369, patch 60).
 * Ba nhân vật **ra map là đứng sẵn cạnh nhau** ở giữa map: nữ thần ở giữa, hai boss hai bên, cách
   70 pixel (`KHOANG_CACH`), cùng một mặt nền phía trên, để cả ba cùng lọt vào một màn hình.
   Vị trí được đặt ngay lúc vào map (`joinMapByZone`), không phải kéo về sau — `Boss.moveTo` chỉ đi
@@ -19,8 +19,7 @@ Bản dựng đầu tiên để chạy thử. Code trong `SRC/src/nro/models/bos
   người chỉ được chào một lần mỗi lượt.
 * Hai boss **chỉ đánh nhau, không đánh người chơi**, và **không trừ máu nhau** — đòn qua lại chỉ là
   diễn. Người chơi mới là bên hạ được boss, nên đồ rơi luôn có chủ rõ ràng.
-* Khi đánh nhau: hai con **lao vào, nhảy vòng, đổi bên** quanh đối thủ (0,6 giây một nhịp), chứ không
-  đứng một chỗ bắn chiêu.
+* Khi đánh nhau: hai con rượt và đổi chỗ quanh đối thủ như boss thường, ra đòn theo hồi chiêu.
 * Một con chết → **màn kết thúc kéo dài khoảng 10 giây**: con còn sống sỉ nhục 2 câu, nữ thần nói lời
   chia tay, rồi cả ba mới biến mất. Trước đây chat xong biến ngay nên không ai kịp đọc.
 * **15 phút** sau khi kết thúc thì ra lượt mới. **30 phút** không ai vào khu thì tự đi.
@@ -57,9 +56,9 @@ giống hệt Super Black Goku.
 Đấm Liên Hoàn, Cadic Liên Hoàn Chưởng, Super Kamejoko (cấp 7) và Tái Tạo Năng Lượng cấp 2.
 Đã bỏ Ma Phong Ba.
 
-Cách đánh: chọn chiêu trước rồi mới di chuyển cho đúng tầm của chiêu đó — chiêu đấm thì áp sát
-18–34 pixel, chiêu chưởng thì lùi ra 110–220 pixel và thỉnh thoảng bay lên. Nhờ vậy nhìn ra động
-tác đấm đá chứ không đứng một chỗ bắn chiêu. Gặp Tái Tạo Năng Lượng thì đứng gồng như người chơi.
+Cách đánh dùng **y hệt lớp Boss gốc**: nhịp 100ms, bước đi 40–60 pixel bằng `moveTo`, hồi chiêu do
+từng chiêu quyết định. Nhờ vậy hiệu ứng, animation và độ "nhúng nhúng" giống hệt các boss khác.
+Chỉ khác một chỗ: đổi chỗ thưa hơn (tối đa 1,5 giây một lần) để người chơi đỡ đánh hụt.
 
 ## Chỗ chỉnh nhanh
 
@@ -70,6 +69,15 @@ Mọi con số và lời thoại nằm đầu `LopTruong.java`:
 * Nhịp nói: `NHIP_THOAI` 2,5 giây, `NHIP_CHUI` 5 giây, `NHIP_CO_VU` 6 giây.
 * Lời thoại: `KICH_BAN` (19 câu cãi nhau), `CHUI_LUC_DANH` (10), `CO_VU` (10), `CHAO_NGUOI_CHOI` (4),
   `NU_THAN_CHAO` (3), `SI_NHUC` (5). Thêm câu chỉ cần thêm dòng vào mảng.
+
+## Vì sao nữ thần phải dùng bản nhỏ
+
+Client vẽ bong bóng thoại ở **độ cao cố định phía trên mốc chân**, không theo chiều cao thật của
+nhân vật. Hình cải trang 2079 cao gần gấp đôi người thường nên bóng thoại rơi xuống ngang ngực,
+nhìn như nằm dưới chân. Patch 60 thêm 3 part bản nhỏ 55% (31 icon mới, dx/dy thu theo cùng tỉ lệ)
+chỉ dùng cho nhân vật boss này; **cải trang 2079 người chơi mặc giữ nguyên**.
+
+Muốn to/nhỏ khác thì sửa `TY_LE` trong đoạn sinh patch rồi tạo lại, hoặc nói tôi làm.
 
 ## Chưa kiểm tra được
 

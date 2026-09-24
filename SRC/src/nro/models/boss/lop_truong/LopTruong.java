@@ -56,11 +56,7 @@ public class LopTruong extends Boss {
         {Skill.TAI_TAO_NANG_LUONG, 2, 60000},
     };
 
-    /** Chiêu đánh gần: phải áp sát mới ra đòn, cho ra dáng đấm nhau. */
-    private static boolean laChieuGan(int skillId) {
-        return skillId == Skill.LIEN_HOAN || skillId == Skill.DRAGON || skillId == Skill.DEMON
-                || skillId == Skill.GALICK || skillId == Skill.KAIOKEN;
-    }
+
 
     public static final int DOT_2_TY = 0;
     public static final int DOT_20K = 1;
@@ -98,7 +94,6 @@ public class LopTruong extends Boss {
     private static final java.util.Set<Long> DA_CHAO = new java.util.HashSet<>();
 
     private static final int KHOANG_CACH = 70;     // hai boss đứng cách nữ thần bao xa (pixel)
-    private static final long NHIP_DANH = 600;     // mỗi đòn / mỗi lần di chuyển khi đánh nhau
     private static final long NHIP_THOAI = 2500;   // mỗi câu trong màn cãi nhau
     private static final long NHIP_CHUI = 5000;    // vừa đánh vừa chửi
     private static final long NHIP_CO_VU = 6000;   // nữ thần cổ vũ
@@ -557,44 +552,49 @@ public class LopTruong extends Boss {
         this.dangDanhNhau = true;
     }
 
-    /** Chỉ đánh đối thủ, tuyệt đối không đánh người chơi. */
+    /**
+     * Chỉ đánh đối thủ, tuyệt đối không đánh người chơi.
+     *
+     * <p>Dùng y hệt cách đánh của lớp Boss gốc — {@code moveTo} bước 40–60 pixel, nhịp 100ms,
+     * hồi chiêu do từng chiêu quyết định — nên hiệu ứng, animation và độ "nhúng nhúng" giống hệt
+     * các boss khác. Bản trước tôi tự đặt toạ độ mỗi 0,6 giây nên boss nhảy giật một cái là
+     * người chơi đánh hụt.
+     */
     @Override
     public void attack() {
         if (!dangDanhNhau || doiThu == null || doiThu.isDie() || doiThu.zone != this.zone) {
             return;
         }
-        if (!Util.canDoWithTime(this.lastTimeAttack, NHIP_DANH)) {
+        if (!Util.canDoWithTime(this.lastTimeAttack, 100) || this.typePk != ConstPlayer.PK_ALL) {
             return;
         }
         this.lastTimeAttack = System.currentTimeMillis();
         try {
-            // Chọn chiêu TRƯỚC, rồi mới di chuyển cho đúng tầm của chiêu đó: chiêu đấm thì áp sát,
-            // chiêu chưởng thì lùi ra bắn. Trước đây nhảy lung tung rồi mới bắn nên nhìn cứng.
             this.playerSkill.skillSelect = this.playerSkill.skills.get(
                     Util.nextInt(0, this.playerSkill.skills.size() - 1));
-            int skillId = this.playerSkill.skillSelect.template.id;
-            if (skillId == Skill.TAI_TAO_NANG_LUONG) {
-                nro.models.services.SkillService.gI().useSkill(this, this, null, -1, null);
-                return;
-            }
-            int ben = this.location.x <= doiThu.location.x ? -1 : 1;
-            int x;
-            int y = doiThu.location.y;
-            if (laChieuGan(skillId)) {
-                x = doiThu.location.x + ben * Util.nextInt(18, 34);        // áp sát đấm
-            } else {
-                x = doiThu.location.x + ben * Util.nextInt(110, 220);      // lùi ra bắn chưởng
-                if (Util.isTrue(1, 3)) {
-                    y -= Util.nextInt(30, 70);                             // thỉnh thoảng bay lên
-                }
-            }
-            nro.models.services.PlayerService.gI().playerMove(this, x, y);
             if (Util.getDistance(this, doiThu) <= getRangeCanAttackWithSkillSelect()) {
+                // Thỉnh thoảng đổi chỗ cho sinh động, nhưng thưa thôi để người chơi còn đánh trúng.
+                if (Util.isTrue(3, 20) && Util.canDoWithTime(lanDoiCho, 1500)) {
+                    lanDoiCho = System.currentTimeMillis();
+                    if (nro.models.utils.SkillUtil.isUseSkillChuong(this)) {
+                        this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(20, 200)),
+                                Util.nextInt(10) % 2 == 0 ? doiThu.location.y
+                                        : doiThu.location.y - Util.nextInt(0, 70));
+                    } else {
+                        this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(10, 40)),
+                                Util.nextInt(10) % 2 == 0 ? doiThu.location.y
+                                        : doiThu.location.y - Util.nextInt(0, 50));
+                    }
+                }
                 nro.models.services.SkillService.gI().useSkill(this, doiThu, null, -1, null);
+            } else if (Util.isTrue(1, 2)) {
+                this.moveToPlayer(doiThu);
             }
         } catch (Exception e) {
         }
     }
+
+    private long lanDoiCho;
 
     /**
      * Đòn của boss kia chỉ là diễn, không trừ máu. Ở đợt 20k, sát thương người chơi bị
