@@ -7,6 +7,8 @@ Bản dựng đầu tiên để chạy thử. Code trong `SRC/src/nro/models/bos
 * **8 con**: Lốp Trưởng 1 → 8, hình lấy từ 8 cải trang Goku Super Saiyan (2105–2112, part 2313–2336).
 * **Mỗi lượt chỉ ra 2 con**, bốc ngẫu nhiên, cùng một khu; **Nữ Thần Băng Tinh** (hình cải trang 2079)
   đứng giữa map.
+* Vừa ra map, ba nhân vật được **kéo về đứng sát nhau** ở giữa map: nữ thần ở giữa, hai boss hai bên,
+  cách 90 pixel (`KHOANG_CACH`), để bong bóng thoại của cả ba cùng lọt vào màn hình.
 * Có người vào khu → hai con **cãi nhau tranh gái 19 câu** (2,5 giây một câu, khoảng 48 giây), nữ
   thần chen vào giữa, rồi lao vào đánh nhau.
 * Trong lúc đánh: hai boss **vừa đánh vừa chửi** (5 giây một câu, luân phiên, 10 câu), nữ thần **cổ
@@ -15,7 +17,10 @@ Bản dựng đầu tiên để chạy thử. Code trong `SRC/src/nro/models/bos
   người chỉ được chào một lần mỗi lượt.
 * Hai boss **chỉ đánh nhau, không đánh người chơi**, và **không trừ máu nhau** — đòn qua lại chỉ là
   diễn. Người chơi mới là bên hạ được boss, nên đồ rơi luôn có chủ rõ ràng.
-* Một con chết → con còn lại **sỉ nhục** một câu, rồi cả hai và nữ thần biến mất.
+* Khi đánh nhau: hai con **lao vào, nhảy vòng, đổi bên** quanh đối thủ (0,6 giây một nhịp), chứ không
+  đứng một chỗ bắn chiêu.
+* Một con chết → **màn kết thúc kéo dài khoảng 10 giây**: con còn sống sỉ nhục 2 câu, nữ thần nói lời
+  chia tay, rồi cả ba mới biến mất. Trước đây chat xong biến ngay nên không ai kịp đọc.
 * **15 phút** sau khi kết thúc thì ra lượt mới. **30 phút** không ai vào khu thì tự đi.
 * Map: khu boss Black Goku — 92, 93, 94, 96, 97, 98, 99, 100, 102.
 

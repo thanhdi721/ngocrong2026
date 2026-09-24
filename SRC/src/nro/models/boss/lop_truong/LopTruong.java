@@ -79,16 +79,24 @@ public class LopTruong extends Boss {
     private static int dotKeTiep = DOT_2_TY;      // luân phiên
     private static long lanKetThuc;               // lúc lượt trước kết thúc
     private static long lanCoNguoi;               // lần cuối thấy người chơi trong khu
+    private static boolean daVaoMap;              // cả hai đã thật sự ra map chưa
+    private static boolean daXepCho;              // đã kéo 2 boss về đứng cạnh nữ thần chưa
     private static int buocThoai = -1;            // -1: chưa diễn, >= 0: đang diễn
     private static long lanThoai;
+    private static int buocKetThuc = -1;          // các bước của màn kết thúc
+    private static long lanKetThucThoai;
+    private static LopTruong conSong;
     private static long lanChui;                  // nhịp hai boss chửi nhau lúc đánh
     private static long lanCoVu;                  // nhịp nữ thần cổ vũ
     private static int luotChui;                  // để hai con nói luân phiên
     private static final java.util.Set<Long> DA_CHAO = new java.util.HashSet<>();
 
+    private static final int KHOANG_CACH = 90;     // hai boss đứng cách nữ thần bao xa
+    private static final long NHIP_DANH = 600;     // mỗi đòn / mỗi lần di chuyển khi đánh nhau
     private static final long NHIP_THOAI = 2500;   // mỗi câu trong màn cãi nhau
     private static final long NHIP_CHUI = 5000;    // vừa đánh vừa chửi
     private static final long NHIP_CO_VU = 6000;   // nữ thần cổ vũ
+    private static final long NHIP_KET_THUC = 2500; // mỗi câu trong màn kết thúc
 
     /** Màn cãi nhau lúc mới gặp: {ai nói (0 / 1 = hai boss, 2 = nữ thần), câu nói}. */
     private static final Object[][] KICH_BAN = {
@@ -153,6 +161,20 @@ public class LopTruong extends Boss {
         "%s ơi, cứu em với, hai anh này cãi nhau cả buổi rồi",
         "Chào %s, đừng học theo hai anh này nha",
         "%s vào đúng lúc, coi hai anh này làm trò nè",
+    };
+
+    private static final String[] SI_NHUC_THEM = {
+        "Tưởng ngon lắm, hoá ra nằm cũng nhanh",
+        "Về luyện thêm vài trăm năm rồi hẵng quay lại",
+        "Đứng dậy nổi không, ta đỡ cho một tay?",
+        "Từ nay nàng là của ta, ngươi nằm im đó",
+    };
+
+    private static final String[] NU_THAN_CHIA_TAY = {
+        "Thôi hai anh nghỉ đi, em về đây",
+        "Em không theo ai hết đâu, đánh nhau xấu lắm",
+        "Hẹn gặp lại, nhớ đừng đánh nhau nữa nha",
+        "Em đi mua mì đây, hai anh tự lo nhé",
     };
 
     private static final String[] SI_NHUC = {
@@ -273,10 +295,32 @@ public class LopTruong extends Boss {
             }
             return;
         }
-        // Cả hai đã ra map chưa
-        Zone zone = cap[0].zone;
-        if (zone == null || cap[1].zone == null) {
+        // Màn kết thúc chạy TRƯỚC mọi kiểm tra khác: con vừa chết đã rời map nên zone của nó
+        // thành rỗng, nếu chặn ở dưới thì mấy câu sỉ nhục không bao giờ được nói.
+        if (buocKetThuc >= 0) {
+            chayManKetThuc(now);
             return;
+        }
+        // Chờ cả hai thật sự đứng trong map rồi mới xét sống chết: ngay sau lệnh cho ra, máu
+        // chưa khởi tạo nên isDie() còn true, xét sớm là kết thúc lượt oan.
+        if (!daVaoMap) {
+            if (cap[0].zone != null && cap[1].zone != null && !cap[0].isDie() && !cap[1].isDie()) {
+                daVaoMap = true;
+            }
+            return;
+        }
+        if (cap[0].isDie() || cap[1].isDie()) {
+            conSong = cap[0].isDie() ? cap[1] : cap[0];
+            buocKetThuc = 0;
+            lanKetThucThoai = 0;
+            return;
+        }
+        if (cap[0].zone == null || cap[1].zone == null) {
+            return;
+        }
+        Zone zone = cap[0].zone;
+        if (!daXepCho) {
+            xepChoDung(zone);
         }
         boolean coNguoi = coNguoiChoi(zone);
         if (coNguoi) {
@@ -285,12 +329,6 @@ public class LopTruong extends Boss {
         // Không ai vào khu 30 phút -> tự đi
         if (!coNguoi && now - lanCoNguoi >= tuDi()) {
             ketThuc(null);
-            return;
-        }
-        // Một con chết -> con còn lại sỉ nhục rồi cả hai biến mất
-        if (cap[0].isDie() || cap[1].isDie()) {
-            LopTruong song = cap[0].isDie() ? cap[1] : cap[0];
-            ketThuc(song);
             return;
         }
         // Có người vào khu thì bắt đầu màn cãi nhau
@@ -353,6 +391,21 @@ public class LopTruong extends Boss {
         }
     }
 
+    /**
+     * Kéo hai boss về đứng hai bên nữ thần ở giữa map. Ba nhân vật cách nhau {@link #KHOANG_CACH}
+     * để bong bóng thoại của cả ba cùng lọt vào màn hình người chơi.
+     */
+    private static void xepChoDung(Zone zone) {
+        int giua = zone.map.mapWidth / 2;
+        int y = zone.map.yPhysicInTop(giua, 0);
+        if (nuThan != null && nuThan.zone == zone) {
+            nuThan.moveTo(giua, y);
+        }
+        cap[0].moveTo(giua - KHOANG_CACH, zone.map.yPhysicInTop(giua - KHOANG_CACH, 0));
+        cap[1].moveTo(giua + KHOANG_CACH, zone.map.yPhysicInTop(giua + KHOANG_CACH, 0));
+        daXepCho = true;
+    }
+
     private static boolean coNguoiChoi(Zone zone) {
         if (zone == null) {
             return false;
@@ -385,6 +438,8 @@ public class LopTruong extends Boss {
         int dot = dotKeTiep;
         dotKeTiep = (dotKeTiep == DOT_2_TY ? DOT_20K : DOT_2_TY);
         buocThoai = -1;
+        daVaoMap = false;
+        daXepCho = false;
         lanChui = 0;
         lanCoVu = 0;
         luotChui = 0;
@@ -405,6 +460,40 @@ public class LopTruong extends Boss {
                 + " lại gặp nhau ở " + zone.map.mapName + (dot == DOT_20K ? " (bản yếu)" : ""));
     }
 
+    /**
+     * Màn kết thúc: con còn sống sỉ nhục hai câu, nữ thần nói một câu, mỗi câu cách nhau
+     * {@link #NHIP_KET_THUC}. Xong xuôi mới cho cả ba biến mất — trước đây chat xong là
+     * biến ngay nên người chơi không kịp thấy câu nào.
+     */
+    private static void chayManKetThuc(long now) {
+        if (now - lanKetThucThoai < NHIP_KET_THUC) {
+            return;
+        }
+        lanKetThucThoai = now;
+        switch (buocKetThuc) {
+            case 0 -> {
+                if (conSong != null && !conSong.isDie()) {
+                    conSong.chat(SI_NHUC[Util.nextInt(0, SI_NHUC.length - 1)]);
+                }
+            }
+            case 1 -> {
+                if (conSong != null && !conSong.isDie()) {
+                    conSong.chat(SI_NHUC_THEM[Util.nextInt(0, SI_NHUC_THEM.length - 1)]);
+                }
+            }
+            case 2 -> {
+                if (nuThan != null) {
+                    nuThan.chat(NU_THAN_CHIA_TAY[Util.nextInt(0, NU_THAN_CHIA_TAY.length - 1)]);
+                }
+            }
+            default -> {
+                ketThuc(null);
+                return;
+            }
+        }
+        buocKetThuc++;
+    }
+
     private static void ketThuc(LopTruong song) {
         if (song != null) {
             song.chat(SI_NHUC[Util.nextInt(0, SI_NHUC.length - 1)]);
@@ -421,7 +510,11 @@ public class LopTruong extends Boss {
             }
         }
         cap = null;
+        conSong = null;
+        buocKetThuc = -1;
         buocThoai = -1;
+        daVaoMap = false;
+        daXepCho = false;
         DA_CHAO.clear();
         lanKetThuc = System.currentTimeMillis();
     }
@@ -440,17 +533,23 @@ public class LopTruong extends Boss {
         if (!dangDanhNhau || doiThu == null || doiThu.isDie() || doiThu.zone != this.zone) {
             return;
         }
-        if (!Util.canDoWithTime(this.lastTimeAttack, 900)) {
+        if (!Util.canDoWithTime(this.lastTimeAttack, NHIP_DANH)) {
             return;
         }
         this.lastTimeAttack = System.currentTimeMillis();
         try {
             this.playerSkill.skillSelect = this.playerSkill.skills.get(
                     Util.nextInt(0, this.playerSkill.skills.size() - 1));
+            int kc = Util.getDistance(this, doiThu);
+            // Lao vào, nhảy vòng, đổi bên — cho ra dáng đánh nhau chứ không đứng một chỗ bắn chiêu.
+            if (kc > 60 || Util.isTrue(1, 2)) {
+                int ben = Util.getOne(-1, 1);
+                int x = doiThu.location.x + ben * Util.nextInt(25, 60);
+                int y = doiThu.location.y - (Util.isTrue(1, 3) ? Util.nextInt(30, 70) : 0);
+                this.moveTo(x, y);
+            }
             if (Util.getDistance(this, doiThu) <= getRangeCanAttackWithSkillSelect()) {
                 nro.models.services.SkillService.gI().useSkill(this, doiThu, null, -1, null);
-            } else {
-                this.moveToPlayer(doiThu);
             }
         } catch (Exception e) {
         }
