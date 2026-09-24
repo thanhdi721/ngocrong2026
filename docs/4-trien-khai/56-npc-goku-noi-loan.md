@@ -1,7 +1,7 @@
 # 56 — NPC "GoKu Nỗi Loạn" ở đảo Kamê (2026-09-24)
 
 NPC đứng cạnh Chi Chi (map 5), chỉ làm một việc: **bật / tắt hào quang Goku Purple
-(aura 95)** cho người chơi. Bật rồi thì đi đâu cũng còn, đăng xuất vào lại vẫn còn.
+(aura 96)** cho người chơi. Bật rồi thì đi đâu cũng còn, đăng xuất vào lại vẫn còn.
 
 ## Vị trí và ngoại hình
 
@@ -47,11 +47,23 @@ giả" (`NonInteractiveNPC`, như Mr.PôPô / Trọng Tài) — nhưng người 
 ra menu**, vì menu chỉ mở được từ NPC thật (gói 33 gửi lên là npc id). Hai thứ này hiện
 không ghép chung được, trừ khi chồng hai thực thể lên nhau (hình sẽ bị vẽ đôi, lệch pha).
 
+## Cỡ hào quang
+
+Bản đầu (aura 95) vào game to gấp mấy lần nhân vật, nên đổi sang **aura 96** = đúng ảnh đó
+thu nhỏ còn **50%**: khung x1 78×127 (trước 157×254), x4 314×508, vẫn 12 khung.
+
+Đổi id chứ không ghi đè file 95 vì **client cache ảnh `img_by_name` theo tên** — máy nào tải
+`aura_95_0` rồi thì ghi đè bên server vẫn hiện ảnh cũ. Muốn chỉnh cỡ lần nữa thì làm y vậy:
+sinh ảnh mới thành `aura_97_0`, thêm dòng `img_by_name`, đổi `GokuNoiLoan.AURA_ID`.
+
+Cỡ nằm ở `GokuNoiLoan.AURA_ID` và bộ ảnh cùng tên trong `SRC/data/img_by_name/x1..x4`.
+
 ## Cần chạy
 
 1. Patch 62 (ảnh hào quang 95 + dòng `img_by_name`) — nếu chưa chạy.
 2. Patch 63 (`SRC/sql/patch/63-npc-goku-noi-loan.sql`), tắt server trước.
-3. Bật lại server bằng jar mới (`vsMap` = 8).
+3. Patch 64 (`SRC/sql/patch/64-aura-96-nho-lai.sql`) — hào quang bản nhỏ.
+4. Bật lại server bằng jar mới (`vsMap` = 8).
 
 ## Chưa kiểm tra được
 
