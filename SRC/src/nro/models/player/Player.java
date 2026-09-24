@@ -670,7 +670,9 @@ public class Player implements Runnable {
             }
         }
 
-        if (badges.idBadges != -1 && Util.canDoWithTime(badges.lastTimeSendBadges, 10000)) {
+        // Đang bật hào quang NPC thì thôi hiện danh hiệu, hai thứ chồng lên nhau rối mắt.
+        // Chỉ bỏ phần HIỆN; chỉ số của danh hiệu vẫn tính như thường (theo dataBadges.isUse).
+        if (badges.idBadges != -1 && auraNpc < 0 && Util.canDoWithTime(badges.lastTimeSendBadges, 10000)) {
             Service.gI().sendBadgesPlayer(this, 5, badges.idBadges);
             badges.lastTimeSendBadges = System.currentTimeMillis();
             this.nPoint.update();
