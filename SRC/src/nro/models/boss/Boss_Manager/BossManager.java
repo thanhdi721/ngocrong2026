@@ -148,6 +148,11 @@ public class BossManager implements Runnable {
     }
 
     public void loadBoss() {
+        try {
+            nro.models.boss.lop_truong.LopTruong.taoTatCa();   // 8 Lốp Trưởng + Nữ Thần Băng Tinh
+        } catch (Exception e) {
+            nro.models.utils.Logger.error("Không tạo được bộ boss Lốp Trưởng: " + e + "\n");
+        }
         this.createBoss(BossID.TIEU_DOI_TRUONG);
         this.createBoss(BossID.TIEU_DOI_TRUONG_NM);
         this.createBoss(BossID.BOJACK);
