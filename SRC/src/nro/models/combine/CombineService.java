@@ -38,7 +38,7 @@ public class CombineService {
     public static final int PHAN_RA_TRANG_BI_KH = 996;
     public static final int TAI_TAO_CAPSULE_KH = 997;
     /** Tạo SKH VIP: 3 món đồ Thần -> 1 trang bị kích hoạt cùng loại, ngẫu nhiên tới cấp Thần. */
-    public static final int TAO_SKH_VIP = 996;
+    public static final int TAO_SKH_VIP = 998;
     public static final int NANG_CAP_SAO_PHA_LE = 100;
     public static final int DANH_BONG_SAO_PHA_LE = 101;
     public static final int CUONG_HOA_LO_SAO_PHA_LE = 102;
