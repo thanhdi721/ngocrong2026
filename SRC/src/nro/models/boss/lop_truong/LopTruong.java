@@ -98,10 +98,10 @@ public class LopTruong extends Boss {
     private static final int KHOANG_CACH = 70;     // hai boss đứng cách nữ thần bao xa (pixel)
     private static final int BAN_KINH_SAN = 130;   // hai boss chỉ quần nhau trong bán kính này
     private static final int KHOANG_BAM = 60;      // xa hơn ngần này mới bước lại gần đối thủ
-    private static final long NHIP_THOAI = 2500;   // mỗi câu trong màn cãi nhau
-    private static final long NHIP_CHUI = 5000;    // vừa đánh vừa chửi
-    private static final long NHIP_CO_VU = 6000;   // nữ thần cổ vũ
-    private static final long NHIP_KET_THUC = 2500; // mỗi câu trong màn kết thúc
+    private static final long NHIP_THOAI = 4000;   // mỗi câu trong màn cãi nhau (4 giây cho kịp đọc)
+    private static final long NHIP_CHUI = 8000;    // vừa đánh vừa chửi (8 giây một câu)
+    private static final long NHIP_CO_VU = 9000;   // nữ thần cổ vũ (9 giây một câu)
+    private static final long NHIP_KET_THUC = 4000; // mỗi câu trong màn kết thúc (4 giây)
 
     /** Màn cãi nhau lúc mới gặp: {ai nói (0 / 1 = hai boss, 2 = nữ thần), câu nói}. */
     private static final Object[][] KICH_BAN = {

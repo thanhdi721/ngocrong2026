@@ -11,16 +11,16 @@ Bản dựng đầu tiên để chạy thử. Code trong `SRC/src/nro/models/bos
   70 pixel (`KHOANG_CACH`), cùng một mặt nền phía trên, để cả ba cùng lọt vào một màn hình.
   Vị trí được đặt ngay lúc vào map (`joinMapByZone`), không phải kéo về sau — `Boss.moveTo` chỉ đi
   thêm 40–60 pixel mỗi lần nên không bao giờ tới đúng chỗ.
-* Có người vào khu → hai con **cãi nhau tranh gái 19 câu** (2,5 giây một câu, khoảng 48 giây), nữ
+* Có người vào khu → hai con **cãi nhau tranh gái 19 câu** (4 giây một câu, khoảng 76 giây), nữ
   thần chen vào giữa, rồi lao vào đánh nhau.
-* Trong lúc đánh: hai boss **vừa đánh vừa chửi** (5 giây một câu, luân phiên, 10 câu), nữ thần **cổ
-  vũ liên tục** (6 giây một câu, 10 câu).
+* Trong lúc đánh: hai boss **vừa đánh vừa chửi** (8 giây một câu, luân phiên, 10 câu), nữ thần **cổ
+  vũ** (9 giây một câu, 10 câu).
 * **Người chơi mới bước vào khu được réo tên**: hoặc một boss đuổi khéo, hoặc nữ thần than thở. Mỗi
   người chỉ được chào một lần mỗi lượt.
 * Hai boss **chỉ đánh nhau, không đánh người chơi**, và **không trừ máu nhau** — đòn qua lại chỉ là
   diễn. Người chơi mới là bên hạ được boss, nên đồ rơi luôn có chủ rõ ràng.
 * Khi đánh nhau: hai con rượt và đổi chỗ quanh đối thủ như boss thường, ra đòn theo hồi chiêu.
-* Một con chết → **màn kết thúc kéo dài khoảng 10 giây**: con còn sống sỉ nhục 2 câu, nữ thần nói lời
+* Một con chết → **màn kết thúc kéo dài khoảng 16 giây**: con còn sống sỉ nhục 2 câu, nữ thần nói lời
   chia tay, rồi cả ba mới biến mất. Trước đây chat xong biến ngay nên không ai kịp đọc.
 * **15 phút** sau khi kết thúc thì ra lượt mới. **30 phút** không ai vào khu thì tự đi.
 * Map: khu boss Black Goku — 92, 93, 94, 96, 97, 98, 99, 100, 102.
@@ -76,7 +76,7 @@ Mọi con số và lời thoại nằm đầu `LopTruong.java`:
 
 * `HINH` (8 bộ cải trang), `MAP_JOIN`, `SKILL`, máu / sát thương trong `taoData`.
 * `CHO_RA_LAI` 15 phút, `TU_DI` 30 phút, `DAME_TOI_DA_NGUOI_CHOI` 100.
-* Nhịp nói: `NHIP_THOAI` 2,5 giây, `NHIP_CHUI` 5 giây, `NHIP_CO_VU` 6 giây.
+* Nhịp nói: `NHIP_THOAI` 4 giây, `NHIP_CHUI` 8 giây, `NHIP_CO_VU` 9 giây, `NHIP_KET_THUC` 4 giây.
 * Lời thoại: `KICH_BAN` (19 câu cãi nhau), `CHUI_LUC_DANH` (10), `CO_VU` (10), `CHAO_NGUOI_CHOI` (4),
   `NU_THAN_CHAO` (3), `SI_NHUC` (5). Thêm câu chỉ cần thêm dòng vào mảng.
 
