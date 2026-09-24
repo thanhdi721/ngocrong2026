@@ -59,12 +59,16 @@ giống hệt Super Black Goku.
 Cách đánh dùng **y hệt lớp Boss gốc**: nhịp 100ms, bước đi 40–60 pixel bằng `moveTo`, hồi chiêu do
 từng chiêu quyết định. Nhờ vậy hiệu ứng, animation và độ "nhúng nhúng" giống hệt các boss khác.
 
-Hai chỗ chỉnh riêng cho đỡ đánh hụt:
+Ba chỗ chỉnh riêng cho người chơi đỡ đánh hụt — server tính đòn đấm là **hụt nếu lúc chạm đòn
+khoảng cách > 100 pixel** (`SkillService`, `RANGE_ATTACK_CHIEU_DAM`), mà hai con này rượt nhau chứ
+không bám người chơi như boss thường:
 
 * **Trọng số chiêu** (`chonChieu`): 70% Đấm Liên Hoàn, 15% Cadic Liên Hoàn Chưởng, 10% Super
-  Kamejoko, 5% Tái Tạo Năng Lượng. Đấm là chính nên hai con bám sát nhau, người chơi đứng đánh
-  không bị hụt.
-* **Đổi chỗ**: tối đa 1,5 giây một lần, và khi bắn chưởng chỉ lùi 20–70 pixel thay vì 20–200.
+  Kamejoko, 5% Tái Tạo Năng Lượng.
+* **Bỏ hẳn kiểu nhảy đổi chỗ vặt.** Chỉ bước lại gần khi cách đối thủ quá `KHOANG_BAM` = 60 pixel,
+  còn lại đứng yên đánh.
+* **Sân đấu** (`BAN_KINH_SAN` = 130): mọi bước đi đều bị kẹp trong bán kính này quanh chỗ xuất hiện,
+  nên hai con không trôi dần khỏi chỗ người chơi đứng.
 
 ## Chỗ chỉnh nhanh
 

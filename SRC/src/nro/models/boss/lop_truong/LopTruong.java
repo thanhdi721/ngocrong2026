@@ -81,6 +81,8 @@ public class LopTruong extends Boss {
     private static int dotKeTiep = DOT_2_TY;      // luân phiên
     private static long lanKetThuc;               // lúc lượt trước kết thúc
     private static long lanCoNguoi;               // lần cuối thấy người chơi trong khu
+    private static int sanX;                      // tâm sân đấu (giữa map lúc ra)
+    private static int sanY;
     private static boolean daVaoMap;              // cả hai đã thật sự ra map chưa
     private static boolean daXepCho;              // đã kéo 2 boss về đứng cạnh nữ thần chưa
     private static int buocThoai = -1;            // -1: chưa diễn, >= 0: đang diễn
@@ -94,6 +96,8 @@ public class LopTruong extends Boss {
     private static final java.util.Set<Long> DA_CHAO = new java.util.HashSet<>();
 
     private static final int KHOANG_CACH = 70;     // hai boss đứng cách nữ thần bao xa (pixel)
+    private static final int BAN_KINH_SAN = 130;   // hai boss chỉ quần nhau trong bán kính này
+    private static final int KHOANG_BAM = 60;      // xa hơn ngần này mới bước lại gần đối thủ
     private static final long NHIP_THOAI = 2500;   // mỗi câu trong màn cãi nhau
     private static final long NHIP_CHUI = 5000;    // vừa đánh vừa chửi
     private static final long NHIP_CO_VU = 6000;   // nữ thần cổ vũ
@@ -397,6 +401,9 @@ public class LopTruong extends Boss {
      * để bong bóng thoại của cả ba cùng lọt vào màn hình người chơi.
      */
     private static void xepChoDung(Zone zone) {
+        int[] tam = choDung(zone, 0);
+        sanX = tam[0];
+        sanY = tam[1];
         if (nuThan != null && nuThan.zone == zone) {
             int[] cho = choDung(zone, 0);
             nro.models.services.PlayerService.gI().playerMove(nuThan, cho[0], cho[1]);
@@ -571,30 +578,47 @@ public class LopTruong extends Boss {
         this.lastTimeAttack = System.currentTimeMillis();
         try {
             this.playerSkill.skillSelect = chonChieu();
-            if (Util.getDistance(this, doiThu) <= getRangeCanAttackWithSkillSelect()) {
-                // Thỉnh thoảng đổi chỗ cho sinh động, nhưng thưa thôi để người chơi còn đánh trúng.
-                if (Util.isTrue(3, 20) && Util.canDoWithTime(lanDoiCho, 1500)) {
-                    lanDoiCho = System.currentTimeMillis();
-                    if (nro.models.utils.SkillUtil.isUseSkillChuong(this)) {
-                        // Lùi vừa phải thôi: lùi xa quá thì người chơi đang đánh bị hụt liên tục.
-                        this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(20, 70)),
-                                Util.nextInt(10) % 2 == 0 ? doiThu.location.y
-                                        : doiThu.location.y - Util.nextInt(0, 40));
-                    } else {
-                        this.moveTo(doiThu.location.x + (Util.getOne(-1, 1) * Util.nextInt(10, 40)),
-                                Util.nextInt(10) % 2 == 0 ? doiThu.location.y
-                                        : doiThu.location.y - Util.nextInt(0, 50));
-                    }
-                }
-                nro.models.services.SkillService.gI().useSkill(this, doiThu, null, -1, null);
-            } else if (Util.isTrue(1, 2)) {
+            int kc = Util.getDistance(this, doiThu);
+            // Chỉ di chuyển khi CẦN áp sát, và không nhảy đổi chỗ vặt nữa.
+            //
+            // Server tính đòn đấm của người chơi là HỤT nếu lúc chạm đòn khoảng cách > 100
+            // (SkillService: RANGE_ATTACK_CHIEU_DAM). Hai con này rượt nhau chứ không bám người
+            // chơi, nên mỗi lần nhảy là người đang đánh bị hụt. Nay chúng bám dính nhau ở giữa
+            // sân, gần như đứng yên một chỗ.
+            if (kc > KHOANG_BAM) {
                 this.moveToPlayer(doiThu);
+                kc = Util.getDistance(this, doiThu);
+            }
+            if (kc <= getRangeCanAttackWithSkillSelect()) {
+                nro.models.services.SkillService.gI().useSkill(this, doiThu, null, -1, null);
             }
         } catch (Exception e) {
         }
     }
 
-    private long lanDoiCho;
+    /**
+     * Giữ boss trong sân đấu quanh chỗ xuất hiện.
+     *
+     * <p>Hai con này rượt nhau chứ không bám người chơi như boss thường, nên nếu thả tự do
+     * chúng trôi dần khỏi chỗ người chơi đứng đánh và đòn của người chơi thành hụt liên tục.
+     */
+    private int trongSan(int x) {
+        if (sanX <= 0) {
+            return x;
+        }
+        if (x < sanX - BAN_KINH_SAN) {
+            return sanX - BAN_KINH_SAN;
+        }
+        return x > sanX + BAN_KINH_SAN ? sanX + BAN_KINH_SAN : x;
+    }
+
+    @Override
+    public void moveTo(int x, int y) {
+        super.moveTo(trongSan(x), y);
+        if (sanX > 0 && Math.abs(this.location.x - sanX) > BAN_KINH_SAN) {
+            nro.models.services.PlayerService.gI().playerMove(this, trongSan(this.location.x), this.location.y);
+        }
+    }
 
     /**
      * Chọn chiêu có trọng số: đấm liên hoàn là chính (đánh gần, người chơi đứng đánh không bị
