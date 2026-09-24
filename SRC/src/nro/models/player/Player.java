@@ -327,8 +327,11 @@ public class Player implements Runnable {
     public boolean checkTopReward2;
     public boolean checkTopReward3;
     private String lastChatMessage;
-    public List<BadgesData> dataBadges = new ArrayList<>();
-    public List<BadgesTask> dataTaskBadges = new ArrayList<>();
+    // FIX: danh hiệu bị sửa từ nhiều luồng (luồng map gọi Player.update, luồng phiên chơi mua
+    // danh hiệu / xong nhiệm vụ) -> ArrayList gây ConcurrentModificationException khi đang duyệt.
+    // CopyOnWriteArrayList: ghi hiếm, đọc nhiều, duyệt không bao giờ văng lỗi.
+    public List<BadgesData> dataBadges = new java.util.concurrent.CopyOnWriteArrayList<>();
+    public List<BadgesTask> dataTaskBadges = new java.util.concurrent.CopyOnWriteArrayList<>();
     public long lastTimeChangeBadges;
     public int autoTrainState = 0;
     public List<Integer> BoughtSkill = new ArrayList<>();

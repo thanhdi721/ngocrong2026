@@ -397,10 +397,12 @@ public final class Manager {
      */
     private void ensureSchema() {
         try {
+            // Không dùng count(*): MySQL trả kiểu Long, LocalResultSet.getInt ép sang Integer nên
+            // văng ClassCastException. Chỉ cần biết có dòng nào không.
             nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery(
-                    "select count(*) as n from information_schema.columns"
+                    "select column_name from information_schema.columns"
                     + " where table_schema = database() and table_name = 'player' and column_name = 'vqtd'");
-            boolean co = rs.next() && rs.getInt("n") > 0;
+            boolean co = rs.next();
             rs.dispose();
             if (!co) {
                 nro.models.data.LocalManager.executeUpdate("ALTER TABLE `player` ADD COLUMN `vqtd` TEXT NULL");

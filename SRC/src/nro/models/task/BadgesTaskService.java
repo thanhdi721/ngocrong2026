@@ -29,13 +29,21 @@ public class BadgesTaskService {
     public static void updateDoneTask(Player player) {
         for (BadgesTask data : player.dataTaskBadges) {
             if (data.isDone()) {
+                // FIX: trước đây gặp danh hiệu đã có là `return`, bỏ luôn các nhiệm vụ danh hiệu
+                // còn lại trong danh sách. Nay chỉ bỏ qua đúng cái đó.
+                boolean daCo = false;
                 for (BadgesData bg : player.dataBadges) {
                     if (bg.idBadGes == data.idBadgesReward) {
-                        return;
+                        daCo = true;
+                        break;
                     }
                 }
-                BadgesData danhHieu = new BadgesData(player, data.idBadgesReward, 30);
-                player.dataBadges.add(danhHieu);
+                if (daCo) {
+                    continue;
+                }
+                // FIX: hàm dựng BadgesData ĐÃ tự thêm vào player.dataBadges; thêm lần nữa là
+                // danh hiệu bị nhân đôi (đếm hai lần chỉ số, danh sách phình ra).
+                new BadgesData(player, data.idBadgesReward, 30);
                 data.count = 0;
             }
         }
