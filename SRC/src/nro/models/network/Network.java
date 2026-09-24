@@ -66,7 +66,13 @@ public class Network implements INetwork, Runnable {
             this.serverSocketChannel.socket().bind(new InetSocketAddress(port));
             this.serverSocketChannel.register(this.selector, 16);
         } catch (IOException ex) {
-            Logger.error("Error initializing server at port " + port + "\n");
+            // FIX: trước đây chỉ in một dòng cụt, không biết vì sao. Nay in đúng lý do và gợi ý.
+            Logger.error("Error initializing server at port " + port + ": " + ex + "\n");
+            if (ex instanceof java.net.BindException) {
+                Logger.error("Cong " + port + " DANG BI CHIEM. Thuong la con mot ban server cu chua tat.\n"
+                        + "  Windows: netstat -ano | findstr " + port + "   roi  taskkill /PID <so> /F\n"
+                        + "  macOS / Linux: lsof -i :" + port + "   roi  kill -9 <so>\n");
+            }
             System.exit(0);
         }
         this.start = true;
