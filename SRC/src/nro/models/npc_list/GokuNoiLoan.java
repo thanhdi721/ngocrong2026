@@ -17,11 +17,11 @@ import nro.models.services.Service;
 public class GokuNoiLoan extends Npc {
 
     /**
-     * Hào quang Goku Purple — ảnh {@code data/img_by_name/x1..x4/aura_97_0.png}, 12 khung.
-     * 97 là bản thu nhỏ còn 25% của bản gốc 95 (96 là bản 50%, đã bỏ). Mỗi lần đổi cỡ
-     * phải đổi sang id mới chứ không ghi đè, vì client cache ảnh img_by_name theo TÊN.
+     * Hào quang Goku Purple — ảnh {@code data/img_by_name/x1..x4/aura_98_0.png}, 12 khung.
+     * 98 là bản 75% của bản gốc 95 (96 = 50%, 97 = 25%, đều đã bỏ). Mỗi lần đổi cỡ phải
+     * đổi sang id mới chứ không ghi đè, vì client cache ảnh img_by_name theo TÊN.
      */
-    public static final int AURA_ID = 97;
+    public static final int AURA_ID = 98;
 
     public GokuNoiLoan(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);

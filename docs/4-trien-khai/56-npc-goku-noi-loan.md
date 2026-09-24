@@ -1,7 +1,7 @@
 # 56 — NPC "GoKu Nỗi Loạn" ở đảo Kamê (2026-09-24)
 
 NPC đứng cạnh Chi Chi (map 5), chỉ làm một việc: **bật / tắt hào quang Goku Purple
-(aura 97)** cho người chơi. Bật rồi thì đi đâu cũng còn, đăng xuất vào lại vẫn còn.
+(aura 98)** cho người chơi. Bật rồi thì đi đâu cũng còn, đăng xuất vào lại vẫn còn.
 
 ## Vị trí và ngoại hình
 
@@ -55,11 +55,12 @@ Bản gốc (aura 95) vào game to gấp mấy lần nhân vật, nên thu nhỏ
 |---|---|---|---|---|
 | 95 | gốc | 157×254 | 628×1016 | 8.7 MB |
 | 96 | 50% | 78×127 | 314×508 | 2.8 MB |
-| **97** | **25%** (đang dùng) | **39×64** | **157×254** | **864 KB** |
+| 97 | 25% | 39×64 | 157×254 | 864 KB |
+| **98** | **75%** (đang dùng) | **118×190** | **471×762** | **5.8 MB** |
 
 Đổi id chứ không ghi đè file cũ vì **client cache ảnh `img_by_name` theo tên** — máy nào tải
 `aura_95_0` rồi thì ghi đè bên server vẫn hiện ảnh cũ. Muốn chỉnh cỡ lần nữa thì làm y vậy:
-sinh ảnh mới thành `aura_98_0`, thêm dòng `img_by_name`, đổi `GokuNoiLoan.AURA_ID`.
+sinh ảnh mới thành `aura_99_0`, thêm dòng `img_by_name`, đổi `GokuNoiLoan.AURA_ID`.
 
 ## Danh hiệu
 
@@ -72,7 +73,7 @@ Tắt hào quang là danh hiệu hiện lại (chậm nhất 10 giây sau).
 
 1. Patch 62 (ảnh hào quang 95 + dòng `img_by_name`) — nếu chưa chạy.
 2. Patch 63 (`SRC/sql/patch/63-npc-goku-noi-loan.sql`), tắt server trước.
-3. Patch 64 rồi 65 (`64-aura-96-nho-lai.sql`, `65-aura-97-nho-25-phan-tram.sql`) — hào quang bản nhỏ.
+3. Patch 66 (`66-aura-98-len-75-phan-tram.sql`) — cỡ hào quang đang dùng. Patch 64, 65 là các cỡ đã thử, chạy hay không cũng được.
 4. Bật lại server bằng jar mới (`vsMap` = 8).
 
 ## Chưa kiểm tra được
