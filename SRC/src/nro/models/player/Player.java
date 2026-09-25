@@ -713,8 +713,15 @@ public class Player implements Runnable {
             {651, 652, 653}, {651, 652, 653}, {651, 652, 653}
         }};
 
+    /**
+     * Bộ đồ hiện lên khi bị Ma Phong Ba úp bình.
+     *
+     * <p>Trước đây dùng part 1218/1219/1220 (cái bình) nhưng phần thân 1219 trong res chỉ là
+     * ảnh trong suốt, nên nhân vật bị úp trông như cái bình lơ lửng không có người. Đổi sang
+     * Cải trang Bill Bí Ngô (754/755/756) — bộ này đủ 3/17/14 mảnh, không thiếu icon.
+     */
     public static final short[][] idOutfitMafuba = {
-        {1218, 1219, 1220}, {1218, 1219, 1220}, {1218, 1219, 1220}
+        {754, 755, 756}, {754, 755, 756}, {754, 755, 756}
     };
 
     public String percentGold(int type) {

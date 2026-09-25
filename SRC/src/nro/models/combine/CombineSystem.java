@@ -143,17 +143,17 @@ public class CombineSystem {
             case 2:
                 return 20000000;
             case 3:
-                return 40000000;
+                return 50000000;
             case 4:
-                return 60000000;
+                return 70000000;
             case 5:
-                return 90000000;
+                return 100000000;
             case 6:
-                return 120000000;
+                return 130000000;
             case 7:
-                return 200000000;
+                return 250000000;
             case 8:
-                return 300000000;
+                return 350000000;
 
         }
         return 0;
