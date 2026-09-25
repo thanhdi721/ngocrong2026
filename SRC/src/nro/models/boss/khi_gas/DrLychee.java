@@ -129,7 +129,8 @@ public class DrLychee extends Boss {
     public void joinMap() {
         ChangeMapService.gI().changeMap(this, this.zone, 480, 295);
         this.moveTo(480, 480);
-        this.changeStatus(BossStatus.CHAT_S);
+        this.notifyJoinMap();
+                this.changeStatus(BossStatus.CHAT_S);
     }
 
     @Override

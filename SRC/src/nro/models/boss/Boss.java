@@ -527,12 +527,33 @@ public class Boss extends Player implements IBoss {
         }
     }
 
+    /**
+     * Có báo toàn server khi con này ra map không.
+     *
+     * <p>Trước đây chỉ cần lớp con bật {@code isNotifyDisabled} là câm luôn, nên nhiều boss
+     * to (Heart 1,5 tỉ máu, cả nhóm boss nhiệm vụ 2–4 triệu máu) ra map mà không ai hay.
+     * Nay xét theo MÁU: dưới ngưỡng trong cpanel (tab "Rơi đồ boss") thì im, trên thì báo —
+     * vừa không mất thông báo boss lớn, vừa không spam mấy con Ăn Trộm / Mặt Trời 100 máu.
+     *
+     * <p>Vẫn im trong các trường hợp bắt buộc: lâu la đi kèm boss chính, map phó bản, Ma Bư,
+     * chiến trường ngọc đen, map 140 và 111.
+     */
     private boolean canSendNotify() {
-        return !(this.isNotifyDisabled || this.zone.map.mapId == 140
+        if (this.zone == null || this.zone.map == null) {
+            return false;
+        }
+        if (this.parentBoss != null) {
+            return false;                       // lâu la của boss khác, không báo riêng
+        }
+        if (this.zone.map.mapId == 140
                 || this.zone.map.mapId == 111
                 || MapService.gI().isMapPhoBan(this.zone.map.mapId)
                 || MapService.gI().isMapMaBu(this.zone.map.mapId)
-                || MapService.gI().isMapBlackBallWar(this.zone.map.mapId));
+                || MapService.gI().isMapBlackBallWar(this.zone.map.mapId)) {
+            return false;
+        }
+        int mauMin = nro.models.boss.BossDropConfig.THONG_BAO_MAU_MIN.giaTri;
+        return this.nPoint != null && this.nPoint.hpMax >= mauMin;
     }
 
     @Override

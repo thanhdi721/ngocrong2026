@@ -96,6 +96,7 @@ public class Broly extends Boss {
                 }
 
                 ChangeMapService.gI().changeMap(this, this.zone, -1, -1);
+                this.notifyJoinMap();
                 this.changeStatus(BossStatus.CHAT_S);
             } catch (Exception e) {
                 this.changeStatus(BossStatus.REST);

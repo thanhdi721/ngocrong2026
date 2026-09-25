@@ -40,7 +40,8 @@ public class SoiHecQuyn extends Boss {
     public void joinMap() {
         if (zoneFinal != null) {
             joinMapByZone(zoneFinal);
-            this.changeStatus(BossStatus.CHAT_S);
+            this.notifyJoinMap();
+                this.changeStatus(BossStatus.CHAT_S);
             this.wakeupAnotherBossWhenAppear();
             this.ThoiGianNhatXuong = 0;
             this.KiemTraNhatXuong = false;
@@ -74,7 +75,8 @@ public class SoiHecQuyn extends Boss {
                     this.zone = availableZones.get(randomIndex);
                     ChangeMapService.gI().changeMap(this, this.zone, Util.nextInt(100, 500), this.zone.map.yPhysicInTop(this.location.x,
                             this.location.y - 24));
-                    this.changeStatus(BossStatus.CHAT_S);
+                    this.notifyJoinMap();
+                this.changeStatus(BossStatus.CHAT_S);
                     st = System.currentTimeMillis();
                     timeLeave = Util.nextInt(100000, 300000);
                 } else {

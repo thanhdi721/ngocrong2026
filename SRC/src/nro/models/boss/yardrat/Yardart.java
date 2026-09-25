@@ -47,7 +47,8 @@ public abstract class Yardart extends Boss {
     public void joinMap() {
         if (zoneFinal != null) {
             joinMapByZone(zoneFinal);
-            this.changeStatus(BossStatus.CHAT_S);
+            this.notifyJoinMap();
+                this.changeStatus(BossStatus.CHAT_S);
             this.wakeupAnotherBossWhenAppear();
             return;
         }
@@ -68,6 +69,7 @@ public abstract class Yardart extends Boss {
                 } else {
                     ChangeMapService.gI().changeMap(this, this.zone, this.location.x, this.location.y);
                 }
+                this.notifyJoinMap();
                 this.changeStatus(BossStatus.CHAT_S);
             } catch (Exception e) {
                 this.changeStatus(BossStatus.REST);

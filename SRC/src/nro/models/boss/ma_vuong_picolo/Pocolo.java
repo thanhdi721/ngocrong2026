@@ -199,7 +199,8 @@ public class Pocolo extends Boss {
                         }
                         Service.gI().setPos(this, pl.location.x + (Util.getOne(-1, 1) * Util.nextInt(50, 100)), 336);
                         this.moveToPlayer(pl);
-                        this.changeStatus(BossStatus.CHAT_S);
+                        this.notifyJoinMap();
+                this.changeStatus(BossStatus.CHAT_S);
                     }
                 }
             }

@@ -168,6 +168,7 @@ public class MatTroi extends Boss {
                 this.zone = this.zone.map.zones.get(zoneid);
                 ChangeMapService.gI().changeMap(this, this.zone, -1, -1);
 
+                this.notifyJoinMap();
                 this.changeStatus(BossStatus.CHAT_S);
             } catch (Exception e) {
                 this.changeStatus(BossStatus.REST);

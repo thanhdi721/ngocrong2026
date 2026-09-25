@@ -88,6 +88,11 @@ public final class BossDropConfig {
     public static final Muc LT_TRAN_DAME = them("lt_tran_dame",
             "Lốp Trưởng 20k — trần sát thương người chơi", 100, "Mỗi đòn không vượt quá số này");
 
+    //================== Thông báo boss xuất hiện ==================
+    public static final Muc THONG_BAO_MAU_MIN = them("thong_bao_mau_min",
+            "Thông báo boss — máu tối thiểu", 1_000_000,
+            "Boss ít máu hơn số này thì ra âm thầm (chặn spam Ăn Trộm, Mặt Trời…)");
+
     //================== Vật phẩm rơi (sửa được id) ==================
     /** Ô nhập dạng chữ: danh sách id vật phẩm, cách nhau bằng dấu phẩy. */
     public static final class MucChu {
