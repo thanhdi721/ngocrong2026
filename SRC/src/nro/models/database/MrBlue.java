@@ -230,6 +230,14 @@ public class MrBlue {
                 player.auraNpc = -1;
             }
 
+            // Nhẫn Chí Tôn — "soLanThong|soLanBiThong"
+            try {
+                nro.models.services.ThongDitService.doc(player, rs.getString("thong_dit"));
+            } catch (Exception e) {
+                player.soLanThong = 0;
+                player.soLanBiThong = 0;
+            }
+
             int clanId = rs.getInt("clan_id");
             if (clanId != -1) {
                 try {

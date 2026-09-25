@@ -158,6 +158,11 @@ public class BossManager implements Runnable {
         } catch (Exception e) {
             nro.models.utils.Logger.error("Không tạo được hai boss Fu: " + e + "\n");
         }
+        try {
+            nro.models.boss.sieu_than_god.BossSieuThanGod.taoCaHai();  // Vegeta + Goku Siêu Thần God (ba hành tinh)
+        } catch (Exception e) {
+            nro.models.utils.Logger.error("Không tạo được hai boss Siêu Thần God: " + e + "\n");
+        }
         this.createBoss(BossID.TIEU_DOI_TRUONG);
         this.createBoss(BossID.TIEU_DOI_TRUONG_NM);
         this.createBoss(BossID.BOJACK);

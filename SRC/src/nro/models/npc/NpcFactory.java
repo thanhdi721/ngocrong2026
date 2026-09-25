@@ -234,6 +234,8 @@ public class NpcFactory {
                     new ChiChi(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.GOKU_NOI_LOAN ->
                     new GokuNoiLoan(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.BA_MOI ->
+                    new nro.models.npc_list.BaMoi(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.HUNG_VUONG ->
                     new VuaHung(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.DUA_HAU ->
@@ -345,7 +347,20 @@ public class NpcFactory {
                     case ConstNpc.MAKE_MATCH_PVP -> {
                         if (Maintenance.isRunning) {
                         }
-                        PVPService.gI().sendInvitePVP(player, (byte) select);
+                        // Mục cuối cùng của menu này là "Thông đít" (Nhẫn Chí Tôn), các mục
+                        // trước vẫn là các mức cược thách đấu.
+                        if (select == PVPService.CHON_THONG_DIT) {
+                            nro.models.services.ThongDitService.gI().moiThongDit(player);
+                        } else {
+                            PVPService.gI().sendInvitePVP(player, (byte) select);
+                        }
+                    }
+                    case ConstNpc.THONG_DIT_XAC_NHAN -> {
+                        if (select == 0) {
+                            nro.models.services.ThongDitService.gI().dongY(player);
+                        } else {
+                            nro.models.services.ThongDitService.gI().tuChoi(player);
+                        }
                     }
                     case ConstNpc.MAKE_FRIEND -> {
                         if (select == 0) {

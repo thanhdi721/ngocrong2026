@@ -166,6 +166,9 @@ public class ConstNpc {
     // NPC bật hào quang Goku Purple, đứng cạnh Chi Chi ở đảo Kamê (map 5).
     // id 86 = ô trống kế tiếp sau 85, vẫn giữ luật "id = vị trí trong npc_template".
     public static final byte GOKU_NOI_LOAN = 86;
+    // NPC "Bà Mối" đứng cạnh GoKu Nỗi Loạn ở đảo Kamê (map 5), xem sổ thông đít.
+    // id 87 = ô trống kế tiếp sau 86, vẫn giữ luật "id = vị trí trong npc_template".
+    public static final byte BA_MOI = 87;
     // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
     public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------
@@ -386,5 +389,10 @@ public class ConstNpc {
     /** Menu chọn hào quang của NPC GoKu Nỗi Loạn (npc_list/GokuNoiLoan). */
     public static final int CHON_HAO_QUANG = 1014;
     public static final int KOL_QUEST_TYPE_MONSTER_KILL_COUNT = 1014;
+
+    /** Menu hỏi "cho phép không" của người bị mời thông đít (services/ThongDitService). */
+    public static final int THONG_DIT_XAC_NHAN = 1030;
+    /** Menu gốc của NPC Bà Mối (npc_list/BaMoi). */
+    public static final int BA_MOI_MENU = 1031;
 
 }

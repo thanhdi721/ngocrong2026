@@ -63,7 +63,8 @@ public class DataGame {
     // 5 -> 6: đổi bộ tile của map 166 Phòng thí nghiệm Myuu (patch 31).
     // 6 -> 7: đổi hình npc_template 108 Heart và 110 (patch 32).
     // 7 -> 8: thêm npc_template 86 "GoKu Nỗi Loạn" đứng cạnh Chi Chi ở map 5 (patch 63).
-    public static byte vsMap = 8;
+    // 8 -> 9: thêm npc_template 87 "Bà Mối" đứng cạnh GoKu Nỗi Loạn ở map 5 (patch 78).
+    public static byte vsMap = 9;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.
@@ -86,7 +87,8 @@ public class DataGame {
     // 23 -> 24: thêm 96 vật phẩm id 2124–2219 mang từ SUMO/Bun (patch 67).
     // 24 -> 25: sửa icon 7 món bị lỗi hình của đợt SUMO (patch 73).
     // 25 -> 26: thêm 2 viên đá Pháp Sư và 7 dòng chỉ số 251–257 (patch 75).
-    public static byte vsItem = 26;
+    // 26 -> 27: thêm vật phẩm 2264 "Nhẫn Chí Tôn" (patch 78).
+    public static byte vsItem = 27;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

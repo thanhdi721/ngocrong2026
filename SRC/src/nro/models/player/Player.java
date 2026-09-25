@@ -203,6 +203,23 @@ public class Player implements Runnable {
      * (file {@code data/img_by_name/x1..x4/aura_[id]_0.png}). Bật thì đè lên hào quang thẻ rađa.
      */
     public int auraNpc = -1;
+
+    /**
+     * Nhẫn Chí Tôn — cột `thong_dit` lưu "soLanThong|soLanBiThong".
+     *
+     * <p>{@code soLanThong} tối đa 10, mỗi lần +1 % HP/KI/sức đánh.
+     * {@code soLanBiThong} tối đa 20, cứ 2 lần mới +1 % (20 lần = +10 %).
+     * Xem {@link nro.models.services.ThongDitService}.
+     */
+    public int soLanThong;
+    public int soLanBiThong;
+    /** Lời mời "thông đít" đang chờ mình trả lời: id người mời, 0 là không có. */
+    public long idMoiThongDit;
+    /** Lúc nhận lời mời trên, để hết 30 giây thì bỏ. */
+    public long lucMoiThongDit;
+    /** Lần gần nhất MÌNH ngỏ lời với người khác, để chặn spam menu. */
+    public long lucNgoLoiThongDit;
+
     public MobMe mobMe;
     public Location location;
     public SetClothes setClothes;

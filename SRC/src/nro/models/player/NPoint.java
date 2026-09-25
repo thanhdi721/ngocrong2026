@@ -913,6 +913,13 @@ public class NPoint {
             }
         }
 
+
+        // Nhẫn Chí Tôn — thông đít (services/ThongDitService): tối đa +20 % cho HP.
+        // Cộng sau cùng, chỉ áp cho người chơi thật (pet/boss dùng chung NPoint).
+        int tlThongDitHp = nro.models.services.ThongDitService.phanTram(this.player);
+        if (tlThongDitHp > 0) {
+            hpMax += (hpMax * tlThongDitHp / 100L);
+        }
         if (hpMax > 2_147_483_647) {
             hpMax = 2_147_483_647;
         }
@@ -1018,6 +1025,13 @@ public class NPoint {
             }
         }
 
+
+        // Nhẫn Chí Tôn — thông đít (services/ThongDitService): tối đa +20 % cho KI.
+        // Cộng sau cùng, chỉ áp cho người chơi thật (pet/boss dùng chung NPoint).
+        int tlThongDitKi = nro.models.services.ThongDitService.phanTram(this.player);
+        if (tlThongDitKi > 0) {
+            mpMax += (mpMax * tlThongDitKi / 100L);
+        }
         if (mpMax
                 > 2_147_483_647) {
             mpMax = 2_147_483_647;
@@ -1198,6 +1212,13 @@ public class NPoint {
             dame /= 2;
         }
 
+
+        // Nhẫn Chí Tôn — thông đít (services/ThongDitService): tối đa +20 % cho sức đánh.
+        // Cộng sau cùng, chỉ áp cho người chơi thật (pet/boss dùng chung NPoint).
+        int tlThongDitSd = nro.models.services.ThongDitService.phanTram(this.player);
+        if (tlThongDitSd > 0) {
+            dame += (dame * tlThongDitSd / 100L);
+        }
         if (dame > 2_147_483_647) {
             dame = 2_147_483_647;
         }

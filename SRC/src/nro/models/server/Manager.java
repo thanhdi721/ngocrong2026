@@ -113,6 +113,9 @@ public final class Manager {
     public static volatile boolean HAS_VQTD = false;
     /** CSDL đã có cột player.aura_npc chưa (hào quang NPC bật cho người chơi). */
     public static volatile boolean HAS_AURA_NPC = false;
+
+    /** CSDL đã có cột player.thong_dit chưa ("soLanThong|soLanBiThong", Nhẫn Chí Tôn). */
+    public static volatile boolean HAS_THONG_DIT = false;
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
     public static List<TOP> Topsukien1;
@@ -401,6 +404,35 @@ public final class Manager {
     private void ensureSchema() {
         HAS_VQTD = baoDamCot("vqtd", "TEXT NULL", "vong quay Thuong De", 58);
         HAS_AURA_NPC = baoDamCot("aura_npc", "INT NOT NULL DEFAULT -1", "hao quang NPC", 63);
+        // Bảng `player` đã KỊCH trần 65.535 byte một dòng của InnoDB (riêng các cột VARCHAR
+        // đã 65.040 byte), thêm cột nào cũng văng lỗi 1118 "Row size too large". Đổi
+        // `data_card` VARCHAR(10000) utf8mb4 (= 40.000 byte trong ngân sách dòng, trong khi
+        // nó chỉ chứa một chuỗi JSON ngắn) sang TEXT để trả lại chỗ — xem patch 78.
+        noiChoDataCard();
+        HAS_THONG_DIT = baoDamCot("thong_dit", "TEXT NULL", "thong dit (Nhan Chi Ton)", 78);
+    }
+
+    /**
+     * Đổi `player`.`data_card` từ VARCHAR(10000) sang TEXT nếu còn là VARCHAR. Cột này không
+     * nằm trong index nào, PlayerDAO ghi bằng JSON và MrBlue đọc bằng getString, nên đổi kiểu
+     * không ảnh hưởng gì; TEXT chứa được nhiều hơn VARCHAR(10000) utf8mb4 nên không mất dữ liệu.
+     */
+    private void noiChoDataCard() {
+        try {
+            nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery(
+                    "select data_type from information_schema.columns"
+                    + " where table_schema = database() and table_name = 'player'"
+                    + " and column_name = 'data_card'");
+            boolean laVarchar = rs.next() && "varchar".equalsIgnoreCase(rs.getString("data_type"));
+            rs.dispose();
+            if (laVarchar) {
+                nro.models.data.LocalManager.executeUpdate(
+                        "ALTER TABLE `player` MODIFY COLUMN `data_card` TEXT NULL");
+                Logger.warning("Da doi player.data_card sang TEXT de noi cho dong (patch 78)\n");
+            }
+        } catch (Exception e) {
+            Logger.error("Khong doi duoc player.data_card sang TEXT: " + e + "\n");
+        }
     }
 
     /** Thêm một cột của bảng player nếu chưa có; trả về true khi cột dùng được. */

@@ -992,6 +992,65 @@ public class BossesData {
             REST_15_M //second rest
     );
 
+    //========================SIÊU THẦN GOD (ba hành tinh)========================
+    // Ngoại hình lấy từ hai cải trang đã có sẵn (patch 35 mang từ NGOL):
+    //   "Vegeta god"    — item 2041, part 2126 / 2127 / 2128
+    //   "Goku SSJ God"  — item 2048, part 2147 / 2148 / 2149
+    // Ô thứ 5 là hào quang: 100 Khí Vàng cho Vegeta, 99 Khí Xanh Dương cho Goku (patch 74).
+    // Map 4 Rừng xương (Trái Đất) / 12 Vực Maima (Namếc) / 20 Vách núi đen (Xayda) —
+    // mỗi lượt hai con ra hai map KHÁC nhau, xem BossSieuThanGod.getMapJoin().
+    public static final BossData VEGETA_SIEU_THAN_GOD = new BossData(
+            "Vegeta Siêu Thần God", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{2126, 2127, 2128, -1, 100, -1}, //outfit {head, body, leg, bag, aura, eff}
+            50_000, //dame
+            new int[]{500_000_000}, //hp
+            new int[]{4, 12, 20}, //map join — ba hành tinh
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 300000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            //skill
+            new String[]{"|-1|Hoàng tử Xayda đã chạm tới cảnh giới của thần",
+                "|-1|Ba hành tinh này giờ là sân tập của ta",
+                "|-1|Đừng bắt ta phải nhớ tên các ngươi"
+            }, //text chat 1
+            new String[]{"|-1|Sức mạnh đó mà cũng dám đứng trước mặt ta?",
+                "|-1|Ta đánh thật đấy, đừng có mà ngã sớm",
+                "|-1|Kakarot còn chưa thắng nổi ta cơ mà"
+            }, //text chat 2
+            new String[]{"|-1|Khốn... kiếp... lần sau ta sẽ không nương tay"}, //text chat 3
+            REST_10_M //second rest
+    );
+
+    public static final BossData GOKU_SIEU_THAN_GOD = new BossData(
+            "Goku Siêu Thần God", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2147, 2148, 2149, -1, 99, -1}, //outfit {head, body, leg, bag, aura, eff}
+            50_000, //dame
+            new int[]{500_000_000}, //hp
+            new int[]{4, 12, 20}, //map join — ba hành tinh
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 300000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            //skill
+            new String[]{"|-1|Ôi chà, ở đây đông vui quá ta",
+                "|-1|Đánh nhau một chút cho nóng người nhé",
+                "|-1|Ta hứa sẽ không đánh mạnh... chắc vậy"
+            }, //text chat 1
+            new String[]{"|-1|Hay lắm! Đánh tiếp đi!",
+                "|-1|Lâu rồi mới có người làm ta phải nghiêm túc",
+                "|-1|Các ngươi mạnh thật đấy, ta thích"
+            }, //text chat 2
+            new String[]{"|-1|Hehe... vui thật, lần sau đánh tiếp nhé"}, //text chat 3
+            REST_10_M //second rest
+    );
+
     //========================CUMBER========================
     public static final BossData CUMBER = new BossData(
             "Cumber", //name

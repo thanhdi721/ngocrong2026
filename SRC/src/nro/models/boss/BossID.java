@@ -227,6 +227,11 @@ public class BossID {
     public static final int FU = -2210;
     public static final int FU_HOP_THE = -2211;
 
+    // Hai boss Siêu Thần God đi vòng ba hành tinh (map 4 / 12 / 20), mỗi lượt ra CẢ HAI
+    // nhưng luôn khác map — xem boss/sieu_than_god/BossSieuThanGod.
+    public static final int VEGETA_SIEU_THAN_GOD = -2212;
+    public static final int GOKU_SIEU_THAN_GOD = -2213;
+
     public static final int KE_THU_GOM = -2000;       // NV 6 bước 1 — 1 hình dạng
     public static final int JACO_VO_THUC = -2001;     // NV 15 bước 1 — 2 hình dạng
 }
