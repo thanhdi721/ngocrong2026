@@ -20,11 +20,11 @@ Nguồn đá cho chức năng [Pháp sư trang bị](61-phap-su-trang-bi.md).
 | Tên | Hình | Hào quang |
 |---|---|---|
 | **Fu Thời Không** | cải trang "Fu" (item 2164, part 2490/2491/2492) | 104 Khí Tử Điện |
-| **Fu Hợp Thể** | "Cải trang Hợp Thể" (item 639, part 627/628/629) | 103 Khí Huyết Đỏ |
+| **Fu Hợp Thể** | "Cải trang Fu Hợp Thể" (item 2038, part 2117/2118/2119) | 103 Khí Huyết Đỏ |
 
-**Lưu ý về cải trang**: server mình **không có** bộ nào tên "Fu hợp thể". Con thứ hai đang mượn
-"Cải trang Hợp Thể" (tóc đỏ, đồ đen đỏ) cho hợp cặp. Muốn đổi sang bộ khác thì sửa đúng một
-dòng `outfit` của `BossesData.FU_HOP_THE`.
+**Ghi chú**: bộ "Cải trang Fu Hợp Thể" (item 2038) vào server từ đợt mang đồ NGOL về
+(patch 35) nên DB gốc trên máy tôi không có — lúc đầu tôi tưởng server không có bộ này và
+tạm mượn "Cải trang Hợp Thể" tóc đỏ. Chủ dự án chỉ ra, đã đổi về đúng bộ Fu Hợp Thể.
 
 ## Cách "mỗi lượt một con" hoạt động
 

@@ -3,6 +3,9 @@
 Lấy ý tưởng từ `PHAP_SU_TRANG_BI` bên source Bun, **viết lại** cho hợp server mình chứ
 không bê nguyên.
 
+> **Cập nhật 25/09 (lần 2)**: chủ dự án chốt chỉ pháp sư **áo, quần, găng, giày, rađa**
+> (loại 0–4), bỏ cải trang / đeo lưng / linh thú.
+
 ## Luật
 
 **Nâng** — Bà Hạt Mít (đảo Kamê) → *Pháp sư Trang bị*:
@@ -57,9 +60,25 @@ mấy chục lần — mỗi lần làm lại tốn 6 × (200tr + 20 đá) để
 
 ## Đồ nào pháp sư được
 
-**Cải trang (type 5), đeo lưng (type 11), linh thú (type 27 có đủ 3 part)** — đúng ba họ đồ
-của mình **vốn không có chỉ số gì**, nhất là 138 món vừa mang từ SUMO về. Bên Bun cho pháp sư
-"trang bị pet / phụ kiện bang" — hai thứ server mình không có nên bỏ.
+**Áo (0), quần (1), găng (2), giày (3), rađa (4)** — đúng năm ô trang bị chính. Đồ gộp chồng
+được thì bỏ qua.
+
+## Tẩy phải TRỪ chứ không xoá
+
+Trang bị thường đã có chỉ số riêng (HP+, giáp+, chí mạng…), mà bảy chỉ số Pháp Sư lại dùng
+chung id với chúng, nên không thể "xoá cả dòng" như bản trước. Món đồ mang thêm **hai tem**:
+
+| Id | Tên | Người chơi thấy | Việc thật |
+|---|---|---|---|
+| 251 | `Pháp Sư cấp #` | "Pháp Sư cấp 4" | số lần đã nâng |
+| 252 | `Dấu Pháp Sư` | "Dấu Pháp Sư" | `param` giữ **mã cơ số 7** ghi số lần trúng của từng dòng |
+
+Tên của tem 252 **không có dấu `#`** nên client chỉ in đúng chữ "Dấu Pháp Sư", con số bên
+trong không hiện ra. Lúc tẩy, server giải mã tem này rồi **trừ đúng** phần pháp sư đã cộng
+(dòng nào về 0 thì bỏ hẳn), chỉ số gốc của trang bị giữ nguyên.
+
+Mã lớn nhất có thể là 705.894 — vượt short, nhưng `param` bên server là `int` và được lưu
+xuống DB dạng JSON nên không mất; client nhận bản cắt ngắn nhưng chẳng dùng tới.
 
 ## Những chỗ KHÔNG bê theo Bun
 

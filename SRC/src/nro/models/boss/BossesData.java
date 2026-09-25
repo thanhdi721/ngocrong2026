@@ -935,9 +935,10 @@ public class BossesData {
     );
 
     //========================FU (Nam Kamê) ========================
-    // Hình lấy từ cải trang "Fu" (item 2164, part 2490/2491/2492) và "Cải trang Hợp Thể"
-    // (item 639, part 627/628/629). Ô thứ 5 của outfit là hào quang — dùng hai hào quang
-    // mang từ SUMO về (patch 74): 104 Khí Tử Điện và 103 Khí Huyết Đỏ.
+    // Hình lấy từ hai cải trang có sẵn: "Fu" (item 2164, part 2490/2491/2492) và
+    // "Cải trang Fu Hợp Thể" (item 2038 mang từ NGOL, part 2117/2118/2119).
+    // Ô thứ 5 của outfit là hào quang — dùng hai hào quang mang từ SUMO về (patch 74):
+    // 104 Khí Tử Điện và 103 Khí Huyết Đỏ.
     public static final BossData FU = new BossData(
             "Fu Thời Không", //name
             ConstPlayer.TRAI_DAT, //gender
@@ -967,8 +968,8 @@ public class BossesData {
 
     public static final BossData FU_HOP_THE = new BossData(
             "Fu Hợp Thể", //name
-            ConstPlayer.XAYDA, //gender
-            new short[]{627, 628, 629, -1, 103, -1}, //outfit
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2117, 2118, 2119, -1, 103, -1}, //outfit — cải trang "Cải trang Fu Hợp Thể" (item 2038)
             200_000, //dame
             new int[]{1_000_000_000}, //hp
             new int[]{29}, //map join — Nam Kamê
