@@ -64,9 +64,14 @@ SELECT `id`, `NAME`, `npcs` FROM `map_template` WHERE `id` = 5;
 -- (2) CẬP NHẬT
 -- ---------------------------------------------------------------------
 
--- (2a) Cột nhớ hào quang đang bật. MariaDB hiểu IF NOT EXISTS; nếu là MySQL 8
--- thì bỏ "IF NOT EXISTS" và chỉ chạy dòng này khi cột chưa có.
-ALTER TABLE `player` ADD COLUMN IF NOT EXISTS `aura_npc` INT NOT NULL DEFAULT -1;
+-- (2a) Cột nhớ hào quang đang bật. Viết kiểu này để chạy được cả MariaDB lẫn MySQL 8
+-- (MySQL 8 không hiểu "ADD COLUMN IF NOT EXISTS"), và chạy lại nhiều lần vẫn an toàn.
+SET @co := (SELECT COUNT(*) FROM information_schema.columns
+             WHERE table_schema = DATABASE() AND table_name = 'player' AND column_name = 'aura_npc');
+SET @sql := IF(@co = 0,
+               'ALTER TABLE `player` ADD COLUMN `aura_npc` INT NOT NULL DEFAULT -1',
+               'SELECT ''cot aura_npc da co''');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
 
 -- (2b) npc_template 86. Chạy lại chỉ ghi đè cùng giá trị.
 INSERT INTO `npc_template` (`id`, `NAME`, `head`, `body`, `leg`, `avatar`)

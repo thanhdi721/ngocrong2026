@@ -49,7 +49,8 @@ public class DataGame {
     // 25 -> 26: chỉnh đầu nữ thần bản nhỏ (patch 61).
     // 26 -> 27: hạ đầu nữ thần thêm 2 (patch 61 bản cập nhật).
     // 27 -> 28: hạ đầu nữ thần thêm 1 (patch 61 bản cập nhật).
-    public static byte vsData = 28;
+    // 28 -> 29: thêm 288 part của 72 cải trang + 24 linh thú mang từ SUMO/Bun (patch 67).
+    public static byte vsData = 29;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -81,7 +82,8 @@ public class DataGame {
     // 20 -> 21: thêm 3 linh thú 2120–2122 (patch 54).
     // 21 -> 22: thêm vật phẩm 2123 Nâng kỹ năng 5 đệ tử (patch 58).
     // 22 -> 23: Bùa x2 đệ tử 1628 cho gộp chồng (patch 59).
-    public static byte vsItem = 23;
+    // 23 -> 24: thêm 96 vật phẩm id 2124–2219 mang từ SUMO/Bun (patch 67).
+    public static byte vsItem = 24;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
