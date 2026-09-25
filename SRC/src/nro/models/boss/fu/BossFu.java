@@ -63,6 +63,12 @@ public class BossFu extends Boss {
 
     private BossFu(int id, nro.models.boss.BossData data) throws Exception {
         super(id, data);
+        // Đặt tên ngay lúc dựng: trước lần ra map đầu tiên thì initBase chưa chạy, cpanel
+        // tab "Boss" sẽ hiện dấu "?" thay vì tên, nhìn tưởng chưa có boss.
+        this.name = data.getName();
+        this.nPoint.hpg = data.getHp()[0];
+        this.nPoint.hpMax = data.getHp()[0];
+        this.nPoint.dameg = data.getDame();
     }
 
     /**
