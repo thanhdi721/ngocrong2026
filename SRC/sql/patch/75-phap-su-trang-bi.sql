@@ -28,7 +28,7 @@ SELECT MAX(`id`) AS option_max FROM `item_option_template`;
 SET NAMES utf8mb4;
 
 DELETE FROM `item_template`        WHERE `id` BETWEEN 2262 AND 2263;
-DELETE FROM `item_option_template` WHERE `id` BETWEEN 253 AND 257;   -- dọn dải cũ nếu đã lỡ chạy bản đầu   -- dọn cả dải cũ nếu đã lỡ chạy bản trước
+DELETE FROM `item_option_template` WHERE `id` BETWEEN 251 AND 257;   -- dọn sạch dải cũ trước khi thêm lại
 
 -- (1) HAI dòng tem (không phải 7 dòng chỉ số).
 --

@@ -17,29 +17,38 @@ không bê nguyên.
 **Tẩy** — *Tẩy Pháp sư*: đặt trang bị đã pháp sư + **5 Đá Tẩy Pháp Sư**, trả **500 ngọc**,
 gỡ **sạch** mọi dòng Pháp Sư (không đụng các dòng khác của món đồ), món đồ về 0/6.
 
-## Bảy dòng — dùng LẠI option có sẵn
+## Bảy chỉ số
 
-| Dòng | Id option | Mỗi lần trúng | Nếu dồn hết 6 lần |
-|---|---|---|---|
-| Sức đánh | 50 | +2% | +12% |
-| HP | 77 | +2% | +12% |
-| KI | 103 | +2% | +12% |
-| Giáp | 47 | +100 | +600 |
-| Giảm sát thương | 94 | +1% | +6% |
-| Né đòn | 108 | +1% | +6% |
-| Xuyên giáp | 98 + 99 | +1% (cả chưởng lẫn cận chiến) | +6% |
+| Dòng | Option dùng | Mỗi lần trúng |
+|---|---|---|
+| Sức đánh | 0 `Tấn công+#` | **+100 … +1000** |
+| HP | 6 `HP+#` | **+1000 … +2000** |
+| KI | 7 `KI+#` | **+1000 … +2000** |
+| Giáp | 47 `Giáp+#` | +100 … +300 |
+| Giảm sát thương | 94 | +1 … +2% |
+| Né đòn | 108 | +1 … +2% |
+| Xuyên giáp | 98 + 99 | +1 … +2% (cả chưởng lẫn cận chiến) |
 
-Bảng option chỉ thêm **đúng một dòng mới**: id 251 `Pháp Sư cấp #` làm tem đếm số lần đã nâng.
+**Trúng lại cùng một dòng thì lần đó nhân thêm 50%** cho mỗi lần đã có trước: lần 2 ×1,5,
+lần 3 ×2, lần 4 ×2,5… Ví dụ thật (mô phỏng): một món bốc trúng Sức đánh ở lần 4 được +327,
+tới lần 5 lại trúng Sức đánh thì được +1280.
 
-**Vì sao không đẻ 7 dòng riêng** (bản đầu tôi làm vậy và nó **làm hỏng client**): gói tin gửi
-bảng option ghi **số dòng bằng MỘT byte** (`ItemData.updateItemOptionItemplate`), và mỗi dòng
-chỉ số của món đồ cũng ghi **id bằng một byte**. Bảng đang có 251 dòng (id 0–250) nên trần là
-**255**. Thêm 7 dòng thành 258 → byte ghi ra là **2** → client đọc 2 dòng rồi lệch cả gói.
-Sau khi sửa: **252 dòng, id lớn nhất 251** — còn dư 3 chỗ.
+Cộng **thẳng** chứ không theo phần trăm. Muốn quay lại kiểu phần trăm thì đổi ba dòng đầu
+của mảng `DONG` trong `PhapSuTrangBi.java` sang option 50 / 77 / 103 và để khoảng 1–3, phần
+code còn lại không phải sửa.
 
-Hệ quả của việc dùng chung id: lúc tẩy không phân biệt được dòng nào do pháp sư cộng, nên
-chức năng **chỉ nhận món chưa có chỉ số nào** (cải trang / đeo lưng / linh thú bên mình vốn
-không có), và tẩy thì gỡ sạch cả 9 id kể trên.
+## Tẩy trừ lại bằng "hạt giống"
+
+Vì mỗi lần bốc ra một số ngẫu nhiên, lúc tẩy không thể đoán lại được đã cộng bao nhiêu.
+Cách làm: tem ngầm 252 giữ **hạt giống** (`Random` seed) của món đồ, tem 251 giữ số lần đã
+nâng. Cùng hạt giống + cùng số lần thì `phatLai()` cho ra **đúng dãy bốc cũ**, nên:
+
+* **nâng**: phát lại `n` lần và `n+1` lần, lấy phần chênh lệch để cộng;
+* **tẩy**: phát lại `n` lần, trừ đúng bấy nhiêu rồi gỡ hai tem.
+
+Chỉ số gốc của trang bị không bị đụng tới. **Lưu ý cho sau này**: đổi bảng `DONG` (giá trị,
+thứ tự dòng, mức nhân) sẽ làm mấy món đã pháp sư trước đó tẩy ra sai số — muốn đổi thì nên
+đổi lúc chưa ai kịp làm, hoặc chấp nhận lệch.
 
 ## Xác suất (mô phỏng 200.000 món)
 

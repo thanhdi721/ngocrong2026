@@ -59,18 +59,28 @@ public class PhapSuTrangBi {
     private static final int DAU = 252;
 
     /**
-     * Bảy chỉ số, mỗi dòng là {các id option sẵn có, mỗi lần trúng cộng bao nhiêu, tên}.
-     * Xuyên giáp cộng cả chưởng (98) lẫn cận chiến (99) trong một lần.
+     * Bảy chỉ số: {các id option, cộng ít nhất, cộng nhiều nhất, tên, hậu tố hiện ra}.
+     *
+     * <p>Mỗi lần trúng bốc một số trong khoảng; trúng LẠI cùng dòng thì phần cộng của lần đó
+     * nhân thêm {@code 50%} cho mỗi lần đã có trước (lần 2 ×1,5 · lần 3 ×2 · lần 4 ×2,5…).
+     *
+     * <p>Sức đánh / HP / KI cộng THẲNG (option 0, 6, 7) chứ không theo phần trăm, đúng như
+     * chủ dự án chốt. Muốn quay lại kiểu phần trăm thì đổi ba dòng đầu thành
+     * {@code {new int[]{50}, 1, 3, "Sức đánh", "%"}}, {@code {new int[]{77}, …}},
+     * {@code {new int[]{103}, …}} — phần còn lại của code không phải sửa gì.
      */
     private static final Object[][] DONG = {
-        {new int[]{50}, 2, "Sức đánh"},
-        {new int[]{77}, 2, "HP"},
-        {new int[]{103}, 2, "KI"},
-        {new int[]{47}, 100, "Giáp"},
-        {new int[]{94}, 1, "Giảm sát thương"},
-        {new int[]{108}, 1, "Né đòn"},
-        {new int[]{98, 99}, 1, "Xuyên giáp"},
+        {new int[]{0}, 100, 1000, "Sức đánh", ""},
+        {new int[]{6}, 1000, 2000, "HP", ""},
+        {new int[]{7}, 1000, 2000, "KI", ""},
+        {new int[]{47}, 100, 300, "Giáp", ""},
+        {new int[]{94}, 1, 2, "Giảm sát thương", "%"},
+        {new int[]{108}, 1, 2, "Né đòn", "%"},
+        {new int[]{98, 99}, 1, 2, "Xuyên giáp", "%"},
     };
+
+    /** Mỗi lần trúng lại cùng một dòng thì phần cộng nhân thêm ngần này. */
+    private static final double TANG_MOI_CAP = 0.5;
 
     /** Hai tem của chức năng này. */
     private static final java.util.Set<Integer> ID_TEM = new java.util.HashSet<>(
@@ -104,42 +114,46 @@ public class PhapSuTrangBi {
         return null;
     }
 
-    /** Đọc số lần trúng của từng dòng từ tem ngầm (mã cơ số 7). */
-    private static int[] docSoLan(Item it) {
-        int[] c = new int[DONG.length];
+    /** Hạt giống nằm ở tem ngầm; 0 nghĩa là chưa pháp sư lần nào. */
+    private static int hatGiong(Item it) {
         Item.ItemOption dau = timDong(it, DAU);
-        if (dau == null) {
-            return c;
-        }
-        int ma = dau.param;
-        for (int i = 0; i < c.length && ma > 0; i++) {
-            c[i] = ma % 7;
-            ma /= 7;
-        }
-        return c;
+        return dau == null ? 0 : dau.param;
     }
 
-    /** Ghi lại hai tem theo bảng số lần trúng. */
-    private static void ghiTem(Item it, int[] c) {
-        int tong = 0;
-        int ma = 0;
-        for (int i = c.length - 1; i >= 0; i--) {
-            ma = ma * 7 + c[i];
+    /**
+     * Phát lại đúng dãy bốc của món đồ: cùng hạt giống thì cho ra cùng kết quả, nên lúc tẩy
+     * trừ lại được CHÍNH XÁC phần đã cộng mà không cần nhớ chỉ số gốc của trang bị.
+     *
+     * @return tổng đã cộng cho từng dòng sau {@code soLan} lần bốc
+     */
+    private static int[] phatLai(int hat, int soLan) {
+        int[] tong = new int[DONG.length];
+        int[] dem = new int[DONG.length];
+        java.util.Random r = new java.util.Random(hat);
+        for (int i = 0; i < soLan; i++) {
+            int k = r.nextInt(DONG.length);
+            int min = (int) DONG[k][1];
+            int max = (int) DONG[k][2];
+            int goc = min + r.nextInt(max - min + 1);
+            tong[k] += (int) Math.round(goc * (1 + TANG_MOI_CAP * dem[k]));
+            dem[k]++;
         }
-        for (int x : c) {
-            tong += x;
-        }
+        return tong;
+    }
+
+    /** Ghi lại hai tem. */
+    private static void ghiTem(Item it, int hat, int soLan) {
         Item.ItemOption tem = timDong(it, TEM);
         if (tem == null) {
-            it.itemOptions.add(new Item.ItemOption(TEM, tong));
+            it.itemOptions.add(new Item.ItemOption(TEM, soLan));
         } else {
-            tem.param = tong;
+            tem.param = soLan;
         }
         Item.ItemOption dau = timDong(it, DAU);
         if (dau == null) {
-            it.itemOptions.add(new Item.ItemOption(DAU, ma));
+            it.itemOptions.add(new Item.ItemOption(DAU, hat));
         } else {
-            dau.param = ma;
+            dau.param = hat;
         }
     }
 
@@ -211,14 +225,14 @@ public class PhapSuTrangBi {
         return n;
     }
 
-    /** Liệt kê phần Pháp Sư đã cộng (đọc từ tem ngầm), không lẫn chỉ số gốc của món đồ. */
+    /** Liệt kê phần Pháp Sư đã cộng, không lẫn chỉ số gốc của món đồ. */
     private static String bangChiSo(Item it) {
-        int[] c = docSoLan(it);
+        int[] tong = phatLai(hatGiong(it), soLanDaNang(it));
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < DONG.length; i++) {
-            if (c[i] > 0) {
-                sb.append("|0|").append(DONG[i][2]).append(" +")
-                        .append(c[i] * (int) DONG[i][1]).append(i == 3 ? "" : "%").append("\n");
+            if (tong[i] > 0) {
+                sb.append("|0|").append(DONG[i][3]).append(" +").append(tong[i])
+                        .append(DONG[i][4]).append("\n");
             }
         }
         return sb.length() == 0 ? "|0|(chưa pháp sư lần nào)\n" : sb.toString();
@@ -318,16 +332,31 @@ public class PhapSuTrangBi {
         player.inventory.gold -= GOLD_NANG;
         truDa(player, DA_PHAP_SU, DA_NANG);
 
-        int k = Util.nextInt(DONG.length);
+        int soLan = soLanDaNang(tb);
+        int hat = hatGiong(tb);
+        if (hat == 0) {
+            hat = 1 + Util.nextInt(1_000_000_000);   // món mới: bốc hạt giống riêng
+        }
+        int[] truoc = phatLai(hat, soLan);
+        int[] sau = phatLai(hat, soLan + 1);
+        int k = -1;
+        for (int i = 0; i < DONG.length; i++) {
+            int them = sau[i] - truoc[i];
+            if (them > 0) {
+                congDong(tb, (int[]) DONG[i][0], them);
+                k = i;
+            }
+        }
+        ghiTem(tb, hat, soLan + 1);
+        if (k < 0) {
+            k = 0;   // không bao giờ xảy ra, nhưng để thông báo không văng
+        }
         Object[] dong = DONG[k];
-        congDong(tb, (int[]) dong[0], (int) dong[1]);
-        int[] c = docSoLan(tb);
-        c[k]++;
-        ghiTem(tb, c);
+        int themCuoi = sau[k] - truoc[k];
 
         CombineService.gI().sendEffectSuccessCombine(player);
-        Service.gI().sendThongBao(player, "Pháp sư thành công: " + dong[2] + " +" + dong[1]
-                + " (đã nâng " + soLanDaNang(tb) + "/" + SO_LAN_TOI_DA + " lần)");
+        Service.gI().sendThongBao(player, "Pháp sư thành công: " + dong[3] + " +" + themCuoi
+                + dong[4] + " (đã nâng " + soLanDaNang(tb) + "/" + SO_LAN_TOI_DA + " lần)");
 
         InventoryService.gI().sendItemBags(player);
         Service.gI().sendMoney(player);
@@ -410,10 +439,10 @@ public class PhapSuTrangBi {
 
         player.inventory.gem -= GEM_TAY;
         truDa(player, DA_TAY_PHAP_SU, DA_TAY);
-        int[] c = docSoLan(tb);
+        int[] tong = phatLai(hatGiong(tb), soLanDaNang(tb));
         for (int i = 0; i < DONG.length; i++) {
-            if (c[i] > 0) {
-                truDong(tb, (int[]) DONG[i][0], c[i] * (int) DONG[i][1]);
+            if (tong[i] > 0) {
+                truDong(tb, (int[]) DONG[i][0], tong[i]);
             }
         }
         tb.itemOptions.removeIf(PhapSuTrangBi::laTem);
