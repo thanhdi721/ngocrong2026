@@ -8,12 +8,13 @@ public class ConstTask {
     public static final byte VERY_HARD = 3;
     public static final byte HELL = 4;
 
-    //const gold reward side task
-    public static final int GOLD_EASY = 5000;
-    public static final int GOLD_NORMAL = 20000;
-    public static final int GOLD_HARD = 50000;
-    public static final int GOLD_VERY_HARD = 200000;
-    public static final int GOLD_HELL = 25;
+    // Vàng thưởng nhiệm vụ hàng ngày (nhiệm vụ phụ ở Bò Mộng) — chủ dự án chốt 25/09/2026.
+    // Bản cũ: 5.000 / 20.000 / 50.000 / 200.000 / 25 (cấp Địa ngục gõ thiếu số, ít hơn cả cấp Dễ).
+    public static final int GOLD_EASY = 5_000_000;
+    public static final int GOLD_NORMAL = 10_000_000;
+    public static final int GOLD_HARD = 15_000_000;
+    public static final int GOLD_VERY_HARD = 20_000_000;
+    public static final int GOLD_HELL = 25_000_000;
 
     //const max side task of date
     public static final byte MAX_SIDE_TASK = 10;

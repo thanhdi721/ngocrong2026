@@ -22,6 +22,10 @@ import nro.models.services_func.Input;
  */
 public class BoMong extends Npc {
 
+    /** Thưởng điểm danh mỗi ngày — chủ dự án chốt 25/09: 2.000 ngọc + 10 thỏi vàng KHÓA. */
+    private static final int NGOC_DIEM_DANH = 2000;
+    private static final int THOI_VANG_DIEM_DANH = 10;
+
     public BoMong(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
     }
@@ -76,16 +80,21 @@ public class BoMong extends Npc {
                                     return;
                                 }
                             }
+                            if (InventoryService.gI().getCountEmptyBag(player) <= 0) {
+                                Service.gI().sendThongBao(player, "Cần ít nhất 1 ô trống trong hành trang để điểm danh.");
+                                return;
+                            }
                             player.lastCheckIn = LocalDateTime.now();
-                            player.inventory.gem += 10000;
-                            Item item457 = ItemService.gI().createNewItem((short) 457);
-                            item457.quantity = 100;
-                            item457.itemOptions.add(new Item.ItemOption(30, 0));
-                            InventoryService.gI().addItemBag(player, item457);
+                            player.inventory.gem += NGOC_DIEM_DANH;
+                            Item thoiVang = ItemService.gI().createNewItem((short) 457);
+                            thoiVang.quantity = THOI_VANG_DIEM_DANH;
+                            thoiVang.itemOptions.add(new Item.ItemOption(30, 0));   // 30 = Không thể giao dịch (khóa)
+                            InventoryService.gI().addItemBag(player, thoiVang);
                             PlayerService.gI().sendInfoHpMpMoney(player);
                             InventoryService.gI().sendItemBags(player);
 
-                            Service.gI().sendThongBao(player, "Điểm danh thành công! Bạn nhận được 10.000 ngọc và 100 thỏi vàng.");
+                            Service.gI().sendThongBao(player, "Điểm danh thành công! Bạn nhận được "
+                                    + NGOC_DIEM_DANH + " ngọc và " + THOI_VANG_DIEM_DANH + " thỏi vàng khóa.");
                         }
 
                     }
