@@ -85,7 +85,8 @@ public class DataGame {
     // 22 -> 23: Bùa x2 đệ tử 1628 cho gộp chồng (patch 59).
     // 23 -> 24: thêm 96 vật phẩm id 2124–2219 mang từ SUMO/Bun (patch 67).
     // 24 -> 25: sửa icon 7 món bị lỗi hình của đợt SUMO (patch 73).
-    public static byte vsItem = 25;
+    // 25 -> 26: thêm 2 viên đá Pháp Sư và 7 dòng chỉ số 251–257 (patch 75).
+    public static byte vsItem = 26;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

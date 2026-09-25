@@ -604,6 +604,29 @@ public class NPoint {
             case 108: //#% Né đòn
                 this.tlNeDon += io.param;
                 break;
+            // ---- Bảy dòng "Pháp Sư" (patch 75): cộng vào đúng chỗ của dòng tương đương.
+            case 251: //Pháp Sư: Sức đánh +#%
+                this.tlDame.add(io.param);
+                break;
+            case 252: //Pháp Sư: HP +#%
+                this.tlHp.add(io.param);
+                break;
+            case 253: //Pháp Sư: KI +#%
+                this.tlMp.add(io.param);
+                break;
+            case 254: //Pháp Sư: Giáp +#
+                this.defAdd += io.param;
+                break;
+            case 255: //Pháp Sư: Giảm #% sát thương
+                this.tlGiap += io.param;
+                break;
+            case 256: //Pháp Sư: Né đòn +#%
+                this.tlNeDon += io.param;
+                break;
+            case 257: //Pháp Sư: Xuyên giáp +#% (ăn cho cả chưởng lẫn cận chiến)
+                this.tlxgc += io.param;
+                this.tlxgcc += io.param;
+                break;
             case 109: //Hôi, giảm #% HP
                 this.tlHpGiamODo += io.param;
                 break;

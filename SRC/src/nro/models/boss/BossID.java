@@ -223,6 +223,10 @@ public class BossID {
     public static final int LOP_TRUONG = -2200;
     public static final int NU_THAN_BANG_TINH = -2209;
 
+    // Hai boss Fu ở Nam Kamê (map 29), mỗi lượt chỉ ra một con — xem boss/fu/BossFu.
+    public static final int FU = -2210;
+    public static final int FU_HOP_THE = -2211;
+
     public static final int KE_THU_GOM = -2000;       // NV 6 bước 1 — 1 hình dạng
     public static final int JACO_VO_THUC = -2001;     // NV 15 bước 1 — 2 hình dạng
 }

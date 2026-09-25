@@ -934,6 +934,63 @@ public class BossesData {
             AppearType.ANOTHER_LEVEL //type appear
     );
 
+    //========================FU (Nam Kamê) ========================
+    // Hình lấy từ cải trang "Fu" (item 2164, part 2490/2491/2492) và "Cải trang Hợp Thể"
+    // (item 639, part 627/628/629). Ô thứ 5 của outfit là hào quang — dùng hai hào quang
+    // mang từ SUMO về (patch 74): 104 Khí Tử Điện và 103 Khí Huyết Đỏ.
+    public static final BossData FU = new BossData(
+            "Fu Thời Không", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2490, 2491, 2492, -1, 104, -1}, //outfit {head, body, leg, bag, aura, eff}
+            200_000, //dame
+            new int[]{1_000_000_000}, //hp
+            new int[]{29}, //map join — Nam Kamê
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 300000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            //skill
+            new String[]{"|-1|Khe khe... lại thêm chuột bạch tự tìm tới",
+                "|-1|Ta đã nặn ra vũ trụ này để xem các ngươi giãy giụa",
+                "|-1|Đừng chạy, ván cờ mới bày ra thôi"
+            }, //text chat 1
+            new String[]{"|-1|Số liệu đẹp đấy, đánh tiếp đi",
+                "|-1|Đau không? Ghi lại hết rồi nhé",
+                "|-1|Các ngươi mạnh lên nhanh thật, thú vị",
+                "|-1|Ta chán rồi, kết thúc thôi"
+            }, //text chat 2
+            new String[]{"|-1|Hỏng mất mẫu vật... lần sau ta bày ván khác"}, //text chat 3
+            REST_15_M //second rest
+    );
+
+    public static final BossData FU_HOP_THE = new BossData(
+            "Fu Hợp Thể", //name
+            ConstPlayer.XAYDA, //gender
+            new short[]{627, 628, 629, -1, 103, -1}, //outfit
+            200_000, //dame
+            new int[]{1_000_000_000}, //hp
+            new int[]{29}, //map join — Nam Kamê
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 300000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            //skill
+            new String[]{"|-1|Hai thân xác, một ý chí — đủ để nghiền nát các ngươi",
+                "|-1|Ta là kết quả hoàn hảo của thí nghiệm đó",
+                "|-1|Xem thử các ngươi trụ được mấy giây"
+            }, //text chat 1
+            new String[]{"|-1|Sức mạnh hợp thể không phải thứ các ngươi với tới",
+                "|-1|Đánh nữa đi, ta còn chưa nóng người",
+                "|-1|Buồn cười thật, càng đánh các ngươi càng yếu"
+            }, //text chat 2
+            new String[]{"|-1|Hợp thể... cũng có lúc rã ra sao..."}, //text chat 3
+            REST_15_M //second rest
+    );
+
     //========================CUMBER========================
     public static final BossData CUMBER = new BossData(
             "Cumber", //name

@@ -39,6 +39,10 @@ public class CombineService {
     public static final int TAI_TAO_CAPSULE_KH = 997;
     /** Tạo SKH VIP: 3 món đồ Thần -> 1 trang bị kích hoạt cùng loại, ngẫu nhiên tới cấp Thần. */
     public static final int TAO_SKH_VIP = 998;
+    /** Pháp sư trang bị: nạp chỉ số cho cải trang / đeo lưng / linh thú (patch 75). */
+    public static final int PHAP_SU_TRANG_BI = 991;
+    /** Tẩy sạch chỉ số Pháp Sư của trang bị. */
+    public static final int TAY_PHAP_SU_TRANG_BI = 992;
     public static final int NANG_CAP_SAO_PHA_LE = 100;
     public static final int DANH_BONG_SAO_PHA_LE = 101;
     public static final int CUONG_HOA_LO_SAO_PHA_LE = 102;
@@ -128,6 +132,12 @@ public class CombineService {
                 break;
             case TAO_SKH_VIP:
                 TaoSKHVip.showInfoCombine(player);
+                break;
+            case PHAP_SU_TRANG_BI:
+                PhapSuTrangBi.showInfoNang(player);
+                break;
+            case TAY_PHAP_SU_TRANG_BI:
+                PhapSuTrangBi.showInfoTay(player);
                 break;
             case NHAP_NGOC_RONG:
                 NhapNgocRong.showInfoCombine(player);
@@ -262,6 +272,12 @@ public class CombineService {
                 break;
             case TAO_SKH_VIP:
                 TaoSKHVip.thucHienTao(player);
+                break;
+            case PHAP_SU_TRANG_BI:
+                PhapSuTrangBi.thucHienNang(player);
+                break;
+            case TAY_PHAP_SU_TRANG_BI:
+                PhapSuTrangBi.thucHienTay(player);
                 break;
             case NHAP_NGOC_RONG:
                 NhapNgocRong.nhapNgocRong(player);
@@ -696,6 +712,10 @@ public class CombineService {
                 return "Ta sẽ phù phép\ntái tạo thành 1 viên\nCapsule kích hoạt tự chọn";
             case TAO_SKH_VIP:
                 return "Ta sẽ phù phép\n3 món đồ Thần thành\n1 trang bị kích hoạt";
+            case PHAP_SU_TRANG_BI:
+                return "Ta sẽ phù phép cho\ncải trang, đeo lưng, linh thú\ncủa ngươi có chỉ số";
+            case TAY_PHAP_SU_TRANG_BI:
+                return "Ta sẽ tẩy sạch\nchỉ số Pháp Sư\ntrên trang bị của ngươi";
             case NHAP_NGOC_RONG:
                 return "Ta sẽ phù phép\ncho 7 viên Ngọc Rồng\nthành 1 viên Ngọc Rồng cấp cao";
             case NANG_CAP_VAT_PHAM:
@@ -757,6 +777,10 @@ public class CombineService {
             case TAO_SKH_VIP:
                 return "Vào hành trang\nChọn 3 món ĐỒ THẦN\nMón ĐẦU TIÊN quyết định\nloại và hệ nhận được\n"
                         + "(nhẫn thì lấy hệ của ngươi)\nSau đó chọn 'Tạo'";
+            case PHAP_SU_TRANG_BI:
+                return "Vào hành trang\nChọn 1 cải trang / đeo lưng / linh thú\nChọn 20 Đá Pháp Sư\nSau đó chọn 'Pháp sư'";
+            case TAY_PHAP_SU_TRANG_BI:
+                return "Vào hành trang\nChọn trang bị đã pháp sư\nChọn 5 Đá Tẩy Pháp Sư\nSau đó chọn 'Tẩy'";
             case CHUYEN_HOA_TRANG_BI_NGOC:
             case CHUYEN_HOA_TRANG_BI_VANG:
                 return "Vào hành trang\nChọn trang bị gốc\n(Áo,quần,găng,giày hoặc rada)\ntừ cấp[+4] trở lên\nChọn tiếp trang bị mới\nchưa nâng cấp cần nhập thể\nsau đó chọn 'Nâng cấp'";
