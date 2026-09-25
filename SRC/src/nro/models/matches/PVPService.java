@@ -14,8 +14,6 @@ public class PVPService {
 
     private static final int[] GOLD_CHALLENGE = {1000000, 10000000, 100000000};
     private final String[] optionsGoldChallenge;
-    /** Bản có thêm mục "Thông đít" ở cuối, chỉ dùng cho menu bấm vào người chơi. */
-    private final String[] optionsWithThongDit;
     private static final byte OPEN_GOLD_SELECT = 0;
     private static final byte ACCEPT_PVP = 1;
 
@@ -28,22 +26,11 @@ public class PVPService {
         return instance;
     }
 
-    /**
-     * Số mục ở đầu menu là các mức cược; mục cuối cùng (chỉ số {@link #CHON_THONG_DIT})
-     * là "Thông đít" của Nhẫn Chí Tôn — xem {@link nro.models.services.ThongDitService}.
-     * Menu này chỉ mở khi bấm vào NGƯỜI CHƠI thật (case 3 / OPEN_GOLD_SELECT), nên không
-     * lo dính vào luồng thách đấu boss.
-     */
-    public static final int CHON_THONG_DIT = GOLD_CHALLENGE.length;
-
     public PVPService() {
         this.optionsGoldChallenge = new String[GOLD_CHALLENGE.length];
         for (int i = 0; i < GOLD_CHALLENGE.length; i++) {
             this.optionsGoldChallenge[i] = Util.numberToMoney(GOLD_CHALLENGE[i]) + " vàng";
         }
-        this.optionsWithThongDit = new String[GOLD_CHALLENGE.length + 1];
-        System.arraycopy(this.optionsGoldChallenge, 0, this.optionsWithThongDit, 0, GOLD_CHALLENGE.length);
-        this.optionsWithThongDit[CHON_THONG_DIT] = "Thông đít";
     }
 
     //**************************************************************************THÁCH ĐẤU
@@ -108,7 +95,7 @@ public class PVPService {
         NpcService.gI().createMenuConMeo(pl, ConstNpc.MAKE_MATCH_PVP,
                 -1, plMap.name + " (sức mạnh " + Util.numberToMoney(plMap.nPoint.power)
                 + ")\nBạn muốn cược bao nhiêu vàng?",
-                this.optionsWithThongDit);
+                this.optionsGoldChallenge);
     }
 
     public void sendInvitePVP(Player pl, byte selectGold) {

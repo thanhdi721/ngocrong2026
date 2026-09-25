@@ -87,7 +87,7 @@ public class DataGame {
     // 23 -> 24: thêm 96 vật phẩm id 2124–2219 mang từ SUMO/Bun (patch 67).
     // 24 -> 25: sửa icon 7 món bị lỗi hình của đợt SUMO (patch 73).
     // 25 -> 26: thêm 2 viên đá Pháp Sư và 7 dòng chỉ số 251–257 (patch 75).
-    // 26 -> 27: thêm vật phẩm 2264 "Nhẫn Chí Tôn" (patch 78).
+    // 26 -> 27: thêm vật phẩm 2264 "Gậy Thông Thiên" (patch 78).
     public static byte vsItem = 27;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;

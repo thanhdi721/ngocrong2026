@@ -1,5 +1,5 @@
 -- =====================================================================
--- 78-nhan-chi-ton-ba-moi.sql — NHẪN CHÍ TÔN + NPC "BÀ MỐI" + CỘT thong_dit
+-- 78-nhan-chi-ton-ba-moi.sql — GẬY THÔNG THIÊN + NPC "BÀ MỐI" + CỘT thong_dit
 -- Database: team2026 (MariaDB 10.4)        Sinh ngày: 2026-09-25
 --
 -- Code đi kèm:
@@ -34,10 +34,10 @@
 --      (NULL = chưa thông ai, đọc ra 0|0). Kiểu TEXT, cùng lý do ở trên.
 --      Server cũng tự làm cả (a0) lẫn (a) lúc khởi động (Manager.ensureSchema),
 --      chạy ở đây cho chắc.
---  (b) Thêm `item_template` 2264 "Nhẫn Chí Tôn", icon 30583 (ảnh mang từ
---      SrcBun, đã chép vào data/icon/x1..x4/30583.png). is_up_to_up = 1 để
---      gộp chồng trong hành trang. Vật phẩm chỉ có một việc: mỗi lần "thông
---      đít" tiêu đúng 1 cái.
+--  (b) Thêm `item_template` 2264 "Gậy Thông Thiên", icon 8482 — dùng lại đúng
+--      ảnh cây "Gậy như ý" (item 920) đã có sẵn trong data/icon, KHÔNG cần
+--      thêm file ảnh nào. is_up_to_up = 1 để gộp chồng trong hành trang.
+--      Vật phẩm chỉ có một việc: mỗi lần "thông đít" tiêu đúng 1 cái.
 --  (c) Thêm `npc_template` 87 "Bà Mối" — ngoại hình lấy từ "Cải trang Bunma
 --      rực rỡ" (item 1476, part 1380/1381/1382), avatar 12387.
 --  (d) Nối [87,380,288] vào cuối `map_template`.`npcs` của map 5 Đảo Kamê.
@@ -118,7 +118,7 @@ PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
 DELETE FROM `item_template` WHERE `id` = 2264;
 INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `level`, `icon_id`,
                              `part`, `is_up_to_up`, `power_require`, `gold`, `gem`, `head`, `body`, `leg`) VALUES
-(2264, 27, 3, 'Nhẫn Chí Tôn', 'Dùng để thông đít đồng chí của bạn', 0, 30583, -1, 1, 0, 0, 0, -1, -1, -1);
+(2264, 27, 3, 'Gậy Thông Thiên', 'Dài ngắn tùy tâm, nông sâu tùy duyên', 0, 8482, -1, 1, 0, 0, 0, -1, -1, -1);
 
 -- (2c) npc_template 87 "Bà Mối". Chạy lại chỉ ghi đè cùng giá trị.
 INSERT INTO `npc_template` (`id`, `NAME`, `head`, `body`, `leg`, `avatar`)
@@ -142,9 +142,9 @@ UPDATE `map_template`
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — mọi cột `dat` phải = 1.
 -- ---------------------------------------------------------------------
-SELECT 'item 2264 Nhan Chi Ton' AS `muc`,
+SELECT 'item 2264 Gay Thong Thien' AS `muc`,
        (SELECT COUNT(*) FROM `item_template`
-         WHERE `id` = 2264 AND `NAME` = 'Nhẫn Chí Tôn' AND `icon_id` = 30583 AND `is_up_to_up` = 1) AS `dat`
+         WHERE `id` = 2264 AND `NAME` = 'Gậy Thông Thiên' AND `icon_id` = 8482 AND `is_up_to_up` = 1) AS `dat`
 UNION ALL
 SELECT 'item_template id lien tuc toi 2264',
        ((SELECT COUNT(*) FROM `item_template` WHERE `id` BETWEEN 0 AND 2264) = 2265)

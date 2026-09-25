@@ -8,7 +8,7 @@ import nro.models.server.Client;
 import nro.models.utils.Util;
 
 /**
- * "Thông đít" — công dụng duy nhất của <b>Nhẫn Chí Tôn</b> (item 2264, rơi 5 % từ hai boss
+ * "Thông đít" — công dụng duy nhất của <b>Gậy Thông Thiên</b> (item 2264, rơi 5 % từ hai boss
  * Siêu Thần God).
  *
  * <p>Hai người đứng sát nhau, bấm vào người kia → menu thách đấu → chọn "Thông đít".
@@ -27,7 +27,7 @@ import nro.models.utils.Util;
 public class ThongDitService {
 
     /** Vật phẩm bắt buộc, tiêu 1 cái mỗi lần thông. */
-    public static final int ID_NHAN_CHI_TON = 2264;
+    public static final int ID_GAY_THONG_THIEN = 2264;
 
     public static final int TOI_DA_THONG = 10;
     public static final int TOI_DA_BI_THONG = 20;
@@ -43,6 +43,7 @@ public class ThongDitService {
         "Trời đất chứng giám, hai người vừa nên duyên.",
         "Một tiếng \"pực\" vang vọng ba hành tinh.",
         "Rồng thần cũng phải quay mặt đi chỗ khác.",
+        "Gậy vào như ý, ra cũng như ý. Đúng tên.",
         "Kỹ thuật sạch sẽ, dứt khoát, không rườm rà.",
         "Hội đồng Kaioshin đã ghi nhận thành tích này."
     };
@@ -89,14 +90,22 @@ public class ThongDitService {
 
     //================================ luồng chính ================================
     /**
-     * Người chơi vừa chọn "Thông đít" trong menu thách đấu. Đối tượng lấy từ
-     * {@code idMark.getIdPlayThachDau()} — đúng người vừa bấm vào.
+     * Có đủ điều kiện ngỏ lời với {@code idDoiTac} không — hỏi thầm, không nhả thông báo.
+     * Dùng để quyết định có hiện mục "Thông đít" trong menu "Kết bạn" hay không.
      */
-    public void moiThongDit(Player pl) {
+    public boolean thongDuoc(Player pl, long idDoiTac) {
+        if (pl == null || pl.zone == null) {
+            return false;
+        }
+        return kiemTra(pl, pl.zone.getPlayerInMap(idDoiTac), false);
+    }
+
+    /** Người chơi vừa chọn "Thông đít" ở menu bấm vào {@code idDoiTac}. */
+    public void moiThongDit(Player pl, long idDoiTac) {
         if (pl == null || pl.zone == null) {
             return;
         }
-        Player doiTac = pl.zone.getPlayerInMap(pl.idMark.getIdPlayThachDau());
+        Player doiTac = pl.zone.getPlayerInMap(idDoiTac);
         if (!kiemTra(pl, doiTac, true)) {
             return;
         }
@@ -109,8 +118,8 @@ public class ThongDitService {
         doiTac.lucMoiThongDit = System.currentTimeMillis();
         Service.gI().sendThongBao(pl, "Đã ngỏ lời với " + doiTac.name + ", chờ người ta gật đầu...");
         NpcService.gI().createMenuConMeo(doiTac, ConstNpc.THONG_DIT_XAC_NHAN, -1,
-                pl.name + " đang cầm Nhẫn Chí Tôn đứng sau lưng bạn,\n"
-                + "ánh mắt hiền từ nhưng đầy quyết tâm.\n"
+                pl.name + " đang cầm Gậy Thông Thiên đứng sau lưng bạn,\n"
+                + "tay xoay xoay, mắt nhìn xa xăm.\n"
                 + "Bạn đã bị thông " + doiTac.soLanBiThong + "/" + TOI_DA_BI_THONG + " lần.\n"
                 + "Cho phép không?",
                 new String[]{"Thôi được\nvì chỉ số", "Không,\ntôi còn\ndanh dự"});
@@ -140,13 +149,13 @@ public class ThongDitService {
         }
 
         // Trừ nhẫn TRƯỚC khi cộng chỉ số: hết nhẫn giữa chừng thì không ai được gì.
-        Item nhan = InventoryService.gI().findItemBag(nguoiThong, ID_NHAN_CHI_TON);
-        if (nhan == null || nhan.quantity < 1) {
-            Service.gI().sendThongBao(nguoiThong, "Nhẫn Chí Tôn rơi đâu mất rồi");
+        Item gay = InventoryService.gI().findItemBag(nguoiThong, ID_GAY_THONG_THIEN);
+        if (gay == null || gay.quantity < 1) {
+            Service.gI().sendThongBao(nguoiThong, "Gậy rơi đâu mất rồi, tìm lại đi");
             Service.gI().sendThongBao(pl, "Đối phương làm rơi nhẫn, hẹn dịp khác");
             return;
         }
-        InventoryService.gI().subQuantityItemsBag(nguoiThong, nhan, 1);
+        InventoryService.gI().subQuantityItemsBag(nguoiThong, gay, 1);
         InventoryService.gI().sendItemBags(nguoiThong);
 
         nguoiThong.soLanThong++;
@@ -244,10 +253,10 @@ public class ThongDitService {
             }
             return false;
         }
-        Item nhan = InventoryService.gI().findItemBag(pl, ID_NHAN_CHI_TON);
-        if (nhan == null || nhan.quantity < 1) {
+        Item gay = InventoryService.gI().findItemBag(pl, ID_GAY_THONG_THIEN);
+        if (gay == null || gay.quantity < 1) {
             if (baoLoi) {
-                Service.gI().sendThongBao(pl, "Cần 1 Nhẫn Chí Tôn mới thông được (hạ boss Siêu Thần God để kiếm)");
+                Service.gI().sendThongBao(pl, "Cần 1 Gậy Thông Thiên mới thông được (hạ boss Siêu Thần God để kiếm)");
             }
             return false;
         }

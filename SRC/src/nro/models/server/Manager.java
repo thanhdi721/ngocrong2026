@@ -114,7 +114,7 @@ public final class Manager {
     /** CSDL đã có cột player.aura_npc chưa (hào quang NPC bật cho người chơi). */
     public static volatile boolean HAS_AURA_NPC = false;
 
-    /** CSDL đã có cột player.thong_dit chưa ("soLanThong|soLanBiThong", Nhẫn Chí Tôn). */
+    /** CSDL đã có cột player.thong_dit chưa ("soLanThong|soLanBiThong", Gậy Thông Thiên). */
     public static volatile boolean HAS_THONG_DIT = false;
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
@@ -409,7 +409,7 @@ public final class Manager {
         // `data_card` VARCHAR(10000) utf8mb4 (= 40.000 byte trong ngân sách dòng, trong khi
         // nó chỉ chứa một chuỗi JSON ngắn) sang TEXT để trả lại chỗ — xem patch 78.
         noiChoDataCard();
-        HAS_THONG_DIT = baoDamCot("thong_dit", "TEXT NULL", "thong dit (Nhan Chi Ton)", 78);
+        HAS_THONG_DIT = baoDamCot("thong_dit", "TEXT NULL", "thong dit (Gay Thong Thien)", 78);
     }
 
     /**

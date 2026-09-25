@@ -1,4 +1,4 @@
-# 66 — Nhẫn Chí Tôn, hai boss Siêu Thần God và NPC Bà Mối
+# 66 — Gậy Thông Thiên, hai boss Siêu Thần God và NPC Bà Mối
 
 Ngày: 2026-09-26 · Patch SQL: `SRC/sql/patch/78-nhan-chi-ton-ba-moi.sql`
 
@@ -10,7 +10,7 @@ Ba thứ đi chung một gói:
 
 | Thứ | Nội dung |
 |---|---|
-| **Vật phẩm 2264 "Nhẫn Chí Tôn"** | icon 30583 lấy từ SrcBun. Công dụng duy nhất: "thông đít". Mỗi lần dùng mất 1 cái. |
+| **Vật phẩm 2264 "Gậy Thông Thiên"** | icon 8482 — dùng lại đúng ảnh cây "Gậy như ý" (item 920) đã có sẵn, không thêm file ảnh nào. Mô tả: *"Dài ngắn tùy tâm, nông sâu tùy duyên"*. Công dụng duy nhất: "thông đít", mỗi lần mất 1 cái. |
 | **Hai boss Siêu Thần God** | Vegeta Siêu Thần God + Goku Siêu Thần God, 500 triệu HP, 50.000 sát thương, 10 phút ra một lượt, mỗi lượt ra CẢ HAI ở hai hành tinh khác nhau. |
 | **NPC 87 "Bà Mối"** | đứng cạnh GoKu Nỗi Loạn ở đảo Kamê (map 5), xem sổ đã thông / bị thông bao nhiêu lần. |
 
@@ -38,7 +38,7 @@ Ba thứ đi chung một gói:
   | 40 % | Ngọc Rồng 3 / 4 / 5 sao (item 16–18) |
   | 40 % | Ngọc Rồng bí ngô 1–7 sao (item 702–708) |
   | 10 % | một trong: Cuồng nộ 2 (1150), Bổ khí 2 (1151), Bổ huyết 2 (1152), Giáp Xên bọ hung 2 (1153) |
-  | 5 % | 1 Nhẫn Chí Tôn (2264) |
+  | 5 % | 1 Gậy Thông Thiên (2264) |
   | 5 % | 5 Đá Pháp Sư (2262) |
 
   Có chốt chặn: nếu chưa chạy patch (id vượt cỡ `ITEM_TEMPLATES`) thì bỏ rơi và ghi log, thay vì văng `IndexOutOfBounds` giữa luồng boss.
@@ -52,9 +52,9 @@ Ba thứ đi chung một gói:
 
 ### Cách chơi
 1. Hai người đứng **sát nhau** (≤ 80 px, cùng khu).
-2. Bấm vào người kia → menu **Thách đấu** → mục cuối cùng là **"Thông đít"**.
+2. Bấm vào người kia → bấm **"Kết bạn"** → menu hiện ra có mục **"Thông đít"**.
 3. Người kia nhận menu hỏi, phải bấm **Đồng ý** thì mới tính (lời mời sống 30 giây).
-4. Người đi thông mất **1 Nhẫn Chí Tôn**.
+4. Người đi thông mất **1 Gậy Thông Thiên**.
 
 ### Chỉ số
 | Vai | Số lần tối đa | Mỗi lần | Kịch trần |
@@ -65,8 +65,23 @@ Ba thứ đi chung một gói:
 Cộng vào **HP tối đa, KI tối đa và sức đánh**. Ai vừa thông 10 lần vừa bị thông 20 lần thì được +20 %.
 Công thức nằm ở `ThongDitService.phanTram()`, được `NPoint.setHpMax / setMpMax / setDame` nhân vào ở bước cuối cùng (chỉ áp cho người chơi thật, pet và boss dùng chung `NPoint` nên bị loại bằng `isPl()`).
 
-### Chỗ móc vào menu
-`PVPService.openSelectGold` nay mở menu bằng `optionsWithThongDit` — ba mức cược cũ **cộng thêm** mục "Thông đít" ở cuối. `NpcFactory` (NPC con mèo) gặp `select == PVPService.CHON_THONG_DIT` thì gọi `ThongDitService.moiThongDit`, còn lại vẫn là thách đấu như cũ. `sendInvitePVP` đã được chặn chỉ số ngoài bảng để client chế không gửi số bậy được.
+### Chỗ móc vào menu — và vì sao không nằm ngay trên popup
+
+Popup "Bạn muốn làm gì — Kết bạn / Giao dịch / Thách đấu" **do client vẽ**, server không hề gửi
+chuỗi nào cho nó (tìm cả source không có "Bạn muốn làm gì"). Client chỉ gửi lên ba lệnh cố định:
+`-80` kết bạn, `-86` giao dịch, `-59` thách đấu. **Muốn có nút thứ tư trên đúng popup đó thì phải
+sửa client**, không làm được từ phía server.
+
+Chỗ gần nhất là **ngay dưới nút "Kết bạn"**: `FriendAndEnemyService.makeFriend` nay hỏi
+`ThongDitService.thongDuoc(player, playerId)` trước; nếu đủ điều kiện thì mở menu
+`KET_BAN_HOAC_THONG_DIT`:
+
+* chưa là bạn → `Kết bạn` / `Thông đít` / `Thôi`
+* đã là bạn → `Thông đít` / `Thôi`
+
+Không đủ điều kiện (không cầm nhẫn, đứng xa, đã kịch trần) thì luồng kết bạn chạy **y hệt như cũ**,
+người không chơi trò này không bao giờ thấy mục đó. Menu thách đấu đã được trả về nguyên trạng.
+`sendInvitePVP` vẫn giữ phần chặn chỉ số ngoài bảng (client chế không gửi số bậy được).
 
 ### Chống lạm dụng
 * Bắt buộc **người kia đồng ý**.

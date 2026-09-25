@@ -39,7 +39,7 @@ public class BossSieuThanGod extends Boss {
     private static final int[] BI_NGO = {702, 703, 704, 705, 706, 707, 708};
     /** Cuồng nộ 2, Bổ khí 2, Bổ huyết 2, Giáp Xên bọ hung 2. */
     private static final int[] BUA = {1150, 1151, 1152, 1153};
-    private static final int ID_NHAN_CHI_TON = 2264;
+    private static final int ID_GAY_THONG_THIEN = 2264;
     private static final int ID_DA_PHAP_SU = 2262;
     private static final int SO_DA_PHAP_SU = 5;
 
@@ -130,7 +130,7 @@ public class BossSieuThanGod extends Boss {
     /**
      * Một lượt quay đúng 100 %:
      * 40 % Ngọc Rồng 3–5 sao · 40 % Ngọc Rồng bí ngô 1–7 sao · 10 % một lá bùa cấp 2 ·
-     * 5 % Nhẫn Chí Tôn · 5 % 5 viên Đá Pháp Sư.
+     * 5 % Gậy Thông Thiên · 5 % 5 viên Đá Pháp Sư.
      */
     @Override
     public void reward(Player plKill) {
@@ -151,7 +151,7 @@ public class BossSieuThanGod extends Boss {
         } else if (quay < 90) {
             idRoi = BUA[Util.nextInt(0, BUA.length - 1)];
         } else if (quay < 95) {
-            idRoi = ID_NHAN_CHI_TON;
+            idRoi = ID_GAY_THONG_THIEN;
         } else {
             idRoi = ID_DA_PHAP_SU;
             soLuong = SO_DA_PHAP_SU;

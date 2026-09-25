@@ -205,7 +205,7 @@ public class Player implements Runnable {
     public int auraNpc = -1;
 
     /**
-     * Nhẫn Chí Tôn — cột `thong_dit` lưu "soLanThong|soLanBiThong".
+     * Gậy Thông Thiên — cột `thong_dit` lưu "soLanThong|soLanBiThong".
      *
      * <p>{@code soLanThong} tối đa 10, mỗi lần +1 % HP/KI/sức đánh.
      * {@code soLanBiThong} tối đa 20, cứ 2 lần mới +1 % (20 lần = +10 %).

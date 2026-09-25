@@ -347,12 +347,31 @@ public class NpcFactory {
                     case ConstNpc.MAKE_MATCH_PVP -> {
                         if (Maintenance.isRunning) {
                         }
-                        // Mục cuối cùng của menu này là "Thông đít" (Nhẫn Chí Tôn), các mục
-                        // trước vẫn là các mức cược thách đấu.
-                        if (select == PVPService.CHON_THONG_DIT) {
-                            nro.models.services.ThongDitService.gI().moiThongDit(player);
-                        } else {
-                            PVPService.gI().sendInvitePVP(player, (byte) select);
+                        PVPService.gI().sendInvitePVP(player, (byte) select);
+                    }
+                    case ConstNpc.KET_BAN_HOAC_THONG_DIT -> {
+                        Object idObj = PLAYERID_OBJECT.get(player.id);
+                        if (idObj != null) {
+                            try {
+                                int idDoiTac = Integer.parseInt(String.valueOf(idObj));
+                                // Menu có 3 mục khi chưa là bạn (Kết bạn / Thông đít / Thôi),
+                                // 2 mục khi đã là bạn (Thông đít / Thôi) — nên phải dò lại
+                                // xem người này đã nằm trong danh sách bạn bè chưa.
+                                boolean daLaBan = false;
+                                for (nro.models.player.Friend f : player.friends) {
+                                    if (f.id == idDoiTac) {
+                                        daLaBan = true;
+                                        break;
+                                    }
+                                }
+                                int mucThongDit = daLaBan ? 0 : 1;
+                                if (!daLaBan && select == 0) {
+                                    FriendAndEnemyService.gI().acceptMakeFriend(player, idDoiTac);
+                                } else if (select == mucThongDit) {
+                                    nro.models.services.ThongDitService.gI().moiThongDit(player, idDoiTac);
+                                }
+                            } catch (NumberFormatException e) {
+                            }
                         }
                     }
                     case ConstNpc.THONG_DIT_XAC_NHAN -> {

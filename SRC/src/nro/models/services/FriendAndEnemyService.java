@@ -187,10 +187,28 @@ public class FriendAndEnemyService {
         boolean madeFriend = false;
         for (Friend friend : player.friends) {
             if (friend.id == playerId) {
-                Service.gI().sendThongBao(player, "Đã có trong danh sách bạn bè");
                 madeFriend = true;
                 break;
             }
+        }
+
+        // Gậy Thông Thiên: popup "Kết bạn / Giao dịch / Thách đấu" do CLIENT vẽ nên server
+        // không chèn thêm nút vào đó được. Mục "Thông đít" vì vậy nằm ngay dưới nút
+        // "Kết bạn" — và chỉ hiện khi thật sự làm được (có nhẫn, đứng sát, chưa kịch trần),
+        // nên người không chơi trò này không bao giờ thấy nó.
+        if (nro.models.services.ThongDitService.gI().thongDuoc(player, playerId)) {
+            Player plTd = Client.gI().getPlayer(playerId);
+            String ten = plTd != null ? plTd.name : "người này";
+            String[] muc = madeFriend
+                    ? new String[]{"Thông đít", "Thôi"}
+                    : new String[]{"Kết bạn", "Thông đít", "Thôi"};
+            NpcService.gI().createMenuConMeo(player, ConstNpc.KET_BAN_HOAC_THONG_DIT, -1,
+                    "Bạn muốn làm gì với " + ten + "?", muc, playerId);
+            return;
+        }
+
+        if (madeFriend) {
+            Service.gI().sendThongBao(player, "Đã có trong danh sách bạn bè");
         }
         if (!madeFriend) {
             Player pl = Client.gI().getPlayer(playerId);

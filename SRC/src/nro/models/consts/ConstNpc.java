@@ -394,5 +394,10 @@ public class ConstNpc {
     public static final int THONG_DIT_XAC_NHAN = 1030;
     /** Menu gốc của NPC Bà Mối (npc_list/BaMoi). */
     public static final int BA_MOI_MENU = 1031;
+    /**
+     * Menu hiện ra khi bấm "Kết bạn" trên người chơi đứng sát mình mà mình đang cầm
+     * Gậy Thông Thiên: gộp "Kết bạn" và "Thông đít" (services/ThongDitService).
+     */
+    public static final int KET_BAN_HOAC_THONG_DIT = 1032;
 
 }

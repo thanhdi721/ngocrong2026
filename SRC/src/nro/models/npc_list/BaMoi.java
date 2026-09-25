@@ -131,10 +131,10 @@ public class BaMoi extends Npc {
     private void xemLuat(Player player) {
         createOtherMenu(player, ConstNpc.IGNORE_MENU,
                 "LUẬT CỦA BÀ:\n"
-                + "1. Phải có Nhẫn Chí Tôn trong túi, mỗi lần mất 1 cái.\n"
+                + "1. Phải có Gậy Thông Thiên trong túi, mỗi lần mất 1 cái.\n"
                 + "   Nhẫn rơi 5% từ hai boss Siêu Thần God.\n"
                 + "2. Hai đứa phải đứng SÁT nhau, bấm vào người kia,\n"
-                + "   vào menu thách đấu, chọn \"Thông đít\".\n"
+                + "   bấm \"Kết bạn\", rồi chọn \"Thông đít\".\n"
                 + "3. Bên kia phải ĐỒNG Ý. Bà không dung túng cưỡng ép.\n"
                 + "4. Đi thông: tối đa " + ThongDitService.TOI_DA_THONG
                 + " lần, mỗi lần +1%.\n"
