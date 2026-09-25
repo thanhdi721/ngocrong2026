@@ -63,6 +63,11 @@ public class NuThanBangTinh extends Boss {
         ChangeMapService.gI().changeMap(this, zone, cho[0], cho[1]);
     }
 
+    /** Đạo cụ của màn Lốp Trưởng, không phải boss để săn — không báo toàn server. */
+    @Override
+    protected void notifyJoinMap() {
+    }
+
     @Override
     public void rest() {
         // chỉ ra map khi phần điều phối gọi raMap()
