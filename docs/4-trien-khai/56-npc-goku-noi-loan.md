@@ -18,7 +18,7 @@ Thêm dòng npc_template nên `DataGame.vsMap` 7 → 8, client mới tải lại
 
 ## Menu
 
-Bấm vào NPC ra bảng **chọn hào quang** — 18 loại, chia 2 trang, mỗi trang 8 cái kèm nút
+Bấm vào NPC ra bảng **chọn hào quang** — 18 loại, chia **3 trang**, mỗi trang 8 cái kèm nút
 "Xem tiếp"; đang khoác rồi thì có thêm nút "Tắt hào quang". Miễn phí, đổi bao nhiêu lần cũng được.
 
 | id | tên | id | tên |
