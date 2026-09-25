@@ -199,8 +199,7 @@ public class Pocolo extends Boss {
                         }
                         Service.gI().setPos(this, pl.location.x + (Util.getOne(-1, 1) * Util.nextInt(50, 100)), 336);
                         this.moveToPlayer(pl);
-                        this.notifyJoinMap();
-                this.changeStatus(BossStatus.CHAT_S);
+                        this.changeStatus(BossStatus.CHAT_S);
                     }
                 }
             }
@@ -274,6 +273,7 @@ public class Pocolo extends Boss {
     @Override
     public void joinMap() {
         ChangeMapService.gI().changeMap(this, this.zone, 820, 36);
+        this.notifyJoinMap();
         this.moveTo(820, 336);
         this.lastTimeJoin = System.currentTimeMillis();
         this.nPoint.mp = 100;

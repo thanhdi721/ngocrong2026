@@ -104,6 +104,9 @@ public class BossFu extends Boss {
     @Override
     public void reward(Player plKill) {
         super.reward(plKill);   // giữ phần ghi nhận nhiệm vụ "hạ boss" của khung gốc
+        if (this.zone == null || this.zone.map == null) {
+            return;         // boss vừa rời map ngay lúc chết — không có chỗ để rơi đồ
+        }
         int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
         Service.gI().dropItemMap(zone, new ItemMap(this.zone, ID_DA_PHAP_SU, DA_PHAP_SU, x, y, plKill.id));

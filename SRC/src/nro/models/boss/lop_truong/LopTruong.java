@@ -539,6 +539,22 @@ public class LopTruong extends Boss {
         return new int[]{x, zone.map.yPhysicInTop(x, 100)};
     }
 
+    /**
+     * Báo một lần cho cả cặp, và báo bất kể đợt nào.
+     *
+     * <p>Khung gốc xét theo máu (xem {@code Boss.canSendNotify}), mà đợt 20.000 máu thì dưới
+     * ngưỡng nên sẽ im — trong khi đợt đó vẫn là sự kiện đáng báo. Ở đây báo thẳng, và chỉ con
+     * thứ nhất nói để khỏi ra hai dòng giống nhau.
+     */
+    @Override
+    protected void notifyJoinMap() {
+        if (this.zone == null || cap == null || cap.length != 2 || cap[0] != this) {
+            return;
+        }
+        nro.models.server.ServerNotify.gI().notify("BOSS " + cap[0].name + " và " + cap[1].name
+                + " vừa xuất hiện tại " + this.zone.map.mapName);
+    }
+
     /** Vào map là đứng sẵn cạnh nữ thần, khỏi phải kéo về sau. */
     @Override
     public void joinMapByZone(Zone zone) {
