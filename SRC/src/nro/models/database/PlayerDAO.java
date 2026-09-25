@@ -1050,8 +1050,10 @@ public class PlayerDAO {
                         + "baovetaikhoan = ?, data_card = ?, lasttimepkcommeson = ?, bandokhobau = ?, doanhtrai = ?, conduongrandoc = ?, masterDoesNotAttack = ?, "
                         + "nhanthoivang = ?, ruonggo = ?, sieuthanthuy = ?, vodaisinhtu = ?, rongxuong = ?, data_item_event = ?, data_luyentap = ?, data_clan_task = ?, data_vip = ?, "
                         + "rank = ?, data_achievement = ?, giftcode = ?, event_point = ?, data_event = ?, dataBadges = ?, dataTaskBadges = ?, BoughtSkill = ?, LearnSkill = ?, "
-                        + "firstTimeLogin = ?,  dailyGift = ?, point_sukien = ?, thachdauwhis = ?, point_sukien1 = ?, point_maydam = ?, total_damage_maydam = ?, data_duahau_egg = ?, checkNhanQua = ?, nhiem_vu_kol = ?, point_sukien2 = ? where id = ?";
-                LocalManager.executeUpdate(query,
+                        + "firstTimeLogin = ?,  dailyGift = ?, point_sukien = ?, thachdauwhis = ?, point_sukien1 = ?, point_maydam = ?, total_damage_maydam = ?, data_duahau_egg = ?, checkNhanQua = ?, nhiem_vu_kol = ?, point_sukien2 = ?"
+                        + (nro.models.server.Manager.HAS_VQTD ? ", vqtd = ?" : "")
+                        + (nro.models.server.Manager.HAS_AURA_NPC ? ", aura_npc = ?" : "") + " where id = ?";
+                java.util.List<Object> thamSo = new java.util.ArrayList<>(java.util.Arrays.asList(
                         player.head,
                         player.haveTennisSpaceShip,
                         (player.clan != null ? player.clan.id : -1),
@@ -1112,8 +1114,16 @@ public class PlayerDAO {
                         DuaHauEgg,
                         checkNhanQua,
                         dataKol,
-                        player.point_sukien2,
-                        player.id);
+                        player.point_sukien2));
+                if (nro.models.server.Manager.HAS_VQTD) {
+                    thamSo.add(player.vqtdSpin + "|" + player.vqtdClaim);
+                }
+                if (nro.models.server.Manager.HAS_AURA_NPC) {
+                    thamSo.add(player.auraNpc);
+                }
+                thamSo.add(player.id);
+                LocalManager.executeUpdate(query, thamSo.toArray());
+
                 SuperRankDAO.updateData(player);
                 if (player.isOffline) {
                     Logger.log(Logger.PURPLE, TimeUtil.getCurrHour() + "h" + TimeUtil.getCurrMin() + "m: Player " + player.name + " updated successfully! " + (System.currentTimeMillis() - st) + "ms\n");
@@ -1226,24 +1236,38 @@ public class PlayerDAO {
         }
     }
 
+    /**
+     * Mở thành viên (kích hoạt tài khoản) bằng VND.
+     *
+     * <p>FIX: bản cũ chỉ so số dư TRONG BỘ NHỚ rồi trừ thẳng dưới DB không điều kiện
+     * (hai lần bấm liền nhau trừ hai lần, vnd có thể âm) và ghi `active` theo giá trị cũ của
+     * session. Nay trừ và kích hoạt trong CÙNG một câu lệnh có điều kiện
+     * {@code vnd >= ? AND active = 0}: không đủ tiền hoặc đã kích hoạt thì không đổi gì.
+     *
+     * @return true nếu vừa kích hoạt thành công
+     */
     public static boolean MuaThanhVien(Player player, int num) {
-        PreparedStatement ps = null;
-        try (Connection con = LocalManager.getConnection();) {
-            if (player.getSession().vnd >= num) {
-            } else {
-                return false;
-            }
-            ps = con.prepareStatement("update account set vnd = (vnd - ?), active = ? where id = ?");
-            ps.setInt(1, num);
-            ps.setInt(2, player.getSession().actived ? 1 : 0);
-            ps.setInt(3, player.getSession().userId);
-            ps.executeUpdate();
-            player.getSession().vnd -= num;
-        } catch (Exception e) {
-            Logger.logException(PlayerDAO.class, e, "Lỗi update mua thành viên " + player.name);
+        if (player == null || player.getSession() == null || num < 0) {
             return false;
         }
-        return true;
+        synchronized (player.getSession()) {
+            try (Connection con = LocalManager.getConnection();
+                    PreparedStatement ps = con.prepareStatement(
+                            "update account set vnd = vnd - ?, active = 1 where id = ? and vnd >= ? and active = 0")) {
+                ps.setInt(1, num);
+                ps.setInt(2, player.getSession().userId);
+                ps.setInt(3, num);
+                if (ps.executeUpdate() != 1) {
+                    return false;
+                }
+                player.getSession().vnd -= num;
+                player.getSession().actived = true;
+                return true;
+            } catch (Exception e) {
+                Logger.logException(PlayerDAO.class, e, "Lỗi mua thành viên " + player.name);
+                return false;
+            }
+        }
     }
 
     public static void LogAddPoint(String name, int id, int point, String type) {

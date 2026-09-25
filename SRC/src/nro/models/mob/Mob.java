@@ -810,7 +810,7 @@ public class Mob {
             // patch 35 (chủ dự án chốt): tỉ lệ rơi đồ kích hoạt tính trên 99990 thay vì 9999.
             // 42/99990 ≈ 2,1 lần tỉ lệ cũ, và mẫu số lớn để phần lẻ của các mốc cộng thêm
             // (kháng tất cả, cỏ bốn lá) KHÔNG bị làm tròn mất như trước.
-            int baseTileDrop = DROP_DO_KICH_HOAT;
+            int baseTileDrop = nro.models.boss.BossDropConfig.KICH_HOAT_RATE.giaTri;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -836,7 +836,7 @@ public class Mob {
             }
 
             // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) Math.round(tileDrop), DROP_DO_KICH_HOAT_PER)) {
+            if (Util.isTrue((int) Math.round(tileDrop), nro.models.boss.BossDropConfig.KICH_HOAT_PER.giaTri)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -860,7 +860,7 @@ public class Mob {
             // patch 35 (chủ dự án chốt): tỉ lệ rơi đồ kích hoạt tính trên 99990 thay vì 9999.
             // 42/99990 ≈ 2,1 lần tỉ lệ cũ, và mẫu số lớn để phần lẻ của các mốc cộng thêm
             // (kháng tất cả, cỏ bốn lá) KHÔNG bị làm tròn mất như trước.
-            int baseTileDrop = DROP_DO_KICH_HOAT;
+            int baseTileDrop = nro.models.boss.BossDropConfig.KICH_HOAT_RATE.giaTri;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -886,7 +886,7 @@ public class Mob {
             }
 
             // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) Math.round(tileDrop), DROP_DO_KICH_HOAT_PER)) {
+            if (Util.isTrue((int) Math.round(tileDrop), nro.models.boss.BossDropConfig.KICH_HOAT_PER.giaTri)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);

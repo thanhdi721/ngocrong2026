@@ -193,6 +193,16 @@ public class Player implements Runnable {
     public List<Zone> mapCapsule;
     public Pet pet;
     public NewPet newPet;
+
+    /** Vòng quay Thượng Đế: tổng số lượt đã quay và cờ các mốc quà đã nhận (cột `vqtd`). */
+    public int vqtdSpin;
+    public int vqtdClaim;
+
+    /**
+     * Hào quang do NPC bật (cột `aura_npc`): -1 là tắt, còn lại là id hào quang
+     * (file {@code data/img_by_name/x1..x4/aura_[id]_0.png}). Bật thì đè lên hào quang thẻ rađa.
+     */
+    public int auraNpc = -1;
     public MobMe mobMe;
     public Location location;
     public SetClothes setClothes;
@@ -323,8 +333,11 @@ public class Player implements Runnable {
     public boolean checkTopReward2;
     public boolean checkTopReward3;
     private String lastChatMessage;
-    public List<BadgesData> dataBadges = new ArrayList<>();
-    public List<BadgesTask> dataTaskBadges = new ArrayList<>();
+    // FIX: danh hiệu bị sửa từ nhiều luồng (luồng map gọi Player.update, luồng phiên chơi mua
+    // danh hiệu / xong nhiệm vụ) -> ArrayList gây ConcurrentModificationException khi đang duyệt.
+    // CopyOnWriteArrayList: ghi hiếm, đọc nhiều, duyệt không bao giờ văng lỗi.
+    public List<BadgesData> dataBadges = new java.util.concurrent.CopyOnWriteArrayList<>();
+    public List<BadgesTask> dataTaskBadges = new java.util.concurrent.CopyOnWriteArrayList<>();
     public long lastTimeChangeBadges;
     public int autoTrainState = 0;
     public List<Integer> BoughtSkill = new ArrayList<>();
@@ -657,7 +670,9 @@ public class Player implements Runnable {
             }
         }
 
-        if (badges.idBadges != -1 && Util.canDoWithTime(badges.lastTimeSendBadges, 10000)) {
+        // Đang bật hào quang NPC thì thôi hiện danh hiệu, hai thứ chồng lên nhau rối mắt.
+        // Chỉ bỏ phần HIỆN; chỉ số của danh hiệu vẫn tính như thường (theo dataBadges.isUse).
+        if (badges.idBadges != -1 && auraNpc < 0 && Util.canDoWithTime(badges.lastTimeSendBadges, 10000)) {
             Service.gI().sendBadgesPlayer(this, 5, badges.idBadges);
             badges.lastTimeSendBadges = System.currentTimeMillis();
             this.nPoint.update();
@@ -759,6 +774,9 @@ public class Player implements Runnable {
     }
 
     public byte getAura() {
+        if (this.auraNpc >= 0 && isPl()) {
+            return (byte) this.auraNpc;   // hào quang NPC bật, ưu tiên hơn thẻ rađa
+        }
         if (!isPl() || this.Cards.isEmpty()) {
             return -1;
         }
@@ -1030,10 +1048,12 @@ public class Player implements Runnable {
         } else if (this.idNRNM >= 353 && this.idNRNM <= 359) {
             return 30;
         }
-        // doc 39: khôi phục mốc gốc TASK_3_2 (đang cõng "đứa bé" về báo cáo ông) — cờ túi 28.
-        // Giữ thêm mốc TASK_5_2 trở đi của tuyến mới (NV 5 "Ký ức của ông").
+        // doc 39: mốc gốc TASK_3_2 — đang cõng "đứa bé" về báo cáo ông (cờ túi 28).
+        // FIX: bản trước ghi thêm "|| idTask >= TASK_5_2" nên từ NV 5 trở đi người chơi CÕNG
+        // ĐỨA BÉ VĨNH VIỄN, đồng thời che luôn túi đeo lưng và cờ bang của họ. Chỉ còn đúng
+        // một bước được cõng.
         int idTaskFlagBag = TaskService.gI().getIdTask(this);
-        if (idTaskFlagBag == ConstTask.TASK_3_2 || idTaskFlagBag >= ConstTask.TASK_5_2) {
+        if (idTaskFlagBag == ConstTask.TASK_3_2) {
             return 28;
         }
         if (this.inventory.itemsBody.size() >= 11) {
@@ -1361,6 +1381,13 @@ public class Player implements Runnable {
         if (isPl() && inventory != null && inventory.itemsBody.get(7) != null) {
             Item it = inventory.itemsBody.get(7);
             if (it != null && it.isNotNullItem() && newPet == null) {
+                // Linh thú "đời mới": lấy luôn 3 part khai trong item_template, không cần case riêng.
+                if (it.template.type == 27 && it.template.head >= 0
+                        && it.template.body >= 0 && it.template.leg >= 0) {
+                    PetService.Pet2(this, it.template.head, it.template.body, it.template.leg);
+                    Service.gI().point(this);
+                    return;
+                }
                 switch (it.template.id) {
                     case 892 -> {
                         PetService.Pet2(this, 882, 883, 884);

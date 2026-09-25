@@ -107,6 +107,12 @@ public final class Manager {
     public static final List<String> NOTIFY = new ArrayList<>();
     public static final List<BadgesTaskTemplate> TASKS_BADGES_TEMPLATE = new ArrayList<>();
     public static final List<BagesTemplate> BAGES_TEMPLATES = new ArrayList<>();
+    /** icon -> dữ liệu đầu tiên dùng nó (part / vật phẩm / avatar / túi), để lần ra icon thiếu file. */
+    public static final Map<Integer, String> ICON_REFS = new java.util.concurrent.ConcurrentHashMap<>();
+    /** CSDL đã có cột player.vqtd chưa (vòng quay Thượng Đế). Thiếu thì bỏ qua khi lưu. */
+    public static volatile boolean HAS_VQTD = false;
+    /** CSDL đã có cột player.aura_npc chưa (hào quang NPC bật cho người chơi). */
+    public static volatile boolean HAS_AURA_NPC = false;
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
     public static List<TOP> Topsukien;
     public static List<TOP> Topsukien1;
@@ -175,6 +181,7 @@ public final class Manager {
         }
 
         this.loadDatabase();
+        checkMissingIcons();
         NpcFactory.createNpcConMeo();
         NpcFactory.createNpcRongThieng();
         this.initMap();
@@ -259,6 +266,8 @@ public final class Manager {
                 dataArray = (JSONArray) jv.parse(rs.getString("data").replaceAll("\\\"", ""));
                 for (int j = 0; j < dataArray.size(); j++) {
                     JSONArray pd = (JSONArray) jv.parse(String.valueOf(dataArray.get(j)));
+                    ICON_REFS.putIfAbsent(Integer.parseInt(String.valueOf(pd.get(0)).trim()),
+                            "part " + part.id + " (" + (part.type == 0 ? "đầu" : part.type == 1 ? "thân" : "chân") + ")");
                     part.partDetails.add(new PartDetail(Short.parseShort(String.valueOf(pd.get(0))),
                             Byte.parseByte(String.valueOf(pd.get(1))),
                             Byte.parseByte(String.valueOf(pd.get(2)))));
@@ -288,12 +297,79 @@ public final class Manager {
     }
 
     /**
+     * Liệt kê icon mà part / vật phẩm / avatar / túi đang dùng nhưng KHÔNG có file ảnh ở mức
+     * phóng to nào. Client xin những icon này sẽ không nhận được gì (hình trắng / lỗi client).
+     */
+    private static void checkMissingIcons() {
+        try {
+            List<Integer> missing = new ArrayList<>();
+            for (Integer id : ICON_REFS.keySet()) {
+                if (id == null || id < 0) {
+                    continue;
+                }
+                boolean found = false;
+                for (int z = 1; z <= 4 && !found; z++) {
+                    found = new java.io.File("data/icon/x" + z + "/" + id + ".png").exists();
+                }
+                if (!found) {
+                    missing.add(id);
+                }
+            }
+            if (missing.isEmpty()) {
+                Logger.success("Kiểm tra icon: mọi icon trong dữ liệu đều có file ảnh\n");
+                return;
+            }
+            Collections.sort(missing);
+            StringBuilder sb = new StringBuilder("Kiểm tra icon: " + missing.size()
+                    + " icon đang được dùng nhưng KHÔNG có file data/icon/x*/<id>.png:\n");
+            for (int i = 0; i < missing.size() && i < 100; i++) {
+                sb.append("  icon ").append(missing.get(i)).append(" <- ").append(ICON_REFS.get(missing.get(i))).append('\n');
+            }
+            if (missing.size() > 100) {
+                sb.append("  ... và ").append(missing.size() - 100).append(" icon khác\n");
+            }
+            Logger.error(sb.toString());
+        } catch (Exception e) {
+            Logger.error("Lỗi kiểm tra icon: " + e + "\n");
+        }
+    }
+
+    /**
      * Ghi file part cho client. Client đọc CỐ ĐỊNH số mảnh theo loại (đầu 3, thân 17, chân 14),
      * không có byte đếm. Một dòng `part` sai số mảnh (vd part 1999 chỉ có 2 mảnh) làm client đọc
      * lệch toàn bộ part phía sau -> NPC / cải trang từ part đó trở đi mất hình. Nay cắt / đệm
      * đúng số mảnh (đệm bằng icon 2955 trong suốt) và báo dòng sai ra log.
      */
-    private static void writePartData(DataOutputStream dos, List<Part> parts) throws java.io.IOException {
+    private static void writePartData(DataOutputStream dos, List<Part> rows) throws java.io.IOException {
+        // Client tra part THEO VỊ TRÍ: vị trí i phải đúng là part id i. DB gốc từng có một dòng
+        // gõ nhầm id (1919 thành 1949) -> trùng 1949, hổng 1919 -> mọi part 1919..1948 lệch một ô.
+        // Nay xếp theo id: trùng id thì giữ dòng đầu và báo lỗi, id hổng thì lấp part trong suốt.
+        int maxId = -1;
+        for (Part part : rows) {
+            maxId = Math.max(maxId, part.id);
+        }
+        Part[] byId = new Part[maxId + 1];
+        for (Part part : rows) {
+            if (part.id < 0) {
+                continue;
+            }
+            if (byId[part.id] != null) {
+                Logger.error("part: id " + part.id + " bi TRUNG trong DB -> bo dong sau, hay sua DB (xem patch 38)\n");
+                continue;
+            }
+            byId[part.id] = part;
+        }
+        List<Part> parts = new ArrayList<>(byId.length);
+        for (int i = 0; i < byId.length; i++) {
+            if (byId[i] == null) {
+                Logger.error("part: THIEU id " + i + " trong DB -> lap tam part trong suot de khong lech cac part sau\n");
+                Part blank = new Part();
+                blank.id = i;
+                blank.type = 0;
+                byId[i] = blank;
+            }
+            parts.add(byId[i]);
+        }
         dos.writeShort(parts.size());
         for (Part part : parts) {
             int need = part.type == 0 ? 3 : part.type == 1 ? 17 : 14;
@@ -317,7 +393,40 @@ public final class Manager {
         }
     }
 
+    /**
+     * Tự thêm cột còn thiếu, để chạy jar mới mà quên chạy patch cũng không hỏng phần lưu
+     * nhân vật. Cột `vqtd` giữ số lượt quay Thượng Đế và các mốc quà đã nhận (patch 58),
+     * cột `aura_npc` giữ hào quang NPC GoKu Nỗi Loạn bật cho người chơi (patch 63).
+     */
+    private void ensureSchema() {
+        HAS_VQTD = baoDamCot("vqtd", "TEXT NULL", "vong quay Thuong De", 58);
+        HAS_AURA_NPC = baoDamCot("aura_npc", "INT NOT NULL DEFAULT -1", "hao quang NPC", 63);
+    }
+
+    /** Thêm một cột của bảng player nếu chưa có; trả về true khi cột dùng được. */
+    private boolean baoDamCot(String ten, String kieu, String dungDeLam, int patch) {
+        try {
+            // Không dùng count(*): MySQL trả kiểu Long, LocalResultSet.getInt ép sang Integer nên
+            // văng ClassCastException. Chỉ cần biết có dòng nào không.
+            nro.models.data.LocalResultSet rs = nro.models.data.LocalManager.executeQuery(
+                    "select column_name from information_schema.columns"
+                    + " where table_schema = database() and table_name = 'player' and column_name = '" + ten + "'");
+            boolean co = rs.next();
+            rs.dispose();
+            if (!co) {
+                nro.models.data.LocalManager.executeUpdate("ALTER TABLE `player` ADD COLUMN `" + ten + "` " + kieu);
+                Logger.warning("Da them cot player." + ten + " (" + dungDeLam + ")\n");
+            }
+            return true;
+        } catch (Exception e) {
+            Logger.error("Thieu cot player." + ten + " va khong tu them duoc: " + e
+                    + " -> " + dungDeLam + " se KHONG duoc luu, hay chay patch " + patch + "\n");
+            return false;
+        }
+    }
+
     private void loadDatabase() {
+        ensureSchema();
         long st = System.currentTimeMillis();
         JSONArray dataArray;
         JSONObject dataObject;
@@ -335,6 +444,8 @@ public final class Manager {
                 dataArray = (JSONArray) JSONValue.parse(rs.getString("data").replaceAll("\\\"", ""));
                 for (int j = 0; j < dataArray.size(); j++) {
                     JSONArray pd = (JSONArray) JSONValue.parse(String.valueOf(dataArray.get(j)));
+                    ICON_REFS.putIfAbsent(Integer.parseInt(String.valueOf(pd.get(0)).trim()),
+                            "part " + part.id + " (" + (part.type == 0 ? "đầu" : part.type == 1 ? "thân" : "chân") + ")");
                     part.partDetails.add(new PartDetail(Short.parseShort(String.valueOf(pd.get(0))),
                             Byte.parseByte(String.valueOf(pd.get(1))),
                             Byte.parseByte(String.valueOf(pd.get(2)))));
@@ -492,6 +603,7 @@ public final class Manager {
             while (rs.next()) {
                 HeadAvatar headAvatar = new HeadAvatar(rs.getInt("head_id"), rs.getInt("avatar_id"));
                 HEAD_AVATARS.add(headAvatar);
+                ICON_REFS.putIfAbsent(headAvatar.avatarId, "head_avatar của part đầu " + headAvatar.headId);
             }
             Logger.success(Logger.RED + "Successfully loaded head avatar (" + HEAD_AVATARS.size() + ")\n");
 
@@ -511,6 +623,10 @@ public final class Manager {
                     flagBag.iconEffect[j] = Short.parseShort(iconData[j].trim());
                 }
                 FLAGS_BAGS.add(flagBag);
+                ICON_REFS.putIfAbsent((int) flagBag.iconId, "flag_bag " + flagBag.id);
+                for (short ic : flagBag.iconEffect) {
+                    ICON_REFS.putIfAbsent((int) ic, "flag_bag " + flagBag.id + " (icon_data)");
+                }
             }
             Logger.success(Logger.PURPLE + "Successfully loaded flag bag (" + FLAGS_BAGS.size() + ")\n");
 
@@ -689,6 +805,7 @@ public final class Manager {
                         itemTemp.leg = rs.getInt("leg");
 
                         ITEM_TEMPLATES.add(itemTemp);
+                        ICON_REFS.putIfAbsent((int) itemTemp.iconID, "vật phẩm " + itemTemp.id + " " + itemTemp.name);
                     } while (rs.next());
                     offset += batchSize;
                 }

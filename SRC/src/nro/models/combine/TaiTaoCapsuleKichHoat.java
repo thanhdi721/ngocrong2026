@@ -22,7 +22,8 @@ public class TaiTaoCapsuleKichHoat {
     private static final int KHOANG_TAI_CHE_ID = 1656;
     private static final int CAPSULE_ID = 1634;
 
-    private static final int REQUIRED_KHOANG = 3;
+    /** Số Khoáng tái chế cần cho một lần tái tạo (chủ dự án chốt: 3 -> 4). */
+    private static final int REQUIRED_KHOANG = 4;
     private static final int REQUIRED_CAPSULE = 1;
 
     public static void showInfoCombine(Player player) {

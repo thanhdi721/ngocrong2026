@@ -103,6 +103,7 @@ public class ServerManager {
 
             // Tỉ lệ vàng rơi từ quái (data/golddrop.properties) — thiếu file thì dùng mặc định.
             nro.models.mob.GoldDropConfig.load();
+            nro.models.boss.BossDropConfig.load();
 
             // CPANEL: bảng điều khiển Swing (tự bỏ qua nếu headless hoặc server.cpanel=false)
             nro.models.cpanel.CPanel.startIfEnabled();

@@ -217,6 +217,12 @@ public class BossID {
     // chỉ hiện ra cho người chơi đang đứng đúng bước nhiệm vụ, và KHÔNG rơi gì cả
     // (vật phẩm của NV 6 / NV 15 trao qua rewardDoneTask, xem docs/4-trien-khai/30-boss-npc-bo-sung.md).
     // Giá trị phải khớp TaskService.BOSS_KE_THU_GOM / BOSS_JACO_VO_THUC.
+    //========================BỘ BOSS "LỐP TRƯỞNG" (8 con + nữ thần)========================
+    // Dải riêng -2200 … -2209, không trùng id nào khác trong file này.
+    // 8 con dùng id -2200, -2201, … -2207 (xem LopTruong: BossID.LOP_TRUONG - chiSo).
+    public static final int LOP_TRUONG = -2200;
+    public static final int NU_THAN_BANG_TINH = -2209;
+
     public static final int KE_THU_GOM = -2000;       // NV 6 bước 1 — 1 hình dạng
     public static final int JACO_VO_THUC = -2001;     // NV 15 bước 1 — 2 hình dạng
 }

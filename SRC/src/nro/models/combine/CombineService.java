@@ -37,6 +37,8 @@ public class CombineService {
     public static final int CHUYEN_HOA_TRANG_BI_NGOC = 995;
     public static final int PHAN_RA_TRANG_BI_KH = 996;
     public static final int TAI_TAO_CAPSULE_KH = 997;
+    /** Tạo SKH VIP: 3 món đồ Thần -> 1 trang bị kích hoạt cùng loại, ngẫu nhiên tới cấp Thần. */
+    public static final int TAO_SKH_VIP = 998;
     public static final int NANG_CAP_SAO_PHA_LE = 100;
     public static final int DANH_BONG_SAO_PHA_LE = 101;
     public static final int CUONG_HOA_LO_SAO_PHA_LE = 102;
@@ -123,6 +125,9 @@ public class CombineService {
                 break;
             case TAI_TAO_CAPSULE_KH:
                 TaiTaoCapsuleKichHoat.showInfoCombine(player);
+                break;
+            case TAO_SKH_VIP:
+                TaoSKHVip.showInfoCombine(player);
                 break;
             case NHAP_NGOC_RONG:
                 NhapNgocRong.showInfoCombine(player);
@@ -254,6 +259,9 @@ public class CombineService {
                 break;
             case TAI_TAO_CAPSULE_KH:
                 TaiTaoCapsuleKichHoat.thucHienTaiTao(player);
+                break;
+            case TAO_SKH_VIP:
+                TaoSKHVip.thucHienTao(player);
                 break;
             case NHAP_NGOC_RONG:
                 NhapNgocRong.nhapNgocRong(player);
@@ -686,6 +694,8 @@ public class CombineService {
                 return "Ta sẽ phù phép\nphân rã thành\nkhoáng tái chế cho ngươi";
             case TAI_TAO_CAPSULE_KH:
                 return "Ta sẽ phù phép\ntái tạo thành 1 viên\nCapsule kích hoạt tự chọn";
+            case TAO_SKH_VIP:
+                return "Ta sẽ phù phép\n3 món đồ Thần thành\n1 trang bị kích hoạt";
             case NHAP_NGOC_RONG:
                 return "Ta sẽ phù phép\ncho 7 viên Ngọc Rồng\nthành 1 viên Ngọc Rồng cấp cao";
             case NANG_CAP_VAT_PHAM:
@@ -744,6 +754,9 @@ public class CombineService {
                 return "Vào hành trang\nChọn hay nhiều\nTrang bị kích hoạt cần rã\nSau đó chọn 'Phân rã'";
             case TAI_TAO_CAPSULE_KH:
                 return "Vào hành trang\nChọn 3 khoáng tái chế\nChọn 1 Capsule vỡ\nSau đó chọn 'Tái tạo'";
+            case TAO_SKH_VIP:
+                return "Vào hành trang\nChọn 3 món ĐỒ THẦN\nMón ĐẦU TIÊN quyết định\nloại và hệ nhận được\n"
+                        + "(nhẫn thì lấy hệ của ngươi)\nSau đó chọn 'Tạo'";
             case CHUYEN_HOA_TRANG_BI_NGOC:
             case CHUYEN_HOA_TRANG_BI_VANG:
                 return "Vào hành trang\nChọn trang bị gốc\n(Áo,quần,găng,giày hoặc rada)\ntừ cấp[+4] trở lên\nChọn tiếp trang bị mới\nchưa nâng cấp cần nhập thể\nsau đó chọn 'Nâng cấp'";

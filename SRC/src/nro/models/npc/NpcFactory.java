@@ -90,6 +90,7 @@ import nro.models.services.shenron.Shenron_Service;
 import java.util.List;
 import nro.models.event.XeNuocMia;
 import nro.models.npc_list.ChiChi;
+import nro.models.npc_list.GokuNoiLoan;
 import nro.models.npc_list.DrMyuu;
 import nro.models.npc_list.DuaHau;
 import nro.models.npc_list.ToriBot;
@@ -231,6 +232,8 @@ public class NpcFactory {
                     new ToSuKaio(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.CHI_CHI ->
                     new ChiChi(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.GOKU_NOI_LOAN ->
+                    new GokuNoiLoan(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.HUNG_VUONG ->
                     new VuaHung(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.DUA_HAU ->

@@ -2063,6 +2063,25 @@ public class Service {
         }
     }
 
+    /** Id hiệu ứng của các set kích hoạt 5 món, đúng những id {@link #sendEffPlayer} gắn. */
+    private static final int[] EFF_SET_KICH_HOAT = {1200, 10277, 5017, 1202};
+
+    /**
+     * Gỡ hiệu ứng set cũ rồi gắn lại theo bộ đồ đang mặc.
+     *
+     * <p>Trước đây hiệu ứng set chỉ được gửi lúc vào map ({@code ChangeMapService.finishLoadMap}),
+     * nên mặc đủ set xong phải đổi map mới thấy, mà tháo một món ra thì hiệu ứng vẫn còn nguyên.
+     */
+    public void capNhatHieuUngSet(Player pl) {
+        if (pl == null || !pl.isPl() || pl.zone == null) {
+            return;
+        }
+        for (int idEff : EFF_SET_KICH_HOAT) {
+            removeEffPlayer(pl, idEff);
+        }
+        sendEffPlayer(pl);
+    }
+
     public void sendEffPlayer(Player pl) {
         if (pl.isPl()) {
             if (pl.setClothes.songoku >= 5

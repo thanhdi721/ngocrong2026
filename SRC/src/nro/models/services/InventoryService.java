@@ -412,6 +412,27 @@ public class InventoryService {
 
     }
 
+    /**
+     * Đồ trên người vừa đổi: đếm lại set kích hoạt rồi gắn lại hiệu ứng set.
+     *
+     * <p>Phải gọi TRƯỚC {@code Service.point}, vì vài chỉ số (set Nappa, set Cađíc M…)
+     * đọc thẳng các biến đếm trong {@code setClothes}. Trước đây chỉ đường kéo-thả đồ
+     * mới đếm lại (UseItem.getItem), còn mặc / tháo bằng nút "Sử dụng", mua ở shop,
+     * nhận thưởng… thì không, nên vừa đổi đồ xong game vẫn tính như chưa mặc đủ set.
+     */
+    public void capNhatDoTrenNguoi(Player player) {
+        if (player == null) {
+            return;
+        }
+        if (player.setClothes != null) {
+            player.setClothes.setup();
+        }
+        if (player.pet != null && player.pet.setClothes != null) {
+            player.pet.setClothes.setup();
+        }
+        Service.gI().capNhatHieuUngSet(player);
+    }
+
     public void itemBagToBody(Player player, int index) {
         if (index < 0) {
             Service.gI().sendThongBao(player, "Không thể thực hiện");
@@ -419,9 +440,16 @@ public class InventoryService {
         }
         Item item = player.inventory.itemsBag.get(index);
         if (item.isNotNullItem()) {
+            boolean linhThu = item.template.type == 27;
             player.inventory.itemsBag.set(index, putItemBody(player, item));
+            // FIX: trước đây linh thú chỉ hiện sau khi thoát ra vào lại, vì sendNewPet chỉ chạy
+            // lúc đăng nhập. Nay đeo vào là ra ngay.
+            if (linhThu && !player.isPet) {
+                player.sendNewPet();
+            }
             sendItemBags(player);
             sendItemBody(player);
+            capNhatDoTrenNguoi(player);
             Service.gI().point(player);
             Service.gI().Send_Caitrang(player);
         }
@@ -443,6 +471,7 @@ public class InventoryService {
             player.inventory.itemsBody.set(index, putItemBag(player, item));
             sendItemBags(player);
             sendItemBody(player);
+            capNhatDoTrenNguoi(player);
             Service.gI().player(player);
             player.zone.load_Me_To_Another(player);
             player.zone.load_Another_To_Me(player);
@@ -461,6 +490,7 @@ public class InventoryService {
                     player.inventory.itemsBag.set(index, itemSwap);
                     sendItemBags(player);
                     sendItemBody(player);
+                    capNhatDoTrenNguoi(player);
                     if (!itemSwap.equals(item)) {
                         Service.gI().point(player);
                         Service.gI().showInfoPet(player);
@@ -482,6 +512,7 @@ public class InventoryService {
             player.pet.inventory.itemsBody.set(index, putItemBag(player, item));
             sendItemBags(player);
             sendItemBody(player);
+            capNhatDoTrenNguoi(player);
             Service.gI().point(player);
             Service.gI().Send_Caitrang(player.pet);
             Service.gI().Send_Caitrang(player);
@@ -514,6 +545,7 @@ public class InventoryService {
                             done = true;
 
                             sendItemBody(player);
+                            capNhatDoTrenNguoi(player);
                             Service.gI().point(player);
                             Service.gI().Send_Caitrang(player);
                         }
@@ -567,6 +599,7 @@ public class InventoryService {
                 sortItems(player.inventory.itemsBag);
                 sendItemBody(player);
                 sendItemBox(player);
+                capNhatDoTrenNguoi(player);
                 Service.gI().point(player);
                 Service.gI().Send_Caitrang(player);
             }

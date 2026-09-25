@@ -33,7 +33,25 @@ public class DataGame {
 
     // 9 -> 10: file part sửa lệch từ part 1999 (patch 14) — client phải tải lại part.
     // 10 -> 11: đổi hình NPC 76 Granola (patch 15).
-    public static byte vsData = 11;
+    // 11 -> 12: thêm 114 dòng part của 38 cải trang mang từ NGOL (patch 35).
+    // 12 -> 13: sửa part 1919 bị ghi nhầm 1949 (patch 38), part cải trang gỡ bỏ (patch 39).
+    // 13 -> 14: thêm 25 part của 5 cải trang mới 2075–2079 (patch 40).
+    // 14 -> 15: chỉnh vị trí đầu 3 cải trang 2077–2079 (patch 41).
+    // 15 -> 16: nâng thân 2077/2079, chỉnh đầu 2078 (patch 42).
+    // 16 -> 17: chỉnh lần 3 cải trang 2077/2078/2079 (patch 43).
+    // 17 -> 18: chỉnh lần 4: 2079 thân lên 4; 2077 thân xuống 2, đầu xuống 2; 2078 đầu lên 2, sang trái 1 (patch 44).
+    // 19 -> 20: chỉnh lần 6: 2079 thân lên 8, đầu lên 4 sang phải 2 (patch 46).
+    // 20 -> 21: 2079 Nữ Thần: đầu lên 3 sang trái 1, tắt đầu động (hết nháy) (patch 47).
+    // 21 -> 22: thêm 102 part của 34 cải trang mang từ HUNR (patch 48).
+    // 22 -> 23: thêm 18 part của 6 pet mang từ HUNR (patch 49).
+    // 23 -> 24: thêm 9 part của 3 linh thú (patch 54).
+    // 24 -> 25: thêm 3 part bản nhỏ của Nữ Thần Băng Tinh (patch 60).
+    // 25 -> 26: chỉnh đầu nữ thần bản nhỏ (patch 61).
+    // 26 -> 27: hạ đầu nữ thần thêm 2 (patch 61 bản cập nhật).
+    // 27 -> 28: hạ đầu nữ thần thêm 1 (patch 61 bản cập nhật).
+    // 28 -> 29: thêm 288 part của 72 cải trang + 24 linh thú mang từ SUMO/Bun (patch 67).
+    // 29 -> 30: sửa part của Pét cá mập và 2 con mèo trắng (patch 73).
+    public static byte vsData = 30;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -44,13 +62,30 @@ public class DataGame {
     // 4 -> 5: thêm NPC 64 Thiên Sứ Whis vào map 155 (patch 30).
     // 5 -> 6: đổi bộ tile của map 166 Phòng thí nghiệm Myuu (patch 31).
     // 6 -> 7: đổi hình npc_template 108 Heart và 110 (patch 32).
-    public static byte vsMap = 7;
+    // 7 -> 8: thêm npc_template 86 "GoKu Nỗi Loạn" đứng cạnh Chi Chi ở map 5 (patch 63).
+    public static byte vsMap = 8;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.
     // Không tăng => item mới hiện tên rỗng / icon trắng với mọi người chơi cũ.
     // Mỗi lần thêm/bớt/sửa dòng item_template PHẢI tăng số này thêm 1 (tối đa 127).
-    public static byte vsItem = 10;
+    // 10 -> 11: thêm 43 vật phẩm id 2032–2074 mang từ NGOL (patch 35).
+    // 11 -> 12: bỏ cắt gói vật phẩm thành nhiều khúc (cache NRitem2 của client chỉ giữ khúc
+    //          cuối). Tăng để client xoá cache hỏng và tải lại đủ bộ.
+    // 12 -> 13: patch 39 gỡ 11 cải trang thiếu ảnh (1841–1851).
+    // 13 -> 14: thêm 5 cải trang 2075–2079 (patch 40).
+    // 14 -> 15: bỏ đầu động của cải trang 2079 (patch 47).
+    // 15 -> 16: thêm 34 cải trang 2080–2113 (patch 48).
+    // 16 -> 17: thêm 6 pet 2114–2119 (patch 49).
+    // 17 -> 18: 6 món 2114–2119 đổi từ cải trang sang linh thú (patch 51).
+    // 18 -> 19: sửa icon cải trang 2103 (patch 52).
+    // 19 -> 20: linh thú 2114–2119 trả lại part để đeo được (patch 53).
+    // 20 -> 21: thêm 3 linh thú 2120–2122 (patch 54).
+    // 21 -> 22: thêm vật phẩm 2123 Nâng kỹ năng 5 đệ tử (patch 58).
+    // 22 -> 23: Bùa x2 đệ tử 1628 cho gộp chồng (patch 59).
+    // 23 -> 24: thêm 96 vật phẩm id 2124–2219 mang từ SUMO/Bun (patch 67).
+    // 24 -> 25: sửa icon 7 món bị lỗi hình của đợt SUMO (patch 73).
+    public static byte vsItem = 25;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
@@ -312,13 +347,47 @@ public class DataGame {
         }
     }
 
+    /** Nhớ những icon client xin mà máy chủ không có, để chỉ báo một lần mỗi id. */
+    private static final java.util.Set<Integer> MISSING_ICONS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     public static void sendIcon(MySession session, int id) {
         Message msg;
         try {
-            final byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
+            byte[] icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/" + id + ".png");
+
+            // FIX: thiếu file ở đúng mức phóng to của client thì TRƯỚC ĐÂY server im lặng,
+            // client chờ mãi -> khung giao diện trắng trơn. Nay thử các mức còn lại rồi mới bỏ,
+            // và ghi log đúng id thiếu (mỗi id chỉ báo một lần).
+            if (icon == null) {
+                for (int z = 1; z <= 4 && icon == null; z++) {
+                    if (z != session.zoomLevel) {
+                        icon = FileIO.readFile("data/icon/x" + z + "/" + id + ".png");
+                    }
+                }
+                if (icon != null && MISSING_ICONS.add(id)) {
+                    Logger.warning("Thiếu icon " + id + " ở mức x" + session.zoomLevel
+                            + ", đã gửi tạm ảnh ở mức khác\n");
+                }
+            }
 
             if (icon == null) {
-                return;
+                // Vẫn trả về ảnh trong suốt (icon 2955) mang đúng số client xin, để client không
+                // chờ mãi / lỗi vẽ; chỉ là ô trống thay vì đơ.
+                icon = FileIO.readFile("data/icon/x" + session.zoomLevel + "/2955.png");
+                if (icon == null) {
+                    icon = FileIO.readFile("data/icon/x2/2955.png");
+                }
+                if (MISSING_ICONS.add(id)) {
+                    String ref = nro.models.server.Manager.ICON_REFS.get(id);
+                    Logger.error("Client xin icon " + id + " nhưng KHÔNG có file data/icon/x*/"
+                            + id + ".png -> " + (ref != null ? "đang được dùng bởi " + ref
+                            : "không có part / vật phẩm / avatar / túi nào của máy chủ dùng icon này"
+                            + " (client tự xin từ dữ liệu cache cũ hoặc dữ liệu riêng của client)")
+                            + " — đã gửi ảnh trong suốt thay thế\n");
+                }
+                if (icon == null) {
+                    return;
+                }
             }
 
             msg = new Message(-67);

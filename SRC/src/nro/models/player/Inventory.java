@@ -18,7 +18,10 @@ import nro.models.task.BadgesTaskService;
 public class Inventory {
 
     public static final long LIMIT_GOLD = 200_000_000_000L;
-    public static final int MAX_ITEMS_BAG = 80;
+    // Trần ô hành trang. KHÔNG vượt quá 127: client gửi chỉ số ô bằng 1 byte CÓ DẤU
+    // (UseItem đọc readByte, và -1 là mã "không chọn ô nào"), nên ô thứ 128 trở đi
+    // sẽ thành số âm và bấm không được. Muốn hơn nữa phải sửa cả client.
+    public static final int MAX_ITEMS_BAG = 120;
     public static final int MAX_ITEMS_BOX = 100;
     public Item trainArmor;
     public List<String> giftCode;

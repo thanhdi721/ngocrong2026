@@ -186,7 +186,7 @@ public final class BossDropRate {
         if (effectiveHp >= TIER_2_HP) {
             return 2;
         }
-        return MIN_PERCENT;
+        return BossDropConfig.THAN_LINH_MIN.giaTri;
     }
 
     /**
@@ -196,10 +196,19 @@ public final class BossDropRate {
      */
     public static int percentFor(Boss boss) {
         int percent = percentForEffectiveHp(effectiveHp(boss));
-        if (percent < MIN_PERCENT) {
-            return MIN_PERCENT;
+        // Sàn / trần lấy từ cpanel (tab "Rơi đồ boss"), mặc định vẫn là 1–5%.
+        int min = BossDropConfig.THAN_LINH_MIN.giaTri;
+        int max = BossDropConfig.THAN_LINH_MAX.giaTri;
+        if (min < 0) {
+            min = 0;
         }
-        return percent > MAX_PERCENT ? MAX_PERCENT : percent;
+        if (max < min) {
+            max = min;
+        }
+        if (percent < min) {
+            return min;
+        }
+        return percent > max ? max : percent;
     }
 
     /**

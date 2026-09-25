@@ -149,6 +149,7 @@ public final class CPanel {
         bossTab = new BossTab();
         tabs.addTab("Boss", bossTab);
         tabs.addTab("Vàng rơi", new GoldDropTab());
+        tabs.addTab("Rơi đồ boss", new BossDropTab());
         tabs.addTab("Top vàng/ngọc", new TopTab());
 
         logArea = new JTextArea(6, 80);

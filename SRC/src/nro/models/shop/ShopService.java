@@ -962,8 +962,8 @@ public class ShopService {
             }
         }
 
-        BadgesData danhHieu = new BadgesData(pl, idEffect, 30);
-        pl.dataBadges.add(danhHieu);
+        // FIX: hàm dựng đã tự thêm vào pl.dataBadges, add thêm là nhân đôi danh hiệu.
+        new BadgesData(pl, idEffect, 30);
 
         BagesTemplate template = BagesTemplate.fineBadgesbyIdItem(is.temp.id);
         String badgeName = template != null ? template.NAME : "không rõ";
