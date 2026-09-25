@@ -94,3 +94,37 @@ của các món cũ (vài món đang dài 100–150 ký tự) hoặc sửa cách
 
 Chưa vào game: cần xem cải trang mặc lên có lệch mảnh không, linh thú đeo ô 7 có hiện,
 đeo lưng có vẽ đúng khung, và hai thú cưỡi có bay đúng.
+
+## Sửa lỗi sau khi thử trong game (patch 73)
+
+Chủ server báo 7 món hỏng hình. Soi lại thì ra hai kiểu lỗi, đều **từ dữ liệu nguồn**:
+
+**Kiểu 1 — linh thú bị chồng hình.** Hệ pet bên SUMO chỉ vẽ MỘT part, nên họ để hình con vật
+ở cả đầu/thân/chân cũng không sao. Client mình vẽ đủ ba part như một nhân vật, nên ra hai ba
+con chồng lên nhau.
+
+* `Pét cá mập` (2161): đầu 1 mảnh 12.648 px + thân 1 mảnh 12.144 px + chân 6 mảnh → ba con.
+  Đã xoá hình ở đầu và thân, giữ chân.
+* `Pet mèo trắng` / `Pet mèo trắng 1` (2218, 2219): xoá hình ở đầu.
+
+Đối chiếu các linh thú cũ đang chạy tốt: hoặc **đầu trống + thân/chân có hình**
+(Pet Lôi Thần, King Kong, Cá xanh…), hoặc **đầu có hình + thân trống** (Trâu ngáo, Lân Đần)
+— không con nào có hình ở cả đầu lẫn thân.
+
+**Kiểu 2 — kho icon bên nguồn đã lệch số.** Id icon họ ghi trong dữ liệu trỏ vào ảnh khác hẳn:
+
+* `Pet mèo trắng`: 2 trong 9 khung là **mặt nạ** và **rồng trắng**; icon vật phẩm cũng là
+  cái mặt nạ. Đã thay bằng khung mèo kề bên, icon đổi sang hình mèo.
+* `Thần Mộc` / `Thần Thổ`: 6 khung là **ảnh chụp** — một thẻ VISA Techcombank, một ảnh người,
+  mấy ảnh nhỏ. Cả SUMO lẫn Bun đều hỏng y hệt. Đã dựng lại bằng chính hiệu ứng của
+  `Thần Hỏa` đổi màu: xanh lá cho Mộc (icon 20245–20250), vàng đất cho Thổ (20251–20256).
+* `Thần Hỏa`: hình đeo lưng đúng, nhưng cột `icon_id` bên nguồn ghi là **1** nên hành trang
+  hiện nhầm icon. Lấy khung đầu làm icon.
+* `Cây tre trăm đốt`: dùng đúng dải icon 12835–12842 mà bên mình đang là "Bụi tre", nhưng ảnh
+  ở dải đó bên họ đã bị thay thành mũ có cánh và găng trắng. Trỏ về bộ ảnh bụi tre của mình.
+
+Patch: `sql/patch/73-sua-vat-pham-loi-sumo.sql`. `vsData` 29 → 30, `vsItem` 24 → 25.
+
+**Ba con nên để ý tiếp**: `Pét zuka`, `Pét Obito`, `Pét Hao Thiên Khuyển` có hình ở cả đầu
+lẫn thân — cùng kiểu dữ liệu với Pét cá mập. Chưa đụng vào vì chưa thấy báo lỗi; nếu vào game
+thấy chồng hình thì xoá phần đầu y như patch 73 là xong.
