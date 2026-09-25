@@ -18,15 +18,28 @@ Thêm dòng npc_template nên `DataGame.vsMap` 7 → 8, client mới tải lại
 
 ## Menu
 
-Bấm vào NPC:
+Bấm vào NPC ra bảng **chọn hào quang** — 18 loại, chia 2 trang, mỗi trang 8 cái kèm nút
+"Xem tiếp"; đang khoác rồi thì có thêm nút "Tắt hào quang". Miễn phí, đổi bao nhiêu lần cũng được.
 
-* chưa bật → "Bật hào quang" / "Đóng"
-* đang bật → "Tắt hào quang" / "Đóng"
+| id | tên | id | tên |
+|---|---|---|---|
+| 98 | Goku Purple | 107 | Khí Lục Diệp |
+| 99 | Khí Xanh Dương | 108 | Khí Bạch Vân |
+| 100 | Khí Vàng | 109 | Hồng Vân |
+| 101 | Khí Kim Quang | 110 | Cột Sáng Hồng |
+| 102 | Khí Bạch Kim | 111 | Hỏa Diệm Đỏ |
+| 103 | Khí Huyết Đỏ | 112 | Lam Diệm |
+| 104 | Khí Tử Điện | 113 | Tử Diệm |
+| 105 | Khí Ngọc Bích | 114 | Hỏa Diệm Cam |
+| 106 | Khí Xích Long | 115 | Tử Quang |
 
-Miễn phí, không giới hạn số lần. Bật xong server làm hai việc: gửi gói `127/4`
-(đúng gói hào quang của hệ thống thẻ rađa) rồi **cho vào lại đúng khu đang đứng**
-— vào lại khu thì client dựng lại nhân vật nên chắc chắn thấy hào quang, kể cả khi
-bản client không xử lý gói 127/4. Đổi lại là màn hình chớp một cái như khi đổi khu.
+Thêm hào quang mới: chép ảnh vào `data/img_by_name/x1..x4/aura_<id>_0.png`, thêm dòng
+`img_by_name` khai số khung, rồi thêm một dòng vào mảng `HAO_QUANG` của `GokuNoiLoan`.
+Id phải **≤ 127** vì `Player.getAura()` trả về kiểu byte.
+
+Chọn xong server gửi gói `127/4` rồi cho vào lại đúng khu đang đứng — vào lại khu thì client
+dựng lại nhân vật nên chắc chắn thấy, kể cả khi bản client không xử lý gói 127/4. Đổi lại là
+màn hình chớp một cái như khi đổi khu.
 
 ## Lưu ở đâu
 
