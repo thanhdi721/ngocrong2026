@@ -14,17 +14,29 @@ không bê nguyên.
 **Tẩy** — *Tẩy Pháp sư*: đặt trang bị đã pháp sư + **5 Đá Tẩy Pháp Sư**, trả **500 ngọc**,
 gỡ **sạch** mọi dòng Pháp Sư (không đụng các dòng khác của món đồ), món đồ về 0/6.
 
-## Bảy dòng
+## Bảy dòng — dùng LẠI option có sẵn
 
-| Dòng | Mỗi lần trúng | Nếu dồn hết 6 lần | Cộng vào |
+| Dòng | Id option | Mỗi lần trúng | Nếu dồn hết 6 lần |
 |---|---|---|---|
-| Sức đánh | +2% | +12% | `tlDame` (như option 50) |
-| HP | +2% | +12% | `tlHp` (77) |
-| KI | +2% | +12% | `tlMp` (103) |
-| Giáp | +100 | +600 | `defAdd` (47) |
-| Giảm sát thương | +1% | +6% | `tlGiap` (94) |
-| Né đòn | +1% | +6% | `tlNeDon` (108) |
-| Xuyên giáp | +1% | +6% | `tlxgc` **và** `tlxgcc` (98 + 99) |
+| Sức đánh | 50 | +2% | +12% |
+| HP | 77 | +2% | +12% |
+| KI | 103 | +2% | +12% |
+| Giáp | 47 | +100 | +600 |
+| Giảm sát thương | 94 | +1% | +6% |
+| Né đòn | 108 | +1% | +6% |
+| Xuyên giáp | 98 + 99 | +1% (cả chưởng lẫn cận chiến) | +6% |
+
+Bảng option chỉ thêm **đúng một dòng mới**: id 251 `Pháp Sư cấp #` làm tem đếm số lần đã nâng.
+
+**Vì sao không đẻ 7 dòng riêng** (bản đầu tôi làm vậy và nó **làm hỏng client**): gói tin gửi
+bảng option ghi **số dòng bằng MỘT byte** (`ItemData.updateItemOptionItemplate`), và mỗi dòng
+chỉ số của món đồ cũng ghi **id bằng một byte**. Bảng đang có 251 dòng (id 0–250) nên trần là
+**255**. Thêm 7 dòng thành 258 → byte ghi ra là **2** → client đọc 2 dòng rồi lệch cả gói.
+Sau khi sửa: **252 dòng, id lớn nhất 251** — còn dư 3 chỗ.
+
+Hệ quả của việc dùng chung id: lúc tẩy không phân biệt được dòng nào do pháp sư cộng, nên
+chức năng **chỉ nhận món chưa có chỉ số nào** (cải trang / đeo lưng / linh thú bên mình vốn
+không có), và tẩy thì gỡ sạch cả 9 id kể trên.
 
 ## Xác suất (mô phỏng 200.000 món)
 
@@ -115,3 +127,29 @@ Những chỗ đã soi và thấy không sao:
 * Bấm "Từ chối" rơi vào `startCombineVip` — hàm này chỉ xử Pha lê hóa, với kiểu khác thì
   không làm gì ngoài việc xoá trạng thái, đúng như mong đợi.
 * 30 hằng số trong `CombineService` không có giá trị nào trùng nhau (lỗi này từng làm gãy build).
+
+## Sự cố ngày 25/09 — bản đầu làm hỏng client
+
+Bản đầu thêm **7 dòng option mới (id 251–257)**. Bảng option lên **258 dòng**, mà
+`ItemData.updateItemOptionItemplate` ghi số dòng bằng **một byte**: `258 & 0xFF = 2`.
+Client nhận gói "bảng chỉ số", đọc đúng 2 dòng rồi lệch toàn bộ phần còn lại → hỏng.
+Hai id 256 và 257 còn tệ hơn: khi gửi kèm món đồ chúng biến thành 0 và 1.
+
+Đã sửa: bảy chỉ số dùng lại option sẵn có, bảng chỉ thêm một dòng (251). Kiểm tra lại sau khi
+chạy hết 76 patch: **252 dòng, id lớn nhất 251** — dưới trần 255.
+
+### Trần khác cần nhớ (đã rà lại cả bộ)
+
+| Thứ | Giới hạn | Đang dùng |
+|---|---|---|
+| Số dòng `item_option_template` | 255 (1 byte) | **252** |
+| Id option gửi kèm món đồ | 255 (1 byte) | 251 |
+| Id `flag_bag` | 255 (1 byte) | 196 |
+| Số dòng `npc_template` | 127 (1 byte có dấu) | 95 |
+| Id hào quang | 127 (`getAura` trả byte) | 115 |
+| Id icon | 32.767 (`Short.parseShort`) | 32.667 |
+| Id vật phẩm | 32.767 (short) | 2.263 |
+| **Dữ liệu vật phẩm gửi client** | **2 gói × 65.535 byte** | **127.726 byte — còn dư 2.274** |
+
+Dòng cuối là chỗ sát trần nhất: chỉ còn chỗ cho **khoảng 50 vật phẩm nữa**. Muốn thêm nhiều
+thì phải rút gọn cột `description` của đám vật phẩm cũ (vài món đang dài 100–150 ký tự).

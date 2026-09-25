@@ -22,8 +22,11 @@ import nro.models.utils.Util;
  * <p>Tẩy: đặt trang bị đã pháp sư + {@value #DA_TAY} Đá Tẩy Pháp Sư, trả {@value #GEM_TAY}
  * ngọc, gỡ sạch mọi dòng Pháp Sư (không đụng các dòng khác của món đồ).
  *
- * <p>Bảy dòng là option 251–257, {@code NPoint.addOption} cộng chúng vào đúng chỗ của các
- * dòng tương đương sẵn có, nên không phải sửa chỗ tính chỉ số nào khác.
+ * <p><b>Bảy dòng dùng LẠI option có sẵn</b> (50 sức đánh %, 77 HP %, 103 KI %, 47 giáp,
+ * 94 giảm sát thương, 108 né đòn, 98 + 99 xuyên giáp) chứ không đẻ dòng mới: gói tin gửi
+ * bảng option ghi SỐ DÒNG bằng một byte và id mỗi dòng cũng một byte, bảng đang 251 dòng
+ * nên chỉ còn chỗ tới id 254 và tổng không quá 255. Bảng chỉ thêm đúng một dòng
+ * {@value #TEM} "Pháp Sư cấp #" làm tem đếm số lần đã nâng.
  */
 public class PhapSuTrangBi {
 
@@ -43,16 +46,26 @@ public class PhapSuTrangBi {
      */
     private static final int SO_LAN_TOI_DA = 6;
 
-    /** {id option, mỗi lần trúng cộng bao nhiêu, tên ngắn để ghi thông báo}. */
+    /** Tem đếm số lần đã pháp sư — dòng option DUY NHẤT phải thêm mới. */
+    private static final int TEM = 251;
+
+    /**
+     * Bảy chỉ số, mỗi dòng là {các id option sẵn có, mỗi lần trúng cộng bao nhiêu, tên}.
+     * Xuyên giáp cộng cả chưởng (98) lẫn cận chiến (99) trong một lần.
+     */
     private static final Object[][] DONG = {
-        {251, 2, "Sức đánh"},
-        {252, 2, "HP"},
-        {253, 2, "KI"},
-        {254, 100, "Giáp"},
-        {255, 1, "Giảm sát thương"},
-        {256, 1, "Né đòn"},
-        {257, 1, "Xuyên giáp"},
+        {new int[]{50}, 2, "Sức đánh"},
+        {new int[]{77}, 2, "HP"},
+        {new int[]{103}, 2, "KI"},
+        {new int[]{47}, 100, "Giáp"},
+        {new int[]{94}, 1, "Giảm sát thương"},
+        {new int[]{108}, 1, "Né đòn"},
+        {new int[]{98, 99}, 1, "Xuyên giáp"},
     };
+
+    /** Mọi id mà chức năng này có thể đụng tới (để tẩy và để xét món hợp lệ). */
+    private static final java.util.Set<Integer> ID_PHAP_SU = new java.util.HashSet<>(
+            java.util.Arrays.asList(TEM, 50, 77, 103, 47, 94, 108, 98, 99));
 
     /**
      * Đồ cho phép pháp sư: cải trang (5), đeo lưng (11), linh thú (27 có đủ part).
@@ -73,27 +86,62 @@ public class PhapSuTrangBi {
     }
 
     private static boolean laDongPhapSu(Item.ItemOption io) {
-        return io != null && io.optionTemplate != null
-                && io.optionTemplate.id >= 251 && io.optionTemplate.id <= 257;
+        return io != null && io.optionTemplate != null && ID_PHAP_SU.contains(io.optionTemplate.id);
     }
 
-    /** Số lần đã nâng của một dòng (param chia cho mức cộng mỗi lần). */
-    private static int soLanCuaDong(Item it, int idOption, int moiLan) {
+    /** Số lần đã nâng, đọc thẳng ở tem. */
+    private static int soLanDaNang(Item it) {
         for (Item.ItemOption io : it.itemOptions) {
-            if (io.optionTemplate != null && io.optionTemplate.id == idOption) {
-                return io.param / moiLan;
+            if (io.optionTemplate != null && io.optionTemplate.id == TEM) {
+                return io.param;
             }
         }
         return 0;
     }
 
-    /** Tổng số lần đã nâng của món đồ, cộng hết 7 dòng lại. */
-    private static int soLanDaNang(Item it) {
-        int n = 0;
-        for (Object[] d : DONG) {
-            n += soLanCuaDong(it, (int) d[0], (int) d[1]);
+    /**
+     * Món đồ có dòng chỉ số nào KHÔNG phải của Pháp Sư không.
+     *
+     * <p>Vì bảy chỉ số dùng chung id với đồ thường, lúc tẩy không phân biệt được dòng nào do
+     * pháp sư cộng. Nên chỉ nhận món "sạch": không có dòng nào ngoài chín id ở {@link #ID_PHAP_SU}.
+     * Cải trang / đeo lưng / linh thú bên mình vốn không có chỉ số nên luôn hợp lệ.
+     */
+    private static boolean coDongLa(Item it) {
+        for (Item.ItemOption io : it.itemOptions) {
+            if (!laDongPhapSu(io)) {
+                return true;
+            }
         }
-        return n;
+        return false;
+    }
+
+    /** Cộng một dòng (có thể gồm nhiều id) vào món đồ. */
+    private static void congDong(Item it, int[] ids, int moiLan) {
+        for (int id : ids) {
+            Item.ItemOption dangCo = null;
+            for (Item.ItemOption io : it.itemOptions) {
+                if (io.optionTemplate != null && io.optionTemplate.id == id) {
+                    dangCo = io;
+                    break;
+                }
+            }
+            if (dangCo == null) {
+                it.itemOptions.add(new Item.ItemOption(id, moiLan));
+            } else {
+                dangCo.param += moiLan;
+            }
+        }
+    }
+
+    /** Ghi tem: số lần đã nâng. */
+    private static void ghiTem(Item it, int soLan) {
+        for (Item.ItemOption io : it.itemOptions) {
+            if (io.optionTemplate != null && io.optionTemplate.id == TEM) {
+                io.param = soLan;
+                return;
+            }
+        }
+        it.itemOptions.add(new Item.ItemOption(TEM, soLan));
     }
 
     private static Item timTrangBi(Player player) {
@@ -146,12 +194,12 @@ public class PhapSuTrangBi {
      * IndexOutOfBounds (bảng tra theo CHỈ SỐ MẢNG), nên chặn từ đầu và báo cho rõ.
      */
     private static boolean chuaChayPatch(Player player) {
-        if (nro.models.server.Manager.ITEM_OPTION_TEMPLATES.size() > 257) {
+        if (nro.models.server.Manager.ITEM_OPTION_TEMPLATES.size() > TEM) {
             return false;
         }
-        baoLoi(player, "Chức năng chưa dùng được:\nmáy chủ còn thiếu 7 dòng chỉ số Pháp Sư.\n"
+        baoLoi(player, "Chức năng chưa dùng được:\nmáy chủ còn thiếu dòng \"Pháp Sư cấp\".\n"
                 + "Hãy chạy patch 75 rồi khởi động lại.");
-        nro.models.utils.Logger.error("Pháp sư trang bị: thiếu option 251-257, chưa chạy patch 75\n");
+        nro.models.utils.Logger.error("Pháp sư trang bị: thiếu option " + TEM + ", chưa chạy patch 75\n");
         return true;
     }
 
@@ -173,6 +221,11 @@ public class PhapSuTrangBi {
         }
         if (da < DA_NANG) {
             baoLoi(player, "Thiếu Đá Pháp Sư!\n- Cần: " + DA_NANG + "\n- Đang có: " + da);
+            return;
+        }
+        if (coDongLa(tb)) {
+            baoLoi(player, tb.template.name + "\nđã có sẵn chỉ số riêng nên không pháp sư được.\n"
+                    + "Chỉ nhận đồ chưa có dòng chỉ số nào.");
             return;
         }
         if (soLanDaNang(tb) >= SO_LAN_TOI_DA) {
@@ -222,6 +275,10 @@ public class PhapSuTrangBi {
             Service.gI().sendThongBao(player, "Không đủ vàng để thực hiện!");
             return;
         }
+        if (coDongLa(tb)) {
+            Service.gI().sendThongBao(player, "Trang bị đã có chỉ số riêng, không pháp sư được!");
+            return;
+        }
         if (soLanDaNang(tb) >= SO_LAN_TOI_DA) {
             Service.gI().sendThongBao(player, "Trang bị đã nâng đủ " + SO_LAN_TOI_DA + " lần, phải tẩy mới nâng lại được!");
             return;
@@ -231,23 +288,11 @@ public class PhapSuTrangBi {
         truDa(player, DA_PHAP_SU, DA_NANG);
 
         Object[] dong = DONG[Util.nextInt(DONG.length)];
-        int idOption = (int) dong[0];
-        int moiLan = (int) dong[1];
-        Item.ItemOption dangCo = null;
-        for (Item.ItemOption io : tb.itemOptions) {
-            if (io.optionTemplate != null && io.optionTemplate.id == idOption) {
-                dangCo = io;
-                break;
-            }
-        }
-        if (dangCo == null) {
-            tb.itemOptions.add(new Item.ItemOption(idOption, moiLan));
-        } else {
-            dangCo.param += moiLan;
-        }
+        congDong(tb, (int[]) dong[0], (int) dong[1]);
+        ghiTem(tb, soLanDaNang(tb) + 1);
 
         CombineService.gI().sendEffectSuccessCombine(player);
-        Service.gI().sendThongBao(player, "Pháp sư thành công: " + dong[2] + " +" + moiLan
+        Service.gI().sendThongBao(player, "Pháp sư thành công: " + dong[2] + " +" + dong[1]
                 + " (đã nâng " + soLanDaNang(tb) + "/" + SO_LAN_TOI_DA + " lần)");
 
         InventoryService.gI().sendItemBags(player);
