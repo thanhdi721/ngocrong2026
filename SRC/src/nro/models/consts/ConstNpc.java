@@ -412,5 +412,10 @@ public class ConstNpc {
      * Dải 1040…1059 dành riêng, đủ cho 20 trang × 8 con = 160 tên boss.
      */
     public static final int THEO_DOI_BOSS_TRANG = 1040;
+    /**
+     * Cùng kiểu trên nhưng cho danh sách "boss đang ra map": {@code + số trang}.
+     * Dải 1060…1079 dành riêng.
+     */
+    public static final int THEO_DOI_BOSS_TRANG_RA = 1060;
 
 }

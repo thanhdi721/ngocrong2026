@@ -138,15 +138,16 @@ public class TheoDoiBoss extends Npc {
         if (menu == ConstNpc.THEO_DOI_BOSS) {
             switch (select) {
                 case 0 ->
-                    xemDangRa(player);
+                    moTrang(player, 0, true);
                 case 1 ->
-                    moTrang(player, 0);
+                    moTrang(player, 0, false);
                 default -> {
                 }
             }
             return;
         }
-        int trang = menu - ConstNpc.THEO_DOI_BOSS_TRANG;
+        boolean chiRa = menu >= ConstNpc.THEO_DOI_BOSS_TRANG_RA;
+        int trang = menu - (chiRa ? ConstNpc.THEO_DOI_BOSS_TRANG_RA : ConstNpc.THEO_DOI_BOSS_TRANG);
         if (trang < 0 || trang > 19) {
             return;
         }
@@ -157,42 +158,32 @@ public class TheoDoiBoss extends Npc {
         if (select < ten.length) {
             xemChiTiet(player, ten[select]);
         } else if (select == ten.length) {
-            moTrang(player, trang + 1);
+            moTrang(player, trang + 1, chiRa);
         }
     }
 
-    /** Danh sách boss đang đứng ngoài map, kèm tên map. */
-    private void xemDangRa(Player player) {
-        List<Dong> ds = gom();
-        StringBuilder sb = new StringBuilder("BOSS ĐANG RA MAP\n\n");
-        int in = 0;
-        int con = 0;
-        for (Dong d : ds) {
-            if (d.dangRa <= 0) {
-                continue;
-            }
-            if (in < TOI_DA_DONG) {
-                sb.append(d.ten);
-                if (d.dangRa > 1) {
-                    sb.append(" x").append(d.dangRa);
-                }
-                sb.append(" — ").append(String.join(", ", d.map)).append("\n");
-                in++;
-            } else {
-                con++;
+    /**
+     * Menu chọn boss của trang {@code trang}.
+     *
+     * <p>Danh sách boss dựng bằng <b>menu nhiều trang</b> chứ không in một khối chữ: server có
+     * hơn trăm bản boss, in hết ra là tràn khung và phải cắt bớt ("… và 5 loại nữa"), người chơi
+     * không bấm vào con nào được.
+     *
+     * @param chiRa true thì chỉ liệt kê con đang đứng ngoài map (kèm tên map trên nút)
+     */
+    private void moTrang(Player player, int trang, boolean chiRa) {
+        List<Dong> tatCa = gom();
+        List<Dong> ds = new ArrayList<>();
+        for (Dong d : tatCa) {
+            if (!chiRa || d.dangRa > 0) {
+                ds.add(d);
             }
         }
-        if (in == 0) {
-            sb.append("Không có con nào ngoài map.\nĐợi giờ đi.");
-        } else if (con > 0) {
-            sb.append("\n... và ").append(con).append(" loại nữa.");
+        if (ds.isEmpty()) {
+            createOtherMenu(player, ConstNpc.IGNORE_MENU,
+                    "Không có con nào ngoài map.\nĐợi giờ đi.", "Đóng");
+            return;
         }
-        createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Đóng");
-    }
-
-    /** Menu chọn boss của trang {@code trang}. */
-    private void moTrang(Player player, int trang) {
-        List<Dong> ds = gom();
         int tong = soTrang(ds.size());
         trang = ((trang % tong) + tong) % tong;
         if (trang > 19) {
@@ -206,19 +197,23 @@ public class TheoDoiBoss extends Npc {
         for (int i = dau; i < cuoi; i++) {
             Dong d = ds.get(i);
             ten.add(d.ten);
-            muc.add((d.dangRa > 0 ? "● " : "○ ") + d.ten);
+            if (chiRa) {
+                String map = d.map.isEmpty() ? "?" : d.map.get(0);
+                muc.add(d.ten + (d.dangRa > 1 ? " x" + d.dangRa : "") + "\n" + map);
+            } else {
+                muc.add((d.dangRa > 0 ? "● " : "○ ") + d.ten);
+            }
         }
         if (tong > 1) {
             muc.add("Xem tiếp\n(trang " + (trang + 2 > tong ? 1 : trang + 2) + "/" + tong + ")");
         }
         muc.add("Đóng");
-        createOtherMenu(player, ConstNpc.THEO_DOI_BOSS_TRANG + trang,
-                "Trang " + (trang + 1) + "/" + tong + "\n● đang ra map   ○ đang nghỉ",
+        createOtherMenu(player,
+                (chiRa ? ConstNpc.THEO_DOI_BOSS_TRANG_RA : ConstNpc.THEO_DOI_BOSS_TRANG) + trang,
+                (chiRa ? "BOSS ĐANG RA MAP" : "TẤT CẢ BOSS") + "\nTrang " + (trang + 1) + "/" + tong
+                + (chiRa ? "" : "\n● đang ra map   ○ đang nghỉ"),
                 muc.toArray(new String[0]), ten.toArray(new String[0]));
     }
-
-    /** Id dòng chỉ số "Tỉ lệ rơi #%" thêm ở patch 81. */
-    private static final int OPT_TI_LE = 253;
 
     /**
      * Chi tiết một boss. Bảng rơi hiện bằng <b>giao diện tiệm</b> (icon + tên vật phẩm + dòng
@@ -280,7 +275,7 @@ public class TheoDoiBoss extends Npc {
             if (m.loai == 1) {
                 // Đồ Thần Linh không có id cố định (bốc ngẫu nhiên lúc rơi) nên không đặt
                 // vào ô được — nhắc bằng dòng thông báo.
-                themVao.append("\n• Đồ Thần Linh ngẫu nhiên — ").append(m.chuoiTiLe());
+                themVao.append("\n• Đồ Thần Linh ngẫu nhiên");
                 continue;
             }
             if (m.ids == null || m.ids.length == 0) {
@@ -306,23 +301,10 @@ public class TheoDoiBoss extends Npc {
                     continue;
                 }
                 it.quantity = Math.max(1, m.slMin);
-                it.itemOptions.clear();
-                if (OPT_TI_LE < Manager.ITEM_OPTION_TEMPLATES.size()) {
-                    it.itemOptions.add(new Item.ItemOption(OPT_TI_LE, m.tiLe));
-                }
+                // Không gắn dòng tỉ lệ: chủ dự án chốt bảng chỉ liệt kê MÓN, xem tỉ lệ thì
+                // vào cpanel. Giữ nguyên chỉ số sẵn có của vật phẩm cho đúng hàng thật.
                 ds.add(it);
-                StringBuilder n = new StringBuilder("|7|");
-                if (m.ids.length > 1) {
-                    n.append("1 trong ").append(m.ids.length).append(" món — ");
-                }
-                n.append(m.chuoiTiLe());
-                if (m.nhom > 0) {
-                    n.append(" (chung lượt ").append(m.nhom).append(")");
-                }
-                if (m.slMax > m.slMin) {
-                    n.append(" — x").append(m.slMin).append("-").append(m.slMax);
-                }
-                nhan.add(n.toString());
+                nhan.add("");
             }
         }
 

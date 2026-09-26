@@ -1,6 +1,6 @@
 # 68 — Quản lý đồ rơi boss ở cpanel + NPC "Theo Dõi Boss"
 
-Ngày: 2026-09-26 · Patch SQL: `SRC/sql/patch/80-npc-theo-doi-boss.sql` + `81-dong-ti-le-roi.sql`
+Ngày: 2026-09-26 · Patch SQL: `SRC/sql/patch/80-npc-theo-doi-boss.sql` + `81` + `82`
 
 ---
 
@@ -106,14 +106,23 @@ chung vượt 100 %** (những dòng cuối nhóm sẽ không bao giờ trúng).
 
 | Mục | Nội dung |
 |---|---|
-| **Boss đang ra map** | danh sách con nào đang đứng ngoài, kèm **tên map** |
-| **Danh sách tất cả** | mọi loại boss, `●` đang ra map / `○` đang nghỉ, 8 con một trang |
+| **Boss đang ra map** | **menu nhiều trang**, mỗi nút một con kèm **tên map** ngay dưới tên |
+| **Danh sách tất cả** | **menu nhiều trang**, `●` đang ra map / `○` đang nghỉ, 8 con một trang |
 | *(bấm vào một con)* | trạng thái, map đang ở, máu, và **bảng rơi kèm tỉ lệ** |
 
 Bảng rơi hiện ở đây đọc **thẳng từ `BangRoiBoss.xem()`** (gốc + thêm) — tức đúng bảng mà quản trị vừa sửa ở
 cpanel, không phải bảng chép tay nên không bao giờ lệch.
 
+> Cả hai danh sách đều là **menu nhiều trang**, không phải một khối chữ. Server có hơn trăm bản
+> boss — in hết ra là tràn khung, phải cắt bớt ("… và 5 loại nữa") và người chơi không bấm vào
+> con nào được. Hai dải menu riêng: `THEO_DOI_BOSS_TRANG` 1040–1059 cho danh sách tất cả,
+> `THEO_DOI_BOSS_TRANG_RA` 1060–1079 cho danh sách đang ra map.
+
 ### Bảng đồ rơi hiện bằng giao diện TIỆM, không phải chữ chay
+
+> **Bảng chỉ liệt kê MÓN, không hiện tỉ lệ** (chủ dự án chốt). Xem tỉ lệ thì vào cpanel.
+> Dòng chỉ số 253 "Tỉ lệ rơi #%" thêm ở patch 81 vì vậy không còn ai dùng và đã được
+> **patch 82 gỡ lại**, trả ô đó về cho bảng chỉ số (bảng này trần 255 dòng).
 
 `ShopService.moBangXem(...)` + patch 81 (`item_option_template` 253 `'Tỉ lệ rơi #%'`)
 
@@ -139,8 +148,8 @@ một vật phẩm thật, kèm chữ "1 trong 3 món — 40%".
 
 ### Ngân sách còn lại sau patch 81
 
-`item_option_template` giờ có **254 dòng trên trần 255** (số dòng gửi bằng `writeByte`).
-**Chỉ còn đúng một ô trống.** Lần sau muốn thêm dòng chỉ số thì phải bỏ bớt dòng cũ.
+Sau khi patch 82 gỡ lại dòng 253, `item_option_template` về **253 dòng trên trần 255**
+(số dòng gửi bằng `writeByte`) — **còn 2 ô trống**.
 
 **Chỉ hiện tên map, không hiện khu** — đúng yêu cầu, để không thành công cụ canh boss quá dễ.
 
@@ -183,6 +192,7 @@ thật của khung chứa. Đã đổi cho cả 8 panel nút của cpanel (`Boss
 1. Tắt server.
 2. `mysqldump -u root -p team2026 npc_template map_template item_option_template > backup_80.sql`
 3. Chạy `SRC/sql/patch/80-npc-theo-doi-boss.sql`, xem khối (3) phải toàn `1`.
-4. Chạy `SRC/sql/patch/81-dong-ti-le-roi.sql`, `so_dong` phải ra **254**.
-5. Bật server bản jar mới (`vsMap = 10`, `vsItem = 29`).
+4. Chạy `SRC/sql/patch/81-dong-ti-le-roi.sql` rồi `82-bo-dong-ti-le-roi.sql`
+   (81 thêm dòng 253, 82 gỡ lại — chạy cả hai, hoặc bỏ qua cả hai, đều ra `so_dong` = **253**).
+5. Bật server bản jar mới (`vsMap = 10`, `vsItem = 30`).
 6. Vào cpanel tab **Boss** → chọn boss → **Đồ rơi của boss đã chọn...** để chỉnh.

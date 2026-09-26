@@ -91,7 +91,9 @@ public class DataGame {
     // 26 -> 27: thêm vật phẩm 2264 "Gậy Thông Thiên" (patch 78).
     // 27 -> 28: thêm vật phẩm 2265 "Còi Triệu Hồi Lão Dê" (patch 79).
     // 28 -> 29: thêm dòng chỉ số 253 "Tỉ lệ rơi #%" (patch 81).
-    public static byte vsItem = 29;
+    // 29 -> 30: gỡ lại dòng 253 — bảng đồ rơi ở NPC nay chỉ liệt kê món, không hiện
+    //           tỉ lệ nữa, nên trả ô đó về cho bảng chỉ số (patch 82).
+    public static byte vsItem = 30;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
