@@ -28,9 +28,8 @@ import nro.models.utils.Util;
  * nó chỉ là cái sàn, và là lý do để người ta đăng nhập lại lần thứ hai trong ngày.
  *
  * <h3>Lưu ở đâu</h3>
- * Cột {@code player.tu_tien} (TEXT). Định dạng cố ý mở rộng được:
- * {@code khoa=giatri#khoa=giatri}, hiện chỉ dùng một khoá {@code ld}. Khoá lạ thì bỏ qua, nên
- * sau này thêm thứ khác vào cột này không phải đổi CSDL lần nữa.
+ * Cột {@code player.tu_tien} (TEXT), dưới khoá {@code ld} — xem {@link CotTuTien} để biết
+ * định dạng chung của cột.
  */
 public final class LinhDien {
 
@@ -47,52 +46,41 @@ public final class LinhDien {
     }
 
     //================================ đọc / ghi cột ================================
-    /** Khoá của Linh Điền trong cột {@code player.tu_tien}. */
-    private static final String KHOA = "ld";
+    /** Khoá của Linh Điền trong cột {@code player.tu_tien}. Xem {@link CotTuTien}. */
+    static final String KHOA = "ld";
+
+    /** Ruộng trống sạch. Gọi trước khi đọc cột. */
+    static void datMacDinh(Player pl) {
+        xoaSach(pl);
+    }
 
     /**
-     * Đọc cột {@code tu_tien} vào nhân vật. Chuỗi hỏng / rỗng / null đều cho ra ruộng trống,
-     * không bao giờ ném lỗi ra ngoài.
+     * Đọc PHẦN giá trị của khoá {@code ld} (đã bóc "ld=" ở {@link CotTuTien}).
+     * Chuỗi hỏng thì trả về ruộng trống chứ không để dữ liệu nửa vời.
      */
-    public static void doc(Player pl, String chuoi) {
-        if (pl == null) {
-            return;
-        }
-        xoaSach(pl);
-        if (chuoi == null || chuoi.isEmpty()) {
-            return;
-        }
+    static void docPhan(Player pl, String giaTri) {
         try {
-            for (String phan : chuoi.split("#")) {
-                int dau = phan.indexOf('=');
-                if (dau <= 0 || !KHOA.equals(phan.substring(0, dau).trim())) {
-                    continue;       // khoá lạ (của tính năng sau này) — bỏ qua, không phá
+            String[] o = giaTri.split(";");
+            for (int i = 0; i < SO_O && i < o.length; i++) {
+                String[] p = o[i].split(",");
+                if (p.length < 2) {
+                    continue;
                 }
-                String[] o = phan.substring(dau + 1).split(";");
-                for (int i = 0; i < SO_O && i < o.length; i++) {
-                    String[] p = o[i].split(",");
-                    if (p.length < 2) {
-                        continue;
-                    }
-                    int hat = Integer.parseInt(p[0].trim());
-                    long luc = Long.parseLong(p[1].trim());
-                    if (laLinhThao(hat) && luc > 0) {
-                        pl.linhDienHat[i] = hat;
-                        pl.linhDienLuc[i] = luc;
-                    }
+                int hat = Integer.parseInt(p[0].trim());
+                long luc = Long.parseLong(p[1].trim());
+                if (laLinhThao(hat) && luc > 0) {
+                    pl.linhDienHat[i] = hat;
+                    pl.linhDienLuc[i] = luc;
                 }
             }
         } catch (Exception e) {
-            xoaSach(pl);            // thà ruộng trống còn hơn dữ liệu nửa vời
+            xoaSach(pl);
         }
     }
 
-    /** Chuỗi để ghi xuống cột {@code tu_tien}. */
-    public static String ghi(Player pl) {
-        if (pl == null) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder(KHOA).append('=');
+    /** Phần giá trị của khoá {@code ld}. */
+    static String ghiPhan(Player pl) {
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < SO_O; i++) {
             if (i > 0) {
                 sb.append(';');

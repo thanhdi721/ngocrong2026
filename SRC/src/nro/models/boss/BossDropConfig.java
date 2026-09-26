@@ -104,6 +104,22 @@ public final class BossDropConfig {
     public static final Muc TT_SAT_THUONG_QUAI = them("tt_sat_thuong_quai",
             "Tu Tiên — sát thương của quái", 50_000, "Quái trong map đánh trúng thì mất ngần này");
 
+    //================== Tu Tiên — quái rơi linh thảo (luyện đan) ==================
+    // Đơn vị PHẦN NGHÌN, không phải phần trăm: 24 = 2,4%. Để phần nghìn vì mấy con số này
+    // nhỏ, dùng phần trăm thì không chỉnh tinh được.
+    // Bốn dòng quay RIÊNG nhau, nên một con quái rơi được nhiều loại cùng lúc.
+    // Trần cày của map là 1.920 con/giờ (16 con × hồi sinh 30 giây, xem docs 69), nên
+    // tổng 78 phần nghìn ≈ 150 lá/giờ cho một người cày một mình.
+    public static final Muc TT_THANH_VAN_THAO = them("tt_thanh_van_thao",
+            "Tu Tiên — rơi Thanh Vân Thảo (phần nghìn)", 24, "24 ≈ 2,4% ≈ 46 lá/giờ");
+    public static final Muc TT_NGOC_DIEP_THAO = them("tt_ngoc_diep_thao",
+            "Tu Tiên — rơi Ngọc Diệp Thảo (phần nghìn)", 24, "24 ≈ 2,4% ≈ 46 lá/giờ");
+    public static final Muc TT_HAN_TINH_QUA = them("tt_han_tinh_qua",
+            "Tu Tiên — rơi Hàn Tinh Quả (phần nghìn)", 18, "18 ≈ 1,8% ≈ 35 lá/giờ");
+    public static final Muc TT_KIM_NHUNG_QUA = them("tt_kim_nhung_qua",
+            "Tu Tiên — rơi Kim Nhung Quả (phần nghìn)", 12,
+            "12 ≈ 1,2% ≈ 23 lá/giờ. Đây là món hiếm nhất, mà Phá Quân Đan cần tới 6 cái");
+
     //================== Luyện đan — MỌI boss đều rơi nguyên liệu ==================
     // Luật chung áp cho tất cả boss, tính theo máu tối đa của con đó. Boss nào đã có dòng
     // Địa Hỏa Tinh riêng trong bảng rơi (hai con Tây Du, bộ Siêu Thần God, Lão Dê) thì

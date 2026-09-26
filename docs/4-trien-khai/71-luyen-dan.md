@@ -38,10 +38,10 @@ Ba quyết định đáng ghi lại:
 
 | id | Tên | icon | Nguồn |
 |---|---|---|---|
-| 2276 | Thanh Vân Thảo | 24872 | quái map 208, 8% |
-| 2277 | Ngọc Diệp Thảo | 24874 | quái map 208, 8% |
-| 2278 | Hàn Tinh Quả | 24891 | quái map 208, 5% |
-| 2279 | Kim Nhung Quả | 24892 | quái map 208, 3% |
+| 2276 | Thanh Vân Thảo | 24872 | quái map 208, **2,4%** → ~46 lá/giờ |
+| 2277 | Ngọc Diệp Thảo | 24874 | quái map 208, **2,4%** → ~46 lá/giờ |
+| 2278 | Hàn Tinh Quả | 24891 | quái map 208, **1,8%** → ~35 lá/giờ |
+| 2279 | Kim Nhung Quả | 24892 | quái map 208, **1,2%** → ~23 lá/giờ |
 | 2280 | Địa Hỏa Tinh | 24881 | **chỉ boss** |
 | 2281 | Đan Phương Sơ Cấp | 30192 | Bát Giới 12% · Ngộ Không Giả 20% |
 | 2282 | Đan Phương Trung Cấp | 30194 | Ngộ Không Giả 8% · Siêu Thần God 15% |
@@ -55,6 +55,28 @@ Ba quyết định đáng ghi lại:
 
 Bốn linh thảo **cho giao dịch** (chủ ý — để tự mọc ra chợ giữa người chơi). Đan cũng cho giao
 dịch, y như đan tiệm.
+
+**Nhịp rơi thật.** Bốn dòng quay **riêng từng loại** nên một con quái có thể rơi hai ba loại
+cùng lúc; cộng lại **7,8%/con**. Trần cày của map là **1.920 con/giờ** (16 con × hồi sinh 30
+giây — xem bảng ở [docs 69](69-map-tu-tien-ban-thiet-ke.md)), **không** phải 2.860 con/giờ như
+tốc độ đánh. Vậy một người cày một mình được **~150 lá/giờ**.
+
+Một mẻ luyện tốn trung bình ~11 lá ⇒ 150 lá/giờ đủ nguyên liệu cho **~13 mẻ**. Trần thực tế của
+từng công thức (lá hiếm nhất quyết định), nếu chỉ luyện đúng một món:
+
+| Công thức | Tối đa |
+|---|---|
+| Hộ Thể Đan TP | 9,2 mẻ/giờ |
+| Luyện Khí Đan TP | 7,7 mẻ/giờ |
+| Tụ Khí Đan TP | 5,8 mẻ/giờ |
+| Kim Cương Đan TP | 4,6 mẻ/giờ |
+| **Phá Quân Đan TP** | **3,8 mẻ/giờ** ← chậm nhất |
+
+Hiếm nhất là **Kim Nhung Quả** (1,2%), đúng món mà Phá Quân Đan cần tới 6 cái.
+
+**Bốn tỉ lệ này chỉnh được ở cpanel** (tab *Rơi đồ boss*, khoá `tt_thanh_van_thao`,
+`tt_ngoc_diep_thao`, `tt_han_tinh_qua`, `tt_kim_nhung_qua`), đơn vị **phần nghìn** — dùng phần
+trăm thì mấy con số này quá nhỏ để chỉnh tinh. Mặc định 24 / 24 / 18 / 12.
 
 14 icon kéo từ SUMO về `SRC/data/icon/x1..x4`. Mức x1 của bộ 24xxx trong SUMO không có nên
 được dựng lại bằng cách thu nhỏ x2 đúng một nửa — giống cách patch 83 đã làm.
@@ -80,6 +102,25 @@ Tỉ lệ càng cao thì nổ càng nhiều — đây là chỗ hồi hộp, và
 
 Thứ tự trong `LuyenDan.CONG_THUC` **chính là số hiệu nút menu**, nên thêm công thức mới thì
 thêm vào cuối, đừng đảo.
+
+### Một quyển đan phương = 3 mẻ
+
+Tiêu theo **mẻ**, không theo quyển: xé một quyển ra dùng được **3 mẻ**, kể cả mẻ nổ lò. Vì mẻ
+có thể nổ nên số quyển thật sự tốn cho **một viên đan thành công**:
+
+| Công thức | Tỉ lệ thành | Mẻ/1 viên | Quyển/1 viên |
+|---|---|---|---|
+| Luyện Khí Đan TP · Hộ Thể Đan TP | 75% | 1,33 | **0,44** |
+| Tụ Khí Đan TP · Phá Quân Đan TP | 60% | 1,67 | **0,56** |
+| Kim Cương Đan TP | 45% | 2,22 | **0,74** |
+
+**Vì sao số mẻ còn dở nằm ở nhân vật chứ không nằm trên vật phẩm:** đan phương **xếp chồng**
+trong hành trang (`is_up_to_up = 1`), mà vật phẩm xếp chồng thì cả ô dùng **chung** một bộ dòng
+chỉ số — gắn "còn 2 lần" lên một cái là cả chồng cùng còn 2 lần. Tách ra không cho xếp chồng
+thì đầy túi; thêm dòng chỉ số mới thì `item_option_template` chỉ còn 2 ô trống trên tổng 255.
+Nên nó nằm ở cột `player.tu_tien` dưới khoá `dp` (xem mục 9).
+
+Menu xác nhận in rõ: *"Đan Phương Cao Cấp: 3 quyển (+2 mẻ đang dở) — 1 quyển = 3 mẻ"*.
 
 ### Nổ lò cố ý KHÔNG phạt gì ngoài nguyên liệu
 
@@ -188,14 +229,30 @@ rồi kẹp tại `Integer.MAX_VALUE`. Lỗi này có sẵn từ patch 83, khôn
 NPC dạng **vật thể**, không phải người — dựng y hệt "Cây thông Noel" (npc 79):
 
 ```
-part 2658 (đầu):  [[2955,0,0],[32700,0,0],[2955,0,0]]
+part 2658 (đầu):  [[2955,0,0],[32700,-8,-2],[2955,0,0]]
 part 2659 (thân): 17 mảnh 2955 (trong suốt)
 part 2660 (chân): 14 mảnh 2955
 ```
 
-Icon **32700** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO) phóng lên đúng khung
-36×50 / 73×100 / 109×150 / 146×200 — **trùng khít** khung của icon 15041 (cây thông), nên toạ độ
-trong part lấy nguyên và chắc chắn không lệch chân.
+Icon **32700** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO), hình vuông
+**52 / 105 / 157 / 211 px** theo bốn mức phóng to — to hơn khung cây thông (36×50) cho bằng cỡ
+một NPC người.
+
+Hai số `-8,-2` giữ **đáy** và **tâm** của lò trùng đúng đáy/tâm khung cây thông, là khung đã
+biết chắc vẽ đúng chỗ:
+
+| | cây thông (36×50) | lò (52×52, dx −8, dy −2) |
+|---|---|---|
+| tâm x | `0 + 36/2 = 18` | `−8 + 52/2 = 18` ✔ |
+| đáy y | `0 + 50 = 50` | `−2 + 52 = 50` ✔ |
+
+Lò đứng cao/thấp lệch thì **sửa hai số đó**, không phải sửa ảnh.
+
+> **Phải tăng `vsData` VÀ `vsMap` khi thêm NPC vật thể.** Client giữ cache bảng `part`
+> (đi trong gói `vsData`) và `npc_template` (đi trong gói `vsMap`), chỉ tải lại khi số hiệu bản
+> dữ liệu đổi. Bản đầu tôi chỉ tăng `vsItem`, nên NPC 90 hiện ra **có tên, có mũi tên chọn,
+> nhưng không có hình** — client không hề biết part 2658 tồn tại. Nay `vsData` 30 → 31 và
+> `vsMap` 11 → 12.
 
 > **Id icon trong `part` không được vượt 32.767.** `Manager.loadDatabase` đọc nó bằng
 > `Short.parseShort`, id lớn hơn là văng `NumberFormatException` ngay lúc nạp CSDL và **server
@@ -226,7 +283,8 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 
 **Mới (patch 85)**
 
-* `src/nro/models/tu_tien/LinhDien.java` — 6 ô ruộng, đọc/ghi cột `tu_tien`
+* `src/nro/models/tu_tien/LinhDien.java` — 6 ô ruộng
+* `src/nro/models/tu_tien/CotTuTien.java` — bộ đọc/ghi cột `tu_tien` (khoá `ld` + `dp`)
 * `sql/patch/85-linh-dien.sql`
 
 **Sửa**
@@ -246,12 +304,12 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 | `boss/BossID`, `boss/BossesData` | hai boss mới |
 | `boss/Boss_Manager/BossManager` | dựng hai boss lúc nạp |
 | `boss/drop/BangRoiBoss` | bảng rơi 2 boss mới, 3 dòng cho bộ Siêu Thần God, **luật rơi chung theo máu** |
-| `boss/BossDropConfig` | 6 ô `ld_*` chỉnh luật rơi chung từ cpanel |
+| `boss/BossDropConfig` | 6 ô `ld_*` (luật rơi chung) + 4 ô `tt_*` (tỉ lệ rơi linh thảo), đều chỉnh từ cpanel |
 | `boss/Boss` | mở `laLauLa()` để bảng rơi biết bỏ qua lâu la |
 | `npc_list/TheoDoiBoss` | hiện thêm dòng rơi theo luật chung |
 | `consts/ConstNpc`, `npc/NpcFactory` | NPC 90 và ba menu |
 | `server/ServerManager` | chốt bảng vàng lúc bảo trì |
-| `data/DataGame` | `vsItem` 31 → 32 |
+| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → 31 (bảng `part`), `vsMap` 11 → 12 (`npc_template`) |
 
 ---
 
@@ -263,6 +321,7 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
    `dat` phải = 1.
 4. Kéo bản code mới, biên dịch **bằng JDK 21** (JDK 25 làm Lombok chết và javac báo "0 lỗi" giả).
 5. Nếu `data/bossdrop_table.json` đang tồn tại — xem cảnh báo ở mục 4.
+5b. Đã lỡ chạy patch 84 bản đầu (icon 33001) thì chạy thêm `sql/patch/86-sua-icon-lo-luyen-dan.sql`.
 6. Bật server. Trong log phải thấy `Kiểm tra icon: mọi icon trong dữ liệu đều có file ảnh`.
 
 > Patch 84 đã được dựng lại và chạy thử trên CSDL nháp `scratch84`: nạp
@@ -291,10 +350,13 @@ phải đánh nhau với cái gì cả.
 | Chín | **4 giờ** |
 | Hái | **3–5 hạt** của **một** loại mỗi ô |
 
-Tối đa 30 hạt mỗi 4 giờ (~180/ngày nếu vào đúng giờ). So với **~670 lá/giờ** khi cày map Tu Tiên
-(đo ở [docs 70](70-map-tu-tien-da-lam.md)) thì map Tu Tiên vẫn hơn vài chục lần — Linh Điền
-**không cạnh tranh** với nó, chỉ là cái sàn, và là lý do để người ta đăng nhập lại lần thứ hai
-trong ngày. Tiện thể cũng là một chỗ tiêu vàng.
+Tối đa 30 hạt mỗi 4 giờ; thực tế 2–3 lần đăng nhập/ngày ra **~48–72 lá/ngày**, chăm tuyệt đối
+thì 180. So với **150 lá/giờ** khi cày map Tu Tiên thì map vẫn hơn **chục lần** — Linh Điền
+**không cạnh tranh** với nó, chỉ là cái sàn cho người không vào nổi map, và là lý do để người ta
+đăng nhập lại lần thứ hai trong ngày. Tiện thể cũng là một chỗ tiêu vàng.
+
+**Gieo bằng VÀNG chứ không bằng hạt linh thảo** — cố ý. Người cần Linh Điền nhất là người chưa
+có lá nào; bắt họ bỏ ra một lá mới trồng được thì vòng lặp không bao giờ khởi động.
 
 ### Đặt ở NPC Tu Tiên (đảo Kamê), KHÔNG đặt trong map Tu Tiên
 
@@ -314,13 +376,17 @@ patch 78 phải đổi `data_card` từ VARCHAR(10000) sang TEXT mới có chỗ
 thêm cột là một lần đánh cược với lỗi 1118, nên cột này cố ý là **cột gom**:
 
 ```
-ld=2276,1759000000000;0,0;2277,1759000500000;0,0;0,0;0,0
-   │    └ lúc gieo (ms)                       └ ô trống
-   └ id linh thảo đang gieo
+ld=2276,1759000000000;0,0;2277,1759000500000;0,0;0,0;0,0#dp=2,0,1
+   │    └ lúc gieo (ms)                       └ ô trống     └ số mẻ đan phương còn dở
+   └ id linh thảo đang gieo                                   (Sơ / Trung / Cao Cấp)
 ```
 
-Định dạng `khoa=giatri#khoa=giatri`, hiện chỉ có khoá `ld`. **Khoá lạ thì bộ đọc bỏ qua**, nên
-tính năng tu tiên sau này nhét thêm khoá vào đây chứ không thêm cột nữa.
+Định dạng `khoa=giatri#khoa=giatri`, hiện có hai khoá: `ld` (Linh Điền) và `dp` (số mẻ đan
+phương còn dở). **Khoá lạ thì bộ đọc bỏ qua**, nên tính năng tu tiên sau này nhét thêm khoá
+vào đây chứ không thêm cột nữa. Bộ đọc/ghi nằm ở `tu_tien/CotTuTien`, mỗi khoá tự lo phần của
+mình.
+
+Dữ liệu ghi bằng bản cũ (chỉ có `ld=`) đọc bằng bản mới vẫn đúng — `dp` mặc định về 0.
 
 Chuỗi hỏng / rỗng / `null` đều cho ra ruộng trống, không bao giờ ném lỗi ra ngoài.
 

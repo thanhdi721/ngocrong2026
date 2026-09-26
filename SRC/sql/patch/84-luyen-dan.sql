@@ -28,9 +28,13 @@
 --  (b) Thêm 3 `part` 2658/2659/2660 + `npc_template` 90 "Lò Luyện Đan".
 --      Đây là NPC dạng VẬT THỂ, làm y hệt "Cây thông Noel" (npc 79): phần đầu vẽ
 --      một icon to, phần thân và chân để trong suốt (icon 2955).
---      Icon 32700 là ảnh lò, do ta tự dựng từ icon 24895 (bình luyện đan của SUMO)
---      phóng lên đúng khung 36×50 / 73×100 / 109×150 / 146×200 — TRÙNG KHÍT khung
---      của icon 15041 (cây thông) nên toạ độ trong part lấy nguyên, không lệch.
+--      Icon 32700 là ảnh lò, do ta tự dựng từ icon 24895 (bình luyện đan của SUMO),
+--      hình vuông 52 / 105 / 157 / 211 px theo bốn mức phóng to — TO HƠN khung của
+--      icon 15041 (cây thông, 36×50) cho bằng cỡ một NPC người.
+--      Hai số -8,-2 giữ cho ĐÁY và TÂM của lò trùng đúng chỗ đáy/tâm khung cây thông:
+--        tâm  x = 0 + 36/2 = 18   ->  -8 + 52/2 = 18   (khớp)
+--        đáy  y = 0 + 50    = 50  ->  -2 + 52   = 50   (khớp)
+--      Sửa hai số đó là dời lò, không phải sửa ảnh.
 --      SỐ 32700 KHÔNG ĐƯỢC VƯỢT 32767: `part`.`DATA` đọc icon bằng Short.parseShort
 --      (Manager.loadDatabase), id lớn hơn là văng NumberFormatException lúc nạp CSDL
 --      và server không lên được. Icon lớn nhất đang có trong res là 32667.
@@ -113,7 +117,7 @@ INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `lev
 --      2955 = ảnh trong suốt.
 DELETE FROM `part` WHERE `id` BETWEEN 2658 AND 2660;
 INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES
-(2658, 0, '[[2955,0,0],[32700,0,0],[2955,0,0]]'),
+(2658, 0, '[[2955,0,0],[32700,-8,-2],[2955,0,0]]'),
 (2659, 1, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]'),
 (2660, 2, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]');
 

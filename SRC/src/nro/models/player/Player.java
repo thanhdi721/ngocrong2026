@@ -228,6 +228,15 @@ public class Player implements Runnable {
     public final int[] linhDienHat = new int[nro.models.tu_tien.LinhDien.SO_O];
     public final long[] linhDienLuc = new long[nro.models.tu_tien.LinhDien.SO_O];
 
+    /**
+     * Số mẻ luyện đan còn dở của ba bậc đan phương (Sơ / Trung / Cao). Một quyển đan phương
+     * xé ra dùng được {@value nro.models.tu_tien.LuyenDan#SO_ME_MOI_DAN_PHUONG} mẻ; phần còn
+     * dở nằm ở đây vì đan phương xếp chồng trong túi nên không gắn số lượt lên từng cái được.
+     * Lưu ở cột {@code player.tu_tien}, khoá {@code dp} — xem
+     * {@link nro.models.tu_tien.CotTuTien}.
+     */
+    public final int[] meDanPhuongConLai = new int[3];
+
     /** Lần gần nhất bị map Tu Tiên đá về nhà, để không đá liên tục (tu_tien/TuTien). */
     public long lucChetTuTien;
     /** Map Tu Tiên vừa đổi cờ PK -> phải gửi lại gói cờ sau khi client nạp xong map. */

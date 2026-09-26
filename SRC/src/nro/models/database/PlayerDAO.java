@@ -1127,7 +1127,7 @@ public class PlayerDAO {
                     thamSo.add(nro.models.services.ThongDitService.ghi(player));
                 }
                 if (nro.models.server.Manager.HAS_TU_TIEN) {
-                    thamSo.add(nro.models.tu_tien.LinhDien.ghi(player));
+                    thamSo.add(nro.models.tu_tien.CotTuTien.ghi(player));
                 }
                 thamSo.add(player.id);
                 LocalManager.executeUpdate(query, thamSo.toArray());

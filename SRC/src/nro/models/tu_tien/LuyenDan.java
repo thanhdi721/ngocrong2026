@@ -64,13 +64,148 @@ public final class LuyenDan {
 
     //========================= tỉ lệ rơi linh thảo =========================
     /**
-     * Tỉ lệ rơi của từng loại linh thảo (phần nghìn), quay RIÊNG từng dòng nên một con quái
-     * có thể rơi nhiều loại. Cộng lại ~24% mỗi con — với nhịp cày ~2.800 quái/giờ đã đo ở
-     * docs/4-trien-khai/70 thì ra khoảng 670 lá/giờ, đủ cho 8–10 mẻ luyện.
+     * Tỉ lệ rơi của từng loại linh thảo, đọc từ cpanel (tab "Rơi đồ boss", khoá
+     * {@code tt_*}), đơn vị <b>phần nghìn</b>. Bốn dòng quay RIÊNG nhau nên một con quái có
+     * thể rơi nhiều loại cùng lúc.
+     *
+     * <p>Trần cày thật của map là <b>1.920 con/giờ</b> — không phải 2.860 con/giờ (tốc độ
+     * ĐÁNH), vì 16 con hồi sinh 30 giây một lượt đã chặn ở đó (bảng trong docs 69 §"3 giây hồi
+     * sinh quá nhanh"). Với mức mặc định, một người cày một mình được khoảng:
+     * <pre>
+     *   Thanh Vân Thảo  24‰  ->  46 lá/giờ      Hàn Tinh Quả   18‰  ->  35 lá/giờ
+     *   Ngọc Diệp Thảo  24‰  ->  46 lá/giờ      Kim Nhung Quả  12‰  ->  23 lá/giờ
+     *                                           TỔNG                -> 150 lá/giờ
+     * </pre>
+     *
+     * <p>Trung bình một mẻ luyện tốn ~11 lá, nên 150 lá/giờ đủ cho ~13 mẻ. Hiếm nhất là
+     * <b>Kim Nhung Quả</b>, món mà Phá Quân Đan cần tới 6 cái — chỉnh núm đó trước nếu thấy tắc.
+     *
+     * <p>Người KHÔNG cày nổi map này (quái đánh 50.000 một đòn) lấy linh thảo ở
+     * {@link LinhDien} — xem lý do ở đó.
      */
-    private static final int[] TI_LE_LINH_THAO_PHAN_NGHIN = {80, 80, 50, 30};
+    private static int tiLePhanNghin(int idLinhThao) {
+        if (idLinhThao == THANH_VAN_THAO) {
+            return nro.models.boss.BossDropConfig.TT_THANH_VAN_THAO.giaTri;
+        }
+        if (idLinhThao == NGOC_DIEP_THAO) {
+            return nro.models.boss.BossDropConfig.TT_NGOC_DIEP_THAO.giaTri;
+        }
+        if (idLinhThao == HAN_TINH_QUA) {
+            return nro.models.boss.BossDropConfig.TT_HAN_TINH_QUA.giaTri;
+        }
+        if (idLinhThao == KIM_NHUNG_QUA) {
+            return nro.models.boss.BossDropConfig.TT_KIM_NHUNG_QUA.giaTri;
+        }
+        return 0;
+    }
 
     private LuyenDan() {
+    }
+
+    //========================= đan phương dùng được nhiều mẻ =========================
+    /**
+     * Một quyển đan phương xé ra dùng được bấy nhiêu <b>mẻ</b>, kể cả mẻ nổ lò.
+     *
+     * <p>Vì sao không gắn số lượt lên từng vật phẩm: đan phương <b>xếp chồng</b> trong hành
+     * trang ({@code is_up_to_up = 1}), mà vật phẩm xếp chồng thì mọi cái trong một ô dùng
+     * CHUNG một bộ dòng chỉ số — gắn "còn 2 lần" lên một cái là cả chồng cùng còn 2 lần. Tách
+     * ra không cho xếp chồng thì đầy túi, mà thêm dòng chỉ số mới thì bảng
+     * {@code item_option_template} chỉ còn 2 ô trống trên tổng 255.
+     *
+     * <p>Nên số mẻ còn dở nằm ở <b>nhân vật</b>, lưu trong cột {@code player.tu_tien} dưới
+     * khoá {@code dp} (xem {@link CotTuTien}). Luyện mà còn mẻ dở thì trừ mẻ; hết mẻ dở thì
+     * mới xé một quyển mới trong túi ra.
+     */
+    public static final int SO_ME_MOI_DAN_PHUONG = 3;
+
+    /** Khoá của số mẻ còn dở trong cột {@code player.tu_tien}. */
+    static final String KHOA_DAN_PHUONG = "dp";
+
+    /** Ba bậc đan phương, đúng thứ tự chỉ số dùng trong {@code Player.meDanPhuongConLai}. */
+    public static final int[] DAN_PHUONG = {DAN_PHUONG_SO_CAP, DAN_PHUONG_TRUNG_CAP, DAN_PHUONG_CAO_CAP};
+
+    /** Chỉ số của một bậc đan phương, -1 nếu không phải đan phương. */
+    public static int bacDanPhuong(int idVatPham) {
+        for (int i = 0; i < DAN_PHUONG.length; i++) {
+            if (DAN_PHUONG[i] == idVatPham) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    static void datMacDinhDanPhuong(Player pl) {
+        for (int i = 0; i < pl.meDanPhuongConLai.length; i++) {
+            pl.meDanPhuongConLai[i] = 0;
+        }
+    }
+
+    /** Đọc phần giá trị của khoá {@code dp}: "2,0,1". */
+    static void docPhanDanPhuong(Player pl, String giaTri) {
+        try {
+            String[] p = giaTri.split(",");
+            for (int i = 0; i < pl.meDanPhuongConLai.length && i < p.length; i++) {
+                int v = Integer.parseInt(p[i].trim());
+                // Kẹp lại: dữ liệu hỏng hoặc sửa tay không được biến thành kho mẻ vô hạn.
+                pl.meDanPhuongConLai[i] = Math.max(0, Math.min(v, SO_ME_MOI_DAN_PHUONG));
+            }
+        } catch (Exception e) {
+            datMacDinhDanPhuong(pl);
+        }
+    }
+
+    static String ghiPhanDanPhuong(Player pl) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < pl.meDanPhuongConLai.length; i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(pl.meDanPhuongConLai[i]);
+        }
+        return sb.toString();
+    }
+
+    /** Còn luyện được mẻ nào với bậc đan phương này không (tính cả quyển chưa xé trong túi). */
+    private static boolean conDuocMe(Player pl, int idDanPhuong) {
+        int bac = bacDanPhuong(idDanPhuong);
+        if (bac < 0) {
+            return false;
+        }
+        return pl.meDanPhuongConLai[bac] > 0 || dem(pl, idDanPhuong) > 0;
+    }
+
+    /**
+     * Tiêu một mẻ. Còn mẻ dở thì trừ mẻ dở; hết thì xé một quyển mới trong túi ra và giữ lại
+     * {@code SO_ME_MOI_DAN_PHUONG - 1} mẻ.
+     *
+     * @return false nếu không còn gì để tiêu (đã chặn từ trước, đây chỉ là lưới an toàn)
+     */
+    private static boolean tieuMotMe(Player pl, int idDanPhuong) {
+        int bac = bacDanPhuong(idDanPhuong);
+        if (bac < 0) {
+            return false;
+        }
+        if (pl.meDanPhuongConLai[bac] > 0) {
+            pl.meDanPhuongConLai[bac]--;
+            return true;
+        }
+        if (dem(pl, idDanPhuong) <= 0) {
+            return false;
+        }
+        truItem(pl, idDanPhuong, 1);
+        pl.meDanPhuongConLai[bac] = SO_ME_MOI_DAN_PHUONG - 1;
+        return true;
+    }
+
+    /** "3 quyển (+2 mẻ đang dở)" — để in lên menu. */
+    private static String moTaDanPhuong(Player pl, int idDanPhuong) {
+        int bac = bacDanPhuong(idDanPhuong);
+        int doDang = bac < 0 ? 0 : pl.meDanPhuongConLai[bac];
+        String s = dem(pl, idDanPhuong) + " quyển";
+        if (doDang > 0) {
+            s += " (+" + doDang + " mẻ đang dở)";
+        }
+        return s;
     }
 
     //========================= công thức =========================
@@ -143,7 +278,8 @@ public final class LuyenDan {
             if (id < 0 || id >= Manager.ITEM_TEMPLATES.size()) {
                 return;     // chưa chạy patch 84 — thà không rơi còn hơn văng lỗi
             }
-            if (!Util.isTrue(TI_LE_LINH_THAO_PHAN_NGHIN[i], 1000)) {
+            int tiLe = tiLePhanNghin(id);
+            if (tiLe <= 0 || !Util.isTrue(tiLe, 1000)) {
                 continue;
             }
             try {
@@ -190,8 +326,8 @@ public final class LuyenDan {
             sb.append("- ").append(ten(nl[0])).append(' ').append(dem(pl, nl[0]))
                     .append('/').append(nl[1]).append('\n');
         }
-        sb.append("- ").append(ten(ct.danPhuong)).append(' ').append(dem(pl, ct.danPhuong))
-                .append("/1");
+        sb.append("- ").append(ten(ct.danPhuong)).append(": ").append(moTaDanPhuong(pl, ct.danPhuong))
+                .append("\n1 quyển = ").append(SO_ME_MOI_DAN_PHUONG).append(" mẻ");
         return sb.toString();
     }
 
@@ -230,7 +366,7 @@ public final class LuyenDan {
                 return;
             }
         }
-        if (dem(pl, ct.danPhuong) < 1) {
+        if (!conDuocMe(pl, ct.danPhuong)) {
             Service.gI().sendThongBao(pl, "Chưa có " + ten(ct.danPhuong) + ". Đi đánh boss đi.");
             return;
         }
@@ -253,11 +389,12 @@ public final class LuyenDan {
             return;
         }
 
-        // 4) Giờ mới trừ nguyên liệu.
+        // 4) Giờ mới trừ nguyên liệu. Đan phương tiêu theo MẺ, không theo quyển: một quyển
+        //    xé ra dùng được SO_ME_MOI_DAN_PHUONG mẻ, kể cả mẻ nổ lò.
         for (int[] nl : ct.nguyenLieu) {
             truItem(pl, nl[0], nl[1]);
         }
-        truItem(pl, ct.danPhuong, 1);
+        tieuMotMe(pl, ct.danPhuong);
         InventoryService.gI().sendItemBags(pl);
 
         // 5) Kể chuyện.

@@ -51,7 +51,10 @@ public class DataGame {
     // 27 -> 28: hạ đầu nữ thần thêm 1 (patch 61 bản cập nhật).
     // 28 -> 29: thêm 288 part của 72 cải trang + 24 linh thú mang từ SUMO/Bun (patch 67).
     // 29 -> 30: sửa part của Pét cá mập và 2 con mèo trắng (patch 73).
-    public static byte vsData = 30;
+    // 30 -> 31: thêm 3 part 2658/2659/2660 của NPC "Lò Luyện Đan" (patch 84) và chỉnh
+    //           cỡ / toạ độ ảnh lò (patch 86). KHÔNG tăng thì client dùng bảng part
+    //           trong cache, NPC 90 có tên và mũi tên chọn nhưng KHÔNG CÓ HÌNH.
+    public static byte vsData = 31;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -66,7 +69,8 @@ public class DataGame {
     // 8 -> 9: thêm npc_template 87 "Bà Mối" đứng cạnh GoKu Nỗi Loạn ở map 5 (patch 78).
     // 9 -> 10: thêm npc_template 88 "Theo Dõi Boss" đứng bên trái Santa ở map 5 (patch 80).
     // 10 -> 11: thêm map 208 "Nam Thiên Môn" + npc_template 89 "Tu Tiên" ở map 5 (patch 83).
-    public static byte vsMap = 11;
+    // 11 -> 12: thêm npc_template 90 "Lò Luyện Đan" đứng ở map 5 (patch 84).
+    public static byte vsMap = 12;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.

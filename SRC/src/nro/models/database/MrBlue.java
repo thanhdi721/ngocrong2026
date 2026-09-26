@@ -238,11 +238,11 @@ public class MrBlue {
                 player.soLanBiThong = 0;
             }
 
-            // Linh Điền — cột `tu_tien`, định dạng "ld=idHat,lucGieo;..."
+            // Dữ liệu tu tiên — cột `tu_tien`, định dạng "ld=...#dp=..."
             try {
-                nro.models.tu_tien.LinhDien.doc(player, rs.getString("tu_tien"));
+                nro.models.tu_tien.CotTuTien.doc(player, rs.getString("tu_tien"));
             } catch (Exception e) {
-                nro.models.tu_tien.LinhDien.doc(player, null);
+                nro.models.tu_tien.CotTuTien.doc(player, null);
             }
 
             int clanId = rs.getInt("clan_id");
