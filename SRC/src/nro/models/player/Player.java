@@ -220,6 +220,14 @@ public class Player implements Runnable {
     /** Lần gần nhất MÌNH ngỏ lời với người khác, để chặn spam menu. */
     public long lucNgoLoiThongDit;
 
+    /**
+     * Linh Điền — {@value nro.models.tu_tien.LinhDien#SO_O} ô ruộng, lưu ở cột
+     * {@code player.tu_tien}. {@code linhDienHat[i]} là id linh thảo đang gieo (0 = đất trống),
+     * {@code linhDienLuc[i]} là lúc gieo. Xem {@link nro.models.tu_tien.LinhDien}.
+     */
+    public final int[] linhDienHat = new int[nro.models.tu_tien.LinhDien.SO_O];
+    public final long[] linhDienLuc = new long[nro.models.tu_tien.LinhDien.SO_O];
+
     /** Lần gần nhất bị map Tu Tiên đá về nhà, để không đá liên tục (tu_tien/TuTien). */
     public long lucChetTuTien;
     /** Map Tu Tiên vừa đổi cờ PK -> phải gửi lại gói cờ sau khi client nạp xong map. */
@@ -1250,9 +1258,12 @@ public class Player implements Runnable {
                 if (this.itemTime.isUseGiapXen2) {
                     damage = damage / 100 * 40;
                 }
-                // Kim Cương Đan (map Tu Tiên): giảm 50% sát thương, cộng dồn sau Giáp Xên.
+                // Kim Cương Đan (map Tu Tiên): giảm 50% sát thương (bản thượng phẩm 60%),
+                // cộng dồn sau Giáp Xên. Mức giảm nằm ở ItemTime, chặn trong [0, 90] để
+                // không bao giờ thành miễn sát thương hoàn toàn.
                 if (this.itemTime.isUseDanGiap) {
-                    damage /= 2;
+                    int giam = Math.max(0, Math.min(90, this.itemTime.mucDanGiap));
+                    damage -= damage * giam / 100;
                 }
             }
 

@@ -104,6 +104,27 @@ public final class BossDropConfig {
     public static final Muc TT_SAT_THUONG_QUAI = them("tt_sat_thuong_quai",
             "Tu Tiên — sát thương của quái", 50_000, "Quái trong map đánh trúng thì mất ngần này");
 
+    //================== Luyện đan — MỌI boss đều rơi nguyên liệu ==================
+    // Luật chung áp cho tất cả boss, tính theo máu tối đa của con đó. Boss nào đã có dòng
+    // Địa Hỏa Tinh riêng trong bảng rơi (hai con Tây Du, bộ Siêu Thần God, Lão Dê) thì
+    // dùng dòng riêng, KHÔNG cộng thêm luật này.
+    public static final Muc LD_MAU_MIN = them("ld_mau_min",
+            "Luyện đan — máu boss tối thiểu", 300_000,
+            "Boss ít máu hơn số này không rơi nguyên liệu (chặn Ăn Trộm, Mặt Trời, Sói…)");
+    public static final Muc LD_TI_LE_NHO = them("ld_ti_le_nho",
+            "Luyện đan — Địa Hỏa Tinh, boss dưới 5 triệu máu (%)", 15,
+            "Kuku, Mập Đầu Đinh, Rambo, Dr.Kôrê… — cửa cho người cày chay");
+    public static final Muc LD_TI_LE_VUA = them("ld_ti_le_vua",
+            "Luyện đan — Địa Hỏa Tinh, boss 5–50 triệu máu (%)", 25, "King Kong, Tiểu đội trưởng Namek…");
+    public static final Muc LD_TI_LE_LON = them("ld_ti_le_lon",
+            "Luyện đan — Địa Hỏa Tinh, boss 50–200 triệu máu (%)", 40, "Tiểu đội trưởng, Bojack…");
+    public static final Muc LD_TI_LE_KHUNG = them("ld_ti_le_khung",
+            "Luyện đan — Địa Hỏa Tinh, boss trên 200 triệu máu (%)", 60,
+            "Cumber, Black Goku, Cooler, Heart… — rơi 1–2 viên");
+    public static final Muc LD_DAN_PHUONG = them("ld_dan_phuong",
+            "Luyện đan — Đan Phương Sơ Cấp, boss trên 20 triệu máu (%)", 10,
+            "Để 0 nếu chỉ muốn đan phương rơi từ hai con Tây Du");
+
     //================== Thông báo boss xuất hiện ==================
     public static final Muc THONG_BAO_MAU_MIN = them("thong_bao_mau_min",
             "Thông báo boss — máu tối thiểu", 1_000_000,

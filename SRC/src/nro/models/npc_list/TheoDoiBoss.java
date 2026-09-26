@@ -265,7 +265,7 @@ public class TheoDoiBoss extends Npc {
                     + (d.tong > 1 ? " (" + d.dangRa + "/" + d.tong + " bản)" : "")
                     : "Đang nghỉ, chưa ra map";
             dong.add(new Service.DongDanhSach(d.bossId, head, body, leg, d.ten,
-                    trangThai, tomTatRoi(d.bossId)));
+                    trangThai, tomTatRoi(d.bossId, d.mauMax)));
         }
         String tieuDe = switch (che) {
             case DANG_RA ->
@@ -294,8 +294,8 @@ public class TheoDoiBoss extends Npc {
     }
 
     /** "Rơi: Vàng, Ngọc Rồng 5 sao, …" — gói gọn cho vừa một dòng. */
-    private static String tomTatRoi(int bossId) {
-        List<MucRoi> bang = BangRoiBoss.xem(bossId);
+    private static String tomTatRoi(int bossId, long mauMax) {
+        List<MucRoi> bang = BangRoiBoss.xem(bossId, mauMax);
         if (bang.isEmpty()) {
             return "Đồ rơi: chưa khai báo";
         }
@@ -438,7 +438,7 @@ public class TheoDoiBoss extends Npc {
             sb.append("Máu: ").append(dinhDang(d.mauMax)).append("\n");
         }
 
-        List<MucRoi> bang = BangRoiBoss.xem(d.bossId);
+        List<MucRoi> bang = BangRoiBoss.xem(d.bossId, d.mauMax);
         if (bang.isEmpty()) {
             sb.append("\nChưa khai báo bảng rơi.\nCon này rơi theo luật riêng của nó.");
             createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Đóng");

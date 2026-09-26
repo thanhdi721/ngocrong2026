@@ -376,6 +376,13 @@ public class ServerManager {
         } catch (Exception e) {
             Logger.error("Lỗi save shop ký gửi!\n");
         }
+        try {
+            // Bảng vàng "Vua Nổ Lò" nằm ở file chứ không ở CSDL, ghi theo nhịp 1 phút —
+            // chốt một bản cuối ở đây để không mất mấy lần nổ sát giờ bảo trì.
+            nro.models.tu_tien.BangVangNoLo.luuNeuCan();
+        } catch (Exception e) {
+            Logger.error("Lỗi save bảng vàng Nổ Lò!\n");
+        }
         Client.gI().close();
         Logger.success("SUCCESSFULLY MAINTENANCE!\n");
 

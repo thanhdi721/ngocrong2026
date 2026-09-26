@@ -90,6 +90,16 @@ public class Boss extends Player implements IBoss {
     protected Player playerTarger;
 
     protected Boss parentBoss;
+
+    /**
+     * Con này có phải <b>lâu la</b> đi kèm một boss khác không.
+     *
+     * <p>Mở ra vì {@code boss.drop.BangRoiBoss} nằm khác gói mà vẫn cần biết: lâu la không
+     * được ăn theo luật rơi chung, nếu không một con boss kéo năm lâu la là rơi gấp sáu lần.
+     */
+    public boolean laLauLa() {
+        return this.parentBoss != null;
+    }
     public Boss[][] bossAppearTogether;
 
     public Zone zoneFinal = null;

@@ -175,6 +175,9 @@ public class ConstNpc {
     // NPC "Tu Tiên" đứng ở đảo Kamê (map 5) — cửa vào map Tu Tiên và tiệm đan dược.
     // id 89 = ô trống kế tiếp sau 88, vẫn giữ luật "id = vị trí trong npc_template".
     public static final byte TU_TIEN = 89;
+    // NPC "Lò Luyện Đan" ở đảo Kamê (map 5) — NPC dạng vật thể, xem patch 84.
+    // id 90 = ô trống kế tiếp sau 89, vẫn giữ luật "id = vị trí trong npc_template".
+    public static final byte LO_LUYEN_DAN = 90;
     // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
     public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------
@@ -429,5 +432,15 @@ public class ConstNpc {
      * (xem {@code tu_tien.TuTien.moTiem}), nên không cần thêm số hiệu menu nào nữa.
      */
     public static final int TU_TIEN_MENU = 1100;
+    /** Menu Linh Điền của NPC Tu Tiên: xem 6 ô, gieo hết, hái hết. */
+    public static final int LINH_DIEN_MENU = 1101;
+
+    //---------------------- NPC Lò Luyện Đan (npc_list/LoLuyenDan) ----------------------
+    /** Menu gốc: luyện đan / bảng vàng Vua Nổ Lò / đóng. */
+    public static final int LO_LUYEN_DAN_MENU = 1110;
+    /** Menu chọn công thức (5 nút + "Quay lại"). */
+    public static final int LO_LUYEN_DAN_CHON = 1111;
+    /** Menu xác nhận: hiện nguyên liệu, số đang có và tỉ lệ thành. */
+    public static final int LO_LUYEN_DAN_XAC_NHAN = 1112;
 
 }

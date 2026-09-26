@@ -240,6 +240,8 @@ public class NpcFactory {
                     new nro.models.npc_list.TheoDoiBoss(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.TU_TIEN ->
                     new nro.models.npc_list.TuTienNPC(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.LO_LUYEN_DAN ->
+                    new nro.models.npc_list.LoLuyenDan(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.HUNG_VUONG ->
                     new VuaHung(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.DUA_HAU ->

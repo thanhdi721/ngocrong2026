@@ -236,6 +236,12 @@ public class BossID {
     // (vật phẩm 2265). Xem boss/lao_de/BossLaoDe.
     public static final int LAO_DE_HOI_XUAN = -2214;
 
+    // Hai boss Tây Du của tính năng luyện đan (patch 84) — xem boss/tay_du/BossTayDu.
+    // Cố ý để MÁU THẤP và đứng ở map đầu mỗi hành tinh: đây là đường lấy Địa Hỏa Tinh
+    // cho người chơi yếu, không phải boss đua sức mạnh.
+    public static final int TRU_BAT_GIOI = -2215;
+    public static final int TON_NGO_KHONG_GIA = -2216;
+
     public static final int KE_THU_GOM = -2000;       // NV 6 bước 1 — 1 hình dạng
     public static final int JACO_VO_THUC = -2001;     // NV 15 bước 1 — 2 hình dạng
 }

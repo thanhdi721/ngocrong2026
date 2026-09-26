@@ -56,18 +56,42 @@ public class ItemTime {
     public long lastTimeCuongNo2;
     public long lastTimeAnDanh2;
 
-    //================= Map Tu Tiên (patch 83) =================
-    /** 5 loại đan mua ở NPC Tu Tiên, đều 10 phút ({@link #TIME_ITEM}). */
+    //================= Map Tu Tiên (patch 83) + luyện đan (patch 84) =================
+    /**
+     * 5 loại đan. Mỗi loại có BA ô: đang bật / mốc giờ bật / thời hạn / mức cộng.
+     *
+     * <p>Thời hạn và mức cộng để riêng vì từ patch 84 có hai hạng đan dùng chung một ô:
+     * đan mua ở tiệm ({@link #TIME_ITEM} = 10 phút, mức gốc) và <b>đan thượng phẩm</b> luyện
+     * ở Lò ({@link nro.models.tu_tien.LuyenDan#THOI_GIAN} = 20 phút, mức cao hơn). Ăn viên nào
+     * thì viên đó ghi đè cả ba ô, nên không bao giờ cộng dồn hai hạng.
+     */
     public boolean isUseDanSucDanh;
     public long lastTimeDanSucDanh;
+    public long hanDanSucDanh = TIME_ITEM;
+    public int mucDanSucDanh = MUC_GOC_SUC_DANH;
     public boolean isUseDanHp;
     public long lastTimeDanHp;
+    public long hanDanHp = TIME_ITEM;
+    public int mucDanHp = MUC_GOC_HP;
     public boolean isUseDanKi;
     public long lastTimeDanKi;
+    public long hanDanKi = TIME_ITEM;
+    public int mucDanKi = MUC_GOC_KI;
     public boolean isUseDanGiap;
     public long lastTimeDanGiap;
+    public long hanDanGiap = TIME_ITEM;
+    public int mucDanGiap = MUC_GOC_GIAP;
     public boolean isUseDanChiMang;
     public long lastTimeDanChiMang;
+    public long hanDanChiMang = TIME_ITEM;
+    public int mucDanChiMang = MUC_GOC_CHI_MANG;
+
+    /** Mức cộng của đan mua ở tiệm Tu Tiên (%). Đan thượng phẩm xem LuyenDan.MUC_*. */
+    public static final int MUC_GOC_SUC_DANH = 20;
+    public static final int MUC_GOC_HP = 30;
+    public static final int MUC_GOC_KI = 30;
+    public static final int MUC_GOC_GIAP = 50;
+    public static final int MUC_GOC_CHI_MANG = 10;
     /** Tụ Linh Phù — tăng tỉ lệ rơi Linh Thạch, 30 phút. */
     public boolean isUseTuLinhPhu;
     public long lastTimeTuLinhPhu;
@@ -211,23 +235,35 @@ public class ItemTime {
             }
         }
         // ===== đan và bùa của map Tu Tiên =====
-        if (isUseDanSucDanh && Util.canDoWithTime(lastTimeDanSucDanh, TIME_ITEM)) {
+        // Hết hạn thì trả cả mức cộng về mức gốc, để viên tiệm ăn sau đó không thừa hưởng
+        // nhầm mức của viên thượng phẩm vừa hết.
+        if (isUseDanSucDanh && Util.canDoWithTime(lastTimeDanSucDanh, hanDanSucDanh)) {
             isUseDanSucDanh = false;
+            hanDanSucDanh = TIME_ITEM;
+            mucDanSucDanh = MUC_GOC_SUC_DANH;
             Service.gI().point(player);
         }
-        if (isUseDanHp && Util.canDoWithTime(lastTimeDanHp, TIME_ITEM)) {
+        if (isUseDanHp && Util.canDoWithTime(lastTimeDanHp, hanDanHp)) {
             isUseDanHp = false;
+            hanDanHp = TIME_ITEM;
+            mucDanHp = MUC_GOC_HP;
             Service.gI().point(player);
         }
-        if (isUseDanKi && Util.canDoWithTime(lastTimeDanKi, TIME_ITEM)) {
+        if (isUseDanKi && Util.canDoWithTime(lastTimeDanKi, hanDanKi)) {
             isUseDanKi = false;
+            hanDanKi = TIME_ITEM;
+            mucDanKi = MUC_GOC_KI;
             Service.gI().point(player);
         }
-        if (isUseDanGiap && Util.canDoWithTime(lastTimeDanGiap, TIME_ITEM)) {
+        if (isUseDanGiap && Util.canDoWithTime(lastTimeDanGiap, hanDanGiap)) {
             isUseDanGiap = false;
+            hanDanGiap = TIME_ITEM;
+            mucDanGiap = MUC_GOC_GIAP;
         }
-        if (isUseDanChiMang && Util.canDoWithTime(lastTimeDanChiMang, TIME_ITEM)) {
+        if (isUseDanChiMang && Util.canDoWithTime(lastTimeDanChiMang, hanDanChiMang)) {
             isUseDanChiMang = false;
+            hanDanChiMang = TIME_ITEM;
+            mucDanChiMang = MUC_GOC_CHI_MANG;
             Service.gI().point(player);
         }
         if (isUseTuLinhPhu

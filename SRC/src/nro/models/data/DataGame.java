@@ -95,7 +95,8 @@ public class DataGame {
     // 29 -> 30: gỡ lại dòng 253 — bảng đồ rơi ở NPC nay chỉ liệt kê món, không hiện
     //           tỉ lệ nữa, nên trả ô đó về cho bảng chỉ số (patch 82).
     // 30 -> 31: thêm 10 vật phẩm 2266–2275 của map Tu Tiên (patch 83).
-    public static byte vsItem = 31;
+    // 31 -> 32: thêm 14 vật phẩm 2276–2289 của tính năng luyện đan (patch 84).
+    public static byte vsItem = 32;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

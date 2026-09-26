@@ -29,6 +29,23 @@ public class ItemTimeService {
         return i;
     }
 
+    /** Số giây còn lại của một hiệu lực, không bao giờ âm. */
+    private static int conLai(long lucBat, long hanDung) {
+        long con = (hanDung - (System.currentTimeMillis() - lucBat)) / 1000;
+        return (int) Math.max(0, con);
+    }
+
+    /** Icon thật của một vật phẩm; chưa chạy patch thì trả 0 để client khỏi xin icon rác. */
+    private static int iconDan(int idVatPham) {
+        try {
+            if (idVatPham >= 0 && idVatPham < nro.models.server.Manager.ITEM_TEMPLATES.size()) {
+                return nro.models.server.Manager.ITEM_TEMPLATES.get(idVatPham).iconID;
+            }
+        } catch (Exception e) {
+        }
+        return 0;
+    }
+
     public void sendAllItemTime(Player player) {
         ItemTimeService.gI().sendTextBanDoKhoBau(player);
         ItemTimeService.gI().sendTextDoanhTrai(player);
@@ -52,21 +69,39 @@ public class ItemTimeService {
             sendItemTime(player, 2754, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeCuongNo)) / 1000));
         }
 
-        //===== đan và bùa của map Tu Tiên (patch 83), icon lấy đúng icon vật phẩm =====
+        //===== đan của map Tu Tiên (patch 83) + đan thượng phẩm (patch 84) =====
+        // Icon TRA THEO VẬT PHẨM chứ không viết cứng: đan tiệm và đan thượng phẩm dùng
+        // chung một ô hiệu lực, viết cứng thì hiện nhầm ảnh. Thời gian cũng lấy `hanDanX`
+        // chứ không lấy TIME_ITEM, nếu không viên 20 phút sẽ đếm lùi thành số âm sau 10 phút.
         if (player.itemTime.isUseDanSucDanh) {
-            sendItemTime(player, 22219, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanSucDanh)) / 1000));
+            sendItemTime(player, iconDan(player.itemTime.mucDanSucDanh > MUC_GOC_SUC_DANH
+                    ? nro.models.tu_tien.LuyenDan.DAN_TP_SUC_DANH
+                    : nro.models.tu_tien.TuTien.DAN_SUC_DANH),
+                    conLai(player.itemTime.lastTimeDanSucDanh, player.itemTime.hanDanSucDanh));
         }
         if (player.itemTime.isUseDanHp) {
-            sendItemTime(player, 24885, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanHp)) / 1000));
+            sendItemTime(player, iconDan(player.itemTime.mucDanHp > MUC_GOC_HP
+                    ? nro.models.tu_tien.LuyenDan.DAN_TP_HP
+                    : nro.models.tu_tien.TuTien.DAN_HP),
+                    conLai(player.itemTime.lastTimeDanHp, player.itemTime.hanDanHp));
         }
         if (player.itemTime.isUseDanKi) {
-            sendItemTime(player, 24886, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanKi)) / 1000));
+            sendItemTime(player, iconDan(player.itemTime.mucDanKi > MUC_GOC_KI
+                    ? nro.models.tu_tien.LuyenDan.DAN_TP_KI
+                    : nro.models.tu_tien.TuTien.DAN_KI),
+                    conLai(player.itemTime.lastTimeDanKi, player.itemTime.hanDanKi));
         }
         if (player.itemTime.isUseDanGiap) {
-            sendItemTime(player, 24895, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanGiap)) / 1000));
+            sendItemTime(player, iconDan(player.itemTime.mucDanGiap > MUC_GOC_GIAP
+                    ? nro.models.tu_tien.LuyenDan.DAN_TP_GIAP
+                    : nro.models.tu_tien.TuTien.DAN_GIAP),
+                    conLai(player.itemTime.lastTimeDanGiap, player.itemTime.hanDanGiap));
         }
         if (player.itemTime.isUseDanChiMang) {
-            sendItemTime(player, 27641, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanChiMang)) / 1000));
+            sendItemTime(player, iconDan(player.itemTime.mucDanChiMang > MUC_GOC_CHI_MANG
+                    ? nro.models.tu_tien.LuyenDan.DAN_TP_CHI_MANG
+                    : nro.models.tu_tien.TuTien.DAN_CHI_MANG),
+                    conLai(player.itemTime.lastTimeDanChiMang, player.itemTime.hanDanChiMang));
         }
         if (player.itemTime.isUseTuLinhPhu) {
             sendItemTime(player, 30202, (int) ((nro.models.tu_tien.TuTien.THOI_GIAN_BUA

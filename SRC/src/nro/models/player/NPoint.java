@@ -865,9 +865,12 @@ public class NPoint {
             hpMax += this.player.pet.nPoint.hpMax;
         }
 
-        // Hộ Thể Đan (map Tu Tiên): +30% HP
+        // Hộ Thể Đan (map Tu Tiên): +30%, bản thượng phẩm +45% — mức nằm ở ItemTime.
+        // Nhân bằng long rồi mới kẹp: hpMax là int, nhân thẳng cho 45 là tràn ngay khi máu
+        // vượt 47,7 triệu, ra số ÂM.
         if (this.player.itemTime != null && this.player.itemTime.isUseDanHp) {
-            hpMax += hpMax * 30 / 100;
+            long them = (long) hpMax * this.player.itemTime.mucDanHp / 100;
+            hpMax = (int) Math.min(Integer.MAX_VALUE, (long) hpMax + them);
         }
 
         // Xử lý bổ huyết
@@ -1011,9 +1014,11 @@ public class NPoint {
             mpMax += this.player.pet.nPoint.mpMax;
         }
 
-        // Tụ Khí Đan (map Tu Tiên): +30% KI
+        // Tụ Khí Đan (map Tu Tiên): +30%, bản thượng phẩm +45% — mức nằm ở ItemTime.
+        // Nhân bằng long rồi mới kẹp, xem ghi chú ở setHpMax.
         if (this.player.itemTime != null && this.player.itemTime.isUseDanKi) {
-            mpMax += mpMax * 30 / 100;
+            long them = (long) mpMax * this.player.itemTime.mucDanKi / 100;
+            mpMax = (int) Math.min(Integer.MAX_VALUE, (long) mpMax + them);
         }
 
         // Xử lý bổ khí
@@ -1140,9 +1145,11 @@ public class NPoint {
             this.tlSDCM += 10;
         }
 
-        // Luyện Khí Đan (map Tu Tiên): +20% sức đánh
+        // Luyện Khí Đan (map Tu Tiên): +20%, bản thượng phẩm +30% — mức nằm ở ItemTime.
+        // Nhân bằng long rồi mới kẹp, xem ghi chú ở setHpMax.
         if (this.player.itemTime != null && this.player.itemTime.isUseDanSucDanh) {
-            dame += dame * 20 / 100;
+            long them = (long) dame * this.player.itemTime.mucDanSucDanh / 100;
+            dame = (int) Math.min(Integer.MAX_VALUE, (long) dame + them);
         }
         // Xử lý cuồng nộ
         if (this.player.itemTime != null && this.player.itemTime.isUseCuongNo && !this.player.itemTime.isUseCuongNo2) {
@@ -1272,7 +1279,7 @@ public class NPoint {
         // Phải cộng vào `crit` ở đây, KHÔNG phải tlDameCrit trong setDame — tlDameCrit là
         // SÁT THƯƠNG chí mạng, cộng vào đó thì tỉ lệ ra chí mạng không đổi tí nào.
         if (this.player.itemTime != null && this.player.itemTime.isUseDanChiMang) {
-            this.crit += 10;
+            this.crit += this.player.itemTime.mucDanChiMang;
         }
 
         if (player.setClothes.thanVuTruKaio >= 1) {

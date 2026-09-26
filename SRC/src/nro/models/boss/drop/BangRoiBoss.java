@@ -11,11 +11,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import nro.models.boss.Boss;
+import nro.models.boss.BossDropConfig;
 import nro.models.boss.BossID;
 import nro.models.map.ItemMap;
 import nro.models.player.Player;
 import nro.models.server.Manager;
 import nro.models.services.Service;
+import nro.models.tu_tien.LuyenDan;
 import nro.models.utils.Logger;
 import nro.models.utils.Util;
 import org.json.simple.JSONArray;
@@ -64,7 +66,9 @@ public final class BangRoiBoss {
             m.put(id, ds);
         }
 
-        // --- Bộ Siêu Thần God + Lão Dê: một vòng quay 100 % (nhóm 1) + còi quay riêng.
+        // --- Bộ Siêu Thần God + Lão Dê: một vòng quay 100 % (nhóm 1) + mấy dòng quay riêng.
+        //     Ba dòng luyện đan để NHÓM 0 (quay riêng) chứ không nhét vào nhóm 1: nhóm 1 là
+        //     một vòng 100 % đã chia đủ, thêm vào đó là mấy dòng cuối không bao giờ trúng.
         for (int id : new int[]{BossID.VEGETA_SIEU_THAN_GOD, BossID.GOKU_SIEU_THAN_GOD,
             BossID.LAO_DE_HOI_XUAN}) {
             List<MucRoi> ds = new ArrayList<>();
@@ -74,8 +78,27 @@ public final class BangRoiBoss {
             ds.add(new MucRoi(new int[]{2264}, 1, 1, 5, 1, "Gậy Thông Thiên"));
             ds.add(new MucRoi(new int[]{2262}, 5, 5, 5, 1, "5 Đá Pháp Sư"));
             ds.add(new MucRoi(new int[]{2265}, 1, 1, 10, 0, "Còi Triệu Hồi Lão Dê"));
+            ds.add(new MucRoi(new int[]{LuyenDan.DIA_HOA_TINH}, 2, 3, 100, 0, "Địa Hỏa Tinh"));
+            ds.add(new MucRoi(new int[]{LuyenDan.DAN_PHUONG_TRUNG_CAP}, 1, 1, 15, 0, "Đan Phương Trung Cấp"));
+            ds.add(new MucRoi(new int[]{LuyenDan.DAN_PHUONG_CAO_CAP}, 1, 1, 5, 0, "Đan Phương Cao Cấp"));
             m.put(id, ds);
         }
+
+        // --- Hai boss Tây Du (patch 84): đường lấy nguyên liệu luyện đan cho người chơi yếu.
+        //     Ít hơn và thưa hơn bộ Siêu Thần God, nhưng boss cũng dễ hơn hàng chục lần.
+        List<MucRoi> batGioi = new ArrayList<>();
+        batGioi.add(new MucRoi(new int[]{LuyenDan.DIA_HOA_TINH}, 1, 1, 40, 0, "Địa Hỏa Tinh"));
+        batGioi.add(new MucRoi(new int[]{LuyenDan.DAN_PHUONG_SO_CAP}, 1, 1, 12, 0, "Đan Phương Sơ Cấp"));
+        batGioi.add(new MucRoi(LuyenDan.LINH_THAO.clone(), 1, 2, 35, 0, "Linh thảo ngẫu nhiên"));
+        m.put(BossID.TRU_BAT_GIOI, batGioi);
+
+        List<MucRoi> ngoKhong = new ArrayList<>();
+        ngoKhong.add(new MucRoi(new int[]{LuyenDan.DIA_HOA_TINH}, 1, 2, 60, 0, "Địa Hỏa Tinh"));
+        ngoKhong.add(new MucRoi(new int[]{LuyenDan.DAN_PHUONG_SO_CAP}, 1, 1, 20, 0, "Đan Phương Sơ Cấp"));
+        ngoKhong.add(new MucRoi(new int[]{LuyenDan.DAN_PHUONG_TRUNG_CAP}, 1, 1, 8, 0, "Đan Phương Trung Cấp"));
+        ngoKhong.add(new MucRoi(LuyenDan.LINH_THAO.clone(), 2, 3, 50, 0, "Linh thảo ngẫu nhiên"));
+        ngoKhong.add(new MucRoi(new int[]{16, 17, 18}, 1, 1, 30, 0, "Ngọc Rồng 3-5 sao"));
+        m.put(BossID.TON_NGO_KHONG_GIA, ngoKhong);
         return m;
     }
 
@@ -315,8 +338,21 @@ public final class BangRoiBoss {
 
     /** Toàn bộ những gì hạ boss này CÓ THỂ rơi: đồ gốc + đồ thêm ở cpanel. */
     public static List<MucRoi> xem(int bossId) {
+        return xem(bossId, 0);
+    }
+
+    /**
+     * Bảng rơi để HIỆN cho người chơi, kèm cả luật rơi chung theo máu boss.
+     *
+     * @param mauMax máu tối đa của boss; để 0 nếu không biết thì bỏ qua luật chung
+     */
+    public static List<MucRoi> xem(int bossId, long mauMax) {
+        List<MucRoi> rieng = cua(bossId);
         List<MucRoi> ra = new ArrayList<>(goc(bossId));
-        ra.addAll(cua(bossId));
+        ra.addAll(rieng);
+        if (mauMax > 0) {
+            ra.addAll(luatChung(mauMax, daKhaiBaoRieng(rieng)));
+        }
         return ra;
     }
 
@@ -347,7 +383,12 @@ public final class BangRoiBoss {
         if (boss == null || plKill == null || boss.zone == null || boss.zone.map == null) {
             return;     // boss vừa rời map ngay lúc chết — không có chỗ để rơi đồ
         }
-        List<MucRoi> ds = cua((int) boss.id);
+        // Bảng riêng của con này (sửa được ở cpanel) CỘNG luật rơi chung theo máu boss.
+        // Phải gộp chứ không "có bảng riêng thì thôi luật chung": gần như mọi boss cũ đều
+        // KHÔNG có bảng riêng, thoát sớm ở đây là chúng chẳng rơi nguyên liệu luyện đan bao giờ.
+        List<MucRoi> rieng = cua((int) boss.id);
+        List<MucRoi> ds = new ArrayList<>(rieng);
+        ds.addAll(luatChung(mauCua(boss), daKhaiBaoRieng(rieng) || boss.laLauLa()));
         if (ds.isEmpty()) {
             return;
         }
@@ -385,6 +426,69 @@ public final class BangRoiBoss {
             }
         }
         return ra;
+    }
+
+    //================================ luật rơi chung ================================
+    /**
+     * Dòng rơi <b>áp cho MỌI boss</b>, tính theo máu tối đa của con đó.
+     *
+     * <p>Lý do có hàm này: trước đây Địa Hỏa Tinh chỉ rơi ở năm con (hai Tây Du, bộ Siêu Thần
+     * God, Lão Dê). Người chơi cày chay hạ được con boss nào khác cũng không tiến thêm được
+     * bước nào trong tuyến luyện đan. Nay boss nào đủ máu cũng rơi, tỉ lệ tăng dần theo độ
+     * trâu — chỉnh được hết ở cpanel tab "Rơi đồ boss".
+     *
+     * <p>Không áp cho: boss quá ít máu (Ăn Trộm 100 máu, Mặt Trời 500 máu ×20 bản — cày vô
+     * hạn), <b>lâu la</b> đi kèm boss khác, và con nào đã có dòng Địa Hỏa Tinh viết tay trong
+     * bảng riêng (dòng viết tay luôn thắng, để cpanel chỉnh được từng con).
+     *
+     * @param daCoRieng true thì trả về danh sách rỗng
+     */
+    private static List<MucRoi> luatChung(long mauMax, boolean daCoRieng) {
+        List<MucRoi> ds = new ArrayList<>();
+        if (daCoRieng || mauMax < Math.max(1, BossDropConfig.LD_MAU_MIN.giaTri)) {
+            return ds;
+        }
+        int tiLe;
+        int slMax = 1;
+        if (mauMax >= 200_000_000L) {
+            tiLe = BossDropConfig.LD_TI_LE_KHUNG.giaTri;
+            slMax = 2;
+        } else if (mauMax >= 50_000_000L) {
+            tiLe = BossDropConfig.LD_TI_LE_LON.giaTri;
+        } else if (mauMax >= 5_000_000L) {
+            tiLe = BossDropConfig.LD_TI_LE_VUA.giaTri;
+        } else {
+            tiLe = BossDropConfig.LD_TI_LE_NHO.giaTri;
+        }
+        if (tiLe > 0) {
+            ds.add(new MucRoi(new int[]{LuyenDan.DIA_HOA_TINH}, 1, slMax, tiLe, 0,
+                    "Địa Hỏa Tinh (luật chung, theo máu boss)"));
+        }
+        int tiLeDanPhuong = BossDropConfig.LD_DAN_PHUONG.giaTri;
+        if (mauMax >= 20_000_000L && tiLeDanPhuong > 0) {
+            ds.add(new MucRoi(new int[]{LuyenDan.DAN_PHUONG_SO_CAP}, 1, 1, tiLeDanPhuong, 0,
+                    "Đan Phương Sơ Cấp (luật chung)"));
+        }
+        return ds;
+    }
+
+    /** Bảng riêng của boss đã có dòng Địa Hỏa Tinh viết tay chưa. */
+    private static boolean daKhaiBaoRieng(List<MucRoi> rieng) {
+        for (MucRoi m : rieng) {
+            if (m.ids == null) {
+                continue;
+            }
+            for (int id : m.ids) {
+                if (id == LuyenDan.DIA_HOA_TINH) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static long mauCua(Boss boss) {
+        return boss.nPoint == null ? 0 : boss.nPoint.hpMax;
     }
 
     private static void tha(Boss boss, Player plKill, MucRoi m, int lech) {

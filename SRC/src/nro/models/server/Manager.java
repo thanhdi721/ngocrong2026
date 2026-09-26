@@ -114,6 +114,13 @@ public final class Manager {
     /** CSDL đã có cột player.aura_npc chưa (hào quang NPC bật cho người chơi). */
     public static volatile boolean HAS_AURA_NPC = false;
 
+    /**
+     * CSDL đã có cột player.tu_tien chưa. Cột này gom dữ liệu tu tiên theo từng người, định
+     * dạng {@code khoa=giatri#khoa=giatri} nên thêm tính năng sau không phải thêm cột nữa —
+     * bảng `player` đang sát trần 65.535 byte một dòng của InnoDB (xem patch 78).
+     */
+    public static boolean HAS_TU_TIEN;
+
     /** CSDL đã có cột player.thong_dit chưa ("soLanThong|soLanBiThong", Gậy Thông Thiên). */
     public static volatile boolean HAS_THONG_DIT = false;
     public static final short[][] trangBiKichHoat = {{0, 6, 21, 27}, {1, 7, 22, 28}, {2, 8, 23, 29}};
@@ -413,6 +420,7 @@ public final class Manager {
         // nó chỉ chứa một chuỗi JSON ngắn) sang TEXT để trả lại chỗ — xem patch 78.
         noiChoDataCard();
         HAS_THONG_DIT = baoDamCot("thong_dit", "TEXT NULL", "thong dit (Gay Thong Thien)", 78);
+        HAS_TU_TIEN = baoDamCot("tu_tien", "TEXT NULL", "linh dien (trong linh thao)", 85);
     }
 
     /**

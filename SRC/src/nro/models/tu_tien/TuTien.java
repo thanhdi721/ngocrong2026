@@ -346,6 +346,10 @@ public final class TuTien {
         if (LINH_THACH < 0 || LINH_THACH >= Manager.ITEM_TEMPLATES.size()) {
             return ds;     // chưa chạy patch 83 — thà không rơi còn hơn văng lỗi
         }
+        // Linh thảo (patch 84) quay RIÊNG, trước cả Linh Thạch: người chơi đã cày hết
+        // trần 500 Linh Thạch/ngày vẫn còn thứ để nhặt, map không chết sau khi cạn trần.
+        LuyenDan.themLinhThao(mob, plKill, x, y, ds);
+
         int tiLe = Math.max(0, Math.min(100, BossDropConfig.TT_TI_LE_LINH_THACH.giaTri));
         if (dangDungBua(plKill)) {
             tiLe = Math.min(100, (int) Math.ceil(tiLe

@@ -1085,6 +1085,66 @@ public class BossesData {
             REST_30_M //second rest — không dùng tới, con này chỉ ra khi có người thổi còi
     );
 
+    //========================TÂY DU (luyện đan, patch 84)========================
+    // Hai con này sinh ra để CÂN BẰNG đường lấy Địa Hỏa Tinh: người chơi yếu đánh Bát Giới,
+    // người chơi khá đánh Ngộ Không Giả, người chơi mạnh đánh bộ Siêu Thần God. Cả ba hạng
+    // đều rơi Địa Hỏa Tinh, chỉ khác số lượng và tỉ lệ (xem boss/drop/BangRoiBoss).
+    //
+    // Ngoại hình lấy từ hai cải trang Tây Du đã có sẵn, chưa con boss nào dùng:
+    //   "Cải trang Bát Giới"  — item 2090, part 2268 / 2269 / 2270
+    //   "Cải trang Ngộ Không" — item 2091, part 2271 / 2272 / 2273
+    //
+    // Map: chọn map ĐẦU của mỗi hành tinh (1 Đồi hoa cúc / 8 Đồi nấm tím / 15 Đồi hoang cho
+    // Bát Giới; 3 Rừng nấm / 10 Thung lũng Namếc / 17 Rừng nguyên sinh cho Ngộ Không Giả)
+    // để người mới không phải lặn lội sang map cuối — nơi bộ Siêu Thần God 50.000 sát thương
+    // đang đứng.
+    public static final BossData TRU_BAT_GIOI = new BossData(
+            "Trư Bát Giới Ăn Vụng", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2268, 2269, 2270, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
+            5_000, //dame
+            new int[]{8_000_000}, //hp
+            new int[]{1, 8, 15}, //map join — map đầu của ba hành tinh
+            new int[][]{
+                {Skill.LIEN_HOAN, 7, 1000},
+                {Skill.MASENKO, 5, 2000}},
+            //skill
+            new String[]{"|-1|Ai để nồi đan ở đây không ai trông thế?",
+                "|-1|Lão Quân ơi con mượn tí lửa",
+                "|-1|Ăn vụng mà bị bắt thì cũng phải đánh thôi"
+            }, //text chat 1
+            new String[]{"|-1|Đừng đánh mặt, mặt này còn phải đi hỏi vợ",
+                "|-1|Đói quá đánh không nổi",
+                "|-1|Để ta ăn nốt miếng này đã"
+            }, //text chat 2
+            new String[]{"|-1|Trả... trả lại đấy... lấy đi rồi đừng mách sư phụ"}, //text chat 3
+            REST_5_M //second rest
+    );
+
+    public static final BossData TON_NGO_KHONG_GIA = new BossData(
+            "Tôn Ngộ Không Giả", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2271, 2272, 2273, -1, -1, -1}, //outfit {head, body, leg, bag, aura, eff}
+            15_000, //dame
+            new int[]{60_000_000}, //hp
+            new int[]{3, 10, 17}, //map join
+            new int[][]{
+                {Skill.LIEN_HOAN, 7, 500},
+                {Skill.THAI_DUONG_HA_SAN, 5, 300000},
+                {Skill.MASENKO, 7, 1000}},
+            //skill
+            new String[]{"|-1|Ta là Tề Thiên Đại Thánh... bản nhái",
+                "|-1|Đan phương ta lấy rồi, muốn thì tới lấy lại",
+                "|-1|Lò bát quái nướng ta bảy ngày còn chưa chín"
+            }, //text chat 1
+            new String[]{"|-1|Gậy này vừa mua ngoài chợ, đừng làm gãy",
+                "|-1|Đánh nhẹ thôi, ta là hàng nhái mà",
+                "|-1|Bảy hai phép biến hoá ta mới học được hai"
+            }, //text chat 2
+            new String[]{"|-1|Thôi... ta trả đan phương, đừng gọi Lão Quân"}, //text chat 3
+            REST_10_M //second rest
+    );
+
     //========================CUMBER========================
     public static final BossData CUMBER = new BossData(
             "Cumber", //name

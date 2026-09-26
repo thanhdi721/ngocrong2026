@@ -1053,7 +1053,8 @@ public class PlayerDAO {
                         + "firstTimeLogin = ?,  dailyGift = ?, point_sukien = ?, thachdauwhis = ?, point_sukien1 = ?, point_maydam = ?, total_damage_maydam = ?, data_duahau_egg = ?, checkNhanQua = ?, nhiem_vu_kol = ?, point_sukien2 = ?"
                         + (nro.models.server.Manager.HAS_VQTD ? ", vqtd = ?" : "")
                         + (nro.models.server.Manager.HAS_AURA_NPC ? ", aura_npc = ?" : "")
-                        + (nro.models.server.Manager.HAS_THONG_DIT ? ", thong_dit = ?" : "") + " where id = ?";
+                        + (nro.models.server.Manager.HAS_THONG_DIT ? ", thong_dit = ?" : "")
+                        + (nro.models.server.Manager.HAS_TU_TIEN ? ", tu_tien = ?" : "") + " where id = ?";
                 java.util.List<Object> thamSo = new java.util.ArrayList<>(java.util.Arrays.asList(
                         player.head,
                         player.haveTennisSpaceShip,
@@ -1124,6 +1125,9 @@ public class PlayerDAO {
                 }
                 if (nro.models.server.Manager.HAS_THONG_DIT) {
                     thamSo.add(nro.models.services.ThongDitService.ghi(player));
+                }
+                if (nro.models.server.Manager.HAS_TU_TIEN) {
+                    thamSo.add(nro.models.tu_tien.LinhDien.ghi(player));
                 }
                 thamSo.add(player.id);
                 LocalManager.executeUpdate(query, thamSo.toArray());

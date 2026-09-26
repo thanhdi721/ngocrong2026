@@ -827,6 +827,13 @@ public class UseItem {
                             case nro.models.tu_tien.TuTien.DAN_GIAP:
                             case nro.models.tu_tien.TuTien.DAN_CHI_MANG:
                             case nro.models.tu_tien.TuTien.TU_LINH_PHU:
+                            // Luyện đan (patch 84): 5 đan thượng phẩm + Đan Phế
+                            case nro.models.tu_tien.LuyenDan.DAN_TP_SUC_DANH:
+                            case nro.models.tu_tien.LuyenDan.DAN_TP_HP:
+                            case nro.models.tu_tien.LuyenDan.DAN_TP_KI:
+                            case nro.models.tu_tien.LuyenDan.DAN_TP_GIAP:
+                            case nro.models.tu_tien.LuyenDan.DAN_TP_CHI_MANG:
+                            case nro.models.tu_tien.LuyenDan.DAN_PHE:
 
                                 useItemTime(pl, item);
                                 break;
@@ -1634,29 +1641,53 @@ public class UseItem {
                 Service.gI().point(pl);
                 break;
             //================= Map Tu Tiên (patch 83) =================
+            // Năm viên đan mua ở tiệm Tu Tiên: 10 phút, mức gốc. Phải đặt lại CẢ thời hạn
+            // lẫn mức cộng, nếu không viên tiệm ăn đè lên viên thượng phẩm đang chạy sẽ
+            // thừa hưởng 20 phút / mức cao của viên kia.
             case nro.models.tu_tien.TuTien.DAN_SUC_DANH: // Luyện Khí Đan — +20% sức đánh
                 pl.itemTime.lastTimeDanSucDanh = System.currentTimeMillis();
                 pl.itemTime.isUseDanSucDanh = true;
+                pl.itemTime.hanDanSucDanh = nro.models.item.ItemTime.TIME_ITEM;
+                pl.itemTime.mucDanSucDanh = nro.models.item.ItemTime.MUC_GOC_SUC_DANH;
                 Service.gI().point(pl);
                 break;
             case nro.models.tu_tien.TuTien.DAN_HP: // Hộ Thể Đan — +30% HP
                 pl.itemTime.lastTimeDanHp = System.currentTimeMillis();
                 pl.itemTime.isUseDanHp = true;
+                pl.itemTime.hanDanHp = nro.models.item.ItemTime.TIME_ITEM;
+                pl.itemTime.mucDanHp = nro.models.item.ItemTime.MUC_GOC_HP;
                 Service.gI().point(pl);
                 break;
             case nro.models.tu_tien.TuTien.DAN_KI: // Tụ Khí Đan — +30% KI
                 pl.itemTime.lastTimeDanKi = System.currentTimeMillis();
                 pl.itemTime.isUseDanKi = true;
+                pl.itemTime.hanDanKi = nro.models.item.ItemTime.TIME_ITEM;
+                pl.itemTime.mucDanKi = nro.models.item.ItemTime.MUC_GOC_KI;
                 Service.gI().point(pl);
                 break;
             case nro.models.tu_tien.TuTien.DAN_GIAP: // Kim Cương Đan — giảm 50% sát thương
                 pl.itemTime.lastTimeDanGiap = System.currentTimeMillis();
                 pl.itemTime.isUseDanGiap = true;
+                pl.itemTime.hanDanGiap = nro.models.item.ItemTime.TIME_ITEM;
+                pl.itemTime.mucDanGiap = nro.models.item.ItemTime.MUC_GOC_GIAP;
                 break;
             case nro.models.tu_tien.TuTien.DAN_CHI_MANG: // Phá Quân Đan — +10% chí mạng
                 pl.itemTime.lastTimeDanChiMang = System.currentTimeMillis();
                 pl.itemTime.isUseDanChiMang = true;
+                pl.itemTime.hanDanChiMang = nro.models.item.ItemTime.TIME_ITEM;
+                pl.itemTime.mucDanChiMang = nro.models.item.ItemTime.MUC_GOC_CHI_MANG;
                 Service.gI().point(pl);
+                break;
+            //================= Luyện đan (patch 84) =================
+            case nro.models.tu_tien.LuyenDan.DAN_TP_SUC_DANH:
+            case nro.models.tu_tien.LuyenDan.DAN_TP_HP:
+            case nro.models.tu_tien.LuyenDan.DAN_TP_KI:
+            case nro.models.tu_tien.LuyenDan.DAN_TP_GIAP:
+            case nro.models.tu_tien.LuyenDan.DAN_TP_CHI_MANG:
+                nro.models.tu_tien.LuyenDan.dungDanThuongPham(pl, item.template.id);
+                break;
+            case nro.models.tu_tien.LuyenDan.DAN_PHE: // ăn vào không được gì, chỉ được cười
+                nro.models.tu_tien.LuyenDan.anDanPhe(pl);
                 break;
             case nro.models.tu_tien.TuTien.TU_LINH_PHU: // Tụ Linh Phù — +50% rơi Linh Thạch, 30 phút
                 pl.itemTime.lastTimeTuLinhPhu = System.currentTimeMillis();
