@@ -390,6 +390,9 @@ public class ChangeMapService {
             }
 
             pl.location.y = y;
+            // Cờ đen của map Tu Tiên phải đặt TRƯỚC goToMap: cờ đi kèm trong gói nạp map,
+            // đặt sau thì client đã dựng xong nhân vật với cờ cũ.
+            nro.models.tu_tien.TuTien.doiCoTruocKhiChuyenMap(pl, zoneJoin);
             this.goToMap(pl, zoneJoin);
             if (pl.pet != null) {
                 pl.pet.joinMapMaster();

@@ -222,6 +222,8 @@ public class Player implements Runnable {
 
     /** Lần gần nhất bị map Tu Tiên đá về nhà, để không đá liên tục (tu_tien/TuTien). */
     public long lucChetTuTien;
+    /** Map Tu Tiên vừa đổi cờ PK -> phải gửi lại gói cờ sau khi client nạp xong map. */
+    public boolean canDongBoCoTuTien;
 
     public MobMe mobMe;
     public Location location;

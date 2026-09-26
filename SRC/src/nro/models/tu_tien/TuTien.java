@@ -58,6 +58,8 @@ public final class TuTien {
     /** Bùa Tụ Linh bán bằng thỏi vàng (item 457), không bằng linh thạch. */
     public static final int ID_THOI_VANG = 457;
     public static final int GIA_BUA_THOI_VANG = 5;
+    /** Giá MUA một thỏi vàng ở tiệm Tu Tiên. Giá BÁN LẠI giữ nguyên 37 triệu (form BANSLL). */
+    public static final int GIA_MUA_THOI_VANG = 200_000_000;
 
     /**
      * Đan dùng thẳng nhịp 10 phút sẵn có của khung bùa ({@code ItemTime.TIME_ITEM}) — trỏ vào
@@ -93,6 +95,24 @@ public final class TuTien {
         return tabId == TAB_DAN || tabId == TAB_NGOC_BOI || tabId == TAB_BUA;
     }
 
+    /**
+     * Món này có trả bằng Linh Thạch / thỏi vàng không.
+     *
+     * <p>Thỏi vàng bán trong tab bùa trả bằng <b>VÀNG</b> nên KHÔNG chặn — để nó đi luồng mua
+     * bán thường của tiệm, vừa trừ vàng đúng vừa giữ nguyên giá bán lại 37 triệu/thỏi
+     * (form BANSLL) mà server đang dùng.
+     */
+    public static boolean traBangHangTuTien(ItemShop is) {
+        if (is == null || is.temp == null || is.tabShop == null) {
+            return false;
+        }
+        if (!laTabTuTien(is.tabShop.id)) {
+            return false;
+        }
+        int id = is.temp.id;
+        return id >= LINH_THACH && id <= TU_LINH_PHU;    // 2266…2275
+    }
+
     /** {id vật phẩm, id dòng chỉ số, giá trị} của ba viên ngọc bội. */
     private static final int[][] CHI_SO_NGOC_BOI = {
         {NGOC_BOI_HP, 6, 10000},
@@ -116,14 +136,25 @@ public final class TuTien {
             Shop shop = new Shop();
             shop.tagName = "TU_TIEN";
             shop.typeShop = 0;                  // NORMAL_SHOP
+            // Số hiệu riêng, không trùng tiệm nào trong CSDL: buyItem có gọi
+            // TaskService.checkDoneTaskBuyItem(..., shop.id), để 0 dễ trùng tiệm thật.
+            shop.id = 900;
             shop.npcId = nro.models.consts.ConstNpc.TU_TIEN;
 
             shop.tabShops.add(tab(shop, TAB_DAN, "Đan\n" + GIA_DAN + " LT",
                     new int[]{DAN_SUC_DANH, DAN_HP, DAN_KI, DAN_GIAP, DAN_CHI_MANG}, GIA_DAN));
             shop.tabShops.add(tabNgocBoi(shop));
-            shop.tabShops.add(tab(shop, TAB_BUA,
+            TabShop tabBua = tab(shop, TAB_BUA,
                     "Tụ Linh Phù\n" + GIA_BUA_THOI_VANG + " thỏi vàng",
-                    new int[]{TU_LINH_PHU}, GIA_BUA_THOI_VANG));
+                    new int[]{TU_LINH_PHU}, GIA_BUA_THOI_VANG);
+            // Bán kèm thỏi vàng để ai không có thì mua bằng vàng. Món này trả bằng VÀNG nên
+            // đi luồng mua bán thường (xem traBangHangTuTien), giá bán lại vẫn 37 triệu/thỏi.
+            ItemShop thoiVang = dongHang(tabBua, ID_THOI_VANG, GIA_MUA_THOI_VANG);
+            if (thoiVang != null) {
+                thoiVang.typeSell = 0;      // COST_GOLD
+                tabBua.itemShops.add(thoiVang);
+            }
+            shop.tabShops.add(tabBua);
 
             nro.models.shop.ShopService.gI().moTiemDungSan(pl, shop);
         } catch (Exception e) {
@@ -340,17 +371,70 @@ public final class TuTien {
 
     //========================= luật map =========================
     /**
-     * Người chơi vừa vào map: bật cờ đen. Gọi ở cuối {@code ChangeMapService.changeMap}.
+     * Bật / tắt cờ đen, gọi <b>TRƯỚC</b> {@code goToMap} trong {@code ChangeMapService}.
+     *
+     * <p>Phải đặt trước, không được đặt sau: cờ của nhân vật đi trong gói nạp map
+     * ({@code Zone.infoPlayer} ghi {@code plInfo.typePk}) và gói {@code mapInfo(-24)}. Đặt sau
+     * thì client đã dựng xong nhân vật với cờ cũ, gói đổi cờ gửi thêm cũng không ăn — đây đúng
+     * là lỗi "vào map không thấy bật cờ đen".
+     *
+     * <p>Đặt thẳng vào {@code typePk} là đủ cho cả mình lẫn người khác: mọi người trong khu mới
+     * đều nhận {@code infoPlayer(-5)} mang sẵn cờ đúng.
+     *
+     * <p>Ra khỏi map thì tắt lại, nhưng KHÔNG đụng nếu người chơi đang mang Ngọc Rồng Namếc
+     * hoặc đang giao đấu — hai thứ đó tự quản cờ của chúng.
+     */
+    public static void doiCoTruocKhiChuyenMap(Player pl, Zone zoneMoi) {
+        if (pl == null || !pl.isPl() || zoneMoi == null || zoneMoi.map == null) {
+            return;
+        }
+        boolean vaoTuTien = laMapTuTien(zoneMoi.map.mapId);
+        boolean dangOTuTien = dangOMapTuTien(pl);
+        if (vaoTuTien) {
+            if (pl.typePk != nro.models.consts.ConstPlayer.PK_ALL) {
+                pl.typePk = nro.models.consts.ConstPlayer.PK_ALL;
+                pl.canDongBoCoTuTien = true;
+            }
+            if (pl.pet != null) {
+                pl.pet.typePk = nro.models.consts.ConstPlayer.PK_ALL;
+            }
+        } else if (dangOTuTien
+                && pl.typePk == nro.models.consts.ConstPlayer.PK_ALL
+                && pl.idNRNM == -1
+                && pl.pvp == null) {
+            pl.typePk = nro.models.consts.ConstPlayer.NON_PK;
+            pl.canDongBoCoTuTien = true;
+            if (pl.pet != null) {
+                pl.pet.typePk = nro.models.consts.ConstPlayer.NON_PK;
+            }
+        }
+    }
+
+    /**
+     * Gọi sau khi client đã nạp xong map: gửi lại gói cờ và nhắc luật.
+     *
+     * <p>Vẫn phải gửi gói cờ dù đã đặt {@code typePk} từ trước, vì gói {@code mapInfo(-24)}
+     * <b>không mang cờ của chính mình</b> — client chỉ biết cờ của bản thân qua gói lệnh con 35.
+     * Gói nạp map chỉ mang cờ của NGƯỜI KHÁC ({@code Zone.infoPlayer}).
      */
     public static void vaoMap(Player pl) {
-        if (pl == null || !pl.isPl() || !dangOMapTuTien(pl)) {
+        if (pl == null || !pl.isPl()) {
             return;     // đệ tử / bot đi theo chủ thì bỏ qua
         }
-        try {
-            if (pl.typePk != nro.models.consts.ConstPlayer.PK_ALL) {
-                nro.models.services.PlayerService.gI()
-                        .changeAndSendTypePK(pl, nro.models.consts.ConstPlayer.PK_ALL);
+        if (pl.canDongBoCoTuTien) {
+            pl.canDongBoCoTuTien = false;
+            try {
+                nro.models.services.PlayerService.gI().sendTypePk(pl);
+                if (pl.pet != null) {
+                    nro.models.services.PlayerService.gI().sendTypePk(pl.pet);
+                }
+            } catch (Exception e) {
             }
+        }
+        if (!dangOMapTuTien(pl)) {
+            return;
+        }
+        try {
             Service.gI().sendThongBao(pl,
                     "Nam Thiên Môn: cờ đen tự bật, chết là bị đá về nhà, không hồi sinh tại chỗ.");
         } catch (Exception e) {

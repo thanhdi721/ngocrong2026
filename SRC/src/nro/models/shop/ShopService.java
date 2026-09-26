@@ -750,7 +750,7 @@ public class ShopService {
 
         // Tiệm Tu Tiên: trả bằng Linh Thạch / thỏi vàng, KHÔNG đi qua luồng vàng-ngọc bên
         // dưới. Chặn ngay đây giống cách tab 30 (phiếu giảm giá) và tab 44 (danh hiệu) làm.
-        if (nro.models.tu_tien.TuTien.laTabTuTien(is.tabShop.id)) {
+        if (nro.models.tu_tien.TuTien.traBangHangTuTien(is)) {
             nro.models.tu_tien.TuTien.mua(player, is);
             return;
         }

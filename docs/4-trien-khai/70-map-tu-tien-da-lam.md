@@ -142,7 +142,7 @@ Ba tab:
 |---|---|---|
 | `Đan / 50 LT` | 90 | 5 viên đan |
 | `Ngọc bội / 200 LT` | 91 | 3 viên ngọc bội (hiện sẵn `HP+10000`, `Không thể giao dịch`) |
-| `Tụ Linh Phù / 5 thỏi vàng` | 92 | bùa |
+| `Tụ Linh Phù / 5 thỏi vàng` | 92 | bùa **+ thỏi vàng bán 200 triệu vàng/thỏi** |
 
 **Trả tiền**: gói tin tiệm chỉ có hai ô tiền (vàng / ngọc), không có ô nào cho Linh Thạch. Nên
 số tiền hiện ở **cột ngọc**, còn **đơn vị thật ghi ngay trên tên tab**. Khi bấm mua,
@@ -158,6 +158,23 @@ Ba chốt an toàn:
 * **Nhét vào túi trước, nhét được mới trừ tiền** — không có đường nào mất tiền mà hụt đồ.
 
 Tab id 90–92 là dải riêng, không đụng tab nào sẵn có (10–13, 17, 19, 30, 41–45).
+`shop.id = 900` để không trùng tiệm thật nào trong CSDL — `buyItem` có gọi
+`TaskService.checkDoneTaskBuyItem(..., shop.id)`, để 0 là dễ vô tình hoàn thành nhiệm vụ.
+
+### Thỏi vàng bán kèm trong tab bùa
+
+Bùa giá 5 thỏi vàng, nên bán luôn **thỏi vàng giá 200 triệu vàng/thỏi** cho ai không có sẵn.
+
+Món này **trả bằng VÀNG** nên cố ý **không chặn** — để nó đi luồng mua bán thường của tiệm:
+
+* trừ vàng đúng qua `subMoneyByItemShop`;
+* **giá bán lại giữ nguyên 37 triệu/thỏi** — `sellItem` đã chuyển riêng item 457 sang form
+  `BANSLL`, không đụng tới.
+
+Vì vậy chốt chặn đổi từ "chặn theo tab" sang **"chặn theo món"**: `TuTien.traBangHangTuTien`
+chỉ bắt id 2266–2275 (hàng trả bằng Linh Thạch / thỏi vàng), thỏi vàng 457 lọt qua đúng ý.
+
+Mua 200 triệu, bán lại 37 triệu — lỗ nặng, nên không có đường lách kiếm vàng.
 
 ## 6. Ba núm chỉnh trong cpanel — tab "Rơi đồ boss"
 
