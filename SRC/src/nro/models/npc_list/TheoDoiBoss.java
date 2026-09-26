@@ -35,7 +35,15 @@ import nro.models.utils.Util;
 public class TheoDoiBoss extends Npc {
 
     /** Số boss xếp trong một trang menu. */
-    private static final int MOI_TRANG = 8;
+    private static final int MOI_TRANG = 12;
+
+    /** Chế độ của danh sách đang mở. */
+    private static final int TAT_CA = 0;
+    private static final int DANG_RA = 1;
+    private static final int TIM = 2;
+
+    /** Từ khoá tìm gần nhất của từng người chơi. */
+    private static final java.util.Map<Long, String> TU_KHOA = new java.util.concurrent.ConcurrentHashMap<>();
     /** Số dòng tối đa khi in danh sách boss đang ra map. */
     private static final int TOI_DA_DONG = 14;
 
@@ -126,7 +134,7 @@ public class TheoDoiBoss extends Npc {
                 CHAO[Util.nextInt(0, CHAO.length - 1)] + "\n"
                 + "Đang ra map: " + dangRa + " con.\n"
                 + "Tổng cộng: " + ds.size() + " loại boss.",
-                "Boss đang\nra map", "Danh sách\ntất cả", "Đóng");
+                "Boss đang\nra map", "Tìm theo\ntên", "Danh sách\ntất cả", "Đóng");
     }
 
     @Override
@@ -138,16 +146,28 @@ public class TheoDoiBoss extends Npc {
         if (menu == ConstNpc.THEO_DOI_BOSS) {
             switch (select) {
                 case 0 ->
-                    moTrang(player, 0, true);
+                    moTrang(player, 0, DANG_RA);
                 case 1 ->
-                    moTrang(player, 0, false);
+                    nro.models.services_func.Input.gI().createFormTimBoss(player);
+                case 2 ->
+                    moTrang(player, 0, TAT_CA);
                 default -> {
                 }
             }
             return;
         }
-        boolean chiRa = menu >= ConstNpc.THEO_DOI_BOSS_TRANG_RA;
-        int trang = menu - (chiRa ? ConstNpc.THEO_DOI_BOSS_TRANG_RA : ConstNpc.THEO_DOI_BOSS_TRANG);
+        int che;
+        int trang;
+        if (menu >= ConstNpc.THEO_DOI_BOSS_TRANG_TIM) {
+            che = TIM;
+            trang = menu - ConstNpc.THEO_DOI_BOSS_TRANG_TIM;
+        } else if (menu >= ConstNpc.THEO_DOI_BOSS_TRANG_RA) {
+            che = DANG_RA;
+            trang = menu - ConstNpc.THEO_DOI_BOSS_TRANG_RA;
+        } else {
+            che = TAT_CA;
+            trang = menu - ConstNpc.THEO_DOI_BOSS_TRANG;
+        }
         if (trang < 0 || trang > 19) {
             return;
         }
@@ -158,8 +178,52 @@ public class TheoDoiBoss extends Npc {
         if (select < ten.length) {
             xemChiTiet(player, ten[select]);
         } else if (select == ten.length) {
-            moTrang(player, trang + 1, chiRa);
+            moTrang(player, trang + 1, che);
         }
+    }
+
+    /** Bỏ dấu, viết thường — để gõ "cumber" hay "lop truong" đều tìm ra. */
+    private static String khongDau(String t) {
+        if (t == null) {
+            return "";
+        }
+        String s = java.text.Normalizer.normalize(t, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toLowerCase();
+        return s.replace('đ', 'd');
+    }
+
+    /** Người chơi vừa gõ tên boss vào ô tìm. */
+    public static void timTheoTen(Player player, String tuKhoa) {
+        if (player == null) {
+            return;
+        }
+        player.idMark.setTypeInput(-1);
+        String t = tuKhoa == null ? "" : tuKhoa.trim();
+        if (t.isEmpty()) {
+            Service.gI().sendThongBao(player, "Gõ vài chữ trong tên boss đi");
+            return;
+        }
+        TU_KHOA.put(player.id, t);
+        Npc npc = nro.models.map.service.NpcManager.getNpc(ConstNpc.THEO_DOI_BOSS_NPC);
+        if (npc instanceof TheoDoiBoss theoDoi) {
+            theoDoi.moTrang(player, 0, TIM);
+        }
+    }
+
+    /** Lọc danh sách theo chế độ đang xem. */
+    private static List<Dong> loc(Player player, int che) {
+        List<Dong> ra = new ArrayList<>();
+        String tu = che == TIM ? khongDau(TU_KHOA.get(player.id)) : null;
+        for (Dong d : gom()) {
+            if (che == DANG_RA && d.dangRa <= 0) {
+                continue;
+            }
+            if (che == TIM && (tu == null || !khongDau(d.ten).contains(tu))) {
+                continue;
+            }
+            ra.add(d);
+        }
+        return ra;
     }
 
     /**
@@ -169,25 +233,29 @@ public class TheoDoiBoss extends Npc {
      * hơn trăm bản boss, in hết ra là tràn khung và phải cắt bớt ("… và 5 loại nữa"), người chơi
      * không bấm vào con nào được.
      *
-     * @param chiRa true thì chỉ liệt kê con đang đứng ngoài map (kèm tên map trên nút)
+     * <p>Server có khoảng 70 tên boss nên dù xếp 12 con một trang vẫn ra 5–6 trang — vì vậy có
+     * thêm mục <b>Tìm theo tên</b>, gõ vài chữ là ra đúng con cần, khỏi lật trang.
+     *
+     * @param che {@link #TAT_CA}, {@link #DANG_RA} hoặc {@link #TIM}
      */
-    private void moTrang(Player player, int trang, boolean chiRa) {
-        List<Dong> tatCa = gom();
-        List<Dong> ds = new ArrayList<>();
-        for (Dong d : tatCa) {
-            if (!chiRa || d.dangRa > 0) {
-                ds.add(d);
-            }
-        }
+    private void moTrang(Player player, int trang, int che) {
+        List<Dong> ds = loc(player, che);
         if (ds.isEmpty()) {
-            createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                    "Không có con nào ngoài map.\nĐợi giờ đi.", "Đóng");
+            String noiDung = switch (che) {
+                case DANG_RA ->
+                    "Không có con nào ngoài map.\nĐợi giờ đi.";
+                case TIM ->
+                    "Không có con boss nào tên giống\n\"" + TU_KHOA.getOrDefault(player.id, "") + "\".";
+                default ->
+                    "Chưa có boss nào trong bộ nhớ.";
+            };
+            createOtherMenu(player, ConstNpc.IGNORE_MENU, noiDung, "Đóng");
             return;
         }
         int tong = soTrang(ds.size());
         trang = ((trang % tong) + tong) % tong;
         if (trang > 19) {
-            trang = 0;      // dải menu chỉ có 20 ô, quá thì quay về đầu
+            trang = 0;      // mỗi dải menu chỉ có 20 ô, quá thì quay về đầu
         }
         int dau = trang * MOI_TRANG;
         int cuoi = Math.min(dau + MOI_TRANG, ds.size());
@@ -197,32 +265,47 @@ public class TheoDoiBoss extends Npc {
         for (int i = dau; i < cuoi; i++) {
             Dong d = ds.get(i);
             ten.add(d.ten);
-            if (chiRa) {
+            if (d.dangRa > 0) {
                 String map = d.map.isEmpty() ? "?" : d.map.get(0);
                 muc.add(d.ten + (d.dangRa > 1 ? " x" + d.dangRa : "") + "\n" + map);
             } else {
-                muc.add((d.dangRa > 0 ? "● " : "○ ") + d.ten);
+                muc.add(d.ten + "\nđang nghỉ");
             }
         }
         if (tong > 1) {
             muc.add("Xem tiếp\n(trang " + (trang + 2 > tong ? 1 : trang + 2) + "/" + tong + ")");
         }
         muc.add("Đóng");
-        createOtherMenu(player,
-                (chiRa ? ConstNpc.THEO_DOI_BOSS_TRANG_RA : ConstNpc.THEO_DOI_BOSS_TRANG) + trang,
-                (chiRa ? "BOSS ĐANG RA MAP" : "TẤT CẢ BOSS") + "\nTrang " + (trang + 1) + "/" + tong
-                + (chiRa ? "" : "\n● đang ra map   ○ đang nghỉ"),
+
+        int goc = switch (che) {
+            case DANG_RA ->
+                ConstNpc.THEO_DOI_BOSS_TRANG_RA;
+            case TIM ->
+                ConstNpc.THEO_DOI_BOSS_TRANG_TIM;
+            default ->
+                ConstNpc.THEO_DOI_BOSS_TRANG;
+        };
+        String tieuDe = switch (che) {
+            case DANG_RA ->
+                "BOSS ĐANG RA MAP";
+            case TIM ->
+                "TÌM: " + TU_KHOA.getOrDefault(player.id, "");
+            default ->
+                "TẤT CẢ BOSS";
+        };
+        createOtherMenu(player, goc + trang,
+                tieuDe + "\n" + ds.size() + " con — trang " + (trang + 1) + "/" + tong,
                 muc.toArray(new String[0]), ten.toArray(new String[0]));
     }
 
     /**
-     * Chi tiết một boss. Bảng rơi hiện bằng <b>giao diện tiệm</b> (icon + tên vật phẩm + dòng
-     * chữ màu), không phải chữ chay: {@link ShopService#moBangXem} dựng khung "chỉ để xem",
-     * bấm vào dòng nào cũng không nhận được gì.
+     * Chi tiết một boss. Bảng rơi hiện bằng <b>giao diện tiệm</b> (icon + tên vật phẩm), không
+     * phải chữ chay: {@link ShopService#moBangXem} dựng khung "chỉ để xem", bấm vào dòng nào
+     * cũng không nhận được gì.
      *
      * <p>Tên boss và map nằm ở <b>chữ trên nút tab</b> — trong gói tin tiệm, tiêu đề mỗi dòng
      * bắt buộc là TÊN VẬT PHẨM (client tra từ item_template), nên không đặt tên boss vào dòng
-     * được; chỗ đặt chữ tự do duy nhất là tên tab và dòng chữ màu của từng dòng.
+     * được; chỗ đặt chữ tự do duy nhất là tên tab.
      */
     private void xemChiTiet(Player player, String tenBoss) {
         Dong d = null;
@@ -257,7 +340,6 @@ public class TheoDoiBoss extends Npc {
             createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Đóng");
             return;
         }
-        sb.append("\nBấm xem bảng đồ rơi bên dưới.");
         moBangDoRoi(player, d, bang);
     }
 

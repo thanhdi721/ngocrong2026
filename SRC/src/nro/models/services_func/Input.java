@@ -67,6 +67,8 @@ public class Input {
     public static final int DISSOLUTION_CLAN = 513;
     public static final int TANG_NGOC_HONG = 5140; // FIX: trước đây trùng 514 với SELECT_LUCKYNUMBER
     public static final int SELECT_LUCKYNUMBER = 514;
+    /** Ô nhập tên boss của NPC Theo Dõi Boss (npc_list/TheoDoiBoss). */
+    public static final int TIM_BOSS = 515;
     public static final byte NUMERIC = 0;
     public static final byte ANY = 1;
     public static final byte NUMBER = 81;
@@ -382,6 +384,8 @@ public class Input {
                     Service.gI().changePassword(player, text[0], text[1], text[2]);
                 case GIFT_CODE ->
                     GiftCodeService.gI().giftCode(player, text[0]);
+                case TIM_BOSS ->
+                    nro.models.npc_list.TheoDoiBoss.timTheoTen(player, text[0]);
                 case FIND_PLAYER -> {
                     Player pl = Client.gI().getPlayer(text[0]);
                     if (pl != null) {
@@ -751,6 +755,11 @@ public class Input {
 
     public void createFormGetItem(Player pl) {
         createForm(pl, GET_IT, "Get vật phẩm", new SubInput("Id Item", ANY), new SubInput("ID OPTION", ANY), new SubInput("PARAM", ANY), new SubInput("Số lượng", ANY));
+    }
+
+    /** Ô nhập tên boss — kết quả do TheoDoiBoss dựng. */
+    public void createFormTimBoss(Player pl) {
+        createForm(pl, TIM_BOSS, "Tìm boss", new SubInput("Tên boss (gõ vài chữ cũng được)", ANY));
     }
 
     public void createFormGiftCode(Player pl) {

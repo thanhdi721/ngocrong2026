@@ -417,5 +417,7 @@ public class ConstNpc {
      * Dải 1060…1079 dành riêng.
      */
     public static final int THEO_DOI_BOSS_TRANG_RA = 1060;
+    /** Cùng kiểu trên nhưng cho kết quả tìm boss theo tên. Dải 1080…1099 dành riêng. */
+    public static final int THEO_DOI_BOSS_TRANG_TIM = 1080;
 
 }

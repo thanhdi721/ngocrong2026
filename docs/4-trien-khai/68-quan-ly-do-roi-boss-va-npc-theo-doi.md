@@ -106,17 +106,28 @@ chung vượt 100 %** (những dòng cuối nhóm sẽ không bao giờ trúng).
 
 | Mục | Nội dung |
 |---|---|
-| **Boss đang ra map** | **menu nhiều trang**, mỗi nút một con kèm **tên map** ngay dưới tên |
-| **Danh sách tất cả** | **menu nhiều trang**, `●` đang ra map / `○` đang nghỉ, 8 con một trang |
-| *(bấm vào một con)* | trạng thái, map đang ở, máu, và **bảng rơi kèm tỉ lệ** |
+| **Boss đang ra map** | menu nhiều trang, mỗi nút một con kèm **tên map** ngay dưới tên |
+| **Tìm theo tên** | ô nhập chữ — gõ vài chữ là ra đúng con cần, **khỏi lật trang** |
+| **Danh sách tất cả** | menu nhiều trang, **12 con một trang**, nút ghi rõ map hoặc "đang nghỉ" |
+| *(bấm vào một con)* | trạng thái, map đang ở, máu, và **bảng đồ rơi kiểu tiệm** |
+
+Ô tìm bỏ dấu và không phân biệt hoa thường, nên gõ `cumber`, `lop truong` hay `LỐP` đều ra.
 
 Bảng rơi hiện ở đây đọc **thẳng từ `BangRoiBoss.xem()`** (gốc + thêm) — tức đúng bảng mà quản trị vừa sửa ở
 cpanel, không phải bảng chép tay nên không bao giờ lệch.
 
-> Cả hai danh sách đều là **menu nhiều trang**, không phải một khối chữ. Server có hơn trăm bản
-> boss — in hết ra là tràn khung, phải cắt bớt ("… và 5 loại nữa") và người chơi không bấm vào
-> con nào được. Hai dải menu riêng: `THEO_DOI_BOSS_TRANG` 1040–1059 cho danh sách tất cả,
-> `THEO_DOI_BOSS_TRANG_RA` 1060–1079 cho danh sách đang ra map.
+> **Vì sao danh sách boss là menu chứ không phải khung tiệm.** Trong gói tin tiệm, tiêu đề mỗi
+> dòng **bắt buộc** là tên vật phẩm — client tra `item_template` theo id, server không gửi được
+> chữ tự do cho dòng (chuỗi `writeUTF` của gói type 4 không hiện ra trong danh sách, đã thử).
+> Muốn mỗi dòng mang tên một con boss thì phải đẻ ra **khoảng 70 vật phẩm giả** (server có chừng
+> ấy tên boss), trong khi ngân sách gói tin vật phẩm **chỉ còn chỗ cho ~41 món**. Không đủ, và
+> cũng không nên đốt ngân sách vĩnh viễn cho một danh sách.
+>
+> Bù lại: mỗi trang xếp **12 con** (trước là 8) và có thêm **ô tìm theo tên**, nên không phải
+> lật 9 trang để kiếm một con nữa.
+>
+> Ba dải menu riêng: `THEO_DOI_BOSS_TRANG` 1040–1059 (tất cả), `…_TRANG_RA` 1060–1079 (đang ra
+> map), `…_TRANG_TIM` 1080–1099 (kết quả tìm). Ô nhập dùng `Input.TIM_BOSS` = 515.
 
 ### Bảng đồ rơi hiện bằng giao diện TIỆM, không phải chữ chay
 
