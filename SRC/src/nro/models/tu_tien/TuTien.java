@@ -8,7 +8,12 @@ import nro.models.map.service.ChangeMapService;
 import nro.models.mob.Mob;
 import nro.models.player.Player;
 import nro.models.server.Manager;
+import nro.models.services.InventoryService;
+import nro.models.services.ItemService;
 import nro.models.services.Service;
+import nro.models.shop.ItemShop;
+import nro.models.shop.Shop;
+import nro.models.shop.TabShop;
 import nro.models.utils.Logger;
 import nro.models.utils.Util;
 
@@ -76,6 +81,159 @@ public final class TuTien {
             }
         }
         return false;
+    }
+
+    //========================= tiệm Tu Tiên =========================
+    /** Số hiệu ba tab của tiệm. Dải riêng 90–92, không đụng tab nào sẵn có (10–13, 17, 19, 30, 41–45). */
+    public static final int TAB_DAN = 90;
+    public static final int TAB_NGOC_BOI = 91;
+    public static final int TAB_BUA = 92;
+
+    public static boolean laTabTuTien(int tabId) {
+        return tabId == TAB_DAN || tabId == TAB_NGOC_BOI || tabId == TAB_BUA;
+    }
+
+    /** {id vật phẩm, id dòng chỉ số, giá trị} của ba viên ngọc bội. */
+    private static final int[][] CHI_SO_NGOC_BOI = {
+        {NGOC_BOI_HP, 6, 10000},
+        {NGOC_BOI_KI, 7, 10000},
+        {NGOC_BOI_SUC_DANH, 0, 5000}
+    };
+
+    /**
+     * Dựng và mở tiệm Tu Tiên bằng <b>đúng gói tin tiệm</b> (icon, tên, giá, dòng chữ xanh),
+     * không phải menu chữ.
+     *
+     * <p>Giá hiện ở cột ngọc vì gói tin tiệm chỉ có hai ô tiền (vàng / ngọc). Đơn vị thật ghi
+     * ngay trên <b>tên tab</b> — "Đan 50 LT", "Ngọc bội 200 LT", "Tụ Linh Phù 5 thỏi vàng" —
+     * và {@link #mua} trừ đúng Linh Thạch / thỏi vàng chứ không đụng tới ngọc.
+     */
+    public static void moTiem(Player pl) {
+        if (pl == null) {
+            return;
+        }
+        try {
+            Shop shop = new Shop();
+            shop.tagName = "TU_TIEN";
+            shop.typeShop = 0;                  // NORMAL_SHOP
+            shop.npcId = nro.models.consts.ConstNpc.TU_TIEN;
+
+            shop.tabShops.add(tab(shop, TAB_DAN, "Đan\n" + GIA_DAN + " LT",
+                    new int[]{DAN_SUC_DANH, DAN_HP, DAN_KI, DAN_GIAP, DAN_CHI_MANG}, GIA_DAN));
+            shop.tabShops.add(tabNgocBoi(shop));
+            shop.tabShops.add(tab(shop, TAB_BUA,
+                    "Tụ Linh Phù\n" + GIA_BUA_THOI_VANG + " thỏi vàng",
+                    new int[]{TU_LINH_PHU}, GIA_BUA_THOI_VANG));
+
+            nro.models.shop.ShopService.gI().moTiemDungSan(pl, shop);
+        } catch (Exception e) {
+            Logger.error("Khong mo duoc tiem Tu Tien: " + e + "\n");
+            Service.gI().sendThongBao(pl, "Tiệm đang dọn hàng, thử lại sau.");
+        }
+    }
+
+    private static TabShop tab(Shop shop, int id, String ten, int[] ids, int gia) {
+        TabShop t = new TabShop();
+        t.shop = shop;
+        t.id = id;
+        t.name = ten;
+        for (int idVatPham : ids) {
+            ItemShop is = dongHang(t, idVatPham, gia);
+            if (is != null) {
+                if (id == TAB_BUA) {
+                    is.options.add(new Item.ItemOption(30, 0));   // hiện "Không thể giao dịch"
+                }
+                t.itemShops.add(is);
+            }
+        }
+        return t;
+    }
+
+    private static TabShop tabNgocBoi(Shop shop) {
+        TabShop t = new TabShop();
+        t.shop = shop;
+        t.id = TAB_NGOC_BOI;
+        t.name = "Ngọc bội\n" + GIA_NGOC_BOI + " LT";
+        for (int[] ds : CHI_SO_NGOC_BOI) {
+            ItemShop is = dongHang(t, ds[0], GIA_NGOC_BOI);
+            if (is != null) {
+                is.options.add(new Item.ItemOption(ds[1], ds[2]));   // HP+ / KI+ / Tấn công+
+                is.options.add(new Item.ItemOption(30, 0));          // Không thể giao dịch
+                t.itemShops.add(is);
+            }
+        }
+        return t;
+    }
+
+    private static ItemShop dongHang(TabShop tab, int idVatPham, int gia) {
+        if (idVatPham < 0 || idVatPham >= Manager.ITEM_TEMPLATES.size()) {
+            return null;        // chưa chạy patch 83
+        }
+        ItemShop is = new ItemShop();
+        is.tabShop = tab;
+        is.id = idVatPham;
+        is.temp = Manager.ITEM_TEMPLATES.get(idVatPham);
+        is.typeSell = 1;        // COST_GEM — chỉ để CHỖ HIỆN SỐ, tiền thật trừ ở mua()
+        is.cost = gia;
+        return is;
+    }
+
+    /**
+     * Mua một món ở tiệm Tu Tiên. Gọi từ {@code ShopService.buyItem}, đã chặn trước khi lọt
+     * sang luồng trừ vàng/ngọc.
+     */
+    public static void mua(Player pl, ItemShop is) {
+        if (pl == null || is == null || is.temp == null) {
+            return;
+        }
+        int id = is.temp.id;
+        boolean traBangThoiVang = is.tabShop.id == TAB_BUA;
+        int gia = is.cost;
+
+        // 1) Dựng món trước, chưa trừ tiền — hỏng ở đâu thì người chơi chưa mất gì.
+        Item it = ItemService.gI().createNewItem((short) id);
+        if (it == null || it.template == null) {
+            Service.gI().sendThongBao(pl, "Vật phẩm chưa có trong cơ sở dữ liệu.");
+            return;
+        }
+        it.quantity = 1;
+        it.itemOptions.clear();
+        if (is.tabShop.id == TAB_NGOC_BOI) {
+            for (int[] ds : CHI_SO_NGOC_BOI) {
+                if (ds[0] == id) {
+                    it.itemOptions.add(new Item.ItemOption(ds[1], ds[2]));
+                    break;
+                }
+            }
+            it.itemOptions.add(new Item.ItemOption(30, 0));      // khóa giao dịch
+            if (Util.isTrue(10, 100)) {
+                it.itemOptions.add(new Item.ItemOption(73, 0));  // 10% vĩnh viễn
+            } else {
+                it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 3)));
+            }
+        } else if (traBangThoiVang) {
+            it.itemOptions.add(new Item.ItemOption(30, 0));      // bùa: khóa giao dịch
+        }
+        // Đan là món DUY NHẤT được giao dịch nên không gắn dòng khóa.
+
+        // 2) Đủ tiền chưa.
+        int idTien = traBangThoiVang ? ID_THOI_VANG : LINH_THACH;
+        String tenTien = traBangThoiVang ? "thỏi vàng" : "Linh Thạch";
+        Item tien = InventoryService.gI().findItemBag(pl, idTien);
+        if (tien == null || tien.quantity < gia) {
+            Service.gI().sendThongBao(pl, "Cần " + gia + " " + tenTien + ", đang có "
+                    + (tien == null ? 0 : tien.quantity) + ".");
+            return;
+        }
+
+        // 3) Nhét vào túi TRƯỚC, nhét được mới trừ tiền — không bao giờ mất tiền hụt đồ.
+        if (!InventoryService.gI().addItemBag(pl, it)) {
+            Service.gI().sendThongBao(pl, "Hành trang đã đầy.");
+            return;
+        }
+        InventoryService.gI().subQuantityItemsBag(pl, tien, gia);
+        InventoryService.gI().sendItemBags(pl);
+        Service.gI().sendThongBao(pl, "Nhận " + it.template.name + ".");
     }
 
     //========================= nhận biết map =========================

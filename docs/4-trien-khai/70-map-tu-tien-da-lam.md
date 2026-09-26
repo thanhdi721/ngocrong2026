@@ -129,17 +129,35 @@ cơ chế HSD sẵn có, `ItemService.isOutOfDateTime` tự trừ ngày và xoá
 đúng 70 px > bán kính 60 px của `Map.getNpc` nên bấm không lộn NPC. Ngoại hình cải trang
 **"Goku Thiên Sứ"** (part 2580/2581/2582), avatar 19479.
 
-Menu: **Vào map tu tiên · Shop tu tiên · Đóng**. Shop chia ba mục: Đan dược · Ngọc bội · Tụ Linh Phù.
+Menu chỉ có ba nút: **Vào map tu tiên · Shop tu tiên · Đóng**.
 
-### Vì sao tiệm dựng bằng menu chứ không dùng gói tin tiệm
+### Tiệm dùng ĐÚNG giao diện tiệm của client
 
-Gói tiệm bắt buộc đăng ký `idMark.setShopOpen` rồi đi qua `ShopService.buyItem`, mà món ở đây
-trả bằng **Linh Thạch** chứ không phải vàng/ngọc — nhét vào đó vừa rối vừa dễ hở đường mua lậu.
-Trừ tiền và trao đồ ngay trong NPC thì kiểm soát được từng bước, và **có hoàn tiền**: trừ Linh
-Thạch xong mà hành trang đầy hoặc vật phẩm chưa có trong CSDL thì trả lại ngay, không để người
-chơi mất trắng.
+`TuTien.moTiem` dựng một `Shop` ngay trong code (không lấy từ bảng `shop` của CSDL) rồi gửi
+bằng gói tin tiệm chuẩn — **icon thật, tên, giá, dòng chữ xanh**, y như tiệm Mr. Satan.
 
-Tụ Linh Phù trả bằng **5 thỏi vàng**, và ở đây trừ tiền **sau** khi chắc chắn nhét được vào túi.
+Ba tab:
+
+| Tab | id | Hàng |
+|---|---|---|
+| `Đan / 50 LT` | 90 | 5 viên đan |
+| `Ngọc bội / 200 LT` | 91 | 3 viên ngọc bội (hiện sẵn `HP+10000`, `Không thể giao dịch`) |
+| `Tụ Linh Phù / 5 thỏi vàng` | 92 | bùa |
+
+**Trả tiền**: gói tin tiệm chỉ có hai ô tiền (vàng / ngọc), không có ô nào cho Linh Thạch. Nên
+số tiền hiện ở **cột ngọc**, còn **đơn vị thật ghi ngay trên tên tab**. Khi bấm mua,
+`ShopService.buyItem` **chặn lại trước khi lọt sang luồng trừ vàng/ngọc** và gọi `TuTien.mua`
+— giống hệt cách tab 30 (phiếu giảm giá) và tab 44 (danh hiệu) đang làm. **Ngọc xanh của người
+chơi không bao giờ bị đụng tới.**
+
+Ba chốt an toàn:
+
+* Chỉ mua được món **có thật trong tiệm server vừa gửi** (`shop.getItemShop`), client không
+  gửi id tuỳ ý được.
+* **Giá đọc từ đối tượng tiệm của server**, không nhận từ client.
+* **Nhét vào túi trước, nhét được mới trừ tiền** — không có đường nào mất tiền mà hụt đồ.
+
+Tab id 90–92 là dải riêng, không đụng tab nào sẵn có (10–13, 17, 19, 30, 41–45).
 
 ## 6. Ba núm chỉnh trong cpanel — tab "Rơi đồ boss"
 

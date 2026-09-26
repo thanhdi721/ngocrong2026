@@ -168,6 +168,16 @@ public class ShopService {
         return s;
     }
 
+    /**
+     * Mở một tiệm <b>dựng sẵn trong code</b> (không lấy từ bảng `shop` của CSDL).
+     *
+     * <p>Dùng cho tiệm Tu Tiên: hàng trả bằng <b>Linh Thạch</b> nên không nhét vào bảng `shop`
+     * được, nhưng vẫn muốn đúng giao diện tiệm thay vì menu chữ.
+     */
+    public void moTiemDungSan(Player player, Shop shop) {
+        openShopType0(player, shop);
+    }
+
     private void openShopType0(Player player, Shop shop) {
         if (shop != null) {
             player.idMark.setShopOpen(shop);
@@ -735,6 +745,13 @@ public class ShopService {
 
         if (is == null) {
             Service.gI().sendThongBao(player, "Không thể thực hiện");
+            return;
+        }
+
+        // Tiệm Tu Tiên: trả bằng Linh Thạch / thỏi vàng, KHÔNG đi qua luồng vàng-ngọc bên
+        // dưới. Chặn ngay đây giống cách tab 30 (phiếu giảm giá) và tab 44 (danh hiệu) làm.
+        if (nro.models.tu_tien.TuTien.laTabTuTien(is.tabShop.id)) {
+            nro.models.tu_tien.TuTien.mua(player, is);
             return;
         }
 

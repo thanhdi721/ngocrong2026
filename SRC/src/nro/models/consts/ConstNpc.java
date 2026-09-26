@@ -424,9 +424,10 @@ public class ConstNpc {
     public static final int THEO_DOI_BOSS_TRANG_TIM = 1080;
 
     //---------------------- NPC Tu Tiên (npc_list/TuTienNPC) ----------------------
+    /**
+     * Menu gốc, chỉ có hai mục. Tiệm KHÔNG dùng menu mà mở bằng đúng gói tin tiệm
+     * (xem {@code tu_tien.TuTien.moTiem}), nên không cần thêm số hiệu menu nào nữa.
+     */
     public static final int TU_TIEN_MENU = 1100;
-    public static final int TU_TIEN_SHOP = 1101;
-    public static final int TU_TIEN_DAN = 1102;
-    public static final int TU_TIEN_NGOC_BOI = 1103;
 
 }
