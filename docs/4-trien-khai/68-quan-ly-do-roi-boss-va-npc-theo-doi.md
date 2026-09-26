@@ -124,16 +124,38 @@ một vật phẩm thật, kèm chữ "1 trong 3 món — 40%".
 Boss chưa khai báo dòng nào thì ghi thật thà: *"Chưa khai báo bảng rơi. Con này rơi theo luật
 riêng của nó."*
 
-## 5. Kiểm tra đã làm
+## 5. Sửa lỗi "nút bị ẩn" ở cpanel
 
-* Biên dịch sạch **JDK 21**, 694 file class.
+`SRC/src/nro/models/cpanel/WrapLayout.java`
+
+Tab **Boss** giờ có 7 nút thao tác. `FlowLayout` gốc vẫn xếp tất cả thành **một hàng** khi tính
+kích thước mong muốn, mà panel lại nằm trong `BorderLayout.NORTH` nên chỉ cao đúng một hàng:
+nút nào vượt quá bề ngang cửa sổ là **bị cắt mất, không bấm được**.
+
+Thay bằng `WrapLayout` — bản `FlowLayout` biết xuống dòng, tính lại chiều cao theo bề ngang
+thật của khung chứa. Đã đổi cho cả 8 panel nút của cpanel (`BossTab`, `BossDropTab`,
+`BossDropTableDialog`, `AccountTab`, `CharacterTab`, `GoldDropTab`, `OnlineTab`,
+`BossTuneDialog`) để sau này thêm nút nữa cũng không tái diễn.
+
+Đo lại bằng script (dựng đúng panel đó rồi kiểm tra biên từng nút):
+
+| Panel | Bề ngang | FlowLayout cũ | WrapLayout mới |
+|---|---|---|---|
+| Tab Boss (7 nút) | 1100 px | **3 nút bị cắt** | đủ (panel cao 96 px thay vì 63) |
+| Tab Boss (7 nút) | 860 px | **4 nút bị cắt** | đủ |
+| Rơi đồ boss (6 nút) | 860 px | **1 nút bị cắt** | đủ |
+| Bảng đồ rơi (6 nút) | 860 px | **1 nút bị cắt** | đủ |
+
+## 6. Kiểm tra đã làm
+
+* Biên dịch sạch **JDK 21**, 695 file class.
 * Script rà lại toàn bộ 179 file boss: **0 lớp** lọt lưới bảng rơi.
 * Dựng CSDL nháp từ dump + toàn bộ patch (bỏ `36-go-vat-pham-ngol.sql` — file lùi lại),
   patch 80 chạy sạch, 4/4 mục kiểm tra `= 1`, avatar tra ra đúng 18516.
 * Part 2448 / 2449 / 2450 đủ mảnh, không thiếu file icon nào ở cả 4 mức phóng to.
 * Tile map 5 tại (914, 408): nền đặc, cùng bệ với Santa.
 
-## 6. Việc người vận hành phải làm
+## 7. Việc người vận hành phải làm
 
 1. Tắt server.
 2. `mysqldump -u root -p team2026 npc_template map_template item_option_template > backup_80.sql`

@@ -60,7 +60,7 @@ final class BossDropTab extends JPanel {
             luoi.add(new JLabel(dsChu[i].chuThich));
         }
 
-        JPanel nut = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        JPanel nut = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 8));
         JButton apDung = new JButton("Áp dụng ngay");
         JButton luu = new JButton("Áp dụng và lưu vào file");
         JButton docLai = new JButton("Đọc lại giá trị đang chạy");
@@ -111,7 +111,7 @@ final class BossDropTab extends JPanel {
                 + "• Tỉ lệ vàng quái rơi nằm ở tab \"Vàng rơi\"; máu và sát thương từng boss nằm ở tab \"Boss\".");
 
         JPanel duoi = new JPanel(new BorderLayout());
-        JPanel tt = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        JPanel tt = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 4));
         tt.add(new JLabel("Lốp Trưởng:"));
         tt.add(trangThai);
         duoi.add(tt, BorderLayout.NORTH);

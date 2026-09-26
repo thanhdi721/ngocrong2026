@@ -45,7 +45,7 @@ final class BossTab extends JPanel {
         super(new BorderLayout(6, 6));
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        JPanel top = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 8));
         top.setBorder(BorderFactory.createTitledBorder("Lọc (tự làm mới mỗi 3 giây)"));
         top.add(new JLabel("Tên boss hoặc số map:"));
         top.add(txtFilter);
@@ -54,7 +54,7 @@ final class BossTab extends JPanel {
         top.add(btnRefresh);
         top.add(lblCount);
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        JPanel actions = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 8));
         actions.setBorder(BorderFactory.createTitledBorder("Thao tác"));
         JButton btnRespawn = new JButton("Hồi sinh ngay (boss đã chọn)");
         JButton btnLeave = new JButton("Ép biến mất (cho nghỉ)");

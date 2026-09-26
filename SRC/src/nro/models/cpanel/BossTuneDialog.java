@@ -79,7 +79,7 @@ final class BossTuneDialog extends JDialog {
                 + "• Máu gốc của vài boss là một dải ngẫu nhiên; đặt số ở đây là cố định đúng một mức máu.\n"
                 + "• \"Áp dụng\" chỉ có hiệu lực tới lần khởi động lại; muốn giữ lâu dài thì bấm \"Áp dụng và lưu\".");
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8));
+        JPanel actions = new JPanel(new WrapLayout(FlowLayout.RIGHT, 8, 8));
         JButton btnApply = new JButton("Áp dụng");
         JButton btnSave = new JButton("Áp dụng và lưu");
         JButton btnReset = new JButton("Bỏ chỉnh số của boss này");

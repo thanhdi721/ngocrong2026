@@ -66,7 +66,7 @@ final class BossDropTableDialog extends JDialog {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowHeight(22);
 
-        JPanel nut = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        JPanel nut = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 8));
         JButton them = new JButton("Thêm dòng");
         JButton xoa = new JButton("Xoá dòng đã chọn");
         JButton apDung = new JButton("Áp dụng ngay");

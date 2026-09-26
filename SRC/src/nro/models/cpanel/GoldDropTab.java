@@ -60,7 +60,7 @@ final class GoldDropTab extends JPanel {
             grid.add(est[i]);
         }
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        JPanel actions = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 8));
         JButton btnApply = new JButton("Áp dụng ngay");
         JButton btnSave = new JButton("Áp dụng và lưu vào file");
         JButton btnReload = new JButton("Đọc lại giá trị đang chạy");

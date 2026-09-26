@@ -57,7 +57,7 @@ final class CharacterTab extends JPanel {
         super(new BorderLayout(6, 6));
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel top = new JPanel(new WrapLayout(FlowLayout.LEFT));
         top.add(new JLabel("Tên nhân vật:"));
         top.add(searchField);
         JButton btnSearch = new JButton("Tìm");
