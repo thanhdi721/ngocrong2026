@@ -11,7 +11,7 @@ import nro.models.tu_tien.LuyenDan;
  * NPC "Lò Luyện Đan" ở đảo Kamê (map 5) — NPC dạng <b>vật thể</b>, không phải người.
  *
  * <p>Ngoại hình dựng theo đúng cách của "Cây thông Noel" (npc 79): part đầu vẽ một icon to
- * (icon 33001, ảnh lò), part thân và chân để trong suốt. Xem patch 84 khối (2b).
+ * (icon 32700, ảnh lò), part thân và chân để trong suốt. Xem patch 84 khối (2b).
  *
  * <p>Ba menu: chọn công thức → xem nguyên liệu và tỉ lệ → luyện. Toàn bộ luật nằm ở
  * {@link LuyenDan}, lớp này chỉ lo phần bấm nút.

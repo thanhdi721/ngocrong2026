@@ -188,14 +188,20 @@ rồi kẹp tại `Integer.MAX_VALUE`. Lỗi này có sẵn từ patch 83, khôn
 NPC dạng **vật thể**, không phải người — dựng y hệt "Cây thông Noel" (npc 79):
 
 ```
-part 2658 (đầu):  [[2955,0,0],[33001,0,0],[2955,0,0]]
+part 2658 (đầu):  [[2955,0,0],[32700,0,0],[2955,0,0]]
 part 2659 (thân): 17 mảnh 2955 (trong suốt)
 part 2660 (chân): 14 mảnh 2955
 ```
 
-Icon **33001** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO) phóng lên đúng khung
+Icon **32700** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO) phóng lên đúng khung
 36×50 / 73×100 / 109×150 / 146×200 — **trùng khít** khung của icon 15041 (cây thông), nên toạ độ
 trong part lấy nguyên và chắc chắn không lệch chân.
+
+> **Id icon trong `part` không được vượt 32.767.** `Manager.loadDatabase` đọc nó bằng
+> `Short.parseShort`, id lớn hơn là văng `NumberFormatException` ngay lúc nạp CSDL và **server
+> không lên được**. Bản đầu tôi đặt 33001 và dính đúng lỗi này. Icon lớn nhất đang có trong res
+> là 32667, nên 32700 là ô trống an toàn. `Manager.checkMissingIcons` nay cũng cảnh báo trước
+> nếu có id vượt ngưỡng.
 
 Chỗ đứng: **map 5, x = 170, y = 288**. Thềm trên đảo Kamê là cột 0..19 của lưới ô 24 px
 (x = 0..479); trên đó đã có NPC 81 (240), 86 (310), 87 (380), 89 (450) cách nhau đúng 70 px,
@@ -216,7 +222,7 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 * `src/nro/models/npc_list/LoLuyenDan.java` — NPC 90
 * `src/nro/models/boss/tay_du/BossTayDu.java` — hai boss Tây Du
 * `sql/patch/84-luyen-dan.sql`
-* 14 icon + icon 33001 trong `data/icon/x1..x4`
+* 14 icon + icon 32700 (ảnh lò) trong `data/icon/x1..x4`
 
 **Mới (patch 85)**
 

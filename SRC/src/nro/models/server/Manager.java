@@ -316,9 +316,13 @@ public final class Manager {
     private static void checkMissingIcons() {
         try {
             List<Integer> missing = new ArrayList<>();
+            List<Integer> quaLon = new ArrayList<>();
             for (Integer id : ICON_REFS.keySet()) {
                 if (id == null || id < 0) {
                     continue;
+                }
+                if (id > Short.MAX_VALUE) {
+                    quaLon.add(id);
                 }
                 boolean found = false;
                 for (int z = 1; z <= 4 && !found; z++) {
@@ -328,8 +332,24 @@ public final class Manager {
                     missing.add(id);
                 }
             }
+            if (!quaLon.isEmpty()) {
+                // `part`.`DATA` và gói tin đều ghi icon bằng short. Id vượt 32.767 làm
+                // Short.parseShort trong loadDatabase văng NumberFormatException và SERVER
+                // KHÔNG LÊN ĐƯỢC. Báo rõ ở đây để biết ngay phải sửa id nào.
+                Collections.sort(quaLon);
+                StringBuilder sb = new StringBuilder("Kiểm tra icon: " + quaLon.size()
+                        + " icon có id VƯỢT " + Short.MAX_VALUE
+                        + " — part ghi icon bằng short, phải đánh số lại:\n");
+                for (int i = 0; i < quaLon.size() && i < 50; i++) {
+                    sb.append("  icon ").append(quaLon.get(i)).append(" <- ")
+                            .append(ICON_REFS.get(quaLon.get(i))).append('\n');
+                }
+                Logger.error(sb.toString());
+            }
             if (missing.isEmpty()) {
-                Logger.success("Kiểm tra icon: mọi icon trong dữ liệu đều có file ảnh\n");
+                if (quaLon.isEmpty()) {
+                    Logger.success("Kiểm tra icon: mọi icon trong dữ liệu đều có file ảnh\n");
+                }
                 return;
             }
             Collections.sort(missing);
