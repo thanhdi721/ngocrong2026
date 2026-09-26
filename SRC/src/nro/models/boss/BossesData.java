@@ -1051,6 +1051,40 @@ public class BossesData {
             REST_10_M //second rest
     );
 
+    //========================LÃO DÊ HỒI XUÂN (triệu hồi bằng Còi)========================
+    // Ngoại hình lấy từ cải trang "Quy Lão Hồi Xuân" (item 2142, part 2424 / 2425 / 2426,
+    // mang về từ SUMO ở patch 67) — chưa con boss nào dùng. Hào quang 109 Hồng Vân cho
+    // đúng chất dê cụ. Máu / sát thương / bộ chiêu để bằng đúng bộ Siêu Thần God vì bảng
+    // rơi đồ của cả ba con là một (xem boss/sieu_than_god/BangRoi).
+    // Map ghi {5} chỉ để khung gốc có chỗ bám — con này luôn ra đúng khu người thổi còi
+    // đang đứng, không bao giờ tự bốc map.
+    public static final BossData LAO_DE_HOI_XUAN = new BossData(
+            "Lão Dê Hồi Xuân", //name
+            ConstPlayer.TRAI_DAT, //gender
+            new short[]{2424, 2425, 2426, -1, 109, -1}, //outfit {head, body, leg, bag, aura, eff}
+            50_000, //dame
+            new int[]{500_000_000}, //hp
+            new int[]{5}, //map join — không dùng tới, xem BossLaoDe.joinMap
+            new int[][]{
+                {Skill.THAI_DUONG_HA_SAN, 7, 300000},
+                {Skill.TAI_TAO_NANG_LUONG, 7, 300000},
+                {Skill.KHIEN_NANG_LUONG, 7, 300000},
+                {Skill.KAMEJOKO, 7, 100},
+                {Skill.GALICK, 7, 100}},
+            //skill
+            new String[]{"|-1|Ai gọi lão đấy? Lão đang ngủ trưa mà",
+                "|-1|Hừm... toàn đứa trẻ trâu, chán",
+                "|-1|Thôi được, lão hồi xuân một trận cho biết"
+            }, //text chat 1
+            new String[]{"|-1|Đấm nhẹ thôi, lão có tuổi rồi",
+                "|-1|Hồi lão bằng tuổi bay, lão đánh mười đứa",
+                "|-1|Đứng yên cho lão nhìn cái đã",
+                "|-1|Kính lão đắc thọ, không biết à?"
+            }, //text chat 2
+            new String[]{"|-1|Thôi... lão về ngủ tiếp đây..."}, //text chat 3
+            REST_30_M //second rest — không dùng tới, con này chỉ ra khi có người thổi còi
+    );
+
     //========================CUMBER========================
     public static final BossData CUMBER = new BossData(
             "Cumber", //name

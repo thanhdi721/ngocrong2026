@@ -309,6 +309,17 @@ public class UseItem {
                             break;
                         }
                         switch (item.template.id) {
+                            case 2265: { // Còi Triệu Hồi Lão Dê
+                                String loi = nro.models.boss.lao_de.BossLaoDe.trieuHoi(pl);
+                                if (loi != null) {
+                                    Service.gI().sendThongBao(pl, loi);
+                                    break;      // thổi hụt thì KHÔNG mất còi
+                                }
+                                InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                                InventoryService.gI().sendItemBags(pl);
+                                Service.gI().chat(pl, "Tu... tu... tuuuuu!");
+                                break;
+                            }
                             case 992: // Nhan thoi khong
                                 pl.type = 2;
                                 pl.maxTime = 5;

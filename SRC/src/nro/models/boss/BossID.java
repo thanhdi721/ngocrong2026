@@ -232,6 +232,10 @@ public class BossID {
     public static final int VEGETA_SIEU_THAN_GOD = -2212;
     public static final int GOKU_SIEU_THAN_GOD = -2213;
 
+    // Lão Dê Hồi Xuân — không tự ra map, chỉ hiện khi có người thổi Còi Triệu Hồi
+    // (vật phẩm 2265). Xem boss/lao_de/BossLaoDe.
+    public static final int LAO_DE_HOI_XUAN = -2214;
+
     public static final int KE_THU_GOM = -2000;       // NV 6 bước 1 — 1 hình dạng
     public static final int JACO_VO_THUC = -2001;     // NV 15 bước 1 — 2 hình dạng
 }

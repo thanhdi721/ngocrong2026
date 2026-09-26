@@ -163,6 +163,11 @@ public class BossManager implements Runnable {
         } catch (Exception e) {
             nro.models.utils.Logger.error("Không tạo được hai boss Siêu Thần God: " + e + "\n");
         }
+        try {
+            nro.models.boss.lao_de.BossLaoDe.taoDan();          // Lão Dê Hồi Xuân — chỉ ra khi có người thổi còi
+        } catch (Exception e) {
+            nro.models.utils.Logger.error("Không tạo được đàn Lão Dê Hồi Xuân: " + e + "\n");
+        }
         this.createBoss(BossID.TIEU_DOI_TRUONG);
         this.createBoss(BossID.TIEU_DOI_TRUONG_NM);
         this.createBoss(BossID.BOJACK);

@@ -6,12 +6,10 @@ import nro.models.boss.BossID;
 import nro.models.boss.BossesData;
 import nro.models.consts.BossStatus;
 import nro.models.consts.ConstPlayer;
-import nro.models.map.ItemMap;
 import nro.models.map.Zone;
 import nro.models.map.service.MapService;
 import nro.models.player.Player;
 import nro.models.services.EffectSkillService;
-import nro.models.services.Service;
 import nro.models.services.SkillService;
 import nro.models.utils.Util;
 
@@ -31,17 +29,6 @@ public class BossSieuThanGod extends Boss {
 
     /** Phút chờ giữa hai lượt, tính từ lúc con cuối cùng của lượt trước rời map. */
     private static final int PHUT_CHO = 10;
-
-    //========================== bảng rơi đồ ==========================
-    /** Ngọc Rồng 3 / 4 / 5 sao. */
-    private static final int[] NGOC_RONG = {16, 17, 18};
-    /** Ngọc Rồng bí ngô 1 … 7 sao. */
-    private static final int[] BI_NGO = {702, 703, 704, 705, 706, 707, 708};
-    /** Cuồng nộ 2, Bổ khí 2, Bổ huyết 2, Giáp Xên bọ hung 2. */
-    private static final int[] BUA = {1150, 1151, 1152, 1153};
-    private static final int ID_GAY_THONG_THIEN = 2264;
-    private static final int ID_DA_PHAP_SU = 2262;
-    private static final int SO_DA_PHAP_SU = 5;
 
     //========================== điều phối: mỗi lượt ra cả hai ==========================
     private static BossSieuThanGod vegeta;
@@ -127,43 +114,11 @@ public class BossSieuThanGod extends Boss {
         return super.getMapJoin();
     }
 
-    /**
-     * Một lượt quay đúng 100 %:
-     * 40 % Ngọc Rồng 3–5 sao · 40 % Ngọc Rồng bí ngô 1–7 sao · 10 % một lá bùa cấp 2 ·
-     * 5 % Gậy Thông Thiên · 5 % 5 viên Đá Pháp Sư.
-     */
+    /** Rơi đồ theo bảng dùng chung với Lão Dê Hồi Xuân — xem {@link BangRoi}. */
     @Override
     public void reward(Player plKill) {
         super.reward(plKill);   // giữ phần ghi nhận nhiệm vụ "hạ boss" của khung gốc
-        if (this.zone == null || this.zone.map == null || plKill == null) {
-            return;             // boss vừa rời map ngay lúc chết — không có chỗ để rơi đồ
-        }
-        int x = this.location.x;
-        int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
-
-        int quay = Util.nextInt(0, 99);
-        int idRoi;
-        int soLuong = 1;
-        if (quay < 40) {
-            idRoi = NGOC_RONG[Util.nextInt(0, NGOC_RONG.length - 1)];
-        } else if (quay < 80) {
-            idRoi = BI_NGO[Util.nextInt(0, BI_NGO.length - 1)];
-        } else if (quay < 90) {
-            idRoi = BUA[Util.nextInt(0, BUA.length - 1)];
-        } else if (quay < 95) {
-            idRoi = ID_GAY_THONG_THIEN;
-        } else {
-            idRoi = ID_DA_PHAP_SU;
-            soLuong = SO_DA_PHAP_SU;
-        }
-        if (idRoi >= nro.models.server.Manager.ITEM_TEMPLATES.size()) {
-            // Chưa chạy patch 78 (hoặc 75): ITEM_TEMPLATES tra theo chỉ số, lấy id vượt
-            // cỡ là văng IndexOutOfBounds ngay trong luồng boss. Thà không rơi gì.
-            nro.models.utils.Logger.error("Boss " + this.name + " khong roi duoc vat pham "
-                    + idRoi + ": chua co trong item_template\n");
-            return;
-        }
-        Service.gI().dropItemMap(zone, new ItemMap(this.zone, idRoi, soLuong, x, y, plKill.id));
+        BangRoi.roi(this, plKill);
     }
 
     /** Cách đánh lấy y như cặp Fu: xa thì bay lại, gần thì né qua né lại rồi tung chiêu. */
