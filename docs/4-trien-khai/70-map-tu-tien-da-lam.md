@@ -109,8 +109,22 @@ Ba id 3171x bên SUMO là **mảnh nhân vật (part)** chứ không phải icon
 lúc rơi / lúc mua.
 
 Bốn buff đầu dùng lại khung `ItemTime` sẵn có (`TIME_ITEM` đúng bằng 10 phút). **Buff chí mạng
-là mới** — thêm cờ vào `ItemTime`, cộng vào `NPoint.tlDameCrit`. Cả 6 đều có đồng hồ đếm ngược
-trên màn hình (`ItemTimeService`).
+là mới** — thêm cờ vào `ItemTime`. Cả 6 đều có đồng hồ đếm ngược trên màn hình (`ItemTimeService`).
+
+Mỗi viên cộng vào đúng chỗ của nó:
+
+| Đan | Cộng ở đâu |
+|---|---|
+| Luyện Khí Đan | `NPoint.setDame` — `dame += dame * 20 / 100` |
+| Hộ Thể Đan | `NPoint.setHpMax` |
+| Tụ Khí Đan | `NPoint.setMpMax` |
+| Kim Cương Đan | `Player.injured` — `damage /= 2` |
+| Phá Quân Đan | `NPoint.setCrit` — `this.crit += 10` |
+
+> **Bẫy đã dính một lần:** lúc đầu tôi cộng Phá Quân Đan vào `NPoint.tlDameCrit` trong
+> `setDame`. Nhưng `tlDameCrit` là **SÁT THƯƠNG chí mạng**, không phải **TỈ LỆ** ra chí mạng —
+> tỉ lệ nằm ở `this.crit` và tính trong `setCrit`. Cộng nhầm chỗ nên viên đan không có tác
+> dụng gì. Chỗ đúng có tiền lệ sẵn: nước mía 2 cũng `this.crit += 10` ngay trên đó.
 
 ### Ngọc bội — chỉ đệ tử đeo được
 

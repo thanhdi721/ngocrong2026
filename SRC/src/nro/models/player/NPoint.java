@@ -1011,11 +1011,12 @@ public class NPoint {
             mpMax += this.player.pet.nPoint.mpMax;
         }
 
-        // Xử lý bổ khí
         // Tụ Khí Đan (map Tu Tiên): +30% KI
         if (this.player.itemTime != null && this.player.itemTime.isUseDanKi) {
             mpMax += mpMax * 30 / 100;
         }
+
+        // Xử lý bổ khí
         if (this.player.itemTime != null && this.player.itemTime.isUseBoKhi && !this.player.itemTime.isUseBoKhi2) {
             mpMax *= 2;
         }
@@ -1143,11 +1144,6 @@ public class NPoint {
         if (this.player.itemTime != null && this.player.itemTime.isUseDanSucDanh) {
             dame += dame * 20 / 100;
         }
-        // Phá Quân Đan (map Tu Tiên): +10% chí mạng
-        if (this.player.itemTime != null && this.player.itemTime.isUseDanChiMang) {
-            this.tlDameCrit.add(10);
-        }
-
         // Xử lý cuồng nộ
         if (this.player.itemTime != null && this.player.itemTime.isUseCuongNo && !this.player.itemTime.isUseCuongNo2) {
             dame *= 2;
@@ -1270,6 +1266,12 @@ public class NPoint {
             this.crit = 110;
         }
         if (this.player.itemTime != null && this.player.itemTime.isUseNuocMia2) {
+            this.crit += 10;
+        }
+        // Phá Quân Đan (map Tu Tiên): +10% TỈ LỆ chí mạng.
+        // Phải cộng vào `crit` ở đây, KHÔNG phải tlDameCrit trong setDame — tlDameCrit là
+        // SÁT THƯƠNG chí mạng, cộng vào đó thì tỉ lệ ra chí mạng không đổi tí nào.
+        if (this.player.itemTime != null && this.player.itemTime.isUseDanChiMang) {
             this.crit += 10;
         }
 
