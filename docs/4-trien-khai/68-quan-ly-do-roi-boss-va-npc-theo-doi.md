@@ -106,17 +106,37 @@ chung vượt 100 %** (những dòng cuối nhóm sẽ không bao giờ trúng).
 
 | Mục | Nội dung |
 |---|---|
-| **Boss đang ra map** | menu nhiều trang, mỗi nút một con kèm **tên map** ngay dưới tên |
-| **Tìm theo tên** | ô nhập chữ — gõ vài chữ là ra đúng con cần, **khỏi lật trang** |
-| **Danh sách tất cả** | menu nhiều trang, **12 con một trang**, nút ghi rõ map hoặc "đang nghỉ" |
-| *(bấm vào một con)* | trạng thái, map đang ở, máu, và **bảng đồ rơi kiểu tiệm** |
+| **Boss đang ra map** | **khung danh sách** — mỗi dòng một con, có hình nhân vật thật |
+| **Tất cả boss** | như trên, cả con đang nghỉ |
+| **Tìm theo tên** | ô nhập chữ, kết quả cũng ra khung danh sách |
+| **Xem đồ rơi** | menu chọn boss → **bảng đồ rơi kiểu tiệm** (icon từng món) |
 
 Ô tìm bỏ dấu và không phân biệt hoa thường, nên gõ `cumber`, `lop truong` hay `LỐP` đều ra.
 
 Bảng rơi hiện ở đây đọc **thẳng từ `BangRoiBoss.xem()`** (gốc + thêm) — tức đúng bảng mà quản trị vừa sửa ở
 cpanel, không phải bảng chép tay nên không bao giờ lệch.
 
-> **Vì sao danh sách boss là menu chứ không phải khung tiệm.** Trong gói tin tiệm, tiêu đề mỗi
+### Khung danh sách boss — gói tin -96
+
+Mỗi dòng **một con boss**, kèm **hình nhân vật thật của nó**, tên boss, dòng trạng thái
+("Đang ra: Rừng xương") và dòng đồ rơi ("Rơi: Vàng, Ngọc Rồng 5 sao +2, …").
+
+Đây là gói tin `-96` — **chính khung "Bảng Xếp Hạng"** mà server vẫn đang dùng ở
+`Service.showListTop`, nên client chắc chắn hiểu. Nó là khung **duy nhất** nhận **tên tự do**
+cho từng dòng:
+
+| Khung | Tiêu đề mỗi dòng |
+|---|---|
+| Tiệm (`-44`) | bắt buộc là **tên vật phẩm**, client tra `item_template` theo id |
+| Menu NPC (`32`) | chữ tự do nhưng phải **lật trang**, ~70 tên boss là 6–9 trang |
+| **Danh sách (`-96`)** | **chữ tự do**, một lần gửi tối đa **127 dòng** |
+
+Hai server kia (SUMO và Bun) cũng làm y hệt bằng gói này —
+`BossManager.showListBoss` / `showListBoss2` — nên cách này là đúng đường.
+
+Số dòng ghi bằng một byte nên chặn ở **120 con**; server hiện có khoảng 70 tên boss, còn dư.
+
+> **Vì sao bảng ĐỒ RƠI vẫn là khung tiệm chứ không phải khung này.** Trong gói tin tiệm, tiêu đề mỗi
 > dòng **bắt buộc** là tên vật phẩm — client tra `item_template` theo id, server không gửi được
 > chữ tự do cho dòng (chuỗi `writeUTF` của gói type 4 không hiện ra trong danh sách, đã thử).
 > Muốn mỗi dòng mang tên một con boss thì phải đẻ ra **khoảng 70 vật phẩm giả** (server có chừng

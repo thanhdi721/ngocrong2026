@@ -225,6 +225,68 @@ public class Service {
         }
     }
 
+    /**
+     * Khung danh sách nhân vật của client (gói tin -96, đúng khung "Bảng Xếp Hạng"):
+     * mỗi dòng một <b>hình nhân vật thật</b> + tên tự do + hai dòng chữ tự do.
+     *
+     * <p>Dùng cho NPC "Theo Dõi Boss": tên dòng ở khung tiệm bắt buộc là tên vật phẩm, còn
+     * khung này nhận tên tuỳ ý nên mỗi dòng đặt được đúng một con boss kèm ngoại hình của nó.
+     *
+     * <p>Số dòng ghi bằng một byte nên <b>tối đa 127 dòng</b>; bên gọi phải tự cắt bớt.
+     *
+     * @param dong mỗi phần tử: {head, body, leg} ở {@code hinh}, tên và hai dòng chữ
+     */
+    public void showListNhanVat(Player player, String tieuDe, List<DongDanhSach> dong) {
+        Message msg;
+        try {
+            msg = new Message(-96);
+            msg.writer().writeByte(0);
+            msg.writer().writeUTF(tieuDe);
+            msg.writer().writeByte(Math.min(dong.size(), 127));
+            for (int i = 0; i < dong.size() && i < 127; i++) {
+                DongDanhSach d = dong.get(i);
+                msg.writer().writeInt(i + 1);
+                msg.writer().writeInt(d.id);
+                msg.writer().writeShort(d.head);
+                if (player.getSession().version > 214) {
+                    msg.writer().writeShort(-1);
+                }
+                msg.writer().writeShort(d.body);
+                msg.writer().writeShort(d.leg);
+                msg.writer().writeUTF(d.ten);
+                msg.writer().writeUTF(d.dong1);
+                msg.writer().writeUTF(d.dong2);
+            }
+            player.sendMessage(msg);
+            msg.cleanup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Một dòng của {@link #showListNhanVat}. */
+    public static final class DongDanhSach {
+
+        public final int id;
+        public final short head;
+        public final short body;
+        public final short leg;
+        public final String ten;
+        public final String dong1;
+        public final String dong2;
+
+        public DongDanhSach(int id, short head, short body, short leg, String ten,
+                String dong1, String dong2) {
+            this.id = id;
+            this.head = head;
+            this.body = body;
+            this.leg = leg;
+            this.ten = ten == null ? "?" : ten;
+            this.dong1 = dong1 == null ? "" : dong1;
+            this.dong2 = dong2 == null ? "" : dong2;
+        }
+    }
+
     public void showListTop(Player player, List<TOP> tops) {
         Message msg;
         try {

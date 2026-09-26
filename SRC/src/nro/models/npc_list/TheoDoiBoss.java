@@ -64,6 +64,8 @@ public class TheoDoiBoss extends Npc {
 
         String ten;
         int bossId;
+        /** Một bản boss bất kỳ cùng tên, để lấy ngoại hình vẽ lên danh sách. */
+        Boss mau;
         int tong;
         int dangRa;
         long mauMax;
@@ -91,6 +93,7 @@ public class TheoDoiBoss extends Npc {
                     d = new Dong();
                     d.ten = ten;
                     d.bossId = (int) b.id;
+                    d.mau = b;
                     gop.put(ten, d);
                 }
                 d.tong++;
@@ -134,7 +137,7 @@ public class TheoDoiBoss extends Npc {
                 CHAO[Util.nextInt(0, CHAO.length - 1)] + "\n"
                 + "Đang ra map: " + dangRa + " con.\n"
                 + "Tổng cộng: " + ds.size() + " loại boss.",
-                "Boss đang\nra map", "Tìm theo\ntên", "Danh sách\ntất cả", "Đóng");
+                "Boss đang\nra map", "Tất cả\nboss", "Tìm theo\ntên", "Xem\nđồ rơi", "Đóng");
     }
 
     @Override
@@ -146,10 +149,12 @@ public class TheoDoiBoss extends Npc {
         if (menu == ConstNpc.THEO_DOI_BOSS) {
             switch (select) {
                 case 0 ->
-                    moTrang(player, 0, DANG_RA);
+                    moDanhSach(player, DANG_RA);
                 case 1 ->
-                    nro.models.services_func.Input.gI().createFormTimBoss(player);
+                    moDanhSach(player, TAT_CA);
                 case 2 ->
+                    nro.models.services_func.Input.gI().createFormTimBoss(player);
+                case 3 ->
                     moTrang(player, 0, TAT_CA);
                 default -> {
                 }
@@ -204,10 +209,7 @@ public class TheoDoiBoss extends Npc {
             return;
         }
         TU_KHOA.put(player.id, t);
-        Npc npc = nro.models.map.service.NpcManager.getNpc(ConstNpc.THEO_DOI_BOSS_NPC);
-        if (npc instanceof TheoDoiBoss theoDoi) {
-            theoDoi.moTrang(player, 0, TIM);
-        }
+        moDanhSach(player, TIM);
     }
 
     /** Lọc danh sách theo chế độ đang xem. */
@@ -224,6 +226,108 @@ public class TheoDoiBoss extends Npc {
             ra.add(d);
         }
         return ra;
+    }
+
+    /**
+     * Danh sách boss theo <b>khung nhân vật của client</b> (gói tin -96, cùng khung "Bảng Xếp
+     * Hạng"): <b>mỗi dòng một con boss</b>, có hình nhân vật thật, tên boss, dòng trạng thái và
+     * dòng liệt kê đồ rơi.
+     *
+     * <p>Đây là khung duy nhất nhận <b>tên tự do</b> cho từng dòng — khung tiệm thì tiêu đề dòng
+     * bắt buộc là tên vật phẩm, còn menu NPC thì phải lật trang.
+     *
+     * <p>Số dòng gửi bằng một byte nên chặn ở {@value #TOI_DA_DONG_DS} con.
+     */
+    private static void moDanhSach(Player player, int che) {
+        List<Dong> ds = loc(player, che);
+        if (ds.isEmpty()) {
+            Service.gI().sendThongBao(player, khongCo(player, che));
+            return;
+        }
+        List<Service.DongDanhSach> dong = new ArrayList<>();
+        for (Dong d : ds) {
+            if (dong.size() >= TOI_DA_DONG_DS) {
+                break;
+            }
+            short head = 0;
+            short body = 0;
+            short leg = 0;
+            if (d.mau != null) {
+                try {
+                    head = d.mau.getHead();
+                    body = d.mau.getBody();
+                    leg = d.mau.getLeg();
+                } catch (Exception e) {
+                }
+            }
+            String trangThai = d.dangRa > 0
+                    ? "Đang ra: " + String.join(", ", d.map)
+                    + (d.tong > 1 ? " (" + d.dangRa + "/" + d.tong + " bản)" : "")
+                    : "Đang nghỉ, chưa ra map";
+            dong.add(new Service.DongDanhSach(d.bossId, head, body, leg, d.ten,
+                    trangThai, tomTatRoi(d.bossId)));
+        }
+        String tieuDe = switch (che) {
+            case DANG_RA ->
+                "Boss đang ra map (" + ds.size() + ")";
+            case TIM ->
+                "Tìm: " + TU_KHOA.getOrDefault(player.id, "") + " (" + ds.size() + ")";
+            default ->
+                "Tất cả boss (" + ds.size() + ")";
+        };
+        Service.gI().showListNhanVat(player, tieuDe, dong);
+    }
+
+    /** Số dòng tối đa của khung danh sách — gói tin ghi số dòng bằng một byte. */
+    private static final int TOI_DA_DONG_DS = 120;
+
+    /** Câu báo khi danh sách rỗng. */
+    private static String khongCo(Player player, int che) {
+        return switch (che) {
+            case DANG_RA ->
+                "Không có con nào ngoài map.\nĐợi giờ đi.";
+            case TIM ->
+                "Không có con boss nào tên giống\n\"" + TU_KHOA.getOrDefault(player.id, "") + "\".";
+            default ->
+                "Chưa có boss nào trong bộ nhớ.";
+        };
+    }
+
+    /** "Rơi: Vàng, Ngọc Rồng 5 sao, …" — gói gọn cho vừa một dòng. */
+    private static String tomTatRoi(int bossId) {
+        List<MucRoi> bang = BangRoiBoss.xem(bossId);
+        if (bang.isEmpty()) {
+            return "Đồ rơi: chưa khai báo";
+        }
+        StringBuilder sb = new StringBuilder("Rơi: ");
+        int dem = 0;
+        int con = 0;
+        for (MucRoi m : bang) {
+            String ten = m.loai == 1 ? "Đồ Thần Linh"
+                    : (m.ids != null && m.ids.length > 0 ? MucRoi.ten(m.ids[0]) : null);
+            if (ten == null) {
+                continue;
+            }
+            if (dem >= 4) {
+                con++;
+                continue;
+            }
+            if (dem > 0) {
+                sb.append(", ");
+            }
+            sb.append(ten);
+            if (m.ids != null && m.ids.length > 1) {
+                sb.append(" +").append(m.ids.length - 1);
+            }
+            dem++;
+        }
+        if (dem == 0) {
+            return "Đồ rơi: chưa khai báo";
+        }
+        if (con > 0) {
+            sb.append(" và ").append(con).append(" loại nữa");
+        }
+        return sb.toString();
     }
 
     /**
