@@ -370,6 +370,63 @@ public class ShopService {
         }
     }
 
+    /**
+     * Mở một bảng <b>chỉ để xem</b> theo đúng giao diện tiệm (icon + tên + dòng chữ màu),
+     * không mua bán gì được.
+     *
+     * <p>Dùng gói tin type 4 giống khung "Phần thưởng" và đặt thẻ {@code ITEMS_REWARD} —
+     * {@link #takeItem} gặp thẻ này thì trả về ngay, nên người chơi có bấm vào dòng nào cũng
+     * không nhận được gì. Cũng <b>không</b> đăng ký {@code idMark.setShopOpen}, nên không có
+     * đường nào lọt sang {@link #buyItem}.
+     *
+     * @param tenTab chữ trên nút tab, xuống dòng được bằng {@code \n}
+     * @param items  danh sách món hiện ra (icon + tên lấy từ item_template)
+     * @param nhan   dòng chữ màu của từng món, cùng cỡ với {@code items}; null thì bỏ trống
+     */
+    public void moBangXem(Player player, String tenTab, List<Item> items, String[] nhan) {
+        if (player == null || items == null) {
+            return;
+        }
+        player.idMark.setTagNameShop("ITEMS_REWARD");
+        Message msg = null;
+        try {
+            msg = new Message(-44);
+            msg.writer().writeByte(4);
+            msg.writer().writeByte(1);
+            msg.writer().writeUTF(tenTab == null ? "Danh sách" : tenTab);
+            msg.writer().writeByte(items.size());
+            for (int i = 0; i < items.size(); i++) {
+                Item item = items.get(i);
+                msg.writer().writeShort(item.template.id);
+                msg.writer().writeUTF(nhan != null && i < nhan.length && nhan[i] != null ? nhan[i] : "");
+                msg.writer().writeByte(item.itemOptions.size() + 1);
+                for (Item.ItemOption io : item.itemOptions) {
+                    msg.writer().writeByte(io.optionTemplate.id);
+                    msg.writer().writeShort(io.param);
+                }
+                msg.writer().writeByte(31);                      // option "Số lượng #"
+                msg.writer().writeShort(item.quantity);
+                msg.writer().writeByte(1);
+                if (item.template.type == 5) {
+                    msg.writer().writeByte(1);
+                    msg.writer().writeShort(item.template.head);
+                    msg.writer().writeShort(item.template.body);
+                    msg.writer().writeShort(item.template.leg);
+                    msg.writer().writeShort(-1);
+                } else {
+                    msg.writer().writeByte(0);
+                }
+            }
+            player.sendMessage(msg);
+        } catch (Exception e) {
+            Logger.logException(ShopService.class, e);
+        } finally {
+            if (msg != null) {
+                msg.cleanup();
+            }
+        }
+    }
+
     private void openShopType4(Player player, String tagName, List<Item> items) {
         if (items == null) {
             return;

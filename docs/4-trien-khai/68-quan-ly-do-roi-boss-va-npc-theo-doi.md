@@ -1,6 +1,6 @@
 # 68 — Quản lý đồ rơi boss ở cpanel + NPC "Theo Dõi Boss"
 
-Ngày: 2026-09-26 · Patch SQL: `SRC/sql/patch/80-npc-theo-doi-boss.sql`
+Ngày: 2026-09-26 · Patch SQL: `SRC/sql/patch/80-npc-theo-doi-boss.sql` + `81-dong-ti-le-roi.sql`
 
 ---
 
@@ -90,6 +90,35 @@ chung vượt 100 %** (những dòng cuối nhóm sẽ không bao giờ trúng).
 Bảng rơi hiện ở đây đọc **thẳng từ `BangRoiBoss`** — tức đúng bảng mà quản trị vừa sửa ở
 cpanel, không phải bảng chép tay nên không bao giờ lệch.
 
+### Bảng đồ rơi hiện bằng giao diện TIỆM, không phải chữ chay
+
+`ShopService.moBangXem(...)` + patch 81 (`item_option_template` 253 `'Tỉ lệ rơi #%'`)
+
+Bấm vào một con boss thì bảng đồ rơi mở ra đúng khung tiệm quen thuộc: **icon thật của từng
+vật phẩm, tên vật phẩm, dòng chữ màu ghi tỉ lệ**, bấm vào món nào thì hiện khung mô tả như lúc
+xem hàng trong tiệm.
+
+Khung này **chỉ để xem, không mua bán được**:
+
+* gửi bằng gói tin tiệm type 4 (khung "Phần thưởng") với thẻ `ITEMS_REWARD` — `takeItem` gặp
+  thẻ này thì trả về ngay, bấm dòng nào cũng không nhận được gì;
+* **không** đăng ký `idMark.setShopOpen`, nên không có đường nào lọt sang `buyItem`.
+
+Một dòng khai nhiều id (kiểu `16,17,18` = Ngọc Rồng 3–5 sao) được tách thành nhiều ô, mỗi ô
+một vật phẩm thật, kèm chữ "1 trong 3 món — 40%".
+
+> **Vì sao danh sách BOSS vẫn là menu chữ.** Trong gói tin tiệm, tiêu đề mỗi dòng **bắt buộc**
+> là tên vật phẩm — client tra `item_template` theo id chứ server không gửi chữ tự do cho dòng.
+> Muốn mỗi dòng mang tên một con boss thì phải đẻ ra khoảng 50 vật phẩm giả, trong khi ngân
+> sách gói tin vật phẩm **chỉ còn chỗ cho ~41 món**. Hai chỗ đặt chữ tự do duy nhất là **tên
+> tab** và **dòng chữ màu** của từng dòng, và cả hai đã được tận dụng: tab mang tên boss +
+> map, dòng chữ màu mang tỉ lệ.
+
+### Ngân sách còn lại sau patch 81
+
+`item_option_template` giờ có **254 dòng trên trần 255** (số dòng gửi bằng `writeByte`).
+**Chỉ còn đúng một ô trống.** Lần sau muốn thêm dòng chỉ số thì phải bỏ bớt dòng cũ.
+
 **Chỉ hiện tên map, không hiện khu** — đúng yêu cầu, để không thành công cụ canh boss quá dễ.
 
 Boss chưa khai báo dòng nào thì ghi thật thà: *"Chưa khai báo bảng rơi. Con này rơi theo luật
@@ -107,7 +136,8 @@ riêng của nó."*
 ## 6. Việc người vận hành phải làm
 
 1. Tắt server.
-2. `mysqldump -u root -p team2026 npc_template map_template > backup_80.sql`
+2. `mysqldump -u root -p team2026 npc_template map_template item_option_template > backup_80.sql`
 3. Chạy `SRC/sql/patch/80-npc-theo-doi-boss.sql`, xem khối (3) phải toàn `1`.
-4. Bật server bản jar mới (`vsMap = 10`).
-5. Vào cpanel tab **Boss** → chọn boss → **Đồ rơi của boss đã chọn...** để chỉnh.
+4. Chạy `SRC/sql/patch/81-dong-ti-le-roi.sql`, `so_dong` phải ra **254**.
+5. Bật server bản jar mới (`vsMap = 10`, `vsItem = 29`).
+6. Vào cpanel tab **Boss** → chọn boss → **Đồ rơi của boss đã chọn...** để chỉnh.

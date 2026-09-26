@@ -11,10 +11,14 @@ import nro.models.boss.drop.BangRoiBoss;
 import nro.models.boss.drop.MucRoi;
 import nro.models.consts.BossStatus;
 import nro.models.consts.ConstNpc;
+import nro.models.item.Item;
 import nro.models.map.Zone;
 import nro.models.npc.Npc;
 import nro.models.npc.NpcFactory;
 import nro.models.player.Player;
+import nro.models.server.Manager;
+import nro.models.services.ItemService;
+import nro.models.shop.ShopService;
 import nro.models.utils.Util;
 
 /**
@@ -212,7 +216,18 @@ public class TheoDoiBoss extends Npc {
                 muc.toArray(new String[0]), ten.toArray(new String[0]));
     }
 
-    /** Chi tiết một boss: trạng thái, map đang ở, và bảng rơi đồ kèm tỉ lệ. */
+    /** Id dòng chỉ số "Tỉ lệ rơi #%" thêm ở patch 81. */
+    private static final int OPT_TI_LE = 253;
+
+    /**
+     * Chi tiết một boss. Bảng rơi hiện bằng <b>giao diện tiệm</b> (icon + tên vật phẩm + dòng
+     * chữ màu), không phải chữ chay: {@link ShopService#moBangXem} dựng khung "chỉ để xem",
+     * bấm vào dòng nào cũng không nhận được gì.
+     *
+     * <p>Tên boss và map nằm ở <b>chữ trên nút tab</b> — trong gói tin tiệm, tiêu đề mỗi dòng
+     * bắt buộc là TÊN VẬT PHẨM (client tra từ item_template), nên không đặt tên boss vào dòng
+     * được; chỗ đặt chữ tự do duy nhất là tên tab và dòng chữ màu của từng dòng.
+     */
     private void xemChiTiet(Player player, String tenBoss) {
         Dong d = null;
         for (Dong x : gom()) {
@@ -240,26 +255,66 @@ public class TheoDoiBoss extends Npc {
             sb.append("Máu: ").append(dinhDang(d.mauMax)).append("\n");
         }
 
-        sb.append("\nĐỒ RƠI:\n");
         List<MucRoi> bang = BangRoiBoss.cua(d.bossId);
         if (bang.isEmpty()) {
-            sb.append("Chưa khai báo bảng rơi.\nCon này rơi theo luật riêng của nó.");
-        } else {
-            for (MucRoi m : bang) {
-                sb.append("• ").append(m.tenVatPham());
-                String sl = m.chuoiSoLuong();
-                if (!sl.isEmpty()) {
-                    sb.append(" ").append(sl);
-                }
-                sb.append(" — ").append(m.tiLe).append("%");
-                if (m.nhom > 0) {
-                    sb.append(" (chung lượt ").append(m.nhom).append(")");
-                }
-                sb.append("\n");
-            }
-            sb.append("\nCác dòng \"chung lượt\" tranh nhau\nmột lần quay, chỉ một cái trúng.");
+            sb.append("\nChưa khai báo bảng rơi.\nCon này rơi theo luật riêng của nó.");
+            createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Đóng");
+            return;
         }
-        createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Đóng");
+        sb.append("\nBấm xem bảng đồ rơi bên dưới.");
+        moBangDoRoi(player, d, bang);
+    }
+
+    /** Dựng khung tiệm "chỉ để xem" cho bảng rơi của một boss. */
+    private void moBangDoRoi(Player player, Dong d, List<MucRoi> bang) {
+        List<Item> ds = new ArrayList<>();
+        List<String> nhan = new ArrayList<>();
+        for (MucRoi m : bang) {
+            if (m.ids == null || m.ids.length == 0) {
+                continue;
+            }
+            // Một dòng có nhiều id (kiểu "Ngọc Rồng 3-5 sao") thì hiện thành nhiều ô,
+            // mỗi ô một vật phẩm thật, để người chơi thấy đúng cái mình sắp nhặt.
+            for (int id : m.ids) {
+                if (id < 0 || id >= Manager.ITEM_TEMPLATES.size()) {
+                    continue;
+                }
+                Item it;
+                try {
+                    it = ItemService.gI().createNewItem((short) id);
+                } catch (Exception e) {
+                    continue;
+                }
+                if (it == null || it.template == null) {
+                    continue;
+                }
+                it.quantity = Math.max(1, m.slMin);
+                it.itemOptions.clear();
+                if (OPT_TI_LE < Manager.ITEM_OPTION_TEMPLATES.size()) {
+                    it.itemOptions.add(new Item.ItemOption(OPT_TI_LE, m.tiLe));
+                }
+                ds.add(it);
+                StringBuilder n = new StringBuilder("|7|");
+                if (m.ids.length > 1) {
+                    n.append("1 trong ").append(m.ids.length).append(" món — ");
+                }
+                n.append(m.tiLe).append("%");
+                if (m.nhom > 0) {
+                    n.append(" (chung lượt ").append(m.nhom).append(")");
+                }
+                if (m.slMax > m.slMin) {
+                    n.append(" — x").append(m.slMin).append("-").append(m.slMax);
+                }
+                nhan.add(n.toString());
+            }
+        }
+        if (ds.isEmpty()) {
+            createOtherMenu(player, ConstNpc.IGNORE_MENU,
+                    "Bảng rơi của con này có dòng lỗi,\nbáo quản trị xem lại cpanel.", "Đóng");
+            return;
+        }
+        String tenTab = d.ten + "\n" + (d.dangRa > 0 ? String.join(", ", d.map) : "đang nghỉ");
+        ShopService.gI().moBangXem(player, tenTab, ds, nhan.toArray(new String[0]));
     }
 
     /** 500000000 -> "500.000.000" */

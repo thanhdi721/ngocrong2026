@@ -90,7 +90,8 @@ public class DataGame {
     // 25 -> 26: thêm 2 viên đá Pháp Sư và 7 dòng chỉ số 251–257 (patch 75).
     // 26 -> 27: thêm vật phẩm 2264 "Gậy Thông Thiên" (patch 78).
     // 27 -> 28: thêm vật phẩm 2265 "Còi Triệu Hồi Lão Dê" (patch 79).
-    public static byte vsItem = 28;
+    // 28 -> 29: thêm dòng chỉ số 253 "Tỉ lệ rơi #%" (patch 81).
+    public static byte vsItem = 29;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
