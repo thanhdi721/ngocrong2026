@@ -169,6 +169,9 @@ public class ConstNpc {
     // NPC "Bà Mối" đứng cạnh GoKu Nỗi Loạn ở đảo Kamê (map 5), xem sổ thông đít.
     // id 87 = ô trống kế tiếp sau 86, vẫn giữ luật "id = vị trí trong npc_template".
     public static final byte BA_MOI = 87;
+    // NPC "Theo Dõi Boss" đứng bên trái Santa ở đảo Kamê (map 5).
+    // id 88 = ô trống kế tiếp sau 87, vẫn giữ luật "id = vị trí trong npc_template".
+    public static final byte THEO_DOI_BOSS_NPC = 88;
     // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
     public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------
@@ -401,5 +404,13 @@ public class ConstNpc {
     public static final int KET_BAN_HOAC_THONG_DIT = 1032;
     /** Menu chọn bảng vàng của Bà Mối (services/BangVangThongDit). */
     public static final int BA_MOI_BANG_VANG = 1033;
+
+    /** Menu gốc của NPC Theo Dõi Boss (npc_list/TheoDoiBoss). */
+    public static final int THEO_DOI_BOSS = 1034;
+    /**
+     * Menu danh sách boss theo trang: {@code THEO_DOI_BOSS_TRANG + số trang}.
+     * Dải 1040…1059 dành riêng, đủ cho 20 trang × 8 con = 160 tên boss.
+     */
+    public static final int THEO_DOI_BOSS_TRANG = 1040;
 
 }

@@ -62,12 +62,14 @@ final class BossTab extends JPanel {
         JButton btnLeaveAll = new JButton("Ép biến mất toàn bộ boss đang lọc");
         JButton btnTune = new JButton("Chỉnh máu / sát thương...");
         JButton btnBulk = new JButton("Chỉnh hàng loạt theo %...");
+        JButton btnDrop = new JButton("Đồ rơi của boss đã chọn...");
         actions.add(btnRespawn);
         actions.add(btnLeave);
         actions.add(btnRespawnMap);
         actions.add(btnLeaveAll);
         actions.add(btnTune);
         actions.add(btnBulk);
+        actions.add(btnDrop);
 
         JPanel north = new JPanel(new BorderLayout());
         north.add(top, BorderLayout.NORTH);
@@ -88,6 +90,7 @@ final class BossTab extends JPanel {
         btnLeaveAll.addActionListener(e -> leaveFiltered());
         btnTune.addActionListener(e -> tuneSelected());
         btnBulk.addActionListener(e -> tuneBulk());
+        btnDrop.addActionListener(e -> dropSelected());
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -180,6 +183,15 @@ final class BossTab extends JPanel {
         model.set(rows);
         long inMap = rows.stream().filter(r -> r.inMap).count();
         lblCount.setText("  Tổng: " + rows.size() + " boss, đang ở map: " + inMap);
+    }
+
+    /** Mở bảng đồ rơi của boss đang chọn. */
+    private void dropSelected() {
+        Row r = selected();
+        if (r == null || r.boss == null) {
+            return;
+        }
+        new BossDropTableDialog(this, r.boss).setVisible(true);
     }
 
     private Row selected() {

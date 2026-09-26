@@ -64,7 +64,8 @@ public class DataGame {
     // 6 -> 7: đổi hình npc_template 108 Heart và 110 (patch 32).
     // 7 -> 8: thêm npc_template 86 "GoKu Nỗi Loạn" đứng cạnh Chi Chi ở map 5 (patch 63).
     // 8 -> 9: thêm npc_template 87 "Bà Mối" đứng cạnh GoKu Nỗi Loạn ở map 5 (patch 78).
-    public static byte vsMap = 9;
+    // 9 -> 10: thêm npc_template 88 "Theo Dõi Boss" đứng bên trái Santa ở map 5 (patch 80).
+    public static byte vsMap = 10;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.

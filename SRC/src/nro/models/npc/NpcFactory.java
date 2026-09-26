@@ -236,6 +236,8 @@ public class NpcFactory {
                     new GokuNoiLoan(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BA_MOI ->
                     new nro.models.npc_list.BaMoi(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.THEO_DOI_BOSS_NPC ->
+                    new nro.models.npc_list.TheoDoiBoss(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.HUNG_VUONG ->
                     new VuaHung(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.DUA_HAU ->

@@ -23,7 +23,8 @@ import nro.models.utils.Util;
  * có chuyện một con chết rồi hồi sinh liên tục trong lúc con kia còn đứng đó.
  *
  * <p>Máu 500 triệu, sát thương 50.000, bộ chiêu và cách đánh y như cặp Fu. Rơi đồ theo bảng
- * ở {@link #reward(Player)} — đúng một lượt quay 100 %, đồ rơi ra đất và gán cho người hạ boss.
+ * ở bảng {@link nro.models.boss.drop.BangRoiBoss} (sửa được từ cpanel, xem được ở NPC
+ * "Theo Dõi Boss"), không viết cứng trong lớp này.
  */
 public class BossSieuThanGod extends Boss {
 
@@ -112,13 +113,6 @@ public class BossSieuThanGod extends Boss {
             }
         }
         return super.getMapJoin();
-    }
-
-    /** Rơi đồ theo bảng dùng chung với Lão Dê Hồi Xuân — xem {@link BangRoi}. */
-    @Override
-    public void reward(Player plKill) {
-        super.reward(plKill);   // giữ phần ghi nhận nhiệm vụ "hạ boss" của khung gốc
-        BangRoi.roi(this, plKill);
     }
 
     /** Cách đánh lấy y như cặp Fu: xa thì bay lại, gần thì né qua né lại rồi tung chiêu. */

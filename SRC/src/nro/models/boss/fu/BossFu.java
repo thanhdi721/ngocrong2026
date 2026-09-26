@@ -5,10 +5,8 @@ import nro.models.boss.BossID;
 import nro.models.boss.BossesData;
 import nro.models.consts.BossStatus;
 import nro.models.consts.ConstPlayer;
-import nro.models.map.ItemMap;
 import nro.models.player.Player;
 import nro.models.services.EffectSkillService;
-import nro.models.services.Service;
 import nro.models.services.SkillService;
 import nro.models.utils.Util;
 
@@ -19,18 +17,13 @@ import nro.models.utils.Util;
  * hai con cùng lúc. Con nào chết (hoặc bỏ đi) thì tính lại từ đầu {@value #PHUT_CHO} phút.
  *
  * <p>Máu 1 tỷ, sát thương 200.000, bộ chiêu và cách đánh lấy y như Cumber. Hạ được thì rơi
- * {@value #DA_PHAP_SU} Đá Pháp Sư và {@value #DA_TAY} Đá Tẩy Pháp Sư — nguồn đá chính để
- * pháp sư trang bị ở Bà Hạt Mít.
+ * 5 Đá Pháp Sư và 1 Đá Tẩy Pháp Sư — nguồn đá chính để pháp sư trang bị ở Bà Hạt Mít.
+ * Bảng rơi nằm ở {@link nro.models.boss.drop.BangRoiBoss} nên sửa được từ cpanel.
  */
 public class BossFu extends Boss {
 
     /** Phút chờ giữa hai lượt, tính từ lúc con trước rời map. */
     private static final int PHUT_CHO = 15;
-
-    private static final int ID_DA_PHAP_SU = 2262;
-    private static final int ID_DA_TAY = 2263;
-    private static final int DA_PHAP_SU = 5;
-    private static final int DA_TAY = 1;
 
     //========================== điều phối: mỗi lượt chỉ một con ==========================
     private static BossFu fu;
@@ -105,18 +98,6 @@ public class BossFu extends Boss {
         super.die(plKill);
         lanKetThuc = System.currentTimeMillis();
         sapRa = null;
-    }
-
-    @Override
-    public void reward(Player plKill) {
-        super.reward(plKill);   // giữ phần ghi nhận nhiệm vụ "hạ boss" của khung gốc
-        if (this.zone == null || this.zone.map == null) {
-            return;         // boss vừa rời map ngay lúc chết — không có chỗ để rơi đồ
-        }
-        int x = this.location.x;
-        int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
-        Service.gI().dropItemMap(zone, new ItemMap(this.zone, ID_DA_PHAP_SU, DA_PHAP_SU, x, y, plKill.id));
-        Service.gI().dropItemMap(zone, new ItemMap(this.zone, ID_DA_TAY, DA_TAY, x + 20, y, plKill.id));
     }
 
     /** Cách đánh lấy y như Cumber: xa thì bay lại, gần thì né qua né lại rồi tung chiêu. */

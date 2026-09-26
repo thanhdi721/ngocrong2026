@@ -5,7 +5,6 @@ import java.util.List;
 import nro.models.boss.Boss;
 import nro.models.boss.BossID;
 import nro.models.boss.BossesData;
-import nro.models.boss.sieu_than_god.BangRoi;
 import nro.models.consts.BossStatus;
 import nro.models.consts.ConstPlayer;
 import nro.models.map.Zone;
@@ -23,15 +22,15 @@ import nro.models.utils.Util;
  * <p>Muốn gặp lão thì phải có <b>Còi Triệu Hồi Lão Dê</b> (vật phẩm {@value #ID_COI}) rồi thổi
  * ngay tại chỗ mình đứng: lão hiện ra đúng khu đó cho cả khu xúm vào đánh.
  *
- * <p>Máu, sát thương, bộ chiêu và <b>bảng rơi đồ</b> đều bằng đúng bộ Siêu Thần God — dùng
- * chung {@link BangRoi} nên không thể lệch nhau.
+ * <p>Máu, sát thương, bộ chiêu và bảng rơi đồ đều bằng đúng bộ Siêu Thần God. Đồ rơi nằm ở
+ * {@link nro.models.boss.drop.BangRoiBoss} chứ không viết cứng ở đây, nên sửa được từ cpanel.
  *
  * <p>Trò riêng của lão: cứ {@value #GIAY_NHIN_TROM} giây lại <b>nhìn trộm</b> một người trong
  * khu, người đó choáng {@value #GIAY_CHOANG} giây.
  */
 public class BossLaoDe extends Boss {
 
-    public static final int ID_COI = BangRoi.ID_COI_LAO_DE;
+    public static final int ID_COI = 2265;
 
     /** Số bản dựng sẵn — bấy nhiêu người có thể triệu hồi cùng lúc ở các khu khác nhau. */
     private static final int SO_BAN = 5;
@@ -137,13 +136,6 @@ public class BossLaoDe extends Boss {
         super.leaveMap();
         // Xoá chỗ hẹn, nếu không lần sau lão lại mò về đúng khu cũ dù ai gọi ở đâu.
         this.zoneFinal = null;
-    }
-
-    /** Rơi đồ theo bảng dùng chung với bộ Siêu Thần God — xem {@link BangRoi}. */
-    @Override
-    public void reward(Player plKill) {
-        super.reward(plKill);   // giữ phần ghi nhận nhiệm vụ "hạ boss" của khung gốc
-        BangRoi.roi(this, plKill);
     }
 
     /** Cách đánh lấy y như bộ Siêu Thần God, thêm trò nhìn trộm. */

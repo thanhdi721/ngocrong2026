@@ -44,6 +44,9 @@ public class Virut extends Boss {
 
     @Override
     public void die(Player plKill) {
+        // Ghi nhớ người hạ trước khi đổi trạng thái: lớp này không gọi super.die() nên
+        // Boss.changeStatus(DIE) sẽ không biết thả bảng rơi của cpanel cho ai.
+        this.ghiNhoNguoiHa(plKill);
         this.reward(plKill);
         this.changeStatus(BossStatus.DIE);
     }

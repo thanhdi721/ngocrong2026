@@ -304,9 +304,50 @@ public class Boss extends Player implements IBoss {
         return map;
     }
 
+    /**
+     * Người hạ boss gần nhất, để {@link nro.models.boss.drop.BangRoiBoss} biết gán đồ cho ai.
+     *
+     * <p>Ghi ở {@link #setDie(Player)} và {@link #die(Player)} — hai chỗ mà MỌI đường chết của
+     * boss đều đi qua ít nhất một. Không dùng được {@code die()} một mình: 31 lớp boss ghi đè
+     * {@code die()} mà không gọi {@code super.die()}.
+     */
+    private Player nguoiHaGanNhat;
+
+    @Override
+    protected void setDie(Player plAtt) {
+        if (plAtt != null) {
+            this.nguoiHaGanNhat = plAtt;
+        }
+        super.setDie(plAtt);
+    }
+
+    /**
+     * Mọi đường chết của boss đều kết thúc bằng {@code changeStatus(DIE)} — kể cả những lớp
+     * ghi đè {@code die()} không gọi {@code super}. Vì vậy bảng rơi sửa từ cpanel được thả ở
+     * đây, chứ không phải trong {@code die()}, để boss nào cũng dùng được.
+     */
     @Override
     public void changeStatus(BossStatus status) {
+        BossStatus cu = this.bossStatus;
         this.bossStatus = status;
+        if (status == BossStatus.DIE && cu != BossStatus.DIE) {
+            Player pl = this.nguoiHaGanNhat;
+            this.nguoiHaGanNhat = null;
+            if (pl != null && !pl.isBot) {
+                try {
+                    nro.models.boss.drop.BangRoiBoss.roi(this, pl);
+                } catch (Exception e) {
+                    nro.models.utils.Logger.error("Bang roi boss " + this.name + ": " + e + "\n");
+                }
+            }
+        }
+    }
+
+    /** Chỗ ghi nhớ người hạ thứ hai — lớp con nào gọi {@code super.die} thì qua đây. */
+    public void ghiNhoNguoiHa(Player plKill) {
+        if (plKill != null) {
+            this.nguoiHaGanNhat = plKill;
+        }
     }
 
     @Override
@@ -664,6 +705,7 @@ public class Boss extends Player implements IBoss {
 
     @Override
     public void die(Player plKill) {
+        ghiNhoNguoiHa(plKill);
 
         if (plKill != null
                 && (this.zone.map.mapId != 140 || !MapService.gI().isMapMaBu(this.zone.map.mapId)
