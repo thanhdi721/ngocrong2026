@@ -54,7 +54,10 @@ public class DataGame {
     // 30 -> 31: thêm 3 part 2658/2659/2660 của NPC "Lò Luyện Đan" (patch 84) và chỉnh
     //           cỡ / toạ độ ảnh lò (patch 86). KHÔNG tăng thì client dùng bảng part
     //           trong cache, NPC 90 có tên và mũi tên chọn nhưng KHÔNG CÓ HÌNH.
-    public static byte vsData = 31;
+    // 31 -> 32: đưa ảnh lò vào CẢ BA mảnh của part 2658. Ba mảnh là ba KHUNG HÌNH vẽ
+    //           luân phiên chứ không chồng lên nhau, để trong suốt ở mảnh 0 thì lúc
+    //           NPC đứng yên vẫn không thấy gì (patch 86 bản 2).
+    public static byte vsData = 32;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ

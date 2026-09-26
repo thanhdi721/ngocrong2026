@@ -229,10 +229,16 @@ rồi kẹp tại `Integer.MAX_VALUE`. Lỗi này có sẵn từ patch 83, khôn
 NPC dạng **vật thể**, không phải người — dựng y hệt "Cây thông Noel" (npc 79):
 
 ```
-part 2658 (đầu):  [[2955,0,0],[32700,-8,-2],[2955,0,0]]
+part 2658 (đầu):  [[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]
 part 2659 (thân): 17 mảnh 2955 (trong suốt)
 part 2660 (chân): 14 mảnh 2955
 ```
+
+> **Ba mảnh của part đầu là BA KHUNG HÌNH vẽ luân phiên, không chồng lên nhau.** Nhìn part 0
+> (đầu nhân vật thường) là rõ: `[[17,0,0],[18,0,0],[20,0,0]]` — ba icon **khác nhau**, tức ba
+> hướng/khung của cùng cái đầu. Bản đầu tôi để ảnh lò ở mảnh giữa và 2955 ở mảnh 0, nên lúc NPC
+> đứng yên (khung 0) **không vẽ gì** — đúng hiện tượng "có tên, có mũi tên chọn, không có hình".
+> Nay ảnh lò nằm ở **cả ba mảnh**. Cây thông Noel không dính vì nó có ảnh ở mảnh 0 và 1.
 
 Icon **32700** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO), hình vuông
 **52 / 105 / 157 / 211 px** theo bốn mức phóng to — to hơn khung cây thông (36×50) cho bằng cỡ
@@ -309,7 +315,7 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 | `npc_list/TheoDoiBoss` | hiện thêm dòng rơi theo luật chung |
 | `consts/ConstNpc`, `npc/NpcFactory` | NPC 90 và ba menu |
 | `server/ServerManager` | chốt bảng vàng lúc bảo trì |
-| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → 31 (bảng `part`), `vsMap` 11 → 12 (`npc_template`) |
+| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → **32** (bảng `part`), `vsMap` 11 → 12 (`npc_template`) |
 
 ---
 
@@ -407,7 +413,26 @@ ngay nếu bảng hết chỗ thay vì phát hiện lúc đang chạy.
 
 ---
 
-## 10. Còn thiếu
+## 10. Giftcode để thử (patch 87)
+
+Mã 7 ký tự, không giới hạn lượt, **mỗi tài khoản một lần mỗi mã** — nên mấy nhóm hay dùng lại
+đều có nhiều bản.
+
+| Mã | Cho gì | Ô trống cần |
+|---|---|---|
+| `ldnl001` `ldnl002` `ldnl003` | 60 mỗi loại linh thảo + 30 Địa Hỏa Tinh | 5 |
+| `ldpt001` `ldpt002` `ldpt003` | 10 đan phương mỗi bậc (= 30 mẻ mỗi bậc) | 3 |
+| `ldtien1` `ldtien2` | 500 triệu vàng + 1.000 Linh Thạch | 1 |
+| `ldtp001` `ldtp002` | 5 mỗi loại đan thượng phẩm + 5 Đan Phế | 6 |
+
+`GiftCodeManager` đòi **số ô hành trang trống ≥ số món trong mã**, không đủ thì báo và không trừ
+lượt — dọn túi trước khi nhập.
+
+Giftcode đọc thẳng từ CSDL mỗi lần nhập nên **không cần tắt server** để thêm mã.
+
+Khối (4) của patch 87 có sẵn câu xoá 10 mã này, chạy khi thử xong.
+
+## 11. Còn thiếu
 
 * **Chưa chạy thử trong game một lần nào.** Mọi thứ ở trên mới chỉ biên dịch sạch và kiểm trên
   CSDL nháp.

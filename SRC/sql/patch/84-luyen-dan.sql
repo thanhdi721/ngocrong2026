@@ -115,9 +115,14 @@ INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `lev
 -- (2b) 3 part của NPC vật thể "Lò Luyện Đan".
 --      Số mảnh BẮT BUỘC: đầu 3, thân 17, chân 14 (xem Manager.writePartData).
 --      2955 = ảnh trong suốt.
+--
+--      BA MẢNH CỦA PART ĐẦU LÀ BA KHUNG HÌNH, VẼ LUÂN PHIÊN — KHÔNG chồng lên nhau.
+--      Nhìn part 0 (đầu nhân vật thường) là rõ: [[17,0,0],[18,0,0],[20,0,0]] — ba icon
+--      KHÁC NHAU, tức ba hướng/khung của cùng cái đầu. Vì vậy phải để ảnh lò ở CẢ BA
+--      mảnh; để trong suốt ở mảnh 0 thì lúc NPC đứng yên là không thấy gì (đã dính).
 DELETE FROM `part` WHERE `id` BETWEEN 2658 AND 2660;
 INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES
-(2658, 0, '[[2955,0,0],[32700,-8,-2],[2955,0,0]]'),
+(2658, 0, '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]'),
 (2659, 1, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]'),
 (2660, 2, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]');
 
