@@ -205,6 +205,9 @@ public final class Manager {
             map.initNpc(mapTemp.npcId, mapTemp.npcX, mapTemp.npcY);
         }
         new NonInteractiveNPC().initNonInteractiveNPC();
+        // Quái map Tu Tiên phải gán sát thương bằng tay: map_template không có cột sát thương,
+        // để trống thì MobPoint lấy 5% máu tối đa = 1 triệu/đòn, một phát chết người chơi.
+        nro.models.tu_tien.TuTien.chuanBiQuai();
 
         scheduler.scheduleAtFixedRate(() -> {
             try {

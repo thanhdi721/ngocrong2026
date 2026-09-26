@@ -272,6 +272,11 @@ public class PlayerService {
     private static final int COST_GOLD_HOI_SINH_NRSD = 50_000;
 
     public void hoiSinh(Player player) {
+        // Map Tu Tiên: chết là bị đá về nhà, không cho hồi sinh tại chỗ (tu_tien/TuTien).
+        if (player != null && nro.models.tu_tien.TuTien.dangOMapTuTien(player)) {
+            Service.gI().sendThongBao(player, "Ở Nam Thiên Môn không hồi sinh được. Chờ bị đưa về nhà.");
+            return;
+        }
         if (player.isDie() && player.zone != null && player.zone.map.mapId != 51) {
             if (Util.canDoWithTime(player.lastTimeRevived, 1500)) {
                 boolean canHs = false;

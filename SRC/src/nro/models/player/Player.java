@@ -220,6 +220,9 @@ public class Player implements Runnable {
     /** Lần gần nhất MÌNH ngỏ lời với người khác, để chặn spam menu. */
     public long lucNgoLoiThongDit;
 
+    /** Lần gần nhất bị map Tu Tiên đá về nhà, để không đá liên tục (tu_tien/TuTien). */
+    public long lucChetTuTien;
+
     public MobMe mobMe;
     public Location location;
     public SetClothes setClothes;
@@ -477,6 +480,8 @@ public class Player implements Runnable {
                     if (itemTime != null) {
                         itemTime.update();
                     }
+                    // Chết trong map Tu Tiên thì không hồi sinh tại chỗ, bị đá về nhà.
+                    nro.models.tu_tien.TuTien.kiemTraChet(this);
                     if (magicTree != null) {
                         magicTree.update();
                     }
@@ -1242,6 +1247,10 @@ public class Player implements Runnable {
                 }
                 if (this.itemTime.isUseGiapXen2) {
                     damage = damage / 100 * 40;
+                }
+                // Kim Cương Đan (map Tu Tiên): giảm 50% sát thương, cộng dồn sau Giáp Xên.
+                if (this.itemTime.isUseDanGiap) {
+                    damage /= 2;
                 }
             }
 

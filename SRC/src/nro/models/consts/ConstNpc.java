@@ -172,6 +172,9 @@ public class ConstNpc {
     // NPC "Theo Dõi Boss" đứng bên trái Santa ở đảo Kamê (map 5).
     // id 88 = ô trống kế tiếp sau 87, vẫn giữ luật "id = vị trí trong npc_template".
     public static final byte THEO_DOI_BOSS_NPC = 88;
+    // NPC "Tu Tiên" đứng ở đảo Kamê (map 5) — cửa vào map Tu Tiên và tiệm đan dược.
+    // id 89 = ô trống kế tiếp sau 88, vẫn giữ luật "id = vị trí trong npc_template".
+    public static final byte TU_TIEN = 89;
     // Menu con của ADMIN Đẹp Trai (sau khi xem số dư).
     public static final int MENU_ADMIN_DEP_TRAI_SO_DU = 8500001;
     //----------------------index menu------------------------------------------
@@ -419,5 +422,11 @@ public class ConstNpc {
     public static final int THEO_DOI_BOSS_TRANG_RA = 1060;
     /** Cùng kiểu trên nhưng cho kết quả tìm boss theo tên. Dải 1080…1099 dành riêng. */
     public static final int THEO_DOI_BOSS_TRANG_TIM = 1080;
+
+    //---------------------- NPC Tu Tiên (npc_list/TuTienNPC) ----------------------
+    public static final int TU_TIEN_MENU = 1100;
+    public static final int TU_TIEN_SHOP = 1101;
+    public static final int TU_TIEN_DAN = 1102;
+    public static final int TU_TIEN_NGOC_BOI = 1103;
 
 }

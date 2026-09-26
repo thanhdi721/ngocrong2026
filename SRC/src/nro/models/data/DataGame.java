@@ -65,7 +65,8 @@ public class DataGame {
     // 7 -> 8: thêm npc_template 86 "GoKu Nỗi Loạn" đứng cạnh Chi Chi ở map 5 (patch 63).
     // 8 -> 9: thêm npc_template 87 "Bà Mối" đứng cạnh GoKu Nỗi Loạn ở map 5 (patch 78).
     // 9 -> 10: thêm npc_template 88 "Theo Dõi Boss" đứng bên trái Santa ở map 5 (patch 80).
-    public static byte vsMap = 10;
+    // 10 -> 11: thêm map 208 "Nam Thiên Môn" + npc_template 89 "Tu Tiên" ở map 5 (patch 83).
+    public static byte vsMap = 11;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.
@@ -93,7 +94,8 @@ public class DataGame {
     // 28 -> 29: thêm dòng chỉ số 253 "Tỉ lệ rơi #%" (patch 81).
     // 29 -> 30: gỡ lại dòng 253 — bảng đồ rơi ở NPC nay chỉ liệt kê món, không hiện
     //           tỉ lệ nữa, nên trả ô đó về cho bảng chỉ số (patch 82).
-    public static byte vsItem = 30;
+    // 30 -> 31: thêm 10 vật phẩm 2266–2275 của map Tu Tiên (patch 83).
+    public static byte vsItem = 31;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

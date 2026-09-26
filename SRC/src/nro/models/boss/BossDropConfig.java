@@ -88,6 +88,22 @@ public final class BossDropConfig {
     public static final Muc LT_TRAN_DAME = them("lt_tran_dame",
             "Lốp Trưởng 20k — trần sát thương người chơi", 100, "Mỗi đòn không vượt quá số này");
 
+    //================== Map Tu Tiên (Nam Thiên Môn) ==================
+    public static final Muc TT_TI_LE_LINH_THACH = them("tt_ti_le_linh_thach",
+            "Tu Tiên — tỉ lệ rơi Linh Thạch (%)", 15,
+            "15% ≈ 288 viên/giờ (xem docs 69). Sửa rồi nhìn số thật mà chỉnh lại");
+    public static final Muc TT_HOI_SINH = them("tt_hoi_sinh",
+            "Tu Tiên — giây hồi sinh quái", 30,
+            "Map thường là 3 giây. Để 30 giây mới đặt được trần tốc độ cày");
+    public static final Muc TT_BUA_CONG_THEM = them("tt_bua_cong_them",
+            "Tu Tiên — bùa Tụ Linh cộng thêm (%)", 50,
+            "Cộng TƯƠNG ĐỐI: tỉ lệ 15% + bùa 50% = 22,5%");
+    public static final Muc TT_TRAN_SAT_THUONG = them("tt_tran_sat_thuong",
+            "Tu Tiên — trần sát thương lên quái", 10_000_000,
+            "Quái 20 triệu máu ⇒ mạnh mấy cũng phải 2 đòn");
+    public static final Muc TT_SAT_THUONG_QUAI = them("tt_sat_thuong_quai",
+            "Tu Tiên — sát thương của quái", 50_000, "Quái trong map đánh trúng thì mất ngần này");
+
     //================== Thông báo boss xuất hiện ==================
     public static final Muc THONG_BAO_MAU_MIN = them("thong_bao_mau_min",
             "Thông báo boss — máu tối thiểu", 1_000_000,

@@ -52,6 +52,27 @@ public class ItemTimeService {
             sendItemTime(player, 2754, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeCuongNo)) / 1000));
         }
 
+        //===== đan và bùa của map Tu Tiên (patch 83), icon lấy đúng icon vật phẩm =====
+        if (player.itemTime.isUseDanSucDanh) {
+            sendItemTime(player, 22219, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanSucDanh)) / 1000));
+        }
+        if (player.itemTime.isUseDanHp) {
+            sendItemTime(player, 24885, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanHp)) / 1000));
+        }
+        if (player.itemTime.isUseDanKi) {
+            sendItemTime(player, 24886, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanKi)) / 1000));
+        }
+        if (player.itemTime.isUseDanGiap) {
+            sendItemTime(player, 24895, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanGiap)) / 1000));
+        }
+        if (player.itemTime.isUseDanChiMang) {
+            sendItemTime(player, 27641, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeDanChiMang)) / 1000));
+        }
+        if (player.itemTime.isUseTuLinhPhu) {
+            sendItemTime(player, 30202, (int) ((nro.models.tu_tien.TuTien.THOI_GIAN_BUA
+                    - (System.currentTimeMillis() - player.itemTime.lastTimeTuLinhPhu)) / 1000));
+        }
+
         if (player.itemTime.isUseAnDanh) {
             sendItemTime(player, 2760, (int) ((TIME_ITEM - (System.currentTimeMillis() - player.itemTime.lastTimeAnDanh)) / 1000));
         }

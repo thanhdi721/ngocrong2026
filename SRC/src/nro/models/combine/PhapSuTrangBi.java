@@ -97,6 +97,11 @@ public class PhapSuTrangBi {
         if (it == null || it.template == null || it.template.isUpToUp) {
             return false;
         }
+        // Ngọc bội của map Tu Tiên cũng là type 4 (ô rađa) nhưng là đồ của ĐỆ TỬ,
+        // không cho pháp sư — chỉ số của nó do NPC Tu Tiên gắn cố định.
+        if (nro.models.tu_tien.TuTien.laNgocBoi(it.template.id)) {
+            return false;
+        }
         int t = it.template.type;
         return t >= 0 && t <= 4;
     }

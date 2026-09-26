@@ -402,6 +402,10 @@ public class ChangeMapService {
                 pl.timeChangeZone = System.currentTimeMillis();
             }
             pl.idMark.setIdSpaceShip(NON_SPACE_SHIP);
+            // Map Tu Tiên: vào là tự bật cờ đen. Đặt Ở ĐÂY chứ không trong goToMap vì
+            // goToMap chạy TRƯỚC gói mapInfo (-24) — client chưa biết map mới thì gói đổi
+            // cờ gửi lúc đó dễ rơi mất.
+            nro.models.tu_tien.TuTien.vaoMap(pl);
             if (pl.isPl() && nextMapIsMabu) {
                 if (zoneJoin.map.mapId == 117) {
                     Service.gI().sendThongBao(pl, "Đây là không gian cao trọng lực, hãy cẩn thận");

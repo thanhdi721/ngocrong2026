@@ -820,6 +820,13 @@ public class UseItem {
                             case 1233:
                             case 1532:
                             case 1628:
+                            // Map Tu Tiên (patch 83): 5 đan + Tụ Linh Phù
+                            case nro.models.tu_tien.TuTien.DAN_SUC_DANH:
+                            case nro.models.tu_tien.TuTien.DAN_HP:
+                            case nro.models.tu_tien.TuTien.DAN_KI:
+                            case nro.models.tu_tien.TuTien.DAN_GIAP:
+                            case nro.models.tu_tien.TuTien.DAN_CHI_MANG:
+                            case nro.models.tu_tien.TuTien.TU_LINH_PHU:
 
                                 useItemTime(pl, item);
                                 break;
@@ -1625,6 +1632,36 @@ public class UseItem {
                 pl.itemTime.lastTimeGiapXen = System.currentTimeMillis();
                 pl.itemTime.isUseGiapXen = true;
                 Service.gI().point(pl);
+                break;
+            //================= Map Tu Tiên (patch 83) =================
+            case nro.models.tu_tien.TuTien.DAN_SUC_DANH: // Luyện Khí Đan — +20% sức đánh
+                pl.itemTime.lastTimeDanSucDanh = System.currentTimeMillis();
+                pl.itemTime.isUseDanSucDanh = true;
+                Service.gI().point(pl);
+                break;
+            case nro.models.tu_tien.TuTien.DAN_HP: // Hộ Thể Đan — +30% HP
+                pl.itemTime.lastTimeDanHp = System.currentTimeMillis();
+                pl.itemTime.isUseDanHp = true;
+                Service.gI().point(pl);
+                break;
+            case nro.models.tu_tien.TuTien.DAN_KI: // Tụ Khí Đan — +30% KI
+                pl.itemTime.lastTimeDanKi = System.currentTimeMillis();
+                pl.itemTime.isUseDanKi = true;
+                Service.gI().point(pl);
+                break;
+            case nro.models.tu_tien.TuTien.DAN_GIAP: // Kim Cương Đan — giảm 50% sát thương
+                pl.itemTime.lastTimeDanGiap = System.currentTimeMillis();
+                pl.itemTime.isUseDanGiap = true;
+                break;
+            case nro.models.tu_tien.TuTien.DAN_CHI_MANG: // Phá Quân Đan — +10% chí mạng
+                pl.itemTime.lastTimeDanChiMang = System.currentTimeMillis();
+                pl.itemTime.isUseDanChiMang = true;
+                Service.gI().point(pl);
+                break;
+            case nro.models.tu_tien.TuTien.TU_LINH_PHU: // Tụ Linh Phù — +50% rơi Linh Thạch, 30 phút
+                pl.itemTime.lastTimeTuLinhPhu = System.currentTimeMillis();
+                pl.itemTime.isUseTuLinhPhu = true;
+                Service.gI().sendThongBao(pl, "Tụ Linh Phù: 30 phút tới nhặt Linh Thạch dễ hơn.");
                 break;
             case 385: // ẩn danh
                 pl.itemTime.lastTimeAnDanh = System.currentTimeMillis();

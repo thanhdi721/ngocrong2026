@@ -81,7 +81,10 @@ public class BangVangThongDit {
                     "select id, name, thong_dit from player"
                     + " where thong_dit is not null and thong_dit <> '0|0'");
             while (rs.next()) {
-                long id = rs.getLong("id");
+                // PHẢI dùng getInt: cột player.id là INT, JDBC trả về Integer, mà
+                // ResultSetImpl.getLong ép thẳng (long) Object -> ClassCastException.
+                // Cùng cái bẫy đã ghi ở Manager.baoDamCot với count(*).
+                long id = rs.getInt("id");
                 String ten = rs.getString("name");
                 int[] so = tach(rs.getString("thong_dit"));
                 if (so[0] > 0 || so[1] > 0) {

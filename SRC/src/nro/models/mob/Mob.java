@@ -148,9 +148,22 @@ public class Mob {
                     }
                 }
             }
-            if (!dieWhenHpFull && !isBigBoss() && !MapService.gI().isMapPhoBan(this.zone.map.mapId) && this.lvMob > 0 && plAtt != null && plAtt.charms.tdOaiHung < System.currentTimeMillis()) {
+            if (!dieWhenHpFull && !isBigBoss() && !MapService.gI().isMapPhoBan(this.zone.map.mapId)
+                    && !nro.models.tu_tien.TuTien.laQuaiTuTien(this)
+                    && this.lvMob > 0 && plAtt != null && plAtt.charms.tdOaiHung < System.currentTimeMillis()) {
                 damage = (int) ((this.point.maxHp <= 20_000_000 ? this.point.maxHp * 1 : 2) * (10.0 / 100));
                 this.mobAttackPlayer(plAtt);
+            }
+            // Map Tu Tiên có luật riêng: trần sát thương mỗi đòn (mặc định 10 triệu). Quái
+            // 20 triệu máu ⇒ mạnh mấy cũng phải 2 đòn, yếu hơn thì nhiều đòn hơn.
+            if (nro.models.tu_tien.TuTien.laQuaiTuTien(this)) {
+                damage = nro.models.tu_tien.TuTien.chanSatThuong(damage);
+                // Đánh trả, nhưng giãn 2,5 giây một lần: Liên hoàn bắn 330 ms/đòn, gọi mỗi
+                // đòn thì quái xả liên tục, người chơi chết oan.
+                if (plAtt != null && Util.canDoWithTime(lastTimeAttackPlayer, 2500)) {
+                    this.mobAttackPlayer(plAtt);
+                    lastTimeAttackPlayer = System.currentTimeMillis();
+                }
             }
             if (plAtt != null && plAtt.isBoss && this.tempId > 0 && Util.isTrue(1, 2) && Util.canDoWithTime(lastTimeAttackPlayer, 2500)) {
                 this.mobAttackPlayer(plAtt);
@@ -190,7 +203,9 @@ public class Mob {
                 // FIX: máy đo sức mạnh chỉ để đo sát thương, KHÔNG được cho kinh nghiệm.
                 // Trước đây mọi đòn trúng máy đo đều cộng sức mạnh/tiềm năng như quái thường
                 // (lỗi có sẵn từ bản gốc) → người chơi đứng đánh máy đo để cày.
-                if (this.tempId != ConstMob.MAY_DO_SUC_MANH) {
+                // Map Tu Tiên: đánh quái KHÔNG nhận kinh nghiệm (yêu cầu của chủ dự án).
+                if (this.tempId != ConstMob.MAY_DO_SUC_MANH
+                        && !nro.models.tu_tien.TuTien.laQuaiTuTien(this)) {
                     Service.gI().addSMTN(plAtt, (byte) 2, getTiemNangForPlayer(plAtt, damage), true);
                     TrainingService.gI().tangTnsmLuyenTap(plAtt, getTiemNangForPlayer(plAtt, damage));
                 }
@@ -300,7 +315,9 @@ public class Mob {
                     if (this.zone.isGoldenFriezaAlive && TimeUtil.is21H()) {
                         return;
                     }
-                    if (Util.canDoWithTime(lastTimeDie, 3000)) {
+                    long nhip = nro.models.tu_tien.TuTien.laQuaiTuTien(this)
+                            ? nro.models.tu_tien.TuTien.nhipHoiSinh() : 3000L;
+                    if (Util.canDoWithTime(lastTimeDie, nhip)) {
                         this.hoiSinh();
                         this.sendMobHoiSinh();
                     }
@@ -613,6 +630,11 @@ public class Mob {
         List<ItemMap> list = new ArrayList<>();
         if (player.isBoss) {
             return list;
+        }
+        // Map Tu Tiên: CHỈ rơi Linh Thạch. Chặn ngay ở đây là chặn sạch vàng, ngọc, đồ sự
+        // kiện… mà không phải đi vá từng nhánh bên dưới.
+        if (nro.models.tu_tien.TuTien.laQuaiTuTien(this)) {
+            return nro.models.tu_tien.TuTien.roiLinhThach(this, player, x, yEnd);
         }
 
         if (this.tempId == 0) {

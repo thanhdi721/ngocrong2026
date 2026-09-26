@@ -56,6 +56,22 @@ public class ItemTime {
     public long lastTimeCuongNo2;
     public long lastTimeAnDanh2;
 
+    //================= Map Tu Tiên (patch 83) =================
+    /** 5 loại đan mua ở NPC Tu Tiên, đều 10 phút ({@link #TIME_ITEM}). */
+    public boolean isUseDanSucDanh;
+    public long lastTimeDanSucDanh;
+    public boolean isUseDanHp;
+    public long lastTimeDanHp;
+    public boolean isUseDanKi;
+    public long lastTimeDanKi;
+    public boolean isUseDanGiap;
+    public long lastTimeDanGiap;
+    public boolean isUseDanChiMang;
+    public long lastTimeDanChiMang;
+    /** Tụ Linh Phù — tăng tỉ lệ rơi Linh Thạch, 30 phút. */
+    public boolean isUseTuLinhPhu;
+    public long lastTimeTuLinhPhu;
+
     public boolean isUseMayDo;
     public long lastTimeUseMayDo;
     public boolean isUseKhoBauX2;
@@ -193,6 +209,30 @@ public class ItemTime {
             if (Util.canDoWithTime(lastTimeUseCMS, TIME_CMS)) {
                 isUseCMS = false;
             }
+        }
+        // ===== đan và bùa của map Tu Tiên =====
+        if (isUseDanSucDanh && Util.canDoWithTime(lastTimeDanSucDanh, TIME_ITEM)) {
+            isUseDanSucDanh = false;
+            Service.gI().point(player);
+        }
+        if (isUseDanHp && Util.canDoWithTime(lastTimeDanHp, TIME_ITEM)) {
+            isUseDanHp = false;
+            Service.gI().point(player);
+        }
+        if (isUseDanKi && Util.canDoWithTime(lastTimeDanKi, TIME_ITEM)) {
+            isUseDanKi = false;
+            Service.gI().point(player);
+        }
+        if (isUseDanGiap && Util.canDoWithTime(lastTimeDanGiap, TIME_ITEM)) {
+            isUseDanGiap = false;
+        }
+        if (isUseDanChiMang && Util.canDoWithTime(lastTimeDanChiMang, TIME_ITEM)) {
+            isUseDanChiMang = false;
+            Service.gI().point(player);
+        }
+        if (isUseTuLinhPhu
+                && Util.canDoWithTime(lastTimeTuLinhPhu, nro.models.tu_tien.TuTien.THOI_GIAN_BUA)) {
+            isUseTuLinhPhu = false;
         }
         if (isUseGTPT) {
             if (Util.canDoWithTime(lastTimeUseGTPT, TIME_ITEM)) {

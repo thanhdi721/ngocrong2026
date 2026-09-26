@@ -321,6 +321,13 @@ public class InventoryService {
             }
         }
 
+        // Ngọc bội của map Tu Tiên: CHỈ đệ tử đeo được. Nó là type 4 (ô rađa) nên nếu không
+        // chặn ở đây thì chủ nhân cũng đeo được như rađa thường.
+        if (nro.models.tu_tien.TuTien.laNgocBoi(item.template.id) && !player.isPet) {
+            Service.gI().sendThongBaoOK(player, "Ngọc bội chỉ đệ tử đeo được!");
+            return sItem;
+        }
+
         // Kiểm tra giới tính của vật phẩm
         if (item.template.gender < 3 && item.template.gender != player.gender) {
             Service.gI().sendThongBaoOK(player.isPet ? ((Pet) player).master : player, "Trang bị không phù hợp!");

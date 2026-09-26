@@ -865,6 +865,11 @@ public class NPoint {
             hpMax += this.player.pet.nPoint.hpMax;
         }
 
+        // Hộ Thể Đan (map Tu Tiên): +30% HP
+        if (this.player.itemTime != null && this.player.itemTime.isUseDanHp) {
+            hpMax += hpMax * 30 / 100;
+        }
+
         // Xử lý bổ huyết
         if (this.player.itemTime != null && this.player.itemTime.isUseBoHuyet && !this.player.itemTime.isUseBoHuyet2) {
             hpMax *= 2;
@@ -1007,6 +1012,10 @@ public class NPoint {
         }
 
         // Xử lý bổ khí
+        // Tụ Khí Đan (map Tu Tiên): +30% KI
+        if (this.player.itemTime != null && this.player.itemTime.isUseDanKi) {
+            mpMax += mpMax * 30 / 100;
+        }
         if (this.player.itemTime != null && this.player.itemTime.isUseBoKhi && !this.player.itemTime.isUseBoKhi2) {
             mpMax *= 2;
         }
@@ -1128,6 +1137,15 @@ public class NPoint {
         if (this.player.itemTime != null && this.player.itemTime.isUseNuocMia3) {
             this.tlDameCrit.add(10);
             this.tlSDCM += 10;
+        }
+
+        // Luyện Khí Đan (map Tu Tiên): +20% sức đánh
+        if (this.player.itemTime != null && this.player.itemTime.isUseDanSucDanh) {
+            dame += dame * 20 / 100;
+        }
+        // Phá Quân Đan (map Tu Tiên): +10% chí mạng
+        if (this.player.itemTime != null && this.player.itemTime.isUseDanChiMang) {
+            this.tlDameCrit.add(10);
         }
 
         // Xử lý cuồng nộ
