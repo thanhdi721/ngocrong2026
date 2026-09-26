@@ -162,6 +162,10 @@ public class ThongDitService {
         pl.soLanBiThong++;
         capNhatChiSo(nguoiThong);
         capNhatChiSo(pl);
+        // Bảng vàng của Bà Mối: đây là chỗ DUY NHẤT hai con số này đổi, nên chỉ cần
+        // báo ở đây là bảng luôn đúng, khỏi hỏi lại cơ sở dữ liệu.
+        BangVangThongDit.gI().capNhat(nguoiThong);
+        BangVangThongDit.gI().capNhat(pl);
 
         String khen = LOI_KHEN[Util.nextInt(0, LOI_KHEN.length - 1)];
         Service.gI().sendThongBao(nguoiThong, khen + "\nBạn đã thông "

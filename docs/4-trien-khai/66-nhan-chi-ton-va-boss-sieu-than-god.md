@@ -12,7 +12,7 @@ Ba thứ đi chung một gói:
 |---|---|
 | **Vật phẩm 2264 "Gậy Thông Thiên"** | icon 8482 — dùng lại đúng ảnh cây "Gậy như ý" (item 920) đã có sẵn, không thêm file ảnh nào. Mô tả: *"Dài ngắn tùy tâm, nông sâu tùy duyên"*. Công dụng duy nhất: "thông đít", mỗi lần mất 1 cái. |
 | **Hai boss Siêu Thần God** | Vegeta Siêu Thần God + Goku Siêu Thần God, 500 triệu HP, 50.000 sát thương, 10 phút ra một lượt, mỗi lượt ra CẢ HAI ở hai hành tinh khác nhau. |
-| **NPC 87 "Bà Mối"** | đứng cạnh GoKu Nỗi Loạn ở đảo Kamê (map 5), xem sổ đã thông / bị thông bao nhiêu lần. |
+| **NPC 87 "Bà Mối"** | đứng cạnh GoKu Nỗi Loạn ở đảo Kamê (map 5): xem sổ của mình, xem **bảng vàng** hai chiều, xem luật. |
 
 ---
 
@@ -114,7 +114,52 @@ Cột `player.thong_dit` (TEXT) chứa `"soLanThong|soLanBiThong"`.
 * Part của hai boss và của Bà Mối: đủ mảnh, đủ file icon cả 4 mức phóng to.
 * Gói dữ liệu vật phẩm sau khi thêm item 2264: **63.020 + 63.090 byte** (trần mỗi gói 65.000). **Chỉ còn chỗ cho khoảng 42 vật phẩm nữa** — lần tới thêm đồ phải rút gọn mô tả hoặc đổi cách chia gói.
 
-## 6. Việc người vận hành phải làm
+## 6. Bảng vàng của Bà Mối
+
+`SRC/src/nro/models/services/BangVangThongDit.java`
+
+Hai bảng xếp hạng, xem ở NPC Bà Mối → **Bảng vàng**:
+
+| Bảng | Xếp theo |
+|---|---|
+| **ĐẠI SƯ CHÍ TÔN** | thông người khác nhiều nhất |
+| **CHIẾN BINH QUẢ CẢM** | bị thông nhiều nhất |
+
+Mỗi bảng in 10 người đứng đầu (`BangVangThongDit.TOP`) kèm **hạng của chính người đang xem**
+(ví dụ `Hạng của con: 5/37 (5 lần)`). Bằng điểm thì xếp theo tên.
+
+### Số liệu lấy ở đâu
+
+Nạp **một lần duy nhất** từ cột `player.thong_dit`, vào lúc ai đó mở bảng lần đầu sau khi
+khởi động server. Từ đó chỉ `capNhat()` trong `ThongDitService.dongY` cập nhật.
+
+Làm vậy vì **đó là con đường duy nhất hai con số này thay đổi**, nên bảng luôn đúng mà không
+phải hỏi lại cơ sở dữ liệu lần nào. Nếu đọc lại CSDL mỗi lần mở bảng thì người đang online sẽ
+hiện **số cũ**, vì cột `thong_dit` chỉ được ghi theo nhịp lưu định kỳ của `PlayerDAO`.
+
+> Hệ quả: sửa tay cột `thong_dit` trong CSDL lúc server đang chạy thì phải khởi động lại mới
+> thấy. Đây là đánh đổi có chủ ý.
+
+### Loa soán ngôi
+
+Mỗi lần thông xong, nếu có người **vượt** người đang đứng đầu (bằng điểm thì người cũ giữ ngôi)
+thì `ServerNotify` loa cả thế giới:
+
+* `Tèo vừa vượt mặt Tí, chiếm ngôi ĐẠI SƯ CHÍ TÔN với 7 lần. Cả ba hành tinh nín thở.`
+* `Tèo soán ngôi CHIẾN BINH QUẢ CẢM của Tí sau 12 lần. Xin nghiêng mình.`
+* Người đầu tiên lên bảng thì có câu riêng.
+
+Ngôi đầu của hai bảng được dò lại ngay lúc nạp, nên khởi động lại server không làm ai "soán
+ngôi" oan.
+
+### Nếu client cắt chữ
+
+Bảng in tối đa 15 dòng chữ. Client nào không hiện hết thì **sửa đúng một hằng số**:
+`BangVangThongDit.TOP` (đang là 10) xuống 5.
+
+---
+
+## 7. Việc người vận hành phải làm
 
 1. Tắt server.
 2. `mysqldump` bốn bảng `npc_template map_template item_template player`.

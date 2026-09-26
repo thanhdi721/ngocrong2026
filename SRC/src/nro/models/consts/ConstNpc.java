@@ -399,5 +399,7 @@ public class ConstNpc {
      * Gậy Thông Thiên: gộp "Kết bạn" và "Thông đít" (services/ThongDitService).
      */
     public static final int KET_BAN_HOAC_THONG_DIT = 1032;
+    /** Menu chọn bảng vàng của Bà Mối (services/BangVangThongDit). */
+    public static final int BA_MOI_BANG_VANG = 1033;
 
 }

@@ -2,6 +2,7 @@ package nro.models.npc_list;
 
 import nro.models.consts.ConstNpc;
 import nro.models.npc.Npc;
+import nro.models.services.BangVangThongDit;
 import nro.models.player.Player;
 import nro.models.services.ThongDitService;
 import nro.models.utils.Util;
@@ -82,23 +83,76 @@ public class BaMoi extends Npc {
         if (canOpenNpc(player)) {
             createOtherMenu(player, ConstNpc.BA_MOI_MENU,
                     CHAO[Util.nextInt(0, CHAO.length - 1)] + "\nCon muốn hỏi gì?",
-                    "Xem sổ\ncủa con", "Luật\nlệ", "Thôi");
+                    "Xem sổ\ncủa con", "Bảng\nvàng", "Luật\nlệ", "Thôi");
         }
     }
 
     @Override
     public void confirmMenu(Player player, int select) {
-        if (!canOpenNpc(player) || player.idMark.getIndexMenu() != ConstNpc.BA_MOI_MENU) {
+        if (!canOpenNpc(player)) {
             return;
         }
-        switch (select) {
-            case 0 ->
-                xemSo(player);
-            case 1 ->
-                xemLuat(player);
-            default -> {
+        int menu = player.idMark.getIndexMenu();
+        if (menu == ConstNpc.BA_MOI_MENU) {
+            switch (select) {
+                case 0 ->
+                    xemSo(player);
+                case 1 ->
+                    moBangVang(player);
+                case 2 ->
+                    xemLuat(player);
+                default -> {
+                }
+            }
+        } else if (menu == ConstNpc.BA_MOI_BANG_VANG) {
+            switch (select) {
+                case 0 ->
+                    xemBang(player, true);
+                case 1 ->
+                    xemBang(player, false);
+                default -> {
+                }
             }
         }
+    }
+
+    private void moBangVang(Player player) {
+        createOtherMenu(player, ConstNpc.BA_MOI_BANG_VANG,
+                "Bà treo hai tấm bảng ngoài hiên.\nTấm nào cũng có người tranh nhau.\nCon xem tấm nào?",
+                "Top\nĐại Sư", "Top\nChiến Binh", "Thôi");
+    }
+
+    /**
+     * In một tấm bảng vàng: {@value nro.models.services.BangVangThongDit#TOP} người đứng đầu
+     * và hạng của chính người đang xem.
+     */
+    private void xemBang(Player player, boolean theoThong) {
+        BangVangThongDit bv = BangVangThongDit.gI();
+        java.util.List<BangVangThongDit.Dong> ds = bv.top(theoThong);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(theoThong ? "BẢNG VÀNG — ĐẠI SƯ CHÍ TÔN\n(thông người khác nhiều nhất)\n\n"
+                : "BẢNG VÀNG — CHIẾN BINH QUẢ CẢM\n(bị thông nhiều nhất)\n\n");
+        if (ds.isEmpty()) {
+            sb.append("Bảng còn trắng tinh.\nCả server chưa ai dám mở hàng.\n");
+        } else {
+            for (int i = 0; i < ds.size(); i++) {
+                BangVangThongDit.Dong d = ds.get(i);
+                sb.append(i + 1).append(". ").append(d.ten)
+                        .append(" — ").append(d.so(theoThong)).append(" lần\n");
+            }
+        }
+
+        int cua = theoThong ? player.soLanThong : player.soLanBiThong;
+        int hang = bv.hang(player, theoThong);
+        sb.append("\n");
+        if (hang <= 0) {
+            sb.append("Con chưa có tên trên bảng này.");
+        } else {
+            sb.append("Hạng của con: ").append(hang).append("/")
+                    .append(bv.soNguoi(theoThong)).append(" (").append(cua).append(" lần)");
+        }
+        createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Bà cất bảng\nđi được rồi");
     }
 
     private void xemSo(Player player) {
