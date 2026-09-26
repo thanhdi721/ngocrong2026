@@ -37,13 +37,21 @@
 -- TRÌNH TỰ CHẠY
 -- ---------------------------------------------------------------------
 --   1) TẮT SERVER.
---   2) Chạy cả file. Chạy lại nhiều lần vẫn an toàn.
---   3) Xem khối (3): cả hai cột `dat` phải = 1.
+--   2) CHỌN ĐÚNG DATABASE `team2026` TRƯỚC KHI CHẠY. Trong phpMyAdmin: bấm vào tên
+--      `team2026` ở khung bên trái, rồi mới mở thẻ SQL / Import. Đứng ở màn hình gốc
+--      hay ở `information_schema` mà chạy là câu ALTER nhắm sai chỗ (xem khối (2)).
+--      Dòng lệnh: mysql -u root -p team2026 < 85-linh-dien.sql
+--   3) Chạy cả file. Chạy lại nhiều lần vẫn an toàn.
+--   4) Xem khối (3): cả hai cột `dat` phải = 1.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
 -- (1) KIỂM TRA TRƯỚC.
 -- ---------------------------------------------------------------------
+-- Dòng này PHẢI ra `team2026`. Ra `information_schema` hay NULL nghĩa là đang chọn
+-- sai database — xem khối (2), file sẽ tự dừng chứ không làm bậy.
+SELECT DATABASE() AS `database_dang_chon_phai_la_team2026`;
+
 -- `data_card` PHẢI là `text`. Còn là `varchar` nghĩa là chưa chạy patch 78 —
 -- thêm cột lúc đó sẽ văng lỗi 1118 "Row size too large".
 SELECT `column_name`, `data_type`
@@ -52,14 +60,31 @@ SELECT `column_name`, `data_type`
    AND `column_name` IN ('data_card', 'thong_dit', 'tu_tien');
 
 -- ---------------------------------------------------------------------
--- (2) THÊM CỘT — bỏ qua nếu đã có.
+-- (2) THÊM CỘT — bỏ qua nếu đã có, tự dừng nếu chọn sai database.
 -- ---------------------------------------------------------------------
-SET @co := (SELECT COUNT(*) FROM `information_schema`.`columns`
-             WHERE `table_schema` = DATABASE() AND `table_name` = 'player'
-               AND `column_name` = 'tu_tien');
-SET @sql := IF(@co = 0,
-               'ALTER TABLE `player` ADD COLUMN `tu_tien` TEXT NULL',
-               'SELECT ''cot tu_tien da co, khong lam gi'' AS `ghi_chu`');
+-- Viết kiểu PREPARE/EXECUTE (giống patch 58 / 63 / 78) để chạy được cả MariaDB lẫn
+-- MySQL 8 — MySQL 8 không hiểu "ADD COLUMN IF NOT EXISTS".
+--
+-- CHẶN SAI DATABASE: mọi câu ở đây bám vào DATABASE(), tức database ĐANG CHỌN. Nếu
+-- trong phpMyAdmin bạn đang đứng ở `information_schema` (hoặc bất kỳ database nào
+-- khác) thì `@coCot` = 0, câu ALTER sẽ nhắm vào bảng `player` của database ĐÓ, và
+-- MySQL trả về "#1044 Access denied ... to database 'information_schema'". Không hỏng
+-- gì, nhưng cũng không thêm được cột. Vì vậy phải kiểm bảng `player` có tồn tại trong
+-- database đang chọn hay không TRƯỚC, rồi mới quyết định chạy ALTER.
+SET @coBang := (SELECT COUNT(*) FROM `information_schema`.`tables`
+                 WHERE `table_schema` = DATABASE() AND `table_name` = 'player');
+SET @coCot := (SELECT COUNT(*) FROM `information_schema`.`columns`
+                WHERE `table_schema` = DATABASE() AND `table_name` = 'player'
+                  AND `column_name` = 'tu_tien');
+SET @sql := CASE
+              WHEN @coBang = 0 THEN
+                  'SELECT ''DUNG LAI: database dang chon KHONG co bang `player`. '
+                  'Hay bam vao team2026 o khung ben trai phpMyAdmin roi chay lai file nay.'' AS `loi`'
+              WHEN @coCot > 0 THEN
+                  'SELECT ''cot tu_tien da co, khong lam gi'' AS `ghi_chu`'
+              ELSE
+                  'ALTER TABLE `player` ADD COLUMN `tu_tien` TEXT NULL'
+            END;
 PREPARE st FROM @sql;
 EXECUTE st;
 DEALLOCATE PREPARE st;
