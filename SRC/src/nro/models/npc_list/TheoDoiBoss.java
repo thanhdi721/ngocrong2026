@@ -18,6 +18,7 @@ import nro.models.npc.NpcFactory;
 import nro.models.player.Player;
 import nro.models.server.Manager;
 import nro.models.services.ItemService;
+import nro.models.services.Service;
 import nro.models.shop.ShopService;
 import nro.models.utils.Util;
 
@@ -255,7 +256,7 @@ public class TheoDoiBoss extends Npc {
             sb.append("Máu: ").append(dinhDang(d.mauMax)).append("\n");
         }
 
-        List<MucRoi> bang = BangRoiBoss.cua(d.bossId);
+        List<MucRoi> bang = BangRoiBoss.xem(d.bossId);
         if (bang.isEmpty()) {
             sb.append("\nChưa khai báo bảng rơi.\nCon này rơi theo luật riêng của nó.");
             createOtherMenu(player, ConstNpc.IGNORE_MENU, sb.toString(), "Đóng");
@@ -265,17 +266,33 @@ public class TheoDoiBoss extends Npc {
         moBangDoRoi(player, d, bang);
     }
 
+    /** Số ô tối đa của bảng — gói tin ghi số ô bằng một byte, và dài quá cũng khó xem. */
+    private static final int TOI_DA_O = 60;
+
     /** Dựng khung tiệm "chỉ để xem" cho bảng rơi của một boss. */
     private void moBangDoRoi(Player player, Dong d, List<MucRoi> bang) {
         List<Item> ds = new ArrayList<>();
         List<String> nhan = new ArrayList<>();
+        StringBuilder themVao = new StringBuilder();
+        int bo = 0;
+
         for (MucRoi m : bang) {
+            if (m.loai == 1) {
+                // Đồ Thần Linh không có id cố định (bốc ngẫu nhiên lúc rơi) nên không đặt
+                // vào ô được — nhắc bằng dòng thông báo.
+                themVao.append("\n• Đồ Thần Linh ngẫu nhiên — ").append(m.chuoiTiLe());
+                continue;
+            }
             if (m.ids == null || m.ids.length == 0) {
                 continue;
             }
             // Một dòng có nhiều id (kiểu "Ngọc Rồng 3-5 sao") thì hiện thành nhiều ô,
             // mỗi ô một vật phẩm thật, để người chơi thấy đúng cái mình sắp nhặt.
             for (int id : m.ids) {
+                if (ds.size() >= TOI_DA_O) {
+                    bo++;
+                    continue;
+                }
                 if (id < 0 || id >= Manager.ITEM_TEMPLATES.size()) {
                     continue;
                 }
@@ -298,7 +315,7 @@ public class TheoDoiBoss extends Npc {
                 if (m.ids.length > 1) {
                     n.append("1 trong ").append(m.ids.length).append(" món — ");
                 }
-                n.append(m.tiLe).append("%");
+                n.append(m.chuoiTiLe());
                 if (m.nhom > 0) {
                     n.append(" (chung lượt ").append(m.nhom).append(")");
                 }
@@ -308,9 +325,27 @@ public class TheoDoiBoss extends Npc {
                 nhan.add(n.toString());
             }
         }
-        if (ds.isEmpty()) {
+
+        if (ds.isEmpty() && themVao.length() == 0) {
             createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                    "Bảng rơi của con này có dòng lỗi,\nbáo quản trị xem lại cpanel.", "Đóng");
+                    "Chưa khai báo đồ rơi cho con này.", "Đóng");
+            return;
+        }
+
+        // Tên boss và trạng thái gửi kèm bằng thông báo, vì khung tiệm chỉ có chỗ cho
+        // chữ trên nút tab.
+        StringBuilder tin = new StringBuilder(d.ten);
+        tin.append(d.dangRa > 0 ? " — đang ra ở " + String.join(", ", d.map) : " — đang nghỉ");
+        if (themVao.length() > 0) {
+            tin.append(themVao);
+        }
+        if (bo > 0) {
+            tin.append("\n(còn ").append(bo).append(" món nữa không đủ chỗ hiện)");
+        }
+        Service.gI().sendThongBao(player, tin.toString());
+
+        if (ds.isEmpty()) {
+            createOtherMenu(player, ConstNpc.IGNORE_MENU, tin.toString(), "Đóng");
             return;
         }
         String tenTab = d.ten + "\n" + (d.dangRa > 0 ? String.join(", ", d.map) : "đang nghỉ");

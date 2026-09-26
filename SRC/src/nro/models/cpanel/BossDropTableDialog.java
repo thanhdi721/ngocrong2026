@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -40,6 +41,7 @@ import nro.models.boss.drop.MucRoi;
 final class BossDropTableDialog extends JDialog {
 
     private final int bossId;
+    private final JLabel trangThai = new JLabel();
     private final List<MucRoi> ds = new ArrayList<>();
     private final Model model = new Model();
     private final JTable table = new JTable(model);
@@ -53,15 +55,26 @@ final class BossDropTableDialog extends JDialog {
                     m.slMin, m.slMax, m.tiLe, m.nhom, m.ghiChu));
         }
 
-        JPanel bac = new JPanel(new BorderLayout());
+        JPanel bac = new JPanel(new BorderLayout(0, 6));
         bac.setBorder(BorderFactory.createEmptyBorder(8, 8, 4, 8));
         bac.add(new JLabel("<html>"
                 + "<b>Nhóm 0</b> = quay riêng từng dòng (tỉ lệ % độc lập).<br>"
                 + "<b>Nhóm &gt; 0</b> = các dòng cùng số nhóm chung MỘT vòng quay 100 %, tỉ lệ là phần của vòng.<br>"
-                + "<b>Id vật phẩm</b> nhận nhiều id cách nhau bởi dấu phẩy, trúng thì bốc ngẫu nhiên một cái.<br>"
-                + "<i>Bảng này là phần THÊM, chạy sau đồ rơi viết trong code của boss. "
-                + "Năm con mới (2 Fu, 2 Siêu Thần God, Lão Dê) không viết cứng gì nên bảng này là toàn bộ đồ rơi của chúng.</i>"
-                + "</html>"), BorderLayout.CENTER);
+                + "<b>Id vật phẩm</b> nhận nhiều id cách nhau bởi dấu phẩy, trúng thì bốc ngẫu nhiên một cái."
+                + "</html>"), BorderLayout.NORTH);
+        bac.add(trangThai, BorderLayout.CENTER);
+        capNhatTrangThai();
+
+        // Phần đồ rơi GỐC — chỉ để xem, vì nó nằm trong reward() viết tay của lớp boss.
+        JTextArea goc = new JTextArea(chuoiGoc(), 5, 80);
+        goc.setEditable(false);
+        goc.setLineWrap(true);
+        goc.setWrapStyleWord(true);
+        goc.setBackground(new java.awt.Color(0xF4, 0xF4, 0xF4));
+        JScrollPane cuonGoc = new JScrollPane(goc);
+        cuonGoc.setBorder(BorderFactory.createTitledBorder(
+                "Đồ rơi GỐC của boss (viết trong code — chỉ để xem, sửa ở đây không được)"));
+        bac.add(cuonGoc, BorderLayout.SOUTH);
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowHeight(22);
@@ -83,6 +96,7 @@ final class BossDropTableDialog extends JDialog {
         them.addActionListener(e -> {
             ds.add(new MucRoi(new int[]{0}, 1, 1, 10, 0, ""));
             model.fireTableDataChanged();
+            capNhatTrangThai();
         });
         xoa.addActionListener(e -> {
             int v = table.getSelectedRow();
@@ -93,6 +107,7 @@ final class BossDropTableDialog extends JDialog {
             stopEdit();
             ds.remove(table.convertRowIndexToModel(v));
             model.fireTableDataChanged();
+            capNhatTrangThai();
         });
         apDung.addActionListener(e -> apDung(false));
         luu.addActionListener(e -> apDung(true));
@@ -110,6 +125,7 @@ final class BossDropTableDialog extends JDialog {
                         m.slMin, m.slMax, m.tiLe, m.nhom, m.ghiChu));
             }
             model.fireTableDataChanged();
+            capNhatTrangThai();
         });
         dong.addActionListener(e -> dispose());
 
@@ -117,8 +133,56 @@ final class BossDropTableDialog extends JDialog {
         add(bac, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(nut, BorderLayout.SOUTH);
-        setSize(860, 420);
+        setSize(900, 560);
         setLocationRelativeTo(parent);
+    }
+
+    /**
+     * Câu giải thích ngay dưới phần chú thích. Bảng rỗng là chuyện BÌNH THƯỜNG với boss cũ —
+     * đồ rơi của chúng nằm trong {@code reward()} viết tay ở từng lớp boss (85 file, 237 lệnh
+     * thả đồ), bảng này không đọc được vào. Không nói rõ thì người dùng mở ra thấy trống trơn
+     * lại tưởng hỏng.
+     */
+    private void capNhatTrangThai() {
+        if (ds.isEmpty()) {
+            trangThai.setText("<html><span style='color:#b00'><b>Bảng đang TRỐNG.</b></span> "
+                    + "Con này chưa khai báo dòng nào, nên đồ rơi hiện tại của nó "
+                    + "<b>nằm trong code riêng của boss</b> — bảng này không đọc được vào và "
+                    + "cũng không sửa được từ đây.<br>"
+                    + "Bấm <b>Thêm dòng</b> để cho nó rơi <b>THÊM</b> món mới; phần đồ rơi cũ "
+                    + "vẫn giữ nguyên, không mất.<br>"
+                    + "<i>Chỉ 5 con mới (2 Fu, 2 Siêu Thần God, Lão Dê) là đã gỡ hết phần viết "
+                    + "cứng, nên với chúng bảng này là toàn bộ đồ rơi.</i></html>");
+        } else {
+            trangThai.setText("<html><span style='color:#060'><b>Có " + ds.size()
+                    + " dòng.</b></span> Đây là phần <b>THÊM</b>, chạy sau đồ rơi viết trong "
+                    + "code của boss (trừ 5 con mới: 2 Fu, 2 Siêu Thần God, Lão Dê — với chúng "
+                    + "bảng này là toàn bộ đồ rơi).</html>");
+        }
+    }
+
+    /** Liệt kê đồ rơi gốc của boss thành chữ cho người xem. */
+    private String chuoiGoc() {
+        java.util.List<MucRoi> ds = BangRoiBoss.goc(bossId);
+        if (ds.isEmpty()) {
+            return "Con này chưa được khai báo đồ rơi gốc trong BangRoiBoss.khaiBaoGoc().\n"
+                    + "Nếu nó vẫn rơi đồ trong game thì phần đó đang nằm trong reward() của lớp boss\n"
+                    + "mà chưa ai chép sang, nên bảng ở đây chưa liệt kê được.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (MucRoi m : ds) {
+            sb.append("• ").append(m.tenVatPham());
+            String sl = m.chuoiSoLuong();
+            if (!sl.isEmpty()) {
+                sb.append(" ").append(sl);
+            }
+            sb.append("  —  ").append(m.chuoiTiLe());
+            if (m.ghiChu != null && !m.ghiChu.isEmpty()) {
+                sb.append("   (").append(m.ghiChu).append(")");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
     private void stopEdit() {

@@ -189,6 +189,137 @@ public final class BangRoiBoss {
         new File(DUONG_DAN).delete();
     }
 
+    //================================ đồ rơi GỐC (chỉ để xem) ================================
+    /** Trang bị rơi từ boss lớn — nhóm áo / quần / giày. */
+    private static final int[] TB_AO_QUAN_GIAY = {230, 231, 232, 234, 235, 236, 238, 239, 240,
+        242, 243, 244, 246, 247, 248, 250, 251, 252, 266, 267, 268, 270, 271, 272, 274, 275, 276};
+    /** Trang bị rơi từ boss lớn — nhóm găng / rađa. */
+    private static final int[] TB_GANG_RADA = {254, 255, 256, 258, 259, 260, 262, 263, 264,
+        278, 279, 280};
+    /** Ngọc Rồng 5 / 6 / 7 sao. */
+    private static final int[] NR_567 = {18, 19, 20};
+
+    /**
+     * Khai báo <b>đồ rơi gốc</b> của các boss có sẵn — phần đang viết cứng trong {@code reward()}
+     * của từng lớp boss.
+     *
+     * <p>Chỉ để <b>hiện lên cho người xem</b> (NPC Theo Dõi Boss và cpanel); {@link #roi} không
+     * thả những dòng này, vì code của boss vẫn đang thả chúng. Thả nữa là rơi đôi.
+     *
+     * <p><b>Đụng vào {@code reward()} của boss nào thì nhớ sửa lại đây cho khớp</b> — đây là bản
+     * chép tay, không đọc ngược được từ code.
+     */
+    private static List<MucRoi> khaiBaoGoc(int bossId) {
+        List<MucRoi> ds = new ArrayList<>();
+        switch (bossId) {
+            // --- Bộ boss thường: 100 % vàng + 80 % một viên Ngọc Rồng 5/6/7 sao.
+            case BossID.TIEU_DOI_TRUONG, BossID.KUKU, BossID.MAP_DAU_DINH, BossID.RAMBO,
+                    BossID.FIDE, BossID.DR_KORE, BossID.ANDROID_14, BossID.KING_KONG,
+                    BossID.XEN_BO_HUNG -> {
+                ds.add(MucRoi.goc(new int[]{190}, 20000, 30000, 100, "Vàng"));
+                ds.add(MucRoi.goc(NR_567, 1, 1, 80, "Một viên Ngọc Rồng"));
+            }
+            // --- Boss lớn: vàng + đồ Thần Linh + một món trang bị kèm chỉ số và sao pha lê.
+            case BossID.SIEU_BO_HUNG -> {
+                ds.add(MucRoi.goc(new int[]{190}, 20000, 30000, 100, "Vàng"));
+                ds.add(MucRoi.thanLinh());
+                ds.add(MucRoi.goc(TB_AO_QUAN_GIAY, 1, 1, 21, "Áo/quần/giày (30% × 70%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(TB_GANG_RADA, 1, 1, 9, "Găng/rađa (30% × 30%), kèm chỉ số + sao pha lê"));
+            }
+            case BossID.COOLER, BossID.BLACK_GOKU -> {
+                ds.add(MucRoi.goc(new int[]{190}, 20000, 30000, 100, "Vàng"));
+                ds.add(MucRoi.thanLinh());
+                ds.add(MucRoi.goc(TB_AO_QUAN_GIAY, 1, 1, 3, "Áo/quần/giày (5% × 70%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(TB_GANG_RADA, 1, 1, 2, "Găng/rađa (5% × 30%), kèm chỉ số + sao pha lê"));
+            }
+            case BossID.CUMBER -> {
+                ds.add(MucRoi.goc(new int[]{190}, 20000, 30000, 100, "Vàng"));
+                ds.add(MucRoi.thanLinh());
+                ds.add(MucRoi.goc(TB_AO_QUAN_GIAY, 1, 1, 3, "Áo/quần/giày (5% × 70%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(TB_GANG_RADA, 1, 1, 2, "Găng/rađa (5% × 30%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(new int[]{15, 16, 17, 18, 19, 20, 992}, 1, 3, 10, "Ngọc Rồng / Nhẫn thời không"));
+            }
+            case BossID.BABY -> {
+                ds.add(MucRoi.goc(new int[]{190}, 20000, 30000, 100, "Vàng"));
+                ds.add(MucRoi.thanLinh());
+                ds.add(MucRoi.goc(new int[]{1785, 1786, 1788}, 1, 1, 1, "Cải trang kèm chỉ số"));
+                ds.add(MucRoi.goc(TB_AO_QUAN_GIAY, 1, 1, 3, "Áo/quần/giày (5% × 70%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(TB_GANG_RADA, 1, 1, 2, "Găng/rađa (5% × 30%), kèm chỉ số + sao pha lê"));
+            }
+            // --- Tiểu đội sát thủ Namek / Bojack: rơi ngọc nhiều lần + cải trang + 2 viên Ngọc Rồng.
+            case BossID.TIEU_DOI_TRUONG_NM -> {
+                ds.add(MucRoi.goc(new int[]{77}, 1, 5, 100, "Ngọc, rơi thành nhiều đống"));
+                ds.add(MucRoi.goc(new int[]{433}, 1, 1, 100, "Cải trang kèm chỉ số tiệm"));
+                ds.add(MucRoi.goc(new int[]{19, 20}, 1, 1, 100, "Cả hai viên"));
+            }
+            case BossID.BOJACK -> {
+                ds.add(MucRoi.goc(new int[]{77}, 5, 20, 100, "Ngọc, rơi thành nhiều đống"));
+                ds.add(MucRoi.goc(new int[]{427}, 1, 1, 100, "Cải trang kèm chỉ số tiệm"));
+                ds.add(MucRoi.goc(new int[]{19, 20}, 1, 1, 100, "Cả hai viên"));
+            }
+            case BossID.SUPER_BOJACK -> {
+                ds.add(MucRoi.goc(new int[]{77}, 5, 15, 100, "Ngọc, rơi thành nhiều đống"));
+                ds.add(MucRoi.goc(new int[]{428}, 1, 1, 100, "Cải trang kèm chỉ số tiệm"));
+                ds.add(MucRoi.goc(new int[]{19, 20}, 1, 1, 100, "Cả hai viên"));
+            }
+            case BossID.GOLDEN_FRIEZA ->
+                ds.add(MucRoi.goc(new int[]{629}, 1, 1, 100, "Cải trang Fide vàng kèm chỉ số"));
+            case BossID.AN_TROM -> {
+                ds.add(MucRoi.goc(new int[]{190}, 1, 1, 100, "Trả lại 80% số vàng vừa trộm, chia 5 đống"));
+                ds.add(MucRoi.goc(new int[]{1591}, 1, 1, 5, "Hộp quà Goku Day"));
+                ds.add(MucRoi.goc(new int[]{1594}, 1, 1, 5, "Hộp quà Goku Day"));
+            }
+            case BossID.O_DO1, BossID.SOI_HEC_QUYN1 -> {
+                ds.add(MucRoi.goc(new int[]{1591}, 1, 1, 5, "Hộp quà Goku Day"));
+                ds.add(MucRoi.goc(new int[]{1594}, 1, 1, 5, "Hộp quà Goku Day"));
+            }
+            case BossID.MAT_TROI ->
+                ds.add(MucRoi.goc(new int[]{1562}, 1, 1, 50, "Mặt trời tí hon kèm chỉ số"));
+            default -> {
+            }
+        }
+        // --- Bộ Lốp Trưởng: đọc thẳng cpanel tab "Rơi đồ boss" nên không bao giờ lệch.
+        if (bossId <= BossID.LOP_TRUONG && bossId > BossID.LOP_TRUONG - 8) {
+            ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT20_ID_BINH.ids(),
+                    nro.models.boss.BossDropConfig.LT20_BINH_MIN.giaTri,
+                    nro.models.boss.BossDropConfig.LT20_BINH_MAX.giaTri,
+                    nro.models.boss.BossDropConfig.LT20_BINH.giaTri, "Đợt 20k — bình"));
+            ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT20_ID_BUA.ids(), 1, 1,
+                    nro.models.boss.BossDropConfig.LT20_BUA.giaTri, "Đợt 20k — bùa"));
+            ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT20_ID_DA.ids(), 1, 1,
+                    nro.models.boss.BossDropConfig.LT20_DA_BAO_VE.giaTri, "Đợt 20k — đá bảo vệ"));
+            ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT20_ID_SACH.ids(), 1, 1,
+                    nro.models.boss.BossDropConfig.LT20_SACH_DE_TU.giaTri, "Đợt 20k — sách đệ tử"));
+            ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT20_ID_NGOC.ids(), 1, 1, 100,
+                    "Đợt 20k — phần còn lại của vòng quay"));
+            ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT_ID_VANG.ids(),
+                    nro.models.boss.BossDropConfig.LT_VANG_MIN.giaTri,
+                    nro.models.boss.BossDropConfig.LT_VANG_MAX.giaTri, 100, "Đợt 2 tỷ — vàng"));
+            ds.add(MucRoi.thanLinh());
+            ds.add(MucRoi.goc(TB_AO_QUAN_GIAY, 1, 1,
+                    nro.models.boss.BossDropConfig.LT_TRANG_BI.giaTri * 70 / 100, "Đợt 2 tỷ — áo/quần/giày"));
+            ds.add(MucRoi.goc(TB_GANG_RADA, 1, 1,
+                    nro.models.boss.BossDropConfig.LT_TRANG_BI.giaTri * 30 / 100, "Đợt 2 tỷ — găng/rađa"));
+        }
+        return ds;
+    }
+
+    /** Đồ rơi gốc của boss — chỉ để xem, {@link #roi} không thả. */
+    public static List<MucRoi> goc(int bossId) {
+        try {
+            return khaiBaoGoc(bossId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    /** Toàn bộ những gì hạ boss này CÓ THỂ rơi: đồ gốc + đồ thêm ở cpanel. */
+    public static List<MucRoi> xem(int bossId) {
+        List<MucRoi> ra = new ArrayList<>(goc(bossId));
+        ra.addAll(cua(bossId));
+        return ra;
+    }
+
     //================================ đọc / sửa ================================
     /** Bảng của một boss; trả về bản sao chỉ để đọc, sửa thì dùng {@link #dat}. */
     public static List<MucRoi> cua(int bossId) {

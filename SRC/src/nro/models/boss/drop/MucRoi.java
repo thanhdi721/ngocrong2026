@@ -29,6 +29,16 @@ public final class MucRoi {
     public int nhom;
     public String ghiChu = "";
 
+    /**
+     * true = <b>đồ rơi gốc</b>, tức phần viết cứng trong {@code reward()} của lớp boss.
+     * Dòng loại này CHỈ ĐỂ XEM: {@code BangRoiBoss.roi} không thả nó (thả nữa là rơi đôi),
+     * cpanel không cho sửa, và cũng không ghi ra file.
+     */
+    public boolean goc;
+
+    /** 0 = vật phẩm thường · 1 = đồ Thần Linh ngẫu nhiên (tỉ lệ tính theo máu boss). */
+    public int loai;
+
     public MucRoi() {
     }
 
@@ -39,6 +49,30 @@ public final class MucRoi {
         this.tiLe = tiLe;
         this.nhom = nhom;
         this.ghiChu = ghiChu;
+    }
+
+    /** Dòng "đồ rơi gốc" — chỉ để xem, không thả. */
+    public static MucRoi goc(int[] ids, int slMin, int slMax, int tiLe, String ghiChu) {
+        MucRoi m = new MucRoi(ids, slMin, slMax, tiLe, 0, ghiChu);
+        m.goc = true;
+        return m;
+    }
+
+    /** Dòng "đồ Thần Linh ngẫu nhiên" — chỉ để xem, tỉ lệ tính theo máu boss. */
+    public static MucRoi thanLinh() {
+        MucRoi m = new MucRoi(new int[0], 1, 1, 0, 0, "Đồ Thần Linh ngẫu nhiên");
+        m.goc = true;
+        m.loai = 1;
+        return m;
+    }
+
+    /** Chữ hiện cho tỉ lệ: đồ Thần Linh thì tính theo máu nên ghi khoảng. */
+    public String chuoiTiLe() {
+        if (loai == 1) {
+            return "theo máu boss (" + nro.models.boss.BossDropRate.MIN_PERCENT + "-"
+                    + nro.models.boss.BossDropRate.MAX_PERCENT + "%)";
+        }
+        return tiLe + "%";
     }
 
     /** "16,17,18" */
@@ -76,6 +110,9 @@ public final class MucRoi {
 
     /** "Ngọc Rồng 3 sao / Ngọc Rồng 4 sao / Ngọc Rồng 5 sao" — để hiện cho người đọc. */
     public String tenVatPham() {
+        if (loai == 1) {
+            return "Đồ Thần Linh ngẫu nhiên";
+        }
         if (ids == null || ids.length == 0) {
             return "?";
         }

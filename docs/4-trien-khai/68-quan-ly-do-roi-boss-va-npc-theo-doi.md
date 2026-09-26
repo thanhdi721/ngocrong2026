@@ -31,6 +31,29 @@ Sửa xong bấm **Áp dụng** là có hiệu lực ngay lần hạ boss kế t
 ghi `data/bossdrop_table.json` để khởi động lại vẫn còn. File không có thì dùng bảng gốc viết
 trong code.
 
+### Hai nguồn đồ rơi: "gốc" và "thêm"
+
+| Nguồn | Ở đâu | Sửa được không | Có thả thật không |
+|---|---|---|---|
+| **Gốc** | `reward()` viết tay trong từng lớp boss, được **chép lại** thành khai báo ở `BangRoiBoss.khaiBaoGoc()` | không (phải sửa code boss) | **có** — code boss vẫn thả |
+| **Thêm** | bảng `BangRoiBoss`, sửa ở cpanel, lưu `data/bossdrop_table.json` | có | **có** — `BangRoiBoss.roi` thả |
+
+`khaiBaoGoc()` là **bản chép tay chỉ để hiện lên cho người xem**; `roi()` KHÔNG thả nó, vì code
+của boss vẫn đang thả. Thả nữa là rơi đôi.
+
+> ⚠️ **Sửa `reward()` của boss nào thì nhớ sửa `khaiBaoGoc()` cho khớp.** Không có cách nào đọc
+> ngược từ code ra bảng: 85 file boss, 237 lệnh thả đồ, mỗi con một kiểu (lặp `for`, random số
+> lượng, gắn chỉ số shop nhân thêm 100–115 %, gắn sao pha lê theo bậc…).
+
+Đã chép sẵn cho toàn bộ boss thế giới đang có: Tiểu Đội Trưởng (2 bản), Kuku, Map Đầu Đinh,
+Rambo, Fide, Dr.Kore, Android 14, King Kong, Xên Bọ Hung, Xên Hoàn Thiện, Cooler, Black Goku,
+Cumber, Baby, Bojack, Super Bojack, Golden Frieza, Ăn Trộm, Ở Dơ, Sói Hẹc Quyn, Mặt Trời, và
+bộ Lốp Trưởng. Riêng **Lốp Trưởng đọc thẳng `BossDropConfig`** (tab "Rơi đồ boss") nên không
+bao giờ lệch.
+
+Đồ Thần Linh không có id cố định (bốc ngẫu nhiên lúc rơi) nên hiện thành một dòng riêng
+"Đồ Thần Linh ngẫu nhiên — theo máu boss (1–5%)".
+
 ### Quan hệ với đồ rơi cũ
 
 Bảng này là phần **THÊM**, chạy **sau** `reward()` của boss. Boss cũ giữ nguyên đồ rơi viết
@@ -87,7 +110,7 @@ chung vượt 100 %** (những dòng cuối nhóm sẽ không bao giờ trúng).
 | **Danh sách tất cả** | mọi loại boss, `●` đang ra map / `○` đang nghỉ, 8 con một trang |
 | *(bấm vào một con)* | trạng thái, map đang ở, máu, và **bảng rơi kèm tỉ lệ** |
 
-Bảng rơi hiện ở đây đọc **thẳng từ `BangRoiBoss`** — tức đúng bảng mà quản trị vừa sửa ở
+Bảng rơi hiện ở đây đọc **thẳng từ `BangRoiBoss.xem()`** (gốc + thêm) — tức đúng bảng mà quản trị vừa sửa ở
 cpanel, không phải bảng chép tay nên không bao giờ lệch.
 
 ### Bảng đồ rơi hiện bằng giao diện TIỆM, không phải chữ chay
