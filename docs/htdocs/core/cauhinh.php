@@ -67,7 +67,7 @@ $serverPort = '';
 // là IP của CÁI PROXY, không phải của người chơi — mọi người dùng chung một IP và cả
 // máy chủ chỉ đăng ký được đúng ngần này tài khoản. Gặp trường hợp đó thì để 0,
 // hoặc sửa $ip_address trong dang-ky.php đọc HTTP_CF_CONNECTING_IP / X-Forwarded-For.
-$_max_acc_moi_ip = 5;
+$_max_acc_moi_ip = 10;
 
 //======================= 4. PHIÊN BẢN FILE GAME =======================
 $_android = '2.3.0';
