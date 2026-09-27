@@ -82,6 +82,23 @@
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
+-- (0) CHẶN CHẠY NHẦM DATABASE
+-- ---------------------------------------------------------------------
+-- Mọi câu bên dưới bám vào database ĐANG CHỌN. Đứng ở `information_schema` (hoặc
+-- một database khác) mà chạy thì báo "#1044 Access denied" hoặc "Unknown table".
+-- Dòng dưới cho biết bạn đang ở đâu; sai thì bấm vào `team2026` ở khung bên trái
+-- phpMyAdmin rồi chạy lại. Chắc ăn nhất là chạy bằng dòng lệnh:
+--     mysql -u root -p team2026 < 84-luyen-dan.sql
+SELECT DATABASE() AS `database_dang_chon_phai_la_team2026`;
+SET @co_bang := (SELECT COUNT(*) FROM `information_schema`.`tables`
+                  WHERE `table_schema` = DATABASE() AND `table_name` = 'item_template');
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''DUNG LAI: database dang chon KHONG co bang `item_template`. '
+    'Hay chon team2026 roi chay lai. Cac lenh ben duoi se BAO LOI va KHONG ghi gi ca.'' AS `loi`',
+    'SELECT ''database dung roi, chay tiep'' AS `ghi_chu`');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
+
+-- ---------------------------------------------------------------------
 -- (1) KIỂM TRA TRƯỚC — nhìn rồi hẵng chạy khối (2).
 -- ---------------------------------------------------------------------
 SELECT MAX(`id`) AS `item_id_lon_nhat_phai_la_2275` FROM `item_template`;

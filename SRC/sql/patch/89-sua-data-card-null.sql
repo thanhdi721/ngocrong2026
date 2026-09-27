@@ -38,7 +38,11 @@
 -- TRÌNH TỰ CHẠY
 -- ---------------------------------------------------------------------
 --   1) TẮT SERVER.
---   2) CHỌN ĐÚNG DATABASE `team2026`:
+--   2) CHỌN ĐÚNG DATABASE `team2026` TRƯỚC KHI CHẠY.
+--      phpMyAdmin: bấm vào tên `team2026` ở khung BÊN TRÁI, rồi mới mở thẻ SQL / Import.
+--        Đứng ở màn hình gốc hay ở `information_schema` mà chạy thì file này TỰ DỪNG
+--        và in ra câu nhắc, chứ không sửa bậy vào database khác.
+--      Dòng lệnh (chắc ăn nhất):
 --        mysql -u root -p team2026 < 89-sua-data-card-null.sql
 --   3) Chạy cả file. Chạy lại nhiều lần vẫn an toàn.
 --   4) Xem khối (3): `con_nhan_vat_hong` phải = 0.
@@ -50,12 +54,19 @@
 -- ---------------------------------------------------------------------
 SELECT DATABASE() AS `database_dang_chon_phai_la_team2026`;
 
-SELECT COUNT(*) AS `so_nhan_vat_data_card_NULL`
-  FROM `player` WHERE `data_card` IS NULL;
+-- Hai câu dưới chỉ chạy khi đang ở đúng database có bảng `player`.
+SET @co_bang := (SELECT COUNT(*) FROM `information_schema`.`tables`
+                  WHERE `table_schema` = DATABASE() AND `table_name` = 'player');
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''DUNG LAI: database dang chon KHONG co bang `player`.'' AS `loi`',
+    'SELECT COUNT(*) AS `so_nhan_vat_data_card_NULL` FROM `player` WHERE `data_card` IS NULL');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
 
-SELECT `id`, `account_id`, `name`, `create_time`
-  FROM `player` WHERE `data_card` IS NULL
- ORDER BY `id` DESC LIMIT 20;
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''(bo qua)'' AS `ghi_chu`',
+    'SELECT `id`, `account_id`, `name`, `create_time` FROM `player` '
+    'WHERE `data_card` IS NULL ORDER BY `id` DESC LIMIT 20');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
 
 -- Kiểu cột hiện tại (sau patch 78 phải là `text`).
 SELECT `COLUMN_TYPE`, `IS_NULLABLE`, `COLUMN_DEFAULT`
@@ -66,17 +77,31 @@ SELECT `COLUMN_TYPE`, `IS_NULLABLE`, `COLUMN_DEFAULT`
 -- ---------------------------------------------------------------------
 -- (2) VÁ.
 -- ---------------------------------------------------------------------
--- Nhận cả NULL lẫn chuỗi rỗng / chuỗi rác — bộ đọc JSON đều trả null cho mấy thứ đó.
-UPDATE `player`
-   SET `data_card` = '[]'
- WHERE `data_card` IS NULL
-    OR TRIM(`data_card`) = ''
-    OR TRIM(`data_card`) NOT LIKE '[%';
+-- CHẶN CHẠY NHẦM DATABASE: câu UPDATE bám vào database ĐANG CHỌN. Nếu trong
+-- phpMyAdmin bạn đang đứng ở `information_schema` (hoặc bất kỳ database nào khác)
+-- thì nó nhắm vào bảng `player` của database ĐÓ — hoặc báo
+-- "#1044 Access denied ... to database 'information_schema'", hoặc tệ hơn là sửa
+-- nhầm dữ liệu của một máy chủ khác. Nên phải kiểm bảng `player` có thật trong
+-- database đang chọn TRƯỚC, rồi mới quyết định chạy.
+SET @co_bang := (SELECT COUNT(*) FROM `information_schema`.`tables`
+                  WHERE `table_schema` = DATABASE() AND `table_name` = 'player');
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''DUNG LAI: database dang chon KHONG co bang `player`. '
+    'Hay bam vao team2026 o khung ben trai phpMyAdmin roi chay lai file nay.'' AS `loi`',
+    'UPDATE `player` SET `data_card` = ''[]'' '
+    'WHERE `data_card` IS NULL OR TRIM(`data_card`) = '''' OR TRIM(`data_card`) NOT LIKE ''[%''');
+PREPARE st FROM @sql;
+EXECUTE st;
+DEALLOCATE PREPARE st;
 
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — `con_nhan_vat_hong` phải = 0.
 -- ---------------------------------------------------------------------
-SELECT (SELECT COUNT(*) FROM `player`
-         WHERE `data_card` IS NULL OR TRIM(`data_card`) = ''
-            OR TRIM(`data_card`) NOT LIKE '[%')        AS `con_nhan_vat_hong`,
-       (SELECT COUNT(*) FROM `player`)                 AS `tong_nhan_vat`;
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''chua chay gi ca - chon sai database'' AS `ket_qua`',
+    'SELECT (SELECT COUNT(*) FROM `player` WHERE `data_card` IS NULL '
+    'OR TRIM(`data_card`) = '''' OR TRIM(`data_card`) NOT LIKE ''[%'') AS `con_nhan_vat_hong`, '
+    '(SELECT COUNT(*) FROM `player`) AS `tong_nhan_vat`');
+PREPARE st FROM @sql;
+EXECUTE st;
+DEALLOCATE PREPARE st;

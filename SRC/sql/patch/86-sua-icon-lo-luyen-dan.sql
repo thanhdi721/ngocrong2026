@@ -45,6 +45,19 @@
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
+-- (0) CHẶN CHẠY NHẦM DATABASE
+-- ---------------------------------------------------------------------
+-- Mọi câu bên dưới bám vào database ĐANG CHỌN. Đứng ở `information_schema` (hoặc
+-- một database khác) mà chạy thì báo "#1044 Access denied" hoặc "Unknown table".
+SET @co_bang := (SELECT COUNT(*) FROM `information_schema`.`tables`
+                  WHERE `table_schema` = DATABASE() AND `table_name` = 'part');
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''DUNG LAI: database dang chon KHONG co bang `part`. '
+    'Hay chon team2026 roi chay lai. Cac lenh ben duoi se BAO LOI va KHONG ghi gi ca.'' AS `loi`',
+    'SELECT ''database dung roi, chay tiep'' AS `ghi_chu`');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
+
+-- ---------------------------------------------------------------------
 -- (1) KIỂM TRA TRƯỚC — đang là gì.
 -- ---------------------------------------------------------------------
 SELECT DATABASE() AS `database_dang_chon_phai_la_team2026`;

@@ -62,6 +62,22 @@
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
+-- (0) CHẶN CHẠY NHẦM DATABASE
+-- ---------------------------------------------------------------------
+-- Mọi câu bên dưới bám vào database ĐANG CHỌN. Đứng ở `information_schema` (hoặc
+-- một database khác) mà chạy thì hoặc báo "#1044 Access denied", hoặc tệ hơn là ghi
+-- nhầm vào máy chủ khác. Kiểm bảng `giftcode` có thật trong database đang chọn trước.
+SELECT DATABASE() AS `database_dang_chon_phai_la_team2026`;
+SET @co_bang := (SELECT COUNT(*) FROM `information_schema`.`tables`
+                  WHERE `table_schema` = DATABASE() AND `table_name` = 'giftcode');
+SET @sql := IF(@co_bang = 0,
+    'SELECT ''DUNG LAI: database dang chon KHONG co bang `giftcode`. '
+    'Hay bam vao team2026 o khung ben trai phpMyAdmin roi chay lai file nay. '
+    'Cac lenh ben duoi se BAO LOI va KHONG ghi gi ca.'' AS `loi`',
+    'SELECT ''database dung roi, chay tiep'' AS `ghi_chu`');
+PREPARE st FROM @sql; EXECUTE st; DEALLOCATE PREPARE st;
+
+-- ---------------------------------------------------------------------
 -- (1) KIỂM TRA TRƯỚC.
 -- ---------------------------------------------------------------------
 SELECT DATABASE() AS `database_dang_chon_phai_la_team2026`;
@@ -72,25 +88,23 @@ SELECT COUNT(*) AS `so_vat_pham_2276_2289_phai_la_14`
 -- ---------------------------------------------------------------------
 -- (2) THÊM MÃ.
 -- ---------------------------------------------------------------------
-DELETE FROM `giftcode` WHERE `code` IN
-    ('ldnl001','ldnl002','ldnl003','ldpt001','ldpt002','ldpt003','ldtien1','ldtien2','ldtp001','ldtp002');
-
-INSERT INTO `giftcode` (`id`, `code`, `count_left`, `detail`, `datecreate`, `expired`) VALUES
--- nguyên liệu: 4 linh thảo + Địa Hỏa Tinh
-(170, 'ldnl001', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(171, 'ldnl002', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(172, 'ldnl003', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
--- đan phương ba bậc
-(173, 'ldpt001', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(174, 'ldpt002', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(175, 'ldpt003', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
--- vàng (id -1 = vàng, xem GiftCodeService) + Linh Thạch
-(176, 'ldtien1', 99999, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(177, 'ldtien2', 99999, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
--- thành phẩm: 5 đan thượng phẩm + Đan Phế
-(178, 'ldtp001', 99999, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+DELETE FROM `giftcode` WHERE `code` IN 
+('ldnl001','ldnl002','ldnl003','ldpt001','ldpt002','ldpt003','ldtien1','ldtien2','ldtp001','ldtp002');
+INSERT INTO `giftcode` (`id`, `code`, `count_left`, `detail`, `datecreate`, `expired`) VALUES 
+-- nguyên liệu: 4 linh thảo + Địa Hỏa Tinh 
+(170, 'ldnl001', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+(171, 'ldnl002', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+(172, 'ldnl003', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+-- đan phương ba bậc 
+(173, 'ldpt001', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+(174, 'ldpt002', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+(175, 'ldpt003', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+-- vàng (id -1 = vàng, xem GiftCodeService) + Linh Thạch 
+(176, 'ldtien1', 99999, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+(177, 'ldtien2', 99999, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
+-- thành phẩm: 5 đan thượng phẩm + Đan Phế 
+(178, 'ldtp001', 99999, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00'), 
 (179, 'ldtp002', 99999, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00');
-
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — `so_ma` phải = 10.
 -- ---------------------------------------------------------------------
