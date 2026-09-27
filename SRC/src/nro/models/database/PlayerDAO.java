@@ -338,10 +338,16 @@ public class PlayerDAO {
                     + "data_inventory, data_location, data_point, data_magic_tree, items_body, "
                     + "items_bag, items_box, items_box_lucky_round, items_daban, friends, enemies, data_intrinsic, data_item_time,"
                     + "data_task, data_mabu_egg, data_charm, skills, skills_shortcut, pet,"
-                    + "data_black_ball, data_side_task, BoughtSkill, dailyGift, masterDoesNotAttack, data_luyentap, data_achievement, giftcode, total_damage_maydam, data_duahau_egg, nhiem_vu_kol) "
+                    + "data_black_ball, data_side_task, BoughtSkill, dailyGift, masterDoesNotAttack, data_luyentap, data_achievement, giftcode, total_damage_maydam, data_duahau_egg, nhiem_vu_kol, "
+                    // `data_card` PHẢI ghi thẳng, không được trông vào giá trị mặc định của cột:
+                    // patch 78 đổi cột này từ VARCHAR(10000) NOT NULL DEFAULT '[]' sang TEXT để
+                    // nới chỗ cho dòng `player`, mà TEXT trong MariaDB KHÔNG mang được DEFAULT.
+                    // Thiếu dòng này thì nhân vật mới có data_card = NULL và ĐĂNG NHẬP LÀ VĂNG
+                    // NullPointerException ở MrBlue.loadPlayer.
+                    + "data_card) "
                     + "values ()", userId, name, hair, gender, 0, -1, inventory, location, point, magicTree,
                     itemsBody, itemsBag, itemsBox, itemsBoxLuckyRound, itemsDaBan, friends, enemies, intrinsic,
-                    itemTime, task, mabuEgg, charms, skills, skillsShortcut, petData, dataBlackBall, dataSideTask, dataBoughtSkill, dailyGift, 0, luyenTapData, achievementData, giftCode, 0, DuaHauEgg, dataKol);
+                    itemTime, task, mabuEgg, charms, skills, skillsShortcut, petData, dataBlackBall, dataSideTask, dataBoughtSkill, dailyGift, 0, luyenTapData, achievementData, giftCode, 0, DuaHauEgg, dataKol, "[]");
             Logger.success(Logger.PURPLE + "Tạo player mới thành công!\n");
             return true;
         } catch (Exception e) {

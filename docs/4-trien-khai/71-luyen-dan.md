@@ -565,7 +565,56 @@ Ngọc (vật phẩm 77) là **type 10 — nhặt lên cộng thẳng `inventory
 
 Số này chỉnh ở cpanel (`nv_ngoc`). Nếu thấy lạm phát ngọc thì hạ xuống 20–30 là vừa.
 
-## 13. Còn thiếu
+## 13. Sự cố sau khi lên server thật (27/09/2026)
+
+### Nhân vật mới tạo xong KHÔNG đăng nhập được
+
+```
+java.lang.NullPointerException: Cannot invoke "org.json.simple.JSONArray.size()"
+    because "dataArray" is null
+    at nro.models.database.MrBlue.loadPlayer(MrBlue.java:1026)
+```
+
+**Đây là lỗi patch 78 của tôi gây ra.** Cột `player`.`data_card` bản gốc là
+`VARCHAR(10000) NOT NULL DEFAULT '[]'`. Patch 78 đổi nó sang `TEXT` để nới chỗ cho dòng
+`player` (bảng đó sát trần 65.535 byte của InnoDB, không đổi thì không thêm được cột
+`thong_dit`). Nhưng **TEXT trong MariaDB không mang được DEFAULT** — đổi xong cột thành
+`TEXT NULL` và mất luôn `'[]'`.
+
+`PlayerDAO` lúc tạo nhân vật **không ghi** cột này, nó trông vào DEFAULT. Kết quả: nhân vật
+mới có `data_card = NULL` → `JSONValue.parse(null)` trả null → `.size()` văng NPE → người chơi
+kẹt vĩnh viễn, thử lại bao nhiêu lần cũng vậy.
+
+Đã vá ba lớp:
+
+| Lớp | Sửa gì |
+|---|---|
+| `database/PlayerDAO` | ghi thẳng `'[]'` vào `data_card` khi tạo nhân vật, không trông vào DEFAULT nữa |
+| `database/MrBlue` | `data_card` null thì coi như danh sách rỗng, không văng |
+| `sql/patch/89` | vá những nhân vật đã bị tạo hỏng (nhận cả NULL, chuỗi rỗng và chuỗi rác) |
+
+Chỉ `data_card` dính, vì 21 cột JSON còn lại trong `loadPlayer` vẫn là
+`NOT NULL DEFAULT '[]'` — đã quét hết.
+
+### NoSuchMethodError `LuckyRound.tienDoMoc`
+
+```
+NoSuchMethodError: 'java.lang.String nro.models.services_func.LuckyRound.tienDoMoc(...)'
+    at nro.models.npc_list.ThuongDe.confirmMenu(ThuongDe.java:120)
+```
+
+**Không phải lỗi mã nguồn** — hàm đó có thật ở `LuckyRound.java:278`. Đây là **jar trộn
+bản**: `ThuongDe.class` là bản mới (có gọi hàm), `LuckyRound.class` là bản cũ (chưa có hàm).
+Một lần build sạch thì không thể ra tình trạng này.
+
+Cách xử lý: **Clean and Build**, đừng chỉ Build.
+
+> **Một cái bẫy trong cách chạy server:** `run.bat` khởi động **`20.jar`**, nhưng ant lại build
+> ra **`dist/NgocRongOnline.jar`** (`dist.jar` trong `nbproject/project.properties`). Hai file
+> khác nhau. Build xong mà quên chép đè sang `20.jar` là **vẫn chạy code cũ** — và nếu chỉ
+> chép đè vài class thì ra đúng cái lỗi trộn bản ở trên.
+
+## 14. Còn thiếu
 
 * **Chưa chạy thử trong game một lần nào.** Mọi thứ ở trên mới chỉ biên dịch sạch và kiểm trên
   CSDL nháp.

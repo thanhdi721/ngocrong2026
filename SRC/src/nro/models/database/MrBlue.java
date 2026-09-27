@@ -1022,7 +1022,14 @@ public class MrBlue {
             }
 
             // data rada card
+            // Cột `data_card` là TEXT từ patch 78, mà TEXT trong MariaDB không mang được
+            // DEFAULT '[]' — nhân vật tạo bằng bản jar cũ có thể đang là NULL. JSONValue.parse
+            // trả về null, gọi .size() là văng NullPointerException và người chơi KHÔNG đăng
+            // nhập được. Không có thẻ rađa thì coi như danh sách rỗng, đúng nghĩa.
             dataArray = (JSONArray) JSONValue.parse(rs.getString("data_card"));
+            if (dataArray == null) {
+                dataArray = new JSONArray();
+            }
             for (int i = 0; i < dataArray.size(); i++) {
                 JSONObject obj = (JSONObject) dataArray.get(i);
                 player.Cards.add(new Card(Short.parseShort(obj.get("id").toString()), Byte.parseByte(obj.get("amount").toString()), Byte.parseByte(obj.get("max").toString()), Byte.parseByte(obj.get("level").toString()), loadOptionCard((JSONArray) JSONValue.parse(obj.get("option").toString())), Byte.parseByte(obj.get("used").toString())));
