@@ -12,16 +12,16 @@
 --      java.lang.NumberFormatException: Value out of range. Value:"33001" Radix:10
 --          at nro.models.server.Manager.loadDatabase(Manager.java:492)
 --
---  Ảnh đã được đánh số lại thành 32700 trong `SRC/data/icon/x1..x4` (32700 là ô trống;
+--  Ảnh đã được đánh số lại thành 32701 trong `SRC/data/icon/x1..x4` (32701 là ô trống;
 --  icon lớn nhất đang có trong res là 32667). File này sửa nốt dòng `part` cho khớp.
 --
---  File này SỬA LUÔN CỠ LÒ: ảnh mới là hình vuông 52 / 105 / 157 / 211 px (bản đầu chỉ
+--  File này SỬA LUÔN CỠ LÒ: ảnh mới là hình vuông 64 / 130 / 194 / 260 px (bản đầu chỉ
 --  36 px, nhỏ hơn một NPC người). Hai số -8,-2 giữ đáy và tâm lò đúng chỗ cũ:
---      tâm x: 0 + 36/2 = 18  ->  -8 + 52/2 = 18
---      đáy y: 0 + 50   = 50  ->  -2 + 52   = 50
+--      tâm x: 0 + 36/2 = 18  ->  -14 + 64/2 = 18
+--      đáy y: 0 + 50   = 50  ->  -14 + 64   = 50
 --  Lò đứng cao hay thấp lệch thì chỉ cần sửa hai số đó, không phải sửa ảnh.
 --
---  File này còn DỜI CHỖ lò: x=170 nằm ngay cạnh cây to nên bị che, nay sang x=524 y=384.
+--  File này còn DỜI CHỖ lò: x=170 nằm ngay cạnh cây to nên bị che, nay sang x=544 y=384.
 --
 --  QUAN TRỌNG: sửa CSDL thôi chưa đủ. Client giữ CACHE bảng `part` và dữ liệu map,
 --  chỉ tải lại khi thấy số hiệu bản dữ liệu đổi. Bản jar đi kèm đã tăng
@@ -53,37 +53,40 @@ SELECT `id`, `TYPE`, `DATA` FROM `part` WHERE `id` = 2658;
 -- ---------------------------------------------------------------------
 -- (2) SỬA.
 -- ---------------------------------------------------------------------
--- (2a) Dời lò từ x=170 sang x=524, y=384.
+-- (2a) Dời lò từ x=170 sang x=544, y=384.
 --      x=170 (cột 7) nằm ngay cạnh cây to (vật trang trí id 14 ở x=120) VÀ đè lên vật
 --      trang trí id 11 ở chính cột đó -> lò bị che.
---      x=524 là cột 21 trên thềm dưới, bên phải NPC Tu Tiên: cột này KHÔNG có vật trang
---      trí nào, cách NPC gần nhất 121 px. y=384 vì mặt đất đầu tiên của cột 21 là hàng 15
+--      x=544 là cột 22 trên thềm dưới, bên phải NPC Tu Tiên: cột này KHÔNG có vật trang
+--      trí nào, cách NPC gần nhất 134 px. y=384 vì mặt đất đầu tiên của cột 22 là hàng 15
 --      (y=360) và NPC đặt ở hàng kế dưới — quy ước của 90/160 NPC gốc trong CSDL.
--- Nhận cả hai chỗ cũ: [90,170,288] (patch 84 bản đầu) và [90,504,384] (bản giữa),
--- để chạy được dù CSDL đang ở bản nào.
+-- Nhận cả BA chỗ cũ — [90,170,288] (patch 84 bản đầu), [90,504,384] và [90,524,384]
+-- (hai bản giữa) — để chạy được dù CSDL đang ở bản nào.
 UPDATE `map_template`
-   SET `npcs` = REPLACE(REPLACE(`npcs`, '[90,170,288]', '[90,524,384]'),
-                        '[90,504,384]', '[90,524,384]')
- WHERE `id` = 5 AND (`npcs` LIKE '%[90,170,288]%' OR `npcs` LIKE '%[90,504,384]%');
+   SET `npcs` = REPLACE(REPLACE(REPLACE(`npcs`, '[90,170,288]', '[90,544,384]'),
+                                '[90,504,384]', '[90,544,384]'),
+                        '[90,524,384]', '[90,544,384]')
+ WHERE `id` = 5 AND (`npcs` LIKE '%[90,170,288]%' OR `npcs` LIKE '%[90,504,384]%'
+                     OR `npcs` LIKE '%[90,524,384]%');
 
 -- (2b) Hình lò.
 UPDATE `part`
-   SET `DATA` = '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]'
- WHERE `id` = 2658 AND `DATA` <> '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]';
+   SET `DATA` = '[[32701,-14,-14],[32701,-14,-14],[32701,-14,-14]]'
+ WHERE `id` = 2658 AND `DATA` <> '[[32701,-14,-14],[32701,-14,-14],[32701,-14,-14]]';
 
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — cột `dat` phải = 1.
 -- ---------------------------------------------------------------------
-SELECT 'lo dung o x=524 y=384' AS `muc`,
-       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,524,384]%') = 1) AS `dat`
+SELECT 'lo dung o x=544 y=384' AS `muc`,
+       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,544,384]%') = 1) AS `dat`
 UNION ALL
 SELECT 'khong con lo o cho cu nao',
        ((SELECT COUNT(*) FROM `map_template`
-          WHERE `id` = 5 AND (`npcs` LIKE '%[90,170,288]%' OR `npcs` LIKE '%[90,504,384]%')) = 0)
+          WHERE `id` = 5 AND (`npcs` LIKE '%[90,170,288]%' OR `npcs` LIKE '%[90,504,384]%'
+                              OR `npcs` LIKE '%[90,524,384]%')) = 0)
 UNION ALL
-SELECT 'part 2658 dung icon 32700, da chinh toa do',
+SELECT 'part 2658 dung icon 32701, da chinh toa do',
        ((SELECT COUNT(*) FROM `part`
-          WHERE `id` = 2658 AND `DATA` = '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]') = 1)
+          WHERE `id` = 2658 AND `DATA` = '[[32701,-14,-14],[32701,-14,-14],[32701,-14,-14]]') = 1)
 UNION ALL
 SELECT 'khong con part nao tham chieu icon > 32767',
        ((SELECT COUNT(*) FROM `part` WHERE `DATA` LIKE '%33001%') = 0);

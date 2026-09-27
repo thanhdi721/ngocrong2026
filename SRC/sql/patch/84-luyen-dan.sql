@@ -28,17 +28,19 @@
 --  (b) Thêm 3 `part` 2658/2659/2660 + `npc_template` 90 "Lò Luyện Đan".
 --      Đây là NPC dạng VẬT THỂ, làm y hệt "Cây thông Noel" (npc 79): phần đầu vẽ
 --      một icon to, phần thân và chân để trong suốt (icon 2955).
---      Icon 32700 là ảnh lò, do ta tự dựng từ icon 24895 (bình luyện đan của SUMO),
---      hình vuông 52 / 105 / 157 / 211 px theo bốn mức phóng to — TO HƠN khung của
---      icon 15041 (cây thông, 36×50) cho bằng cỡ một NPC người.
---      Hai số -8,-2 giữ cho ĐÁY và TÂM của lò trùng đúng chỗ đáy/tâm khung cây thông:
---        tâm  x = 0 + 36/2 = 18   ->  -8 + 52/2 = 18   (khớp)
---        đáy  y = 0 + 50    = 50  ->  -2 + 52   = 50   (khớp)
+--      Icon 32701 là ảnh lò, do ta tự dựng từ icon 24895 (bình luyện đan của SUMO),
+--      hình vuông 64 / 130 / 194 / 260 px theo bốn mức phóng to — TO HƠN HẲN khung của
+--      icon 15041 (cây thông, 36×50), tức cao hơn một NPC người.
+--      Hai số -14,-14 giữ cho ĐÁY và TÂM của lò trùng đúng chỗ đáy/tâm khung cây thông:
+--        tâm  x = 0 + 36/2 = 18   ->  -14 + 64/2 = 18   (khớp)
+--        đáy  y = 0 + 50    = 50  ->  -14 + 64   = 50   (khớp)
 --      Sửa hai số đó là dời lò, không phải sửa ảnh.
---      SỐ 32700 KHÔNG ĐƯỢC VƯỢT 32767: `part`.`DATA` đọc icon bằng Short.parseShort
+--      ĐỔI SỐ ICON 32700 -> 32701 khi phóng to: client CACHE ảnh theo id, giữ nguyên id
+--      mà đổi kích thước file thì máy nào đã tải ảnh cũ sẽ vẽ mãi cỡ cũ.
+--      SỐ 32701 KHÔNG ĐƯỢC VƯỢT 32767: `part`.`DATA` đọc icon bằng Short.parseShort
 --      (Manager.loadDatabase), id lớn hơn là văng NumberFormatException lúc nạp CSDL
 --      và server không lên được. Icon lớn nhất đang có trong res là 32667.
---  (c) Nối [90,524,384] vào `map_template`.`npcs` của map 5 Đảo Kamê.
+--  (c) Nối [90,544,384] vào `map_template`.`npcs` của map 5 Đảo Kamê.
 --
 -- VÌ SAO LÀ ITEM 2276–2289:
 --  ITEM_TEMPLATES tra theo chỉ số nên id phải liên tục. Id lớn nhất sau patch 83 là 2275.
@@ -48,15 +50,15 @@
 --  vị trí. Sau patch 83 dải 0..89 liên tục, 90 là ô trống kế tiếp. Zone ghi tempId
 --  bằng writeByte nên id phải <= 127; 90 thoả.
 --
--- VÌ SAO ĐỨNG Ở x = 524, y = 384 TRÊN MAP 5:
+-- VÌ SAO ĐỨNG Ở x = 544, y = 384 TRÊN MAP 5:
 --  Thềm TRÊN (cột 1..17, x = 24..432) đã kín: NPC 81/86/87 ở x = 240/310/380 và cây to
 --  (vật trang trí id 14) ở x = 120 và x = 408. Chỗ x = 170 của bản đầu nằm ngay cạnh cây
 --  to đó VÀ đè lên vật trang trí id 11 ở cột 7 -> lò bị che, nhìn không thấy.
 --
---  x = 524 là cột 21, nằm trên THỀM DƯỚI (cột 20..24) ngay bên phải NPC Tu Tiên:
---    * cột 21 KHÔNG có vật trang trí nào (đã tra data/map/item_bg_map_data/5);
---    * cách NPC gần nhất (89 ở 450,288) đúng 121 px > bán kính 60 px của Map.getNpc;
---    * mặt đất đầu tiên của cột 21 là hàng 15 (y = 360), NPC đặt ở hàng KẾ DƯỚI
+--  x = 544 là cột 22, nằm trên THỀM DƯỚI (cột 20..24) ngay bên phải NPC Tu Tiên:
+--    * cột 22 chỉ có một vật trang trí ở y = 504, thấp hơn chân lò 120 px (đã tra data/map/item_bg_map_data/5);
+--    * cách NPC gần nhất (89 ở 450,288) đúng 134 px > bán kính 60 px của Map.getNpc;
+--    * mặt đất đầu tiên của cột 22 là hàng 15 (y = 360), NPC đặt ở hàng KẾ DƯỚI
 --      -> y = 16 × 24 = 384. Đây là quy ước của 90/160 NPC gốc trong CSDL (đã đếm).
 --
 --  MUỐN DỜI CHỖ: sửa đúng hai số trong khối (2d) bên dưới, không phải đụng code.
@@ -129,7 +131,7 @@ INSERT INTO `item_template` (`id`, `TYPE`, `gender`, `NAME`, `description`, `lev
 --      mảnh; để trong suốt ở mảnh 0 thì lúc NPC đứng yên là không thấy gì (đã dính).
 DELETE FROM `part` WHERE `id` BETWEEN 2658 AND 2660;
 INSERT INTO `part` (`id`, `TYPE`, `DATA`) VALUES
-(2658, 0, '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]'),
+(2658, 0, '[[32701,-14,-14],[32701,-14,-14],[32701,-14,-14]]'),
 (2659, 1, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]'),
 (2660, 2, '[[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0],[2955,0,0]]');
 
@@ -145,8 +147,8 @@ ON DUPLICATE KEY UPDATE
 -- (2d) Đặt NPC lên map 5 — chỉ khi chưa có.
 UPDATE `map_template`
    SET `npcs` = CASE
-                  WHEN TRIM(`npcs`) = '[]' THEN '[[90,524,384]]'
-                  ELSE CONCAT(LEFT(TRIM(`npcs`), CHAR_LENGTH(TRIM(`npcs`)) - 1), ',[90,524,384]]')
+                  WHEN TRIM(`npcs`) = '[]' THEN '[[90,544,384]]'
+                  ELSE CONCAT(LEFT(TRIM(`npcs`), CHAR_LENGTH(TRIM(`npcs`)) - 1), ',[90,544,384]]')
                 END
  WHERE `id` = 5 AND `npcs` NOT LIKE '%[90,%';
 
@@ -179,7 +181,7 @@ SELECT 'npc_template van lien tuc toi 90',
        ((SELECT COUNT(*) FROM `npc_template` WHERE `id` BETWEEN 0 AND 90) = 91)
 UNION ALL
 SELECT 'map 5 co NPC 90',
-       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,524,384]%') = 1)
+       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,544,384]%') = 1)
 UNION ALL
 SELECT 'KHONG them dong option nao (van 253)',
        ((SELECT COUNT(*) FROM `item_option_template`) = 253);
@@ -201,5 +203,5 @@ SELECT SUM(16 + LENGTH(CONVERT(`NAME` USING utf8mb4))
 -- DELETE FROM `part` WHERE `id` BETWEEN 2658 AND 2660;
 -- DELETE FROM `npc_template` WHERE `id` = 90;
 -- UPDATE `map_template`
---    SET `npcs` = REPLACE(REPLACE(`npcs`, ',[90,524,384]', ''), '[[90,524,384]]', '[]')
+--    SET `npcs` = REPLACE(REPLACE(`npcs`, ',[90,544,384]', ''), '[[90,544,384]]', '[]')
 --  WHERE `id` = 5;

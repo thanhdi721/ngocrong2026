@@ -57,7 +57,8 @@ public class DataGame {
     // 31 -> 32: đưa ảnh lò vào CẢ BA mảnh của part 2658. Ba mảnh là ba KHUNG HÌNH vẽ
     //           luân phiên chứ không chồng lên nhau, để trong suốt ở mảnh 0 thì lúc
     //           NPC đứng yên vẫn không thấy gì (patch 86 bản 2).
-    public static byte vsData = 32;
+    // 32 -> 33: phóng to lò (icon 32700 52px -> icon 32701 64px), part 2658 đổi theo.
+    public static byte vsData = 33;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -75,7 +76,8 @@ public class DataGame {
     // 11 -> 12: thêm npc_template 90 "Lò Luyện Đan" đứng ở map 5 (patch 84).
     // 12 -> 13: dời Lò Luyện Đan từ x=170 sang x=504 y=384 cho khỏi bị cây che (patch 86).
     //           Chỗ đứng NPC nằm trong map_template.npcs, đi theo gói vMap.
-    public static byte vsMap = 13;
+    // 13 -> 14: dời tiếp sang x=544 (chủ dự án yêu cầu đẩy phải 40 px so với bản 504).
+    public static byte vsMap = 14;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.

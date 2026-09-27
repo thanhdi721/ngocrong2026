@@ -251,7 +251,7 @@ rồi kẹp tại `Integer.MAX_VALUE`. Lỗi này có sẵn từ patch 83, khôn
 NPC dạng **vật thể**, không phải người — dựng y hệt "Cây thông Noel" (npc 79):
 
 ```
-part 2658 (đầu):  [[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]
+part 2658 (đầu):  [[32701,-14,-14],[32701,-14,-14],[32701,-14,-14]]
 part 2659 (thân): 17 mảnh 2955 (trong suốt)
 part 2660 (chân): 14 mảnh 2955
 ```
@@ -262,17 +262,21 @@ part 2660 (chân): 14 mảnh 2955
 > đứng yên (khung 0) **không vẽ gì** — đúng hiện tượng "có tên, có mũi tên chọn, không có hình".
 > Nay ảnh lò nằm ở **cả ba mảnh**. Cây thông Noel không dính vì nó có ảnh ở mảnh 0 và 1.
 
-Icon **32700** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO), hình vuông
-**52 / 105 / 157 / 211 px** theo bốn mức phóng to — to hơn khung cây thông (36×50) cho bằng cỡ
-một NPC người.
+Icon **32701** là ảnh lò, tự dựng từ icon 24895 (bình luyện đan của SUMO), hình vuông
+**64 / 130 / 194 / 260 px** theo bốn mức phóng to — cao hơn hẳn khung cây thông (36×50), tức
+to hơn một NPC người.
+
+> **Phóng to thì phải ĐỔI SỐ ICON, không được giữ nguyên id.** Client cache ảnh theo id; giữ id
+> cũ mà đổi kích thước file thì máy nào đã tải ảnh cũ sẽ vẽ mãi cỡ cũ. Vì vậy 32700 (52px) đã
+> bị bỏ, thay bằng 32701 (64px).
 
 Hai số `-8,-2` giữ **đáy** và **tâm** của lò trùng đúng đáy/tâm khung cây thông, là khung đã
 biết chắc vẽ đúng chỗ:
 
-| | cây thông (36×50) | lò (52×52, dx −8, dy −2) |
+| | cây thông (36×50) | lò (64×64, dx −14, dy −14) |
 |---|---|---|
-| tâm x | `0 + 36/2 = 18` | `−8 + 52/2 = 18` ✔ |
-| đáy y | `0 + 50 = 50` | `−2 + 52 = 50` ✔ |
+| tâm x | `0 + 36/2 = 18` | `−14 + 64/2 = 18` ✔ |
+| đáy y | `0 + 50 = 50` | `−14 + 64 = 50` ✔ |
 
 Lò đứng cao/thấp lệch thì **sửa hai số đó**, không phải sửa ảnh.
 
@@ -285,20 +289,20 @@ Lò đứng cao/thấp lệch thì **sửa hai số đó**, không phải sửa 
 > **Id icon trong `part` không được vượt 32.767.** `Manager.loadDatabase` đọc nó bằng
 > `Short.parseShort`, id lớn hơn là văng `NumberFormatException` ngay lúc nạp CSDL và **server
 > không lên được**. Bản đầu tôi đặt 33001 và dính đúng lỗi này. Icon lớn nhất đang có trong res
-> là 32667, nên 32700 là ô trống an toàn. `Manager.checkMissingIcons` nay cũng cảnh báo trước
+> là 32667, nên 32700/32701 là ô trống an toàn. `Manager.checkMissingIcons` nay cũng cảnh báo trước
 > nếu có id vượt ngưỡng.
 
-Chỗ đứng: **map 5, x = 524, y = 384**.
+Chỗ đứng: **map 5, x = 544, y = 384**.
 
 Bản đầu đặt ở x = 170 và **bị cây che**. Tra `data/map/item_bg_map_data/5` mới thấy: cột 7
 (x = 168) **đã có sẵn một vật trang trí** (id 11), mà ngay cạnh là **cây to** (id 14) ở x = 120.
 Thềm trên (cột 1..17) còn bị NPC 81/86/87 chiếm ở 240/310/380, nên không còn khe sạch nào.
 
-x = 524 là **cột 21 trên thềm dưới**, ngay bên phải NPC Tu Tiên:
+x = 544 là **cột 22 trên thềm dưới**, ngay bên phải NPC Tu Tiên:
 
-* cột 21 **không có vật trang trí nào**;
-* cách NPC gần nhất (89 ở 450,288) **121 px** > bán kính 60 px của `Map.getNpc`;
-* mặt đất đầu tiên của cột 21 là hàng 15 (y = 360), NPC đặt ở **hàng kế dưới** → y = 384.
+* cột 22 chỉ có một vật trang trí ở y = 504 — **thấp hơn chân lò 120 px**, không che;
+* cách NPC gần nhất (89 ở 450,288) **134 px** > bán kính 60 px của `Map.getNpc`;
+* mặt đất đầu tiên của cột 22 là hàng 15 (y = 360), NPC đặt ở **hàng kế dưới** → y = 384.
 
 > Quy ước "hàng kế dưới mặt đất" không phải tôi đoán: tôi đếm **160 NPC gốc** trên 166 map,
 > **90 con** theo đúng quy ước này (lệch +1), 29 con lệch +0. Lấy cái đa số.
@@ -320,7 +324,7 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 * `src/nro/models/npc_list/LoLuyenDan.java` — NPC 90
 * `src/nro/models/boss/tay_du/BossTayDu.java` — hai boss Tây Du
 * `sql/patch/84-luyen-dan.sql`
-* 14 icon + icon 32700 (ảnh lò) trong `data/icon/x1..x4`
+* 14 icon + icon 32701 (ảnh lò) trong `data/icon/x1..x4`
 
 **Mới (patch 85)**
 
@@ -350,7 +354,7 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 | `npc_list/TheoDoiBoss` | hiện thêm dòng rơi theo luật chung |
 | `consts/ConstNpc`, `npc/NpcFactory` | NPC 90 và ba menu |
 | `server/ServerManager` | chốt bảng vàng lúc bảo trì |
-| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → **32** (bảng `part`), `vsMap` 11 → **13** (`npc_template` + chỗ đứng NPC) |
+| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → **33** (bảng `part`), `vsMap` 11 → **14** (`npc_template` + chỗ đứng NPC) |
 
 ---
 
