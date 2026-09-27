@@ -143,7 +143,6 @@ if ($_login == null) {
                          
                 </form>
                 <form method="post">
-                   <button class="ant-btn ant-btn-default header-menu-item header-menu-item-active w-50" type="submit" name="set_session">Đổi SERVER</button>
                 </form>
             </div>
         

@@ -88,10 +88,10 @@ require_once '../core/head.php';
 <body>
     <?php if ($windowsLink): ?>
         <p>Link Tải Phiên Bản Windows [ Server 1, Server 2 ]: <a class="text-dark font-weight-bold blink-red"
-            href="https://drive.google.com/drive/folders/1MBPm5rWqOfMe5_Lo-QpALxQZrxssozh8?usp=sharing">Tại đây</a></p>
+            href="https://drive.google.com/file/d/1y1ryxDdJSxEZmuqvUoRkGUB2SgBkBEAd/view?usp=sharing">Tại đây</a></p>
             
              <p>Link Tải Phiên Bản Windows Riêng [ Server 2 ]: <a class="text-dark font-weight-bold blink-red"
-            href="https://drive.google.com/drive/folders/1RTu3yufzP8veVm6pnC9K3rBtimtJ3bZ8?usp=drive_link">Tại đây</a></p>
+            href="https://drive.google.com/file/d/1y1ryxDdJSxEZmuqvUoRkGUB2SgBkBEAd/view?usp=sharing">Tại đây</a></p>
     <?php else: ?>
         <p>Chưa có liên kết tải phiên bản Windows.</p>
     <?php endif; ?>

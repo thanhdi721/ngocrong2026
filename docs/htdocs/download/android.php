@@ -87,9 +87,9 @@ require_once '../core/head.php';
 <body>
     <?php if ($androidLink): ?>
         <p>Link tải phiên bản Android [ Server 1, Server 2 ]: <a class="text-dark font-weight-bold blink-red"
-            href="https://drive.google.com/drive/folders/15lzCr6ntn8edv0hzjt5VFkeD2hFfLX63?usp=sharing">Tại đây</a></p>
+            href="https://drive.google.com/file/d/1fFmOpOqIzKQF9jTmFM9mIBqsPt0nKx3V/view?usp=sharing">Tại đây</a></p>
              <p>Link tải phiên bản Android Riêng [ Server 2 ]: <a class="text-dark font-weight-bold blink-red"
-            href="https://drive.google.com/drive/folders/1mn95mUoJtkNWH5BVEkNLmX9UbzX39J36?usp=sharing">Tại đây</a></p>
+            href="https://drive.google.com/file/d/1fFmOpOqIzKQF9jTmFM9mIBqsPt0nKx3V/view?usp=sharing">Tại đây</a></p>
     <?php else: ?>
         <p>Chưa có liên kết tải phiên bản Android.</p>
     <?php endif; ?>

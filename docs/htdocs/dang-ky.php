@@ -106,8 +106,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $accountCount = $row['count'];
 
-            if ($accountCount >= 5) {
-                $_alert = '<div class="text-danger pb-2 font-weight-bold">Bạn đã đăng ký đủ số lượng tài khoản từ địa chỉ IP này.</div>';
+            // Số tài khoản tối đa cho một IP — sửa ở core/cauhinh.php ($_max_acc_moi_ip).
+            if ($_max_acc_moi_ip > 0 && $accountCount >= $_max_acc_moi_ip) {
+                $_alert = '<div class="text-danger pb-2 font-weight-bold">Mỗi địa chỉ IP chỉ đăng ký được ' . $_max_acc_moi_ip . ' tài khoản.</div>';
 
                 // Gọi hàm tạo lại CAPTCHA khi nhập sai CAPTCHA
                 refreshCaptcha();
@@ -179,7 +180,7 @@ if (!isset($_SESSION['captcha'])) {
     <div class="container pt-5 pb-5">
         <div class="row">
             <div class="col-lg-6 offset-lg-3">
-                <h3>ĐĂNG KÝ SERVER 2</h3>
+                <h3>ĐĂNG KÝ</h3>
                 <form id="form" method="POST">
                     <div class="form-group">
                         <label><span class="text-danger">*</span> Tài khoản:</label>
@@ -216,7 +217,6 @@ if (!isset($_SESSION['captcha'])) {
                     <button class="ant-btn ant-btn-default header-menu-item header-menu-item-active w-50" type="submit">ĐĂNG KÝ</button>
                 </form>
                 <form method="post">
-                   <button class="ant-btn ant-btn-default header-menu-item header-menu-item-active w-50" type="submit" name="set_session">Đổi SERVER</button>
                 </form>
                 <script>
                     function redirectToRegisterPage() {

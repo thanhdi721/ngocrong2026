@@ -60,13 +60,22 @@ $_favicon   = '/image/favicon-64.png';        // ảnh nhỏ trên tab trình du
 $serverIP   = '';
 $serverPort = '';
 
-//======================= 3. PHIÊN BẢN FILE GAME =======================
+//======================= 3. LUẬT ĐĂNG KÝ =======================
+// Một địa chỉ IP đăng ký được nhiều nhất bấy nhiêu tài khoản. Để 0 là BỎ chặn.
+//
+// COI CHỪNG: nếu web chạy sau Cloudflare / nginx proxy thì $_SERVER['REMOTE_ADDR']
+// là IP của CÁI PROXY, không phải của người chơi — mọi người dùng chung một IP và cả
+// máy chủ chỉ đăng ký được đúng ngần này tài khoản. Gặp trường hợp đó thì để 0,
+// hoặc sửa $ip_address trong dang-ky.php đọc HTTP_CF_CONNECTING_IP / X-Forwarded-For.
+$_max_acc_moi_ip = 5;
+
+//======================= 4. PHIÊN BẢN FILE GAME =======================
 $_android = '2.3.0';
 $_windows = '2.2.5';
 $_java    = '2.2.1';
 $_iphone  = '2.2.2';
 
-//======================= 4. LIÊN HỆ / CỘNG ĐỒNG =======================
+//======================= 5. LIÊN HỆ / CỘNG ĐỒNG =======================
 // ĐỂ RỖNG là nút đó KHÔNG hiện lên web. Điền link của bạn vào nếu muốn hiện.
 // (Link Zalo / Fanpage / số điện thoại của chủ web cũ đã bị xoá hết.)
 $_link_fanpage  = '';
@@ -74,14 +83,14 @@ $_link_zalo     = '';
 $_link_telegram = '';
 $_link_discord  = '';
 
-//======================= 5. CHỮ CHẠY Ở ĐẦU TRANG =======================
+//======================= 6. CHỮ CHẠY Ở ĐẦU TRANG =======================
 $_chu_chay = 'Chào mừng các bạn đến với NRO SkyRain. Tải game và chiến ngay!';
 
-//======================= 6. reCAPTCHA (để rỗng là tắt) =======================
+//======================= 7. reCAPTCHA (để rỗng là tắt) =======================
 $w_api_recaptcha         = '';
 $w_api_recaptcha_private = '';
 
-//======================= 7. GỬI MAIL (chức năng Quên mật khẩu) =======================
+//======================= 8. GỬI MAIL (chức năng Quên mật khẩu) =======================
 // ĐỂ RỖNG $smtp_user là TẮT hẳn chức năng quên mật khẩu (trang sẽ báo chưa cấu hình).
 // Dùng Gmail thì $smtp_pass là "mật khẩu ứng dụng" 16 ký tự, KHÔNG phải mật khẩu Gmail.
 // (Mật khẩu ứng dụng của chủ web cũ đã bị xoá khỏi mã nguồn.)
@@ -92,7 +101,7 @@ $smtp_user   = '';
 $smtp_pass   = '';
 $smtp_ten    = $_tenmaychu;
 
-//======================= 8. TIỆN ÍCH =======================
+//======================= 9. TIỆN ÍCH =======================
 function CreateToken()
 {
     return md5(uniqid((string) rand(), true));

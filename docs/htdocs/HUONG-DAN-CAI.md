@@ -76,6 +76,16 @@ Nó tra tên vật phẩm thật từ bảng `item_template` rồi ghi ra `data/
 **Phải chạy lại** sau khi: sửa bảng rơi đồ trong cpanel của server game, hoặc thêm boss /
 vật phẩm mới.
 
+### Số tài khoản tối đa cho một IP
+```php
+$_max_acc_moi_ip = 5;   // để 0 là bỏ chặn
+```
+
+> **Coi chừng khi chạy sau Cloudflare / nginx proxy:** `$_SERVER['REMOTE_ADDR']` lúc đó là IP
+> của *cái proxy*, không phải của người chơi — cả máy chủ dùng chung một IP nên chỉ đăng ký
+> được đúng 5 tài khoản rồi tắc. Gặp vậy thì để **0**, hoặc sửa `$ip_address` trong
+> `dang-ky.php` đọc `HTTP_CF_CONNECTING_IP` / `X-Forwarded-For`.
+
 ### Logo
 Ba dòng trong `core/cauhinh.php`:
 
