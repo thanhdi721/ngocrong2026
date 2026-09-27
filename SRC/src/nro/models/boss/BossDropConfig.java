@@ -126,6 +126,11 @@ public final class BossDropConfig {
             "Tu Tiên — rơi Kim Nhung Quả (phần nghìn)", 12,
             "12 ≈ 1,2% ≈ 23 lá/giờ. Đây là món hiếm nhất, mà Phá Quân Đan cần tới 6 cái");
 
+    //================== Boss nhiệm vụ ==================
+    public static final Muc NV_NGOC = them("nv_ngoc",
+            "Boss nhiệm vụ — số ngọc rơi", 100,
+            "Rơi thành 7 đống quanh xác boss, kiểu Bojack. Để 0 là tắt");
+
     //================== Luyện đan — MỌI boss đều rơi nguyên liệu ==================
     // Luật chung áp cho tất cả boss, tính theo máu tối đa của con đó. Boss nào đã có dòng
     // Địa Hỏa Tinh riêng trong bảng rơi (hai con Tây Du, bộ Siêu Thần God, Lão Dê) thì

@@ -298,9 +298,31 @@ public final class BangRoiBoss {
             }
             case BossID.MAT_TROI ->
                 ds.add(MucRoi.goc(new int[]{1562}, 1, 1, 50, "Mặt trời tí hon kèm chỉ số"));
+            // --- Heart: từ 27/09/2026 rơi y hệt Super Black Goku (RoiChuan.roiKieuBlackGoku),
+            //     cộng phần ngọc của nhóm boss nhiệm vụ ở khối bên dưới.
+            case BossID.HEART -> {
+                ds.add(MucRoi.goc(new int[]{190}, 20000, 30000, 100, "Vàng"));
+                ds.add(MucRoi.thanLinh());
+                ds.add(MucRoi.goc(TB_AO_QUAN_GIAY, 1, 1, 3, "Áo/quần/giày (5% × 70%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(TB_GANG_RADA, 1, 1, 2, "Găng/rađa (5% × 30%), kèm chỉ số + sao pha lê"));
+                ds.add(MucRoi.goc(new int[]{15, 16, 17, 18, 19, 20, 992}, 1, 3, 10, "Ngọc Rồng / Nhẫn thời không"));
+                ds.add(MucRoi.goc(new int[]{2029}, 1, 1, 100, "Ống nghiệm Myuu (chỉ hình dạng 3)"));
+            }
             default -> {
             }
         }
+        // --- Mọi boss nhiệm vụ: ngọc rải thành nhiều đống quanh xác, kiểu Bojack.
+        //     Thả ở QuestBoss.reward, số lượng đọc từ cpanel (nv_ngoc).
+        if (bossId == BossID.HEART || bossId == BossID.KE_THU_GOM || bossId == BossID.JACO_VO_THUC
+                || bossId == BossID.BABY_NV || bossId == BossID.BLACK_GOKU_NV
+                || bossId == BossID.COOLER_NV || bossId == BossID.CUMBER_NV
+                || bossId == BossID.MABU_14H_NV || bossId == BossID.XEN_BO_HUNG_NV) {
+            int ngoc = nro.models.boss.drop.RoiChuan.ngocBossNhiemVu();
+            if (ngoc > 0) {
+                ds.add(MucRoi.goc(new int[]{77}, ngoc, ngoc, 100, "Ngọc, rơi thành nhiều đống"));
+            }
+        }
+
         // --- Bộ Lốp Trưởng: đọc thẳng cpanel tab "Rơi đồ boss" nên không bao giờ lệch.
         if (bossId <= BossID.LOP_TRUONG && bossId > BossID.LOP_TRUONG - 8) {
             ds.add(MucRoi.goc(nro.models.boss.BossDropConfig.LT20_ID_BINH.ids(),

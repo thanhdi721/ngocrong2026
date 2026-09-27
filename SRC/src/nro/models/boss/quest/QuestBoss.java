@@ -368,9 +368,15 @@ public abstract class QuestBoss extends Boss {
         //     Hàm đó cũng gọi nro.models.task.QuestDrop.onBossKilled — rơi đồ nhiệm vụ THEO
         //     BƯỚC (ví dụ Nhẫn thời không 992 cho người đang ở TASK_38_4 khi hạ Black Goku -2103).
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-        // (2) Chỉ rơi đồ nhiệm vụ. KHÔNG vàng, KHÔNG trang bị, KHÔNG Ngọc Rồng,
-        //     KHÔNG đồ Thần Linh — đồ xịn vẫn chỉ đến từ boss thế giới bản gốc.
+        // (2) Đồ nhiệm vụ.
         dropQuestItem(plKill);
+        // (3) Ngọc. CHỦ DỰ ÁN CHỐT (27/09/2026): mọi boss nhiệm vụ rơi thêm ngọc, rải
+        //     thành nhiều đống quanh xác kiểu Bojack. Số lượng chỉnh ở cpanel (nv_ngoc).
+        //     Trước đây nhóm boss này cố ý KHÔNG rơi gì ngoài đồ nhiệm vụ; nay mở ra ngọc,
+        //     còn vàng / trang bị / Thần Linh thì VẪN không — đồ xịn vẫn chỉ đến từ boss
+        //     thế giới bản gốc.
+        nro.models.boss.drop.RoiChuan.roiNgocDaySan(this, plKill,
+                nro.models.boss.drop.RoiChuan.ngocBossNhiemVu());
     }
 
     protected void dropQuestItem(Player plKill) {

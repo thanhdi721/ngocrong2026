@@ -2,6 +2,7 @@ package nro.models.boss.heart;
 
 import nro.models.boss.BossDamageReduce;
 import nro.models.boss.BossID;
+import nro.models.player.Player;
 import nro.models.boss.BossesData;
 import nro.models.boss.quest.QuestBoss;
 
@@ -65,7 +66,24 @@ public class Heart extends QuestBoss {
     @Override
     protected int getQuestItemId(int level) {
         // NV 46 bước 4: hạ "Heart Toàn Ký" (hình dạng 3, currentLevel = 2) -> Ống nghiệm Myuu.
-        // Các hình dạng còn lại không rơi gì: Heart nằm trong bước nhiệm vụ bắt buộc.
+        // Các hình dạng còn lại không rơi đồ nhiệm vụ.
         return level == 2 ? ONG_NGHIEM_MYUU : -1;
+    }
+
+    /**
+     * CHỦ DỰ ÁN CHỐT (27/09/2026): Heart rơi đồ <b>y hệt Super Black Goku</b>.
+     *
+     * <p>Lý do: Heart là con trâu nhất server (1,5–2 tỷ máu, bốn hình dạng, ba bản) mà trước
+     * đây chỉ rơi Ống nghiệm Myuu ở đúng một hình dạng — ba hình dạng kia hạ xong không được gì.
+     *
+     * <p>Gọi {@code super.reward} trước để giữ nguyên phần nhiệm vụ: báo bước nhiệm vụ, rơi
+     * Ống nghiệm Myuu, và ngọc của nhóm boss nhiệm vụ. Sau đó mới thêm bộ đồ kiểu Black Goku
+     * (vàng, đồ Thần Linh theo máu, 5 % trang bị kèm sao pha lê, 10 % Ngọc Rồng) — xem
+     * {@link nro.models.boss.drop.RoiChuan#roiKieuBlackGoku}.
+     */
+    @Override
+    public void reward(Player plKill) {
+        super.reward(plKill);
+        nro.models.boss.drop.RoiChuan.roiKieuBlackGoku(this, plKill);
     }
 }

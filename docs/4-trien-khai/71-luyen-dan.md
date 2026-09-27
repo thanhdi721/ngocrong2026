@@ -467,7 +467,50 @@ Giftcode đọc thẳng từ CSDL mỗi lần nhập nên **không cần tắt s
 
 Khối (4) của patch 87 có sẵn câu xoá 10 mã này, chạy khi thử xong.
 
-## 11. Còn thiếu
+## 11. Đồ rơi của Heart và nhóm boss nhiệm vụ (27/09/2026)
+
+Trước đó cả nhóm boss nhiệm vụ **không rơi gì ngoài đồ nhiệm vụ** — đó là quyết định thiết kế
+ghi thẳng trong `QuestBoss.reward()`. Nay mở ra hai thứ:
+
+### Heart rơi y hệt Super Black Goku
+
+Heart là con trâu nhất server (1,5–2 tỷ máu, **bốn hình dạng**, ba bản) mà trước chỉ rơi Ống
+nghiệm Myuu ở đúng hình dạng 3 — ba hình dạng kia hạ xong không được gì.
+
+Nay thêm đúng bộ của Black Goku, từng con số một:
+
+| | |
+|---|---|
+| Vàng | **100%**, 20.000–30.000 |
+| Đồ Thần Linh | theo máu boss (`BossDropRate`, 1–5%) |
+| Trang bị | **5%** — 70% áo/quần/giày, 30% găng/rađa; kèm chỉ số shop ×1,00–1,15 và sao pha lê (80% sao 1–3, 17% sao 4–5, 3% sao 6) |
+| Ngọc Rồng / Nhẫn thời không | **10%**, số lượng 1–3 |
+
+Code nằm ở `boss/drop/RoiChuan.roiKieuBlackGoku` — chép nguyên từng con số của
+`Black_Goku/BlackGoku.reward` để "giống Super Black Goku" là giống thật, không phải xấp xỉ.
+
+### Mọi boss nhiệm vụ rơi thêm 100 ngọc
+
+Rải thành **7 đống** quanh xác boss, kiểu Bojack, chứ không phải một cục:
+
+```
+lệch so với xác boss:  -54  -36  -18   0  +18  +36  +54 px   (± 8 px ngẫu nhiên)
+100 ngọc chia thành:    14   14   14  14   14   14   16
+```
+
+Đống cuối ôm phần dư nên **tổng luôn đúng** bằng số đặt trong cpanel, không phụ thuộc may rủi.
+
+Áp cho cả 9 con: Heart, Kẻ Thu Gom, Jaco Vô Thức, Baby NV, Black Goku NV, Cooler NV, Cumber NV,
+Mabư NV, Xên bọ hung NV.
+
+Số ngọc là **ô chỉnh trong cpanel**, khoá `nv_ngoc` (mặc định 100, để 0 là tắt).
+
+**Vàng / trang bị / Thần Linh thì VẪN không** cho nhóm nhiệm vụ — chỉ Heart có, vì Heart được
+chốt riêng. Quyết định gốc "đồ xịn chỉ đến từ boss thế giới bản gốc" vẫn còn nguyên.
+
+NPC "Theo Dõi Boss" đã khai báo cả hai phần này nên người chơi xem là thấy.
+
+## 12. Còn thiếu
 
 * **Chưa chạy thử trong game một lần nào.** Mọi thứ ở trên mới chỉ biên dịch sạch và kiểm trên
   CSDL nháp.
