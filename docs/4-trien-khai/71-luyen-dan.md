@@ -288,16 +288,16 @@ Lò đứng cao/thấp lệch thì **sửa hai số đó**, không phải sửa 
 > là 32667, nên 32700 là ô trống an toàn. `Manager.checkMissingIcons` nay cũng cảnh báo trước
 > nếu có id vượt ngưỡng.
 
-Chỗ đứng: **map 5, x = 504, y = 384**.
+Chỗ đứng: **map 5, x = 524, y = 384**.
 
 Bản đầu đặt ở x = 170 và **bị cây che**. Tra `data/map/item_bg_map_data/5` mới thấy: cột 7
 (x = 168) **đã có sẵn một vật trang trí** (id 11), mà ngay cạnh là **cây to** (id 14) ở x = 120.
 Thềm trên (cột 1..17) còn bị NPC 81/86/87 chiếm ở 240/310/380, nên không còn khe sạch nào.
 
-x = 504 là **cột 21 trên thềm dưới**, ngay bên phải NPC Tu Tiên:
+x = 524 là **cột 21 trên thềm dưới**, ngay bên phải NPC Tu Tiên:
 
 * cột 21 **không có vật trang trí nào**;
-* cách NPC gần nhất (89 ở 450,288) **110 px** > bán kính 60 px của `Map.getNpc`;
+* cách NPC gần nhất (89 ở 450,288) **121 px** > bán kính 60 px của `Map.getNpc`;
 * mặt đất đầu tiên của cột 21 là hàng 15 (y = 360), NPC đặt ở **hàng kế dưới** → y = 384.
 
 > Quy ước "hàng kế dưới mặt đất" không phải tôi đoán: tôi đếm **160 NPC gốc** trên 166 map,

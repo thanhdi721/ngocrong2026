@@ -21,7 +21,7 @@
 --      đáy y: 0 + 50   = 50  ->  -2 + 52   = 50
 --  Lò đứng cao hay thấp lệch thì chỉ cần sửa hai số đó, không phải sửa ảnh.
 --
---  File này còn DỜI CHỖ lò: x=170 nằm ngay cạnh cây to nên bị che, nay sang x=504 y=384.
+--  File này còn DỜI CHỖ lò: x=170 nằm ngay cạnh cây to nên bị che, nay sang x=524 y=384.
 --
 --  QUAN TRỌNG: sửa CSDL thôi chưa đủ. Client giữ CACHE bảng `part` và dữ liệu map,
 --  chỉ tải lại khi thấy số hiệu bản dữ liệu đổi. Bản jar đi kèm đã tăng
@@ -53,15 +53,18 @@ SELECT `id`, `TYPE`, `DATA` FROM `part` WHERE `id` = 2658;
 -- ---------------------------------------------------------------------
 -- (2) SỬA.
 -- ---------------------------------------------------------------------
--- (2a) Dời lò từ x=170 sang x=504, y=384.
+-- (2a) Dời lò từ x=170 sang x=524, y=384.
 --      x=170 (cột 7) nằm ngay cạnh cây to (vật trang trí id 14 ở x=120) VÀ đè lên vật
 --      trang trí id 11 ở chính cột đó -> lò bị che.
---      x=504 là cột 21 trên thềm dưới, bên phải NPC Tu Tiên: cột này KHÔNG có vật trang
---      trí nào, cách NPC gần nhất 110 px. y=384 vì mặt đất đầu tiên của cột 21 là hàng 15
+--      x=524 là cột 21 trên thềm dưới, bên phải NPC Tu Tiên: cột này KHÔNG có vật trang
+--      trí nào, cách NPC gần nhất 121 px. y=384 vì mặt đất đầu tiên của cột 21 là hàng 15
 --      (y=360) và NPC đặt ở hàng kế dưới — quy ước của 90/160 NPC gốc trong CSDL.
+-- Nhận cả hai chỗ cũ: [90,170,288] (patch 84 bản đầu) và [90,504,384] (bản giữa),
+-- để chạy được dù CSDL đang ở bản nào.
 UPDATE `map_template`
-   SET `npcs` = REPLACE(`npcs`, '[90,170,288]', '[90,504,384]')
- WHERE `id` = 5 AND `npcs` LIKE '%[90,170,288]%';
+   SET `npcs` = REPLACE(REPLACE(`npcs`, '[90,170,288]', '[90,524,384]'),
+                        '[90,504,384]', '[90,524,384]')
+ WHERE `id` = 5 AND (`npcs` LIKE '%[90,170,288]%' OR `npcs` LIKE '%[90,504,384]%');
 
 -- (2b) Hình lò.
 UPDATE `part`
@@ -71,11 +74,12 @@ UPDATE `part`
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — cột `dat` phải = 1.
 -- ---------------------------------------------------------------------
-SELECT 'lo dung o x=504 y=384' AS `muc`,
-       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,504,384]%') = 1) AS `dat`
+SELECT 'lo dung o x=524 y=384' AS `muc`,
+       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,524,384]%') = 1) AS `dat`
 UNION ALL
-SELECT 'khong con lo o cho cu x=170',
-       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,170,288]%') = 0)
+SELECT 'khong con lo o cho cu nao',
+       ((SELECT COUNT(*) FROM `map_template`
+          WHERE `id` = 5 AND (`npcs` LIKE '%[90,170,288]%' OR `npcs` LIKE '%[90,504,384]%')) = 0)
 UNION ALL
 SELECT 'part 2658 dung icon 32700, da chinh toa do',
        ((SELECT COUNT(*) FROM `part`
