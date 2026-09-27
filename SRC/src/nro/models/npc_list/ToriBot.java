@@ -96,14 +96,31 @@ public class ToriBot extends Npc {
                 }
             }
 
-            case 1 ->
-                BuyVip(pl, 1, 50000);
-            case 2 ->
-                BuyVip(pl, 2, 100000);
-            case 3 ->
-                BuyVip(pl, 3, 150000);
-            case 4 ->
-                BuyVip(pl, 4, 200000);
+            // Bốn menu xác nhận (1..4) đều có ĐÚNG HAI nút:
+            //     select 0 = "… điểm mùa" (đồng ý mua)
+            //     select 1 = "Đóng"
+            // Bản cũ KHÔNG xét `select` nên bấm "Đóng" cũng chạy thẳng vào BuyVip —
+            // người chơi bị trừ điểm mùa và lên VIP dù đã bấm huỷ.
+            case 1 -> {
+                if (select == 0) {
+                    BuyVip(pl, 1, 50000);
+                }
+            }
+            case 2 -> {
+                if (select == 0) {
+                    BuyVip(pl, 2, 100000);
+                }
+            }
+            case 3 -> {
+                if (select == 0) {
+                    BuyVip(pl, 3, 150000);
+                }
+            }
+            case 4 -> {
+                if (select == 0) {
+                    BuyVip(pl, 4, 200000);
+                }
+            }
         }
     }
 

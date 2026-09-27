@@ -107,7 +107,8 @@ public class DataGame {
     //           tỉ lệ nữa, nên trả ô đó về cho bảng chỉ số (patch 82).
     // 30 -> 31: thêm 10 vật phẩm 2266–2275 của map Tu Tiên (patch 83).
     // 31 -> 32: thêm 14 vật phẩm 2276–2289 của tính năng luyện đan (patch 84).
-    public static byte vsItem = 32;
+    // 32 -> 33: đổi icon 2123 và 2066 cho khỏi trùng với 759 và 403 (patch 90).
+    public static byte vsItem = 33;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

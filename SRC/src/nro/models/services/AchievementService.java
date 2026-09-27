@@ -34,7 +34,14 @@ public class AchievementService {
             for (int i = 0; i < Manager.ACHIEVEMENT_TEMPLATE.size(); i++) {
                 AchievementTemplate at = Manager.ACHIEVEMENT_TEMPLATE.get(i);
                 msg.writer().writeUTF(at.info1); // info 1
-                msg.writer().writeUTF(regex(player, at.info2) + " (" + numberToString(player.achievement.getCompleted(i)) + "/" + numberToString(at.maxCount) + ")"); // info 2
+                // Ghi RÕ đơn vị thưởng vào dòng mô tả.
+                // Gói tin -76 không có ô "loại tiền": client tự vẽ chữ "Thỏi Vàng" cạnh con số,
+                // trong khi confirmAchievement lại cộng vào NGỌC (inventory.gem). Client là file
+                // riêng, server không sửa được chữ đó, nên nói thẳng ở chỗ server điều khiển được.
+                msg.writer().writeUTF(regex(player, at.info2)
+                        + " (" + numberToString(player.achievement.getCompleted(i))
+                        + "/" + numberToString(at.maxCount) + ")"
+                        + " — thưởng " + at.money + " ngọc"); // info 2
                 msg.writer().writeShort(at.money); // money
                 msg.writer().writeBoolean(player.achievement.isFinish(i, at.maxCount));// isFinish
                 msg.writer().writeBoolean(player.achievement.isRecieve(i)); // isRecieve

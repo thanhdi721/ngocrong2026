@@ -614,6 +614,51 @@ Cách xử lý: **Clean and Build**, đừng chỉ Build.
 > khác nhau. Build xong mà quên chép đè sang `20.jar` là **vẫn chạy code cũ** — và nếu chỉ
 > chép đè vài class thì ra đúng cái lỗi trộn bản ở trên.
 
+### Bảng thông tin đệ tử vỡ giao diện
+
+Mở thông tin một số đệ tử là client trắng/xô lệch cả màn hình, đệ khác lại bình thường.
+
+`Service.showInfoPet` báo với client là **5 chiêu** rồi lại lặp theo `skills.size()`:
+
+```java
+msg.writer().writeByte(5);                    // báo 5
+for (int i = 0; i < sizeSkill; i++) { ... }   // ghi sizeSkill
+```
+
+Mà số chiêu thật **không bao giờ đúng 5**:
+
+| Nguồn | Số chiêu |
+|---|---|
+| `MrBlue.loadPlayer` đệm cho đệ thường | **4** |
+| `MrBlue.loadPlayer` đệm cho `typePet` 3/4 | 5 |
+| `PetService` lúc tạo đệ mới | **7** (1 + 6 ô rỗng) |
+
+Thiếu thì client đọc lố sang dữ liệu phía sau, thừa thì client bỏ sót — kiểu gì cũng **lệch
+cả luồng gói tin**, và vì gói này nằm trong luồng chung nên vỡ luôn giao diện.
+
+Đã sửa: lặp đúng 5 lần, ô nào vượt quá `skills.size()` thì coi như chiêu chưa mở (gửi −1 kèm
+câu giải thích, đúng như ô rỗng).
+
+### Hai cặp vật phẩm đệ tử trùng icon (patch 90)
+
+| Icon | Hai món nhìn y hệt nhau |
+|---|---|
+| 7099 | **403** "Nâng kỹ năng 2 đệ tử" (shop) · **2066** "Đổi Skill 2 Đệ Tử" |
+| 7101 | **759** "Nâng kỹ năng 4 đệ tử" (shop) · **2123** "Nâng kỹ năng 5 đệ tử" (vòng quay) |
+
+Nguyên nhân: bộ "Đổi Skill" dùng thẻ bài 27143–27146 nhưng **27143 chưa bao giờ được kéo về
+res** (không có trong cả SUMO lẫn Bun) nên 2066 mượn tạm 7099. Bộ "Nâng kỹ năng" chỉ có 4 màu
+cuộn giấy cho 4 chiêu, lúc patch 58 thêm chiêu 5 thì hết màu nên mượn lại 7101.
+
+Đã dựng hai ảnh mới bằng cách đổi tông màu ảnh cùng bộ, nhìn vẫn đúng một nhà:
+
+* **32702** cuộn giấy xanh dương → 2123 "Nâng kỹ năng 5 đệ tử"
+* **32703** thẻ bài xanh lục → 2066 "Đổi Skill 2 Đệ Tử"
+
+Hai số phải ≤ 32767 vì gói tin ghi icon bằng `short`. Đã quét lại cả bảng: **không còn cặp
+nào trùng** trong nhóm vật phẩm đệ tử. (Mấy icon dùng chung khác như đậu thần cấp 1–10 hay
+sách chiêu lv1–7 là **cố ý**, cùng một món ở nhiều cấp.)
+
 ## 14. Còn thiếu
 
 * **Chưa chạy thử trong game một lần nào.** Mọi thứ ở trên mới chỉ biên dịch sạch và kiểm trên

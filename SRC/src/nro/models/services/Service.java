@@ -1672,38 +1672,43 @@ public class Service {
                 msg.writer().writeShort(pl.pet.nPoint.maxStamina); //stamina full
                 msg.writer().writeByte(pl.pet.nPoint.crit); //crit
                 msg.writer().writeShort(pl.pet.nPoint.def); //def
+                // ĐÃ BÁO 5 THÌ PHẢI GHI ĐÚNG 5.
+                // Bản cũ báo 5 nhưng lặp theo `skills.size()` — mà số chiêu thật KHÁC 5:
+                //   * MrBlue.loadPlayer đệm tới 4 chiêu cho đệ thường, chỉ typePet 3/4 mới đủ 5;
+                //   * PetService lúc tạo đệ mới lại nhét 7 chiêu.
+                // Thiếu thì client đọc lố sang dữ liệu sau, thừa thì client bỏ sót — kiểu gì
+                // cũng LỆCH CẢ LUỒNG GÓI TIN và vỡ bảng thông tin đệ (màn hình trắng/xô lệch).
+                final int SO_CHIEU_DE = 5;
                 int sizeSkill = pl.pet.playerSkill.skills.size();
-                msg.writer().writeByte(5); //count pet skill
-                for (int i = 0; i < sizeSkill; i++) {
-                    if (pl.pet.playerSkill.skills.get(i).skillId != -1) {
-                        msg.writer().writeShort(pl.pet.playerSkill.skills.get(i).skillId);
-                    } else {
-                        switch (i) {
-                            case 1:
-                                msg.writer().writeShort(-1);
-                                msg.writer().writeUTF("Cần đạt sức mạnh 150tr để mở");
-                                break;
-                            case 2:
-                                msg.writer().writeShort(-1);
-                                msg.writer().writeUTF("Cần đạt sức mạnh 1tỷ5 để mở");
-                                break;
-                            case 3:
-                                msg.writer().writeShort(-1);
-                                msg.writer().writeUTF("Cần đạt sức mạnh 20tỷ để mở");
-                                break;
-                            case 4:
-                                msg.writer().writeShort(-1);
-                                if (pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4) {
-                                    msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
-                                } else {
-                                    msg.writer().writeUTF("Không thể mở kỹ năng này");
-                                }
-                                break;
-                            default:
-                                msg.writer().writeShort(-1);
-                                msg.writer().writeUTF("Cần đạt sức mạnh 60tỷ để mở");
-                                break;
-                        }
+                msg.writer().writeByte(SO_CHIEU_DE); //count pet skill
+                for (int i = 0; i < SO_CHIEU_DE; i++) {
+                    nro.models.skill.Skill sk = i < sizeSkill ? pl.pet.playerSkill.skills.get(i) : null;
+                    if (sk != null && sk.skillId != -1) {
+                        msg.writer().writeShort(sk.skillId);
+                        continue;
+                    }
+                    // Chưa mở: gửi -1 kèm câu giải thích. Client chỉ đọc chuỗi khi thấy -1.
+                    msg.writer().writeShort(-1);
+                    switch (i) {
+                        case 1:
+                            msg.writer().writeUTF("Cần đạt sức mạnh 150tr để mở");
+                            break;
+                        case 2:
+                            msg.writer().writeUTF("Cần đạt sức mạnh 1tỷ5 để mở");
+                            break;
+                        case 3:
+                            msg.writer().writeUTF("Cần đạt sức mạnh 20tỷ để mở");
+                            break;
+                        case 4:
+                            if (pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4) {
+                                msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
+                            } else {
+                                msg.writer().writeUTF("Không thể mở kỹ năng này");
+                            }
+                            break;
+                        default:
+                            msg.writer().writeUTF("Cần đạt sức mạnh 60tỷ để mở");
+                            break;
                     }
                 }
                 pl.sendMessage(msg);
