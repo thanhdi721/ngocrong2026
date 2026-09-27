@@ -111,7 +111,11 @@ public class DataGame {
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
-    public static String LINK_IP_PORT = "Ngọc Rồng Online:36.50.134.190:14445:0";
+    /**
+     * Dòng máy chủ mà client hiện ra để chọn: {@code tên:IP:cổng:loại}.
+     * Đổi IP ở đây thì nhớ đổi cả {@code $game_ip} trong web (core/cauhinh.php).
+     */
+    public static String LINK_IP_PORT = "NRO SkyRain:157.10.44.25:14445:0";
     public static Map<Object, Object> MAP_MOUNT_NUM = new HashMap<>();
 
     public static void sendVersionGame(MySession session) {

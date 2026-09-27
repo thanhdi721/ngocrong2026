@@ -1,0 +1,27 @@
+RewriteEngine On
+
+#Đường dẫn rút gọn...
+RewriteRule dangnhap$ /pages/dangnhap.php
+RewriteRule dangky$ /pages/dangky.php
+RewriteRule dangxuat$ /pages/dangxuat.php
+RewriteRule doimatkhau$ /pages/doimatkhau.php
+RewriteRule napthe$ /pages/napthe.php
+RewriteRule active$ /pages/kichhoat.php
+RewriteRule forum$ /pages/diendan.php
+RewriteRule post_forum$ /pages/dangbai_diendan.php
+RewriteRule atm_bank$ /pages/napatm.php
+RewriteRule napthe$ /pages/napthe.php
+RewriteRule napmomo$ /pages/napmomo.php
+RewriteRule bxh$ /pages/bxh.php
+RewriteRule admin$ /admin
+RewriteRule admin/gift$ /admin/gift.php
+
+#Đường link cron!
+RewriteRule cron_atm$ /pages/mbbank.php
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php74” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php74 .php .php7 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
