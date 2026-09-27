@@ -73,7 +73,9 @@ public class DataGame {
     // 9 -> 10: thêm npc_template 88 "Theo Dõi Boss" đứng bên trái Santa ở map 5 (patch 80).
     // 10 -> 11: thêm map 208 "Nam Thiên Môn" + npc_template 89 "Tu Tiên" ở map 5 (patch 83).
     // 11 -> 12: thêm npc_template 90 "Lò Luyện Đan" đứng ở map 5 (patch 84).
-    public static byte vsMap = 12;
+    // 12 -> 13: dời Lò Luyện Đan từ x=170 sang x=504 y=384 cho khỏi bị cây che (patch 86).
+    //           Chỗ đứng NPC nằm trong map_template.npcs, đi theo gói vMap.
+    public static byte vsMap = 13;
     public static byte vsSkill = 1;
     // FIX: 9 -> 10 vì thêm 32 vật phẩm mới (id 2000..2031, SRC/sql/patch/01-vat-pham-moi.sql).
     // Client chỉ xin tải lại bảng item khi thấy vsItem khác bản nó đang cache.

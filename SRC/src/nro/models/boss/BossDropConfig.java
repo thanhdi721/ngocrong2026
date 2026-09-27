@@ -104,6 +104,12 @@ public final class BossDropConfig {
     public static final Muc TT_SAT_THUONG_QUAI = them("tt_sat_thuong_quai",
             "Tu Tiên — sát thương của quái", 50_000, "Quái trong map đánh trúng thì mất ngần này");
 
+    //================== Tu Tiên — cắn nhiều đan cùng lúc ==================
+    public static final Muc TT_AN_THEM_DAN = them("tt_an_them_dan",
+            "Đan — tỉ lệ chịu được viên thứ hai (%)", 30,
+            "Đang có một loại đan mà cắn thêm loại khác: trúng thì ăn được, trượt thì BẠO THỂ CHẾT "
+            + "và mất viên đan. Để 100 là cho cắn thoải mái, để 0 là cấm hẳn");
+
     //================== Tu Tiên — quái rơi linh thảo (luyện đan) ==================
     // Đơn vị PHẦN NGHÌN, không phải phần trăm: 24 = 2,4%. Để phần nghìn vì mấy con số này
     // nhỏ, dùng phần trăm thì không chỉnh tinh được.

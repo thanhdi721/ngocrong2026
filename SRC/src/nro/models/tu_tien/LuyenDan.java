@@ -233,21 +233,34 @@ public final class LuyenDan {
     }
 
     /**
-     * Năm công thức, xếp từ dễ tới khó. Chỉ số trong mảng này chính là số hiệu công thức mà
-     * menu của NPC dùng, nên ĐỪNG đảo thứ tự khi thêm công thức mới — thêm vào cuối.
+     * Năm công thức, <b>xếp từ dễ tới khó</b> theo thứ tự chủ dự án chốt:
+     * giảm sát thương → chí mạng → KI → HP → sức đánh.
+     *
+     * <p>Càng về cuối thì <b>tỉ lệ thành càng thấp</b>, <b>đan phương càng cao cấp</b> và
+     * <b>nguyên liệu càng nhiều</b> — ba thứ cùng tăng chứ không chỉ một, để khoảng cách giữa
+     * viên dễ nhất và viên khó nhất đủ rõ.
+     *
+     * <p>Chỉ số trong mảng này chính là số hiệu nút menu, nhưng KHÔNG có gì lưu chỉ số đó qua
+     * phiên chơi (menu dựng lại mỗi lần bấm), nên xếp lại thứ tự là an toàn. Thêm công thức
+     * mới thì cứ chèn vào đúng vị trí theo độ khó.
      */
     public static final CongThuc[] CONG_THUC = {
-        new CongThuc(DAN_TP_SUC_DANH, DAN_PHUONG_SO_CAP, 75, "Luyện Khí\nĐan TP",
-        new int[][]{{THANH_VAN_THAO, 5}, {KIM_NHUNG_QUA, 3}, {DIA_HOA_TINH, 1}}),
-        new CongThuc(DAN_TP_HP, DAN_PHUONG_SO_CAP, 75, "Hộ Thể\nĐan TP",
-        new int[][]{{NGOC_DIEP_THAO, 5}, {HAN_TINH_QUA, 3}, {DIA_HOA_TINH, 1}}),
+        // 1. dễ nhất — giảm sát thương
+        new CongThuc(DAN_TP_GIAP, DAN_PHUONG_SO_CAP, 80, "Kim Cương\nĐan TP",
+        new int[][]{{THANH_VAN_THAO, 4}, {NGOC_DIEP_THAO, 3}, {DIA_HOA_TINH, 1}}),
+        // 2. chí mạng
+        new CongThuc(DAN_TP_CHI_MANG, DAN_PHUONG_SO_CAP, 70, "Phá Quân\nĐan TP",
+        new int[][]{{KIM_NHUNG_QUA, 5}, {NGOC_DIEP_THAO, 3}, {DIA_HOA_TINH, 1}}),
+        // 3. KI
         new CongThuc(DAN_TP_KI, DAN_PHUONG_TRUNG_CAP, 60, "Tụ Khí\nĐan TP",
         new int[][]{{HAN_TINH_QUA, 6}, {THANH_VAN_THAO, 4}, {DIA_HOA_TINH, 2}}),
-        new CongThuc(DAN_TP_CHI_MANG, DAN_PHUONG_TRUNG_CAP, 60, "Phá Quân\nĐan TP",
-        new int[][]{{KIM_NHUNG_QUA, 6}, {NGOC_DIEP_THAO, 4}, {DIA_HOA_TINH, 2}}),
-        new CongThuc(DAN_TP_GIAP, DAN_PHUONG_CAO_CAP, 45, "Kim Cương\nĐan TP",
-        new int[][]{{THANH_VAN_THAO, 5}, {NGOC_DIEP_THAO, 5}, {HAN_TINH_QUA, 5},
-        {KIM_NHUNG_QUA, 5}, {DIA_HOA_TINH, 3}})
+        // 4. HP
+        new CongThuc(DAN_TP_HP, DAN_PHUONG_TRUNG_CAP, 50, "Hộ Thể\nĐan TP",
+        new int[][]{{NGOC_DIEP_THAO, 6}, {HAN_TINH_QUA, 5}, {DIA_HOA_TINH, 2}}),
+        // 5. khó nhất — sức đánh
+        new CongThuc(DAN_TP_SUC_DANH, DAN_PHUONG_CAO_CAP, 40, "Luyện Khí\nĐan TP",
+        new int[][]{{THANH_VAN_THAO, 6}, {NGOC_DIEP_THAO, 6}, {HAN_TINH_QUA, 6},
+        {KIM_NHUNG_QUA, 6}, {DIA_HOA_TINH, 3}})
     };
 
     /** Nhãn của năm nút chọn công thức, đúng thứ tự {@link #CONG_THUC}. */
@@ -445,6 +458,155 @@ public final class LuyenDan {
         BangVangNoLo.ghiNhan(pl);
     }
 
+    //========================= chỉ được một loại đan mỗi lúc =========================
+    /**
+     * Năm ô hiệu lực đan. <b>Mười loại đan</b> (5 mua ở tiệm + 5 thượng phẩm luyện ra) dùng
+     * chung đúng năm ô này, nên "ăn đè cùng loại" là thay viên cũ chứ không phải viên thứ hai.
+     */
+    public static final int O_SUC_DANH = 0;
+    public static final int O_HP = 1;
+    public static final int O_KI = 2;
+    public static final int O_GIAP = 3;
+    public static final int O_CHI_MANG = 4;
+    private static final int SO_O_DAN = 5;
+
+    /** Ô hiệu lực của một viên đan bất kỳ trong mười loại; -1 nếu không phải đan. */
+    public static int oCuaDan(int idVatPham) {
+        if (idVatPham == nro.models.tu_tien.TuTien.DAN_SUC_DANH || idVatPham == DAN_TP_SUC_DANH) {
+            return O_SUC_DANH;
+        }
+        if (idVatPham == nro.models.tu_tien.TuTien.DAN_HP || idVatPham == DAN_TP_HP) {
+            return O_HP;
+        }
+        if (idVatPham == nro.models.tu_tien.TuTien.DAN_KI || idVatPham == DAN_TP_KI) {
+            return O_KI;
+        }
+        if (idVatPham == nro.models.tu_tien.TuTien.DAN_GIAP || idVatPham == DAN_TP_GIAP) {
+            return O_GIAP;
+        }
+        if (idVatPham == nro.models.tu_tien.TuTien.DAN_CHI_MANG || idVatPham == DAN_TP_CHI_MANG) {
+            return O_CHI_MANG;
+        }
+        return -1;
+    }
+
+    private static boolean oDangBat(Player pl, int o) {
+        ItemTime t = pl.itemTime;
+        return switch (o) {
+            case O_SUC_DANH -> t.isUseDanSucDanh;
+            case O_HP -> t.isUseDanHp;
+            case O_KI -> t.isUseDanKi;
+            case O_GIAP -> t.isUseDanGiap;
+            case O_CHI_MANG -> t.isUseDanChiMang;
+            default -> false;
+        };
+    }
+
+    private static final String[] LOI_BAO_THE = {
+        "Hai luồng dược lực đánh nhau trong bụng. Ngươi nổ.",
+        "Đan chồng đan, thân xác chịu không nổi. BÙM.",
+        "Tham thì thâm. Bạo thể ngay tại chỗ.",
+        "Lão Quân từng dặn: mỗi lần một viên thôi. Ngươi không nghe."
+    };
+
+    /**
+     * Xin phép cho một viên đan ăn vào ô {@code o}.
+     *
+     * <p>Luật: <b>mỗi lúc chỉ một loại đan</b>. Đang có sẵn loại khác mà cắn thêm thì tung
+     * {@link nro.models.boss.BossDropConfig#TT_AN_THEM_DAN} %; trúng thì ăn được (từ đó có hai
+     * loại cùng chạy), trượt thì <b>bạo thể mà chết</b>.
+     *
+     * <p>Ăn đè ĐÚNG loại đang dùng thì không tính là viên thứ hai — đó là làm mới hiệu lực,
+     * không phải chồng thêm.
+     *
+     * <p>Viên đan <b>mất trong cả hai trường hợp</b>: hàm gọi phải để luồng chạy tiếp tới chỗ
+     * trừ vật phẩm, đừng {@code return} sớm.
+     *
+     * @return true nếu được áp hiệu lực, false nếu vừa bạo thể
+     */
+    public static boolean xinPhepAnDan(Player pl, int o) {
+        if (pl == null || pl.itemTime == null || o < 0) {
+            return false;
+        }
+        int dangCo = 0;
+        for (int i = 0; i < SO_O_DAN; i++) {
+            if (i != o && oDangBat(pl, i)) {
+                dangCo++;
+            }
+        }
+        if (dangCo == 0) {
+            return true;        // viên đầu tiên, hoặc chỉ là ăn đè đúng loại đang dùng
+        }
+        int tiLe = Math.max(0, Math.min(100, nro.models.boss.BossDropConfig.TT_AN_THEM_DAN.giaTri));
+        if (tiLe > 0 && Util.isTrue(tiLe, 100)) {
+            Service.gI().sendThongBao(pl, "Thân thể gắng gượng nuốt được viên thứ " + (dangCo + 1)
+                    + ". May đấy.");
+            return true;
+        }
+        Service.gI().sendThongBao(pl, LOI_BAO_THE[Util.nextInt(0, LOI_BAO_THE.length - 1)]);
+        try {
+            Service.gI().chat(pl, "Khoan... hình như hơi nhiều...");
+        } catch (Exception e) {
+        }
+        try {
+            pl.setDie();
+        } catch (Exception e) {
+            Logger.error("Khong cho bao the duoc: " + e + "\n");
+        }
+        return false;
+    }
+
+    /**
+     * Ăn một viên đan mua ở tiệm Tu Tiên (10 phút, mức gốc). Gọi từ {@code UseItem.useItemTime}.
+     *
+     * <p>Đặt lại CẢ thời hạn lẫn mức cộng, nếu không viên tiệm ăn đè lên viên thượng phẩm đang
+     * chạy sẽ thừa hưởng 20 phút / mức cao của viên kia.
+     */
+    public static void dungDanTiem(Player pl, int idVatPham) {
+        int o = oCuaDan(idVatPham);
+        if (o < 0 || !xinPhepAnDan(pl, o)) {
+            return;
+        }
+        long luc = System.currentTimeMillis();
+        ItemTime t = pl.itemTime;
+        switch (o) {
+            case O_SUC_DANH -> {
+                t.isUseDanSucDanh = true;
+                t.lastTimeDanSucDanh = luc;
+                t.hanDanSucDanh = ItemTime.TIME_ITEM;
+                t.mucDanSucDanh = ItemTime.MUC_GOC_SUC_DANH;
+            }
+            case O_HP -> {
+                t.isUseDanHp = true;
+                t.lastTimeDanHp = luc;
+                t.hanDanHp = ItemTime.TIME_ITEM;
+                t.mucDanHp = ItemTime.MUC_GOC_HP;
+            }
+            case O_KI -> {
+                t.isUseDanKi = true;
+                t.lastTimeDanKi = luc;
+                t.hanDanKi = ItemTime.TIME_ITEM;
+                t.mucDanKi = ItemTime.MUC_GOC_KI;
+            }
+            case O_GIAP -> {
+                t.isUseDanGiap = true;
+                t.lastTimeDanGiap = luc;
+                t.hanDanGiap = ItemTime.TIME_ITEM;
+                t.mucDanGiap = ItemTime.MUC_GOC_GIAP;
+            }
+            case O_CHI_MANG -> {
+                t.isUseDanChiMang = true;
+                t.lastTimeDanChiMang = luc;
+                t.hanDanChiMang = ItemTime.TIME_ITEM;
+                t.mucDanChiMang = ItemTime.MUC_GOC_CHI_MANG;
+            }
+            default -> {
+                return;
+            }
+        }
+        Service.gI().point(pl);
+    }
+
     //========================= đan thượng phẩm =========================
     /** Có phải một trong năm viên đan thượng phẩm không. */
     public static boolean laDanThuongPham(int idVatPham) {
@@ -461,6 +623,9 @@ public final class LuyenDan {
     public static void dungDanThuongPham(Player pl, int idVatPham) {
         if (pl == null || pl.itemTime == null) {
             return;
+        }
+        if (!xinPhepAnDan(pl, oCuaDan(idVatPham))) {
+            return;     // bạo thể — viên đan vẫn mất, useItemTime trừ ở cuối
         }
         long luc = System.currentTimeMillis();
         switch (idVatPham) {

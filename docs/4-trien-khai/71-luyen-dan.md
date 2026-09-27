@@ -92,16 +92,21 @@ in ra con số đó mỗi lần chạy.
 
 Tỉ lệ càng cao thì nổ càng nhiều — đây là chỗ hồi hộp, và cũng là lý do đan phương có giá trị.
 
-| Ra | Đan phương | Thành | Nguyên liệu |
-|---|---|---|---|
-| Luyện Khí Đan TP | Sơ Cấp | **75%** | 5 Thanh Vân Thảo + 3 Kim Nhung Quả + 1 Địa Hỏa Tinh |
-| Hộ Thể Đan TP | Sơ Cấp | **75%** | 5 Ngọc Diệp Thảo + 3 Hàn Tinh Quả + 1 Địa Hỏa Tinh |
-| Tụ Khí Đan TP | Trung Cấp | **60%** | 6 Hàn Tinh Quả + 4 Thanh Vân Thảo + 2 Địa Hỏa Tinh |
-| Phá Quân Đan TP | Trung Cấp | **60%** | 6 Kim Nhung Quả + 4 Ngọc Diệp Thảo + 2 Địa Hỏa Tinh |
-| Kim Cương Đan TP | Cao Cấp | **45%** | 5 mỗi loại linh thảo + 3 Địa Hỏa Tinh |
+| # | Ra | Buff | Đan phương | Thành | Nguyên liệu |
+|---|---|---|---|---|---|
+| 1 | Kim Cương Đan TP | chịu đòn −60% | Sơ Cấp | **80%** | 4 Thanh Vân + 3 Ngọc Diệp + 1 Địa Hỏa Tinh |
+| 2 | Phá Quân Đan TP | chí mạng +15% | Sơ Cấp | **70%** | 5 Kim Nhung + 3 Ngọc Diệp + 1 Địa Hỏa Tinh |
+| 3 | Tụ Khí Đan TP | KI +45% | Trung Cấp | **60%** | 6 Hàn Tinh + 4 Thanh Vân + 2 Địa Hỏa Tinh |
+| 4 | Hộ Thể Đan TP | HP +45% | Trung Cấp | **50%** | 6 Ngọc Diệp + 5 Hàn Tinh + 2 Địa Hỏa Tinh |
+| 5 | Luyện Khí Đan TP | sức đánh +30% | Cao Cấp | **40%** | 6 mỗi loại linh thảo + 3 Địa Hỏa Tinh |
 
-Thứ tự trong `LuyenDan.CONG_THUC` **chính là số hiệu nút menu**, nên thêm công thức mới thì
-thêm vào cuối, đừng đảo.
+Xếp **từ dễ tới khó** theo thứ tự chủ dự án chốt: giảm sát thương → chí mạng → KI → HP →
+sức đánh. Càng về cuối thì **ba thứ cùng tăng** — tỉ lệ thành thấp dần, đan phương cao cấp dần,
+nguyên liệu nhiều dần — để khoảng cách giữa viên dễ nhất và viên khó nhất đủ rõ.
+
+Thứ tự trong `LuyenDan.CONG_THUC` chính là số hiệu nút menu, nhưng **không có gì lưu chỉ số đó
+qua phiên chơi** (menu dựng lại mỗi lần bấm), nên xếp lại thứ tự là an toàn — thêm công thức mới
+thì cứ chèn vào đúng vị trí theo độ khó.
 
 ### Một quyển đan phương = 3 mẻ
 
@@ -121,6 +126,23 @@ thì đầy túi; thêm dòng chỉ số mới thì `item_option_template` chỉ
 Nên nó nằm ở cột `player.tu_tien` dưới khoá `dp` (xem mục 9).
 
 Menu xác nhận in rõ: *"Đan Phương Cao Cấp: 3 quyển (+2 mẻ đang dở) — 1 quyển = 3 mẻ"*.
+
+### Mỗi lúc chỉ được một loại đan
+
+Mười loại đan (5 tiệm + 5 thượng phẩm) dùng chung đúng **năm ô hiệu lực**
+(sức đánh / HP / KI / giáp / chí mạng). Luật:
+
+* Đang **không** có đan nào → ăn bình thường.
+* Ăn đè **đúng loại** đang dùng → chỉ là làm mới hiệu lực, **không** tính là viên thứ hai.
+* Đang có loại **khác** mà cắn thêm → tung **30%**. Trúng thì ăn được (từ đó hai loại cùng
+  chạy); trượt thì **bạo thể mà chết**.
+* **Viên đan mất trong cả hai trường hợp.**
+
+Chết ở đây dùng đúng `Player.setDie()` như mọi cái chết khác trong game (có rơi vàng), không
+phải một đường chết riêng — đã có tiền lệ: chiêu Ma Phong Ba cũng giết người chơi kiểu này.
+
+Con số 30% là **ô chỉnh trong cpanel**, khoá `tt_an_them_dan`. Để **100** là cho cắn thoải mái,
+để **0** là cấm hẳn viên thứ hai.
 
 ### Nổ lò cố ý KHÔNG phạt gì ngoài nguyên liệu
 
@@ -266,10 +288,23 @@ Lò đứng cao/thấp lệch thì **sửa hai số đó**, không phải sửa 
 > là 32667, nên 32700 là ô trống an toàn. `Manager.checkMissingIcons` nay cũng cảnh báo trước
 > nếu có id vượt ngưỡng.
 
-Chỗ đứng: **map 5, x = 170, y = 288**. Thềm trên đảo Kamê là cột 0..19 của lưới ô 24 px
-(x = 0..479); trên đó đã có NPC 81 (240), 86 (310), 87 (380), 89 (450) cách nhau đúng 70 px,
-không còn khe ở giữa. x = 170 là ô trống kế bên trái NPC 81, vẫn nền đặc, cách NPC gần nhất
-70 px > bán kính 60 px của `Map.getNpc`. Muốn dời thì sửa khối (2d) của patch 84, không đụng code.
+Chỗ đứng: **map 5, x = 504, y = 384**.
+
+Bản đầu đặt ở x = 170 và **bị cây che**. Tra `data/map/item_bg_map_data/5` mới thấy: cột 7
+(x = 168) **đã có sẵn một vật trang trí** (id 11), mà ngay cạnh là **cây to** (id 14) ở x = 120.
+Thềm trên (cột 1..17) còn bị NPC 81/86/87 chiếm ở 240/310/380, nên không còn khe sạch nào.
+
+x = 504 là **cột 21 trên thềm dưới**, ngay bên phải NPC Tu Tiên:
+
+* cột 21 **không có vật trang trí nào**;
+* cách NPC gần nhất (89 ở 450,288) **110 px** > bán kính 60 px của `Map.getNpc`;
+* mặt đất đầu tiên của cột 21 là hàng 15 (y = 360), NPC đặt ở **hàng kế dưới** → y = 384.
+
+> Quy ước "hàng kế dưới mặt đất" không phải tôi đoán: tôi đếm **160 NPC gốc** trên 166 map,
+> **90 con** theo đúng quy ước này (lệch +1), 29 con lệch +0. Lấy cái đa số.
+
+Muốn dời thì sửa hai số trong khối (2d) của patch 84 (hoặc khối (2a) của patch 86), **không
+đụng code** — nhớ tra lại `item_bg_map_data/5` xem cột mới có vật trang trí không.
 
 Ba menu: `LO_LUYEN_DAN_MENU` (1110) → `LO_LUYEN_DAN_CHON` (1111) → `LO_LUYEN_DAN_XAC_NHAN` (1112).
 Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thành trước khi bấm.
@@ -315,7 +350,7 @@ Menu xác nhận in đủ nguyên liệu, **số đang có** và tỉ lệ thàn
 | `npc_list/TheoDoiBoss` | hiện thêm dòng rơi theo luật chung |
 | `consts/ConstNpc`, `npc/NpcFactory` | NPC 90 và ba menu |
 | `server/ServerManager` | chốt bảng vàng lúc bảo trì |
-| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → **32** (bảng `part`), `vsMap` 11 → 12 (`npc_template`) |
+| `data/DataGame` | `vsItem` 31 → 32, `vsData` 30 → **32** (bảng `part`), `vsMap` 11 → **13** (`npc_template` + chỗ đứng NPC) |
 
 ---
 

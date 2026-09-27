@@ -1,5 +1,5 @@
 -- =====================================================================
--- 86-sua-icon-lo-luyen-dan.sql — SỬA ICON PART CỦA "LÒ LUYỆN ĐAN"
+-- 86-sua-icon-lo-luyen-dan.sql — SỬA HÌNH VÀ CHỖ ĐỨNG CỦA "LÒ LUYỆN ĐAN"
 -- Database: team2026 (MariaDB 10.4)        Sinh ngày: 2026-09-27
 --
 -- ---------------------------------------------------------------------
@@ -21,9 +21,11 @@
 --      đáy y: 0 + 50   = 50  ->  -2 + 52   = 50
 --  Lò đứng cao hay thấp lệch thì chỉ cần sửa hai số đó, không phải sửa ảnh.
 --
---  QUAN TRỌNG: sửa CSDL thôi chưa đủ. Client giữ CACHE bảng `part` và `npc_template`,
+--  File này còn DỜI CHỖ lò: x=170 nằm ngay cạnh cây to nên bị che, nay sang x=504 y=384.
+--
+--  QUAN TRỌNG: sửa CSDL thôi chưa đủ. Client giữ CACHE bảng `part` và dữ liệu map,
 --  chỉ tải lại khi thấy số hiệu bản dữ liệu đổi. Bản jar đi kèm đã tăng
---  vsData 30 -> 31 (mang bảng `part`) và vsMap 11 -> 12 (mang `npc_template`).
+--  vsData 30 -> 32 (bảng `part`) và vsMap 11 -> 13 (`npc_template` + chỗ đứng NPC).
 --  Chạy file này mà vẫn chạy jar cũ thì lò vẫn TÀNG HÌNH: có tên, có mũi tên chọn,
 --  không có hình — đúng hiện tượng đã gặp.
 --
@@ -51,6 +53,17 @@ SELECT `id`, `TYPE`, `DATA` FROM `part` WHERE `id` = 2658;
 -- ---------------------------------------------------------------------
 -- (2) SỬA.
 -- ---------------------------------------------------------------------
+-- (2a) Dời lò từ x=170 sang x=504, y=384.
+--      x=170 (cột 7) nằm ngay cạnh cây to (vật trang trí id 14 ở x=120) VÀ đè lên vật
+--      trang trí id 11 ở chính cột đó -> lò bị che.
+--      x=504 là cột 21 trên thềm dưới, bên phải NPC Tu Tiên: cột này KHÔNG có vật trang
+--      trí nào, cách NPC gần nhất 110 px. y=384 vì mặt đất đầu tiên của cột 21 là hàng 15
+--      (y=360) và NPC đặt ở hàng kế dưới — quy ước của 90/160 NPC gốc trong CSDL.
+UPDATE `map_template`
+   SET `npcs` = REPLACE(`npcs`, '[90,170,288]', '[90,504,384]')
+ WHERE `id` = 5 AND `npcs` LIKE '%[90,170,288]%';
+
+-- (2b) Hình lò.
 UPDATE `part`
    SET `DATA` = '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]'
  WHERE `id` = 2658 AND `DATA` <> '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]';
@@ -58,9 +71,15 @@ UPDATE `part`
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — cột `dat` phải = 1.
 -- ---------------------------------------------------------------------
-SELECT 'part 2658 dung icon 32700, da chinh toa do' AS `muc`,
+SELECT 'lo dung o x=504 y=384' AS `muc`,
+       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,504,384]%') = 1) AS `dat`
+UNION ALL
+SELECT 'khong con lo o cho cu x=170',
+       ((SELECT COUNT(*) FROM `map_template` WHERE `id` = 5 AND `npcs` LIKE '%[90,170,288]%') = 0)
+UNION ALL
+SELECT 'part 2658 dung icon 32700, da chinh toa do',
        ((SELECT COUNT(*) FROM `part`
-          WHERE `id` = 2658 AND `DATA` = '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]') = 1) AS `dat`
+          WHERE `id` = 2658 AND `DATA` = '[[32700,-8,-2],[32700,-8,-2],[32700,-8,-2]]') = 1)
 UNION ALL
 SELECT 'khong con part nao tham chieu icon > 32767',
        ((SELECT COUNT(*) FROM `part` WHERE `DATA` LIKE '%33001%') = 0);
