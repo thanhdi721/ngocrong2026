@@ -229,14 +229,25 @@ public final class LinhDien {
             }
             it.quantity = sl;
             it.itemOptions.clear();         // linh thảo cho giao dịch, không gắn dòng khoá
-            if (!InventoryService.gI().addItemBag(pl, it)) {
+            boolean nhetDuoc = InventoryService.gI().addItemBag(pl, it);
+            // `addItemList` có thể nhét ĐƯỢC MỘT PHẦN rồi mới trả false: nó đổ đầy chồng cũ
+            // tới 99.999 trước, phần thừa mới cần ô trống. Lúc đó `it.quantity` còn đúng số
+            // CHƯA nhét được. Nếu cứ thấy false là giữ nguyên ô thì người chơi vừa có hạt
+            // vừa còn cây — nhân đôi. Nên xét theo số thật sự vào túi.
+            int chuaVao = Math.max(0, it.quantity);
+            int daVao = sl - chuaVao;
+            if (daVao <= 0) {
                 tuiDay = true;
-                break;                      // để nguyên ô, cây vẫn còn
+                break;                      // không vào được hạt nào -> để nguyên ô
             }
             pl.linhDienHat[i] = 0;
             pl.linhDienLuc[i] = 0;
             oDaHai++;
-            tongHat += sl;
+            tongHat += daVao;
+            if (!nhetDuoc) {
+                tuiDay = true;
+                break;                      // vào được một phần -> ô coi như đã hái, dừng lại
+            }
         }
         if (oDaHai > 0) {
             InventoryService.gI().sendItemBags(pl);

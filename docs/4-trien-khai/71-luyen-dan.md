@@ -514,7 +514,58 @@ chốt riêng. Quyết định gốc "đồ xịn chỉ đến từ boss thế g
 
 NPC "Theo Dõi Boss" đã khai báo cả hai phần này nên người chơi xem là thấy.
 
-## 12. Còn thiếu
+## 12. Soát kinh tế (27/09/2026)
+
+Rà toàn bộ đường tiền của mấy tính năng mới: vàng, ngọc, thỏi vàng, Linh Thạch.
+
+### Ba lỗi đã tìm ra và sửa
+
+**1. `count_left = -1` làm giftcode CHẾT, không phải "không giới hạn".**
+`GiftCodeManager.checkUseGiftCode` chặn bằng `countLeft <= 0` → mã để -1 nhập vào chỉ nhận
+"Giftcode đã hết". Patch 76 ghi chú nhầm và patch 87 bản đầu chép theo. Quét CSDL thấy
+**66 mã đang chết** (testct*, dlung*, tcuoi*, sumo*, daps*, datay*). Patch 87 đổi sang 99.999;
+patch 88 sửa nốt 66 mã cũ. Số lượt một tài khoản vẫn do `player.giftcode` giữ, không liên quan.
+
+**2. Linh Điền có thể nhân đôi hạt khi túi gần đầy.**
+`InventoryService.addItemList` có thể nhét **được một phần** rồi mới trả `false`: nó đổ đầy
+chồng cũ tới 99.999 trước, phần thừa mới cần ô trống. Code cũ thấy `false` là giữ nguyên ô ⇒
+người chơi **vừa có hạt vừa còn cây**. Nay xét theo số thật sự vào túi (`sl - it.quantity`):
+vào được 0 thì giữ ô, vào được một phần thì coi như đã hái. `LuyenDan` và tiệm Tu Tiên không
+dính vì chúng chỉ nhét 1 cái một lần, không tách được.
+
+**3. Giftcode `ldtien1`/`ldtien2` cho 500 triệu vàng mỗi mã** — mã 7 ký tự, dễ lộ.
+Đã ghi cảnh báo to ở đầu patch 87 kèm ba cách xử lý.
+
+### Đã soát và KHÔNG có lỗi
+
+| Đường | Kết luận |
+|---|---|
+| Thỏi vàng: mua 200tr ở tiệm Tu Tiên | `item_template.gold` của nó là **500tr**, nhưng `sellItem` chặn id 457 và ép qua form BANSLL **37tr/thỏi**, `BuyBackService` cũng loại 457 ⇒ **không có vòng lặp mua rẻ bán đắt** |
+| 24 vật phẩm tu tiên (2266–2289) | `gold = 0`, `gem = 0` ⇒ bán lại được đúng **1 vàng/cái**, không đáng khai thác |
+| `TuTien.mua` | kiểm đủ tiền → nhét túi → mới trừ tiền; tiền và hàng là hai vật phẩm khác nhau nên không đụng nhau |
+| `LuyenDan.luyen` | nhét sản phẩm trước, trừ nguyên liệu sau; sản phẩm (2284–2289) và nguyên liệu (2276–2283) không trùng id |
+| `LinhDien.gieoHet` | trừ vàng **từng ô một** ngay sau khi gieo ô đó; vàng và ruộng lưu chung một lần `PlayerDAO` nên không lệch |
+| `Boss.changeStatus(DIE)` | có chốt `cu != DIE` ⇒ `BangRoiBoss.roi` chỉ chạy **một lần** mỗi cái chết |
+| `roiNgocDaySan` | đống cuối ôm phần dư ⇒ tổng luôn đúng; đã thử 0→29 và các mốc tới 2 tỉ |
+| Đan "bạo thể" dùng `setDie()` | đây là **đường tiêu** vàng sẵn có của game (mất ~5 %), không phải nguồn |
+| `isItemIncrementalOption` | chỉ bắt dòng chỉ số 1 và 31; vật phẩm tu tiên dùng 0/6/7/30/73/93 nên không lọt nhánh cộng dồn |
+
+### Một con số cần bạn quyết
+
+Ngọc (vật phẩm 77) là **type 10 — nhặt lên cộng thẳng `inventory.gem`**, tức tiền nạp.
+33 bản boss nhiệm vụ, nghỉ 15–30 phút (trung bình 22,5) ⇒ tối đa 88 lần giết/giờ:
+
+| Mức độ bị cày | Ngọc/giờ toàn server | Ngọc/ngày |
+|---|---|---|
+| cày kiệt (giết ngay khi ra) | 8.800 | 211.200 |
+| ~50 % bị giết | 4.400 | 105.600 |
+| ~25 % bị giết | 2.200 | 52.800 |
+
+Để so sánh: Bojack + Siêu Bojack chỉ có **2 bản**, mỗi lần ~110 ngọc.
+
+Số này chỉnh ở cpanel (`nv_ngoc`). Nếu thấy lạm phát ngọc thì hạ xuống 20–30 là vừa.
+
+## 13. Còn thiếu
 
 * **Chưa chạy thử trong game một lần nào.** Mọi thứ ở trên mới chỉ biên dịch sạch và kiểm trên
   CSDL nháp.

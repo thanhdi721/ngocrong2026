@@ -7,8 +7,12 @@
 -- ---------------------------------------------------------------------
 -- DANH SÁCH MÃ
 -- ---------------------------------------------------------------------
---  Mã 7 ký tự, KHÔNG giới hạn số lượt, nhưng mỗi tài khoản chỉ dùng được MỘT LẦN mỗi mã.
+--  Mã 7 ký tự, `count_left` = 99.999 lượt, mỗi tài khoản dùng được MỘT LẦN mỗi mã.
 --  Vì vậy mấy nhóm hay dùng lại đều có ba bản 001 / 002 / 003 để thử được ba lượt.
+--
+--  ĐỪNG ĐẶT `count_left` = -1. Trông như "không giới hạn" nhưng GiftCodeManager chặn bằng
+--  `countLeft <= 0` -> mã CHẾT NGAY, nhập vào chỉ báo "Giftcode đã hết". Patch 76 đang mắc
+--  đúng lỗi này (daps001 / daps002 / datay01 đều để -1 nên chưa bao giờ dùng được).
 --
 --  NGUYÊN LIỆU — ldnl001 / ldnl002 / ldnl003   (5 ô hành trang trống)
 --      60 Thanh Vân Thảo · 60 Ngọc Diệp Thảo · 60 Hàn Tinh Quả · 60 Kim Nhung Quả
@@ -26,6 +30,19 @@
 --  THÀNH PHẨM — ldtp001 / ldtp002              (6 ô trống)
 --      5 mỗi loại đan thượng phẩm + 5 Đan Phế
 --      -> thử ngay hiệu lực 20 phút và mức cộng, không phải luyện
+--
+-- ---------------------------------------------------------------------
+-- !!! CẢNH BÁO KINH TẾ — ĐỌC TRƯỚC KHI CHẠY TRÊN SERVER THẬT !!!
+-- ---------------------------------------------------------------------
+--  `ldtien1` và `ldtien2` mỗi mã cho 500 TRIỆU VÀNG. Mã chỉ 7 ký tự và ai đoán/nghe lỏm
+--  được là nhập được — mỗi tài khoản một lần, nhưng người chơi có thể lập nhiều tài khoản.
+--  Hai mã cộng lại là 1 TỈ vàng cho mỗi tài khoản.
+--
+--  Cách an toàn:
+--    * chạy trên server thử trước, HOẶC
+--    * chạy trên server thật, thử xong thì CHẠY NGAY khối (4) để xoá 10 mã, HOẶC
+--    * trước khi chạy, tự đổi `code` thành chuỗi khó đoán (ví dụ 'lq7x2k9') — cột `code`
+--      là TEXT nên dài bao nhiêu cũng được, chỉ cần client gõ vừa ô nhập.
 --
 -- ---------------------------------------------------------------------
 -- LƯU Ý KHI DÙNG
@@ -60,19 +77,19 @@ DELETE FROM `giftcode` WHERE `code` IN
 
 INSERT INTO `giftcode` (`id`, `code`, `count_left`, `detail`, `datecreate`, `expired`) VALUES
 -- nguyên liệu: 4 linh thảo + Địa Hỏa Tinh
-(170, 'ldnl001', -1, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(171, 'ldnl002', -1, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(172, 'ldnl003', -1, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(170, 'ldnl001', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(171, 'ldnl002', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(172, 'ldnl003', 99999, '[{"id":2276,"quantity":60,"options":[]},{"id":2277,"quantity":60,"options":[]},{"id":2278,"quantity":60,"options":[]},{"id":2279,"quantity":60,"options":[]},{"id":2280,"quantity":30,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
 -- đan phương ba bậc
-(173, 'ldpt001', -1, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(174, 'ldpt002', -1, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(175, 'ldpt003', -1, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(173, 'ldpt001', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(174, 'ldpt002', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(175, 'ldpt003', 99999, '[{"id":2281,"quantity":10,"options":[]},{"id":2282,"quantity":10,"options":[]},{"id":2283,"quantity":10,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
 -- vàng (id -1 = vàng, xem GiftCodeService) + Linh Thạch
-(176, 'ldtien1', -1, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(177, 'ldtien2', -1, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(176, 'ldtien1', 99999, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(177, 'ldtien2', 99999, '[{"id":-1,"quantity":500000000,"options":[]},{"id":2266,"quantity":1000,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
 -- thành phẩm: 5 đan thượng phẩm + Đan Phế
-(178, 'ldtp001', -1, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
-(179, 'ldtp002', -1, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00');
+(178, 'ldtp001', 99999, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00'),
+(179, 'ldtp002', 99999, '[{"id":2285,"quantity":5,"options":[]},{"id":2286,"quantity":5,"options":[]},{"id":2287,"quantity":5,"options":[]},{"id":2288,"quantity":5,"options":[]},{"id":2289,"quantity":5,"options":[]},{"id":2284,"quantity":5,"options":[]}]', NOW(), '2037-12-31 17:00:00');
 
 -- ---------------------------------------------------------------------
 -- (3) KIỂM TRA SAU — `so_ma` phải = 10.
