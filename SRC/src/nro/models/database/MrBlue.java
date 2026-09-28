@@ -971,6 +971,18 @@ public class MrBlue {
                 while (pet.inventory.itemsBody.size() < requiredSize) {
                     pet.inventory.itemsBody.add(ItemService.gI().createItemNull());
                 }
+                // Cắt phần DƯ. Danh sách này chỉ biết phình ra chứ không bao giờ co lại:
+                //   * InventoryService.putItemBody nới danh sách cho vừa BẤT KỲ chỉ số nào
+                //     client gửi lên (while size() <= index -> add);
+                //   * đổi đệ tử làm typePet nhỏ đi nhưng ô trang bị cũ vẫn còn.
+                // Để dư thì gói tin -107 báo số ô nhiều hơn loại đệ đó đáng có.
+                while (pet.inventory.itemsBody.size() > requiredSize) {
+                    Item du = pet.inventory.itemsBody.remove(pet.inventory.itemsBody.size() - 1);
+                    if (du != null && du.isNotNullItem()) {
+                        // Đồ trong ô dư trả về hành trang, không để mất của người chơi.
+                        nro.models.services.InventoryService.gI().addItemBag(player, du);
+                    }
+                }
                 // data skills
                 dataArray = (JSONArray) JSONValue.parse(String.valueOf(petData.get(3)));
                 for (int i = 0; i < dataArray.size(); i++) {
