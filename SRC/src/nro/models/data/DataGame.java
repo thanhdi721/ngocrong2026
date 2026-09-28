@@ -110,7 +110,8 @@ public class DataGame {
     // 32 -> 33: đổi icon 2123 và 2066 cho khỏi trùng với 759 và 403 (patch 90).
     // 33 -> 34: viết lại mô tả 7 viên ngọc sao đen 372–378 cho khớp buff code thật
     //           sự cộng (patch 92).
-    public static byte vsItem = 34;
+    // 34 -> 35: 21 vật phẩm nhiệm vụ 2009–2029 có icon riêng 32705–32725 (patch 93).
+    public static byte vsItem = 35;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
