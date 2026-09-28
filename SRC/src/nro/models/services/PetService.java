@@ -157,35 +157,50 @@ public class PetService {
 
     public void changeUubPet(Player player) {
         byte limitPower = player.pet.nPoint.limitPower;
+        // Phải lấy giới tính TRƯỚC khi huỷ đệ cũ: bản cũ đọc `player.pet.gender` sau
+        // dòng `player.pet = null` -> NullPointerException chắc chắn 100%. Ba hàm
+        // changeUubPet / changeKidBeerPet / changeJirenPet đều dính, chưa nổ chỉ vì
+        // hiện không có chỗ nào gọi tới.
+        byte gender = player.pet.gender;
         if (player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
             player.pet.unFusion();
         }
         ChangeMapService.gI().exitMap(player.pet);
         player.pet.dispose();
         player.pet = null;
-        createUubPet(player, player.pet.gender, limitPower);
+        createUubPet(player, gender, limitPower);
     }
 
     public void changeKidBeerPet(Player player) {
         byte limitPower = player.pet.nPoint.limitPower;
+        // Phải lấy giới tính TRƯỚC khi huỷ đệ cũ: bản cũ đọc `player.pet.gender` sau
+        // dòng `player.pet = null` -> NullPointerException chắc chắn 100%. Ba hàm
+        // changeUubPet / changeKidBeerPet / changeJirenPet đều dính, chưa nổ chỉ vì
+        // hiện không có chỗ nào gọi tới.
+        byte gender = player.pet.gender;
         if (player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
             player.pet.unFusion();
         }
         ChangeMapService.gI().exitMap(player.pet);
         player.pet.dispose();
         player.pet = null;
-        createKidBeerPet(player, player.pet.gender, limitPower);
+        createKidBeerPet(player, gender, limitPower);
     }
     
     public void changeJirenPet(Player player) {
         byte limitPower = player.pet.nPoint.limitPower;
+        // Phải lấy giới tính TRƯỚC khi huỷ đệ cũ: bản cũ đọc `player.pet.gender` sau
+        // dòng `player.pet = null` -> NullPointerException chắc chắn 100%. Ba hàm
+        // changeUubPet / changeKidBeerPet / changeJirenPet đều dính, chưa nổ chỉ vì
+        // hiện không có chỗ nào gọi tới.
+        byte gender = player.pet.gender;
         if (player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
             player.pet.unFusion();
         }
         ChangeMapService.gI().exitMap(player.pet);
         player.pet.dispose();
         player.pet = null;
-        createKidBeerPet(player, player.pet.gender, limitPower);
+        createJirenPet(player, gender, limitPower);
     }
 
     public void changeMabuPet(Player player, int gender) {

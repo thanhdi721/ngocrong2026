@@ -108,7 +108,9 @@ public class DataGame {
     // 30 -> 31: thêm 10 vật phẩm 2266–2275 của map Tu Tiên (patch 83).
     // 31 -> 32: thêm 14 vật phẩm 2276–2289 của tính năng luyện đan (patch 84).
     // 32 -> 33: đổi icon 2123 và 2066 cho khỏi trùng với 759 và 403 (patch 90).
-    public static byte vsItem = 33;
+    // 33 -> 34: viết lại mô tả 7 viên ngọc sao đen 372–378 cho khớp buff code thật
+    //           sự cộng (patch 92).
+    public static byte vsItem = 34;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 

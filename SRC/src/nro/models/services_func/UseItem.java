@@ -1328,24 +1328,18 @@ public class UseItem {
             return;
         }
 
-        int[] petTypes = {2, 3, 4};
-        int randomType = petTypes[rand.nextInt(petTypes.length)];
-        switch (randomType) {
-            case 2:
-                PetService.gI().createUubPet(player);
-                break;
-            case 3:
-                PetService.gI().createKidBeerPet(player);
-                break;
-            case 4:
-                PetService.gI().createJirenPet(player);
-                break;
-        }
+        // CHỈ RA KID BEER. Bản cũ bốc ngẫu nhiên trong {Uub, Kid Beer, Kid Jiren} —
+        // nghĩa là 2/3 số người cày đủ Kilis lại nhận con mình không muốn, mà Kid Jiren
+        // thì đang làm vỡ bảng thông tin đệ ở client (xem patch 91).
+        // Muốn bật lại kiểu bốc ngẫu nhiên thì trả về:
+        //     int[] petTypes = {2, 3, 4};
+        //     switch (petTypes[rand.nextInt(petTypes.length)]) { ... }
+        PetService.gI().createKidBeerPet(player);
 
         InventoryService.gI().removeItemBag(player, item);
         InventoryService.gI().sendItemBags(player);
 
-        Service.gI().sendThongBao(player, "Bạn đã nhận được đệ tử mới!");
+        Service.gI().sendThongBao(player, "Bạn đã nhận được đệ tử Kid Beer!");
     }
 
     private void eatGrapes(Player pl, Item item) {

@@ -228,17 +228,17 @@ public class NPoint {
     private void setPointWhenWearClothes() {
         resetPoint();
         if (this.player.rewardBlackBall.timeOutOfDateReward[2] > System.currentTimeMillis()) {
-            tlHutHp += RewardBlackBall.R3S_1;
+            tlHutHp += RewardBlackBall.R3S_HUT_HP;
         }
         if (this.player.rewardBlackBall.timeOutOfDateReward[3] > System.currentTimeMillis()) {
-            tlPST += RewardBlackBall.R4S_2;
+            tlPST += RewardBlackBall.R4S_PHAN_SAT_THUONG;
         }
         if (this.player.rewardBlackBall.timeOutOfDateReward[4] > System.currentTimeMillis()) {
-            tlDameCrit.add(RewardBlackBall.R5S_1);
-            tlSDCM += RewardBlackBall.R5S_1;
+            tlDameCrit.add(RewardBlackBall.R5S_CHI_MANG);
+            tlSDCM += RewardBlackBall.R5S_CHI_MANG;
         }
         if (this.player.rewardBlackBall.timeOutOfDateReward[6] > System.currentTimeMillis()) {
-            tlNeDon += RewardBlackBall.R7S_1;
+            tlNeDon += RewardBlackBall.R7S_NE_DON;
         }
         // Lấy tất cả option danh hiệu
         List<Item.ItemOption> options = BagesTemplate.sendListItemOption(player);
@@ -812,7 +812,7 @@ public class NPoint {
 
         // Xử lý ngọc rồng đen 2 sao
         if (this.player.rewardBlackBall.timeOutOfDateReward[1] > System.currentTimeMillis()) {
-            hpMax += (hpMax * RewardBlackBall.R2S_1 / 100L);
+            hpMax += (hpMax * RewardBlackBall.R2S_HP / 100L);
         }
 
         // Xử lý khỉ
@@ -956,7 +956,7 @@ public class NPoint {
 
         // Xử lý ngọc rồng đen 6 sao
         if (this.player.rewardBlackBall.timeOutOfDateReward[5] > System.currentTimeMillis()) {
-            mpMax += (mpMax * RewardBlackBall.R6S_1 / 100L);
+            mpMax += (mpMax * RewardBlackBall.R6S_KI / 100L);
         }
 
         // Xử lý set worldcup
@@ -1164,7 +1164,7 @@ public class NPoint {
 
         // Xử lý ngọc rồng đen 1 sao
         if (this.player.rewardBlackBall.timeOutOfDateReward[0] > System.currentTimeMillis()) {
-            dame += (dame * RewardBlackBall.R1S_2 / 100L);
+            dame += (dame * RewardBlackBall.R1S_SAT_THUONG / 100L);
         }
 
         // Xử lý set worldcup
