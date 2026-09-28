@@ -467,22 +467,39 @@ public class Input {
                     }
                 }
                 case CHANGE_NAME -> {
-                    Player plChanged = (Player) PLAYER_ID_OBJECT.get((int) player.id);
-                    if (plChanged != null) {
-                        if (LocalManager.executeQuery("select * from player where name = ?", text[0]).next()) {
-                            Service.gI().sendThongBao(player, "Tên nhân vật đã tồn tại");
-                        } else {
-                            plChanged.name = text[0];
-                            LocalManager.executeUpdate("update player set name = ? where id = ?", plChanged.name, plChanged.id);
-                            Service.gI().player(plChanged);
-                            Service.gI().Send_Caitrang(plChanged);
-                            Service.gI().sendFlagBag(plChanged);
-                            Zone zone = plChanged.zone;
-                            ChangeMapService.gI().changeMap(plChanged, zone, plChanged.location.x, plChanged.location.y);
-                            Service.gI().sendThongBao(plChanged, "Chúc mừng bạn đã có cái tên mới đẹp đẽ hơn tên ban đầu");
-                            Service.gI().sendThongBao(player, "Đổi tên người chơi thành công");
-                        }
+                    Object idLuu = PLAYER_ID_OBJECT.get((int) player.id);
+                    if (idLuu == null) {
+                        Service.gI().sendThongBao(player, "Không còn nhớ đang đổi tên ai, hãy chọn lại người chơi");
+                        break;
                     }
+                    long idCanDoi = ((Number) idLuu).longValue();
+                    if (LocalManager.executeQuery("select * from player where name = ?", text[0]).next()) {
+                        Service.gI().sendThongBao(player, "Tên nhân vật đã tồn tại");
+                        break;
+                    }
+                    // Đổi trong CSDL trước — việc này đúng dù người kia đang online hay không.
+                    LocalManager.executeUpdate("update player set name = ? where id = ?", text[0], idCanDoi);
+
+                    // Tra cứu LẠI người đang online theo id. Đã thoát game thì bỏ qua phần
+                    // làm mới màn hình, chứ đụng vào đối tượng đã dispose() là văng NPE.
+                    Player plChanged = Client.gI().getPlayer(idCanDoi);
+                    boolean conOnline = plChanged != null && plChanged.idMark != null
+                            && plChanged.playerTask != null && plChanged.zone != null
+                            && plChanged.location != null;
+                    if (conOnline) {
+                        plChanged.name = text[0];
+                        Service.gI().player(plChanged);
+                        Service.gI().Send_Caitrang(plChanged);
+                        Service.gI().sendFlagBag(plChanged);
+                        ChangeMapService.gI().changeMap(plChanged, plChanged.zone,
+                                plChanged.location.x, plChanged.location.y);
+                        Service.gI().sendThongBao(plChanged, "Chúc mừng bạn đã có cái tên mới đẹp đẽ hơn tên ban đầu");
+                        Service.gI().sendThongBao(player, "Đổi tên người chơi thành công");
+                    } else {
+                        Service.gI().sendThongBao(player,
+                                "Đã đổi tên trong dữ liệu. Người chơi đang offline nên sẽ thấy tên mới ở lần đăng nhập sau.");
+                    }
+                    PLAYER_ID_OBJECT.remove((int) player.id);
                 }
                 case CHANGE_NAME_BY_ITEM -> {
                     if (player != null) {
@@ -802,7 +819,11 @@ public class Input {
     }
 
     public void createFormChangeName(Player pl, Player plChanged) {
-        PLAYER_ID_OBJECT.put((int) pl.id, plChanged);
+        // Lưu ID, KHÔNG lưu tham chiếu Player.
+        // Người bị đổi tên có thể thoát game giữa lúc admin đang gõ tên mới; lúc đó
+        // Player.dispose() xoá sạch playerTask / fusion / idMark / nPoint / inventory,
+        // mà bản đồ này vẫn giữ cái xác đó -> đụng vào là NullPointerException.
+        PLAYER_ID_OBJECT.put((int) pl.id, plChanged.id);
         createForm(pl, CHANGE_NAME, "Đổi tên " + plChanged.name, new SubInput("Tên mới", ANY));
     }
 

@@ -105,6 +105,34 @@ public class NpcFactory {
 
     public static final java.util.Map<Long, Object> PLAYERID_OBJECT = new HashMap<>();
 
+    /**
+     * Lấy lại người chơi mà admin đã chọn ở menu trước, <b>chỉ khi họ còn online</b>.
+     *
+     * <p>Bản đồ trên giữ THAM CHIẾU tới đối tượng {@code Player}. Người bị chọn hoàn toàn
+     * có thể thoát game trong lúc admin còn đang đọc menu xác nhận — khi đó
+     * {@code Player.dispose()} xoá sạch {@code name}, {@code idMark}, {@code playerTask},
+     * {@code fusion}, {@code nPoint}, {@code inventory}… mà bản đồ vẫn giữ cái xác đó.
+     * Đụng vào là NullPointerException (đã gặp ở lệnh đổi tên).
+     *
+     * <p>{@code id} KHÔNG bị dispose xoá, nên dùng nó tra lại danh sách đang online.
+     *
+     * @return người chơi còn sống, hoặc null nếu họ đã thoát
+     */
+    public static Player nguoiChoiConOnline(Player admin) {
+        if (admin == null) {
+            return null;
+        }
+        Object o = PLAYERID_OBJECT.get(admin.id);
+        if (!(o instanceof Player daChon)) {
+            return null;
+        }
+        Player song = nro.models.server.Client.gI().getPlayer(daChon.id);
+        if (song == null || song.idMark == null || song.getSession() == null) {
+            return null;
+        }
+        return song;
+    }
+
     public static Npc createNPC(int mapId, int status, int cx, int cy, int tempId) {
         int avatar = Manager.NPC_TEMPLATES.get(tempId).avatar;
         try {
@@ -516,8 +544,14 @@ public class NpcFactory {
                             if (!player.isAdmin()) {
                                 Service.gI().sendThongBao(player, "Không đủ quyền hạn!");
                             } else {
-                                PlayerService.gI().banPlayer((Player) PLAYERID_OBJECT.get(player.id));
-                                Service.gI().sendThongBao(player, "Ban người chơi " + ((Player) PLAYERID_OBJECT.get(player.id)).name + " thành công");
+                                Player plBan = nguoiChoiConOnline(player);
+                                if (plBan == null) {
+                                    Service.gI().sendThongBao(player, "Người chơi đã thoát game, không ban được lúc này");
+                                } else {
+                                    String tenBan = plBan.name;
+                                    PlayerService.gI().banPlayer(plBan);
+                                    Service.gI().sendThongBao(player, "Ban người chơi " + tenBan + " thành công");
+                                }
                             }
                         }
                     }
@@ -527,16 +561,22 @@ public class NpcFactory {
                             if (!player.isAdmin()) {
                                 Service.gI().sendThongBao(player, "Không đủ quyền hạn!");
                             } else {
-                                Player pl = (Player) PLAYERID_OBJECT.get(player.id);
-                                if (pl.pet == null) {
+                                Player pl = nguoiChoiConOnline(player);
+                                if (pl == null) {
+                                    Service.gI().sendThongBao(player, "Người chơi đã thoát game, không phát được lúc này");
+                                } else if (pl.pet == null) {
                                     PetService.gI().createNormalPet(pl);
-                                    Service.gI().sendThongBao(player, "Phát đệ tử cho " + ((Player) PLAYERID_OBJECT.get(player.id)).name + " thành công");
+                                    Service.gI().sendThongBao(player, "Phát đệ tử cho " + pl.name + " thành công");
                                 }
                             }
                         }
                     }
                     case ConstNpc.SUB_MENU -> {
-                        Player pl = (Player) PLAYERID_OBJECT.get(player.id);
+                        Player pl = nguoiChoiConOnline(player);
+                        if (pl == null) {
+                            Service.gI().sendThongBao(player, "Người chơi đã thoát game");
+                            break;
+                        }
                         switch (select) {
                             case 0 ->
                                 SubMenuService.gI().controller(player, (int) pl.id, SubMenuService.OTT);
@@ -708,8 +748,10 @@ public class NpcFactory {
                     }
 
                     case ConstNpc.MENU_FIND_PLAYER -> {
-                        Player p = (Player) PLAYERID_OBJECT.get(player.id);
-                        if (p != null) {
+                        Player p = nguoiChoiConOnline(player);
+                        if (p == null) {
+                            Service.gI().sendThongBao(player, "Người chơi đã thoát game");
+                        } else {
                             switch (select) {
                                 case 0 -> {
                                     if (p.zone != null) {
