@@ -1003,6 +1003,13 @@ public class MrBlue {
                 while (pet.playerSkill.skills.size() < maxSkillCount) {
                     pet.playerSkill.skills.add(SkillUtil.createSkillLevel0(-1));
                 }
+                // Cắt phần DƯ. Đệ tử tạo bằng bản cũ có 7 chiêu (PetService nhét 1 + 6),
+                // trong khi cả game chỉ dùng 5 ô. Hai ô dư đó từng làm gói tin -107 lệch.
+                // Cắt ngay lúc nạp để dữ liệu cũ tự sạch sau lần đăng nhập kế tiếp.
+                final int SO_O_CHIEU_DE = 5;
+                while (pet.playerSkill.skills.size() > SO_O_CHIEU_DE) {
+                    pet.playerSkill.skills.remove(pet.playerSkill.skills.size() - 1);
+                }
 
                 pet.nPoint.hp = hp;
                 pet.nPoint.mp = mp;

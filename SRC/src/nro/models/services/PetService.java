@@ -319,8 +319,14 @@ public class PetService {
             pet.inventory.itemsBody.add(ItemService.gI().createItemNull());
         }
 
+        // Đệ tử có ĐÚNG 5 ô chiêu — cả game thống nhất con số này:
+        //   Service.showInfoPet gửi 5 ô, UseItem.upSkillPet đánh số ô 0..4,
+        //   MrBlue.loadPlayer đệm danh sách cho đủ.
+        // Bản cũ tạo 1 + 6 = 7 chiêu, DƯ RA ĐÚNG 2 Ô. Gói tin -107 báo 5 nhưng ghi 7,
+        // client đọc 5 rồi bỏ lại 2 ô trong luồng -> lệch gói kế tiếp -> giật/lag.
+        final int SO_O_CHIEU = 5;
         pet.playerSkill.skills.add(SkillUtil.createSkill(Util.nextInt(0, 2) * 2, 1));
-        for (int i = 0; i < 6; i++) {
+        for (int i = 1; i < SO_O_CHIEU; i++) {
             pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
         }
 
