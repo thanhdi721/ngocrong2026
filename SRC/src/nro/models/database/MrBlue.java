@@ -717,7 +717,11 @@ public class MrBlue {
             player.itemTime.lastTimeEatMeal2 = System.currentTimeMillis() - (ItemTime.TIME_EAT_MEAL - timeMeal2);
             player.itemTime.lastTimeUseNCD = System.currentTimeMillis() - (ItemTime.TIME_NCD - timeUseNCD);
             // FIX: khôi phục cả mốc thời gian của Kilis / Nước mía (trước chỉ bật cờ nên buff tắt ngay ở tick kế tiếp)
-            player.itemTime.lastTimeUseKilis = System.currentTimeMillis() - (ItemTime.TIME_KILIS - timeKilis);
+            // `timeKilis` là SỐ MILI GIÂY CÒN LẠI đã lưu. Trước đây lùi mốc theo hằng số
+            // TIME_KILIS (60 phút) nên bùa mua 10 phút vẫn sống 60 phút sau khi đăng nhập lại.
+            // Nay lưu thẳng thời lượng còn lại, ItemTime.update() hết hạn đúng theo nó.
+            player.itemTime.lastTimeUseKilis = System.currentTimeMillis();
+            player.itemTime.timeLengthKilis = timeKilis;
             player.itemTime.lastTimeUseNuocMia1 = System.currentTimeMillis() - (ItemTime.TIME_NUOC_MIA1 - timeNuocMia1);
             player.itemTime.lastTimeUseNuocMia2 = System.currentTimeMillis() - (ItemTime.TIME_NUOC_MIA2 - timeNuocMia2);
             player.itemTime.lastTimeUseNuocMia3 = System.currentTimeMillis() - (ItemTime.TIME_NUOC_MIA3 - timeNuocMia3);

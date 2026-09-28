@@ -683,7 +683,13 @@ public class PlayerDAO {
                 dataArray.add((player.itemTime.isUseNuocMia1 ? (ItemTime.TIME_NUOC_MIA1 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia1)) : 0));
                 dataArray.add((player.itemTime.isUseNuocMia2 ? (ItemTime.TIME_NUOC_MIA2 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia2)) : 0));
                 dataArray.add((player.itemTime.isUseNuocMia3 ? (ItemTime.TIME_NUOC_MIA3 - (System.currentTimeMillis() - player.itemTime.lastTimeUseNuocMia3)) : 0));
-                dataArray.add((player.itemTime.isUseKilis ? (ItemTime.TIME_KILIS - (System.currentTimeMillis() - player.itemTime.lastTimeUseKilis)) : 0));
+                // Lưu số mili giây CÒN LẠI theo đúng thời lượng đã mua, không theo hằng số
+                // 60 phút — nếu không, bùa 10 ngọc/10 phút sẽ hồi sinh thành 60 phút mỗi lần
+                // đăng nhập lại.
+                dataArray.add((player.itemTime.isUseKilis
+                        ? Math.max(0L, (player.itemTime.lastTimeUseKilis + player.itemTime.timeLengthKilis)
+                                - System.currentTimeMillis())
+                        : 0L));
                 dataArray.add(0);
                 dataArray.add(0);
                 String itemTime = dataArray.toJSONString();

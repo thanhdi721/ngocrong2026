@@ -1314,8 +1314,12 @@ public class UseItem {
             return;
         }
 
-        if (!item.hasOption(250, 3000)) {
-            Service.gI().sendThongBao(player, "Cần ít nhất 3000 sức mạnh Kilis để mở!");
+        // Mốc đọc từ cpanel thay vì ghim cứng, để chỉnh cùng chỗ với tỉ lệ rơi Kilis.
+        int canKilis = nro.models.boss.BossDropConfig.KILIS_CAN.giaTri;
+        if (!item.hasOption(250, canKilis)) {
+            nro.models.item.Item.ItemOption op = item.getOptionById(250);
+            Service.gI().sendThongBao(player, "Cần ít nhất " + canKilis + " sức mạnh Kilis để mở! (đang có "
+                    + (op != null ? op.param : 0) + ")");
             return;
         }
 

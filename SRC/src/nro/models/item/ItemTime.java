@@ -304,8 +304,16 @@ public class ItemTime {
             }
         }
         if (isUseKilis) {
-            if (Util.canDoWithTime(lastTimeUseKilis, TIME_KILIS)) {
+            // FIX: trước đây hết hạn theo hằng số TIME_KILIS (60 phút) chứ KHÔNG theo
+            // `timeLengthKilis` mà NPC Osin vừa đặt. Osin bán 5 ngọc = 10 phút và đặt lại
+            // `lastTimeUseKilis = now` mỗi lần mua, nên mua một lần là ăn trọn 60 phút —
+            // rẻ hơn ý đồ thiết kế 6 lần. Đồng hồ trên màn hình (ItemTimeService) lại đếm
+            // theo `timeLengthKilis` nên biến mất sau 10 phút trong khi bùa vẫn chạy,
+            // người chơi cũng không thấy. Nay hết hạn đúng theo thời lượng đã mua.
+            long hanDung = timeLengthKilis > 0 ? timeLengthKilis : TIME_KILIS;
+            if (Util.canDoWithTime(lastTimeUseKilis, hanDung)) {
                 isUseKilis = false;
+                timeLengthKilis = 0;
             }
         }
         if (isUseNuocMia1) {

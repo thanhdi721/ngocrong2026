@@ -152,6 +152,36 @@ public final class BossDropConfig {
             "Luyện đan — Đan Phương Sơ Cấp, boss trên 20 triệu máu (%)", 10,
             "Để 0 nếu chỉ muốn đan phương rơi từ hai con Tây Du");
 
+    //================== Bình hút năng lượng (Kilis) — map 165 Sa mạc hoang vu ==================
+    // Mỗi ĐÒN đánh trúng quái ở map 165 quay một lần: trúng thì +1 Kilis vào bình (vật phẩm
+    // 1795, option 250). Tính theo ĐÒN chứ không theo mạng quái — khối này nằm ngoài
+    // `if (!isDie())` trong Mob.injured.
+    //
+    // CÁCH TÍNH RA SỐ MẶC ĐỊNH — mốc là "Liên hoàn cấp 7, có bùa, đánh liên tục = 7 ngày":
+    //     Liên hoàn cấp 7 hồi chiêu 330 ms  ->  3,0303 đòn/giây
+    //     7 ngày = 604.800 giây             ->  1.832.727 đòn
+    //     cần 3000 Kilis                    ->  tỉ lệ mỗi đòn = 3000 / 1.832.727 = 1/611
+    //     có bùa ăn 2 phần nên mẫu số = 2 x 611 = 1222
+    //
+    // Ra đúng:  có bùa 2/1222 = 1/611  -> 1.833.000 đòn -> 168,0 giờ = 7,0 ngày
+    //           không bùa 1/1222       -> 3.666.000 đòn -> 336,1 giờ = 14,0 ngày
+    //
+    // Muốn đổi mốc bao nhiêu ngày thì chỉ sửa MỘT ô `kilis_mau_so`:
+    //     mẫu số = số ngày x 24 x 3600 x (1000 / hồi chiêu ms) x (phần bùa) / số Kilis cần
+    // Ví dụ giữ Liên hoàn 330 ms, bùa 2 phần, cần 3000: mỗi ngày ≈ 174,6 điểm mẫu số.
+    public static final Muc KILIS_CAN = them("kilis_can",
+            "Kilis — cần bao nhiêu để mở đệ mới", 3000,
+            "Mốc dùng bình 1795 đổi Uub / Kid Beer / Kid Jiren");
+    public static final Muc KILIS_MAU_SO = them("kilis_mau_so",
+            "Kilis — mẫu số tỉ lệ mỗi đòn", 1222,
+            "Càng lớn càng lâu. 1222 = Liên hoàn cấp 7 có bùa đánh liên tục 7 ngày");
+    public static final Muc KILIS_PHAN_THUONG = them("kilis_phan_thuong",
+            "Kilis — số phần khi KHÔNG có bùa", 1,
+            "Tỉ lệ mỗi đòn = số phần / mẫu số. 1/1222 = 14 ngày liên tục");
+    public static final Muc KILIS_PHAN_BUA = them("kilis_phan_bua",
+            "Kilis — số phần khi CÓ bùa Osin", 2,
+            "Để 2 cho khớp lời thoại NPC 'nhanh gấp đôi'. Bản cũ để 10 (gấp 10 lần)");
+
     //================== Thông báo boss xuất hiện ==================
     public static final Muc THONG_BAO_MAU_MIN = them("thong_bao_mau_min",
             "Thông báo boss — máu tối thiểu", 1_000_000,

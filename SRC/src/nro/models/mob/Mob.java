@@ -218,9 +218,15 @@ public class Mob {
         }
         if (MapService.gI().isMapCadic(this.zone.map.mapId) && plAtt != null) {
             boolean hasKilisBuff = plAtt.itemTime != null && plAtt.itemTime.isUseKilis;
-            int successRate = hasKilisBuff ? 10 : 1;
+            // Tỉ lệ mỗi ĐÒN = số phần / mẫu số, chỉnh được trong cpanel tab "Rơi đồ boss".
+            // Mặc định 2/1222 khi có bùa (Liên hoàn cấp 7 đánh liên tục 7 ngày mới đủ 3000)
+            // và 1/1222 khi không bùa (14 ngày). Bản cũ là 10/333 và 1/333 — nhanh gấp 18 lần.
+            int soPhan = hasKilisBuff
+                    ? nro.models.boss.BossDropConfig.KILIS_PHAN_BUA.giaTri
+                    : nro.models.boss.BossDropConfig.KILIS_PHAN_THUONG.giaTri;
+            int mauSo = nro.models.boss.BossDropConfig.KILIS_MAU_SO.giaTri;
 
-            if (Util.isTrue(successRate, 333)) {
+            if (soPhan > 0 && mauSo > 0 && Util.isTrue(soPhan, mauSo)) {
                 if (plAtt != null) {
                     Item item = InventoryService.gI().findItemBag(plAtt, 1795);
                     if (item != null) {
@@ -236,7 +242,11 @@ public class Mob {
 
                         if (updated) {
                             InventoryService.gI().sendItemBags(plAtt);
-                            Service.gI().sendThongBao(plAtt, "Bạn vừa nhận được 1 chỉ số Kilis!");
+                            // Kèm luôn tiến độ để người chơi biết còn bao xa, khỏi phải mở bình đếm.
+                            Item.ItemOption op = item.getOptionById(250);
+                            int dangCo = op != null ? op.param : 0;
+                            Service.gI().sendThongBao(plAtt, "Bạn vừa nhận được 1 chỉ số Kilis! ("
+                                    + dangCo + "/" + nro.models.boss.BossDropConfig.KILIS_CAN.giaTri + ")");
                         }
                     }
                 }
