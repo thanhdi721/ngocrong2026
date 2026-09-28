@@ -192,6 +192,7 @@ public final class Manager {
 
         this.loadDatabase();
         checkMissingIcons();
+        checkAvatarScale();
         NpcFactory.createNpcConMeo();
         NpcFactory.createNpcRongThieng();
         this.initMap();
@@ -306,6 +307,86 @@ public final class Manager {
         } catch (Exception e) {
             System.err.print("\nError at 299\n");
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Đọc chiều rộng / chiều cao của một file PNG mà không giải nén ảnh.
+     * PNG: 8 byte chữ ký + 4 byte độ dài + 4 byte "IHDR" + 4 byte rộng + 4 byte cao,
+     * nên rộng nằm ở byte 16-19 và cao ở byte 20-23. Trả về null nếu không đọc được.
+     */
+    private static int[] docKichThuocPng(java.io.File f) {
+        try (java.io.DataInputStream in = new java.io.DataInputStream(
+                new java.io.BufferedInputStream(new FileInputStream(f)))) {
+            byte[] dau = new byte[24];
+            in.readFully(dau);
+            java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(dau);
+            return new int[]{bb.getInt(16), bb.getInt(20)};
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Ảnh avatar (đầu to hiện ở bảng thông tin nhân vật / đệ tử) phải có bản x2, x3, x4 đúng
+     * bằng 2, 3, 4 lần bản x1. Một bản phóng sai cỡ làm client vẽ hỏng cả bảng thông tin —
+     * và máy chủ KHÔNG hề ghi log gì, vì gói tin gửi đi vẫn hợp lệ.
+     *
+     * Đúng lỗi này từng làm bấm "thông tin" đệ Kid Jiren là văng client: avatar 8094 của nó
+     * là 51x44 ở x1 nhưng 306x264 ở x2 (to gấp 3 mức đáng lẽ phải có là 102x88), trong khi
+     * avatar Ma Bư (4674) và Uub (11656) đều đúng tỉ lệ nên hai đệ đó không sao.
+     * Xem patch 91-sua-avatar-de-kid-jiren.sql.
+     */
+    private static void checkAvatarScale() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            int soLoi = 0;
+            for (HeadAvatar ha : HEAD_AVATARS) {
+                java.io.File f1 = new java.io.File("data/icon/x1/" + ha.avatarId + ".png");
+                if (!f1.exists()) {
+                    continue; // thiếu file đã có checkMissingIcons lo
+                }
+                int[] d1 = docKichThuocPng(f1);
+                if (d1 == null || d1[0] <= 0 || d1[1] <= 0) {
+                    continue;
+                }
+                for (int z = 2; z <= 4; z++) {
+                    java.io.File fz = new java.io.File("data/icon/x" + z + "/" + ha.avatarId + ".png");
+                    if (!fz.exists()) {
+                        continue;
+                    }
+                    int[] dz = docKichThuocPng(fz);
+                    if (dz == null) {
+                        continue;
+                    }
+                    // cho lệch tối đa z pixel vì bản gốc có thể làm tròn khi phóng
+                    if (Math.abs(dz[0] - d1[0] * z) > z || Math.abs(dz[1] - d1[1] * z) > z) {
+                        soLoi++;
+                        if (soLoi <= 30) {
+                            sb.append("  avatar ").append(ha.avatarId)
+                                    .append(" (part đầu ").append(ha.headId).append("): x1 là ")
+                                    .append(d1[0]).append('x').append(d1[1])
+                                    .append(" nên x").append(z).append(" phải là ")
+                                    .append(d1[0] * z).append('x').append(d1[1] * z)
+                                    .append(" nhưng đang là ")
+                                    .append(dz[0]).append('x').append(dz[1]).append('\n');
+                        }
+                        break;
+                    }
+                }
+            }
+            if (soLoi == 0) {
+                Logger.success("Kiểm tra avatar: mọi ảnh avatar đều đúng tỉ lệ x1/x2/x3/x4\n");
+                return;
+            }
+            if (soLoi > 30) {
+                sb.append("  ... và ").append(soLoi - 30).append(" avatar khác\n");
+            }
+            Logger.error("Kiểm tra avatar: " + soLoi + " ảnh avatar SAI TỈ LỆ phóng to"
+                    + " — client dễ vỡ bảng thông tin khi mở đúng nhân vật / đệ dùng ảnh đó:\n"
+                    + sb);
+        } catch (Exception e) {
+            Logger.error("Lỗi kiểm tra tỉ lệ avatar: " + e + "\n");
         }
     }
 
