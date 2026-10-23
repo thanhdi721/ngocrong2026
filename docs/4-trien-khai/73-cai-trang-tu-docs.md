@@ -143,3 +143,16 @@ So với bản 101: Vương Lâm hạ 3; Kiếm Sĩ lên 1, trái 1; Huyết Nh�
 tổng cộng dồn. Chỉ đổi dx/dy của đầu, ảnh và số icon giữ nguyên. Patch 94, 96–101 sửa theo. `vsData` 40 → 41.
 
 Chạy: build jar (vsData 41), chạy patch 102, khởi động lại server.
+
+## Sửa lần 8: liền eo, nâng đầu Tử Ma + Ngọc Long (patch 103)
+
+Vào game Vương Lâm hở giữa đai lưng và quần. Đo khe eo (đáy thân → mép trên chân) ở khung 0..7, Hắc Y gốc tới +4 px x4:
+Vương Lâm đứng +5 / thở +9, Kiếm Sĩ chạy tới +35, Huyết Nhẫn +31, Tử Ma +17, Ngọc Long +9. Tool (`ha_than`) hạ khung thân
+nào hở quá 2 px; đầu hạ theo khung thân đứng (mảnh đầu 0) / trung vị khung chạy (mảnh đầu 1) để giữ chỗ đầu đã chỉnh tay.
+Khung 7 dùng chung mảnh đầu với dáng đứng nên NÂNG CHÂN thay vì hạ thân (hạ thân sẽ kéo đầu Kiếm Sĩ đứng xuống).
+Sau sửa: khe eo mọi bộ ≤ +2 ở mọi khung. Tử Ma, Ngọc Long đầu lên 1 (`CHINH_DAU`).
+Chỉ đổi dy, ảnh và số icon giữ nguyên. Patch 94, 96–102 sửa theo. `vsData` 41 → 42.
+
+Còn lại: Huyết Nhẫn khung 7 khe cổ +17 do đầu đã chỉnh tay lên 1 / phải 2 (dáng đứng +3, ngang Hắc Y).
+
+Chạy: build jar (vsData 42), chạy patch 103, khởi động lại server.

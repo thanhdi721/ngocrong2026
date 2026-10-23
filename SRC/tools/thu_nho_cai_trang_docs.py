@@ -19,6 +19,11 @@ Mỗi bộ dùng MỘT hệ số cho cả đầu / thân / chân (chủ dự án
      đo khe giữa đáy đầu và mép trên thân ngay bên dưới; mảnh đầu nào còn hở (khe > 0) ở khung dùng
      nó thì hạ mảnh đó đến khi hết hở. Bảng CHARINFO dưới đây đã thử trên Hắc Y + Goku SSJ4 (dx/dy
      gốc) ghép liền mạch; khung 8 trở đi chưa chắc nên không dùng.
+  2d. Hạ thân cho khỏi hở eo: cùng cách đo, khe giữa đáy thân và mép trên chân ở khung 0..7; khung
+     thân nào hở quá 2 px (Hắc Y gốc tới +4) thì hạ khung đó. Đầu hạ theo đúng lượng của khung thân
+     đứng (mảnh đầu 0) / trung vị các khung chạy (mảnh đầu 1) để giữ chỗ đầu đã chỉnh tay.
+     Riêng khung 7 (nhảy, chân co không chạm đất, dùng CHUNG mảnh đầu với dáng đứng): NÂNG CHÂN lên
+     thay vì hạ thân, để không kéo đầu dáng đứng xuống.
   3. Luôn đọc ảnh HD gốc + dx/dy gốc từ commit GOC (trước mọi lần thu), nên chạy lại vẫn ra cùng kết quả.
   4. Ảnh thu mang SỐ ICON MỚI: server gửi phiên bản ảnh nhỏ toàn 0 (DataGame.sendSmallVersion) nên
      client không biết ảnh đổi, giữ số cũ thì ai đã vào game vẫn thấy ảnh cũ trong cache.
@@ -51,19 +56,21 @@ P99 = PATCH_DIR + "/99-vuong-lam-kiem-si-to-them.sql"
 P100 = PATCH_DIR + "/100-ha-dau-cai-trang-tu-docs.sql"
 P101 = PATCH_DIR + "/101-chinh-dau-theo-chu-du-an.sql"
 P102 = PATCH_DIR + "/102-chinh-dau-lan-2.sql"
-PATCH_CU = (P96, P97, P98, P99, P100, P101)               # các patch UPDATE trước, sửa theo bản cuối
+P103 = PATCH_DIR + "/103-lien-eo-nang-dau.sql"
+PATCH_CU = (P96, P97, P98, P99, P100, P101, P102)               # các patch UPDATE trước, sửa theo bản cuối
 PHONG = 1.15
 # Vương Lâm thân hẹp + tóc dài, Kiếm Sĩ có kiếm + sấm tính vào chiều cao -> người nhỏ hơn các bộ khác
 PHONG_RIENG = {2291: 1.2, 2292: 1.15}
 CHINH_DAT = {2293: 1, 2294: 1}           # hạ thêm (đơn vị x1)
 # Chủ dự án xem hình rồi chỉnh tay đầu (cả 2 mảnh đầu), cộng thêm SAU bước tự hạ đầu: (dx, dy), dx âm = sang
-# trái, dy dương = hạ xuống. Cộng dồn các lần: lần 1 (patch 101) + lần 2 (patch 102).
+# trái, dy dương = hạ xuống. Cộng dồn các lần: patch 101 + 102 + 103.
 CHINH_DAU = {
     2291: (0, 6),       # Vương Lâm: hạ 3 + hạ 3
     2292: (-2, 0),      # Kiếm Sĩ: (hạ 1, trái 1) + (lên 1, trái 1)
     2293: (2, -1),      # Huyết Nhẫn: (lên 1, phải 1) + phải 1
     2294: (1, -1),      # Lam Hồn: lên 1, phải 1
-    2295: (0, 0),       # Tử Ma: hạ 1 + lên 1
+    2295: (0, -1),      # Tử Ma: hạ 1 + lên 1 + lên 1
+    2296: (0, -1),      # Ngọc Long: lên 1
 }
 DATAGAME = HERE + "/src/nro/models/data/DataGame.java"
 ZOOMS = (1, 2, 3, 4)
@@ -144,6 +151,48 @@ def khe_co(head, body, hims, bims, cf):
     return int(np.median(vals)) if vals else None
 
 
+def khe_eo(body, leg, bims, lims, cf):
+    """Khe (px x4) giữa đáy thân và mép trên chân ở khung cf; dương = hở eo."""
+    _, (li, lx, ly), (bi, bx, by) = CHARINFO[cf]
+    b = np.asarray(bims[bi])[:, :, 3] > 200
+    l = np.asarray(lims[li])[:, :, 3] > 200
+    BX, BY = (bx + body[bi][1]) * 4, (-by + body[bi][2]) * 4
+    LX, LY = (lx + leg[li][1]) * 4, (-ly + leg[li][2]) * 4
+    cols = np.nonzero(l.any(0))[0]
+    w = cols.max() - cols.min()
+    vals = []
+    for c in range(int(cols.min() + .25 * w), int(cols.max() - .25 * w) + 1):
+        lc = np.nonzero(l[:, c])[0]
+        cb = c + LX - BX
+        if len(lc) == 0 or not 0 <= cb < b.shape[1]:
+            continue
+        bc = np.nonzero(b[:, cb])[0]
+        if len(bc):
+            vals.append((LY + lc.min()) - (BY + bc.max()))
+    return int(np.median(vals)) if vals else None
+
+
+def ha_than(moi, anh_moi, n_dau, n_than):
+    """Hạ từng khung thân cho hết hở eo (> 2 px x4) ở các khung 0..7; đầu hạ theo. Trả về {khung thân: số hạ}."""
+    bims = [im for _, im in anh_moi[n_dau:n_dau + n_than]]
+    lims = [im for _, im in anh_moi[n_dau + n_than:]]
+    ha = {}
+    for bi in sorted({CHARINFO[cf][2][0] for cf in range(len(CHARINFO))}):
+        khe = [khe_eo(moi[1], moi[2], bims, lims, cf) for cf in range(len(CHARINFO)) if CHARINFO[cf][2][0] == bi]
+        khe = [k for k in khe if k is not None]
+        d = -(-(max(khe) - 2) // 4) if khe and max(khe) > 2 else 0
+        if d and bi == CHARINFO[7][2][0]:
+            moi[2][CHARINFO[7][1][0]][2] -= d          # khung 7: nâng chân
+        elif d:
+            moi[1][bi][2] += d
+            ha[bi] = d
+    chay = sorted(ha.get(CHARINFO[cf][2][0], 0) for cf in range(len(CHARINFO)) if CHARINFO[cf][0][0] == 1)
+    moi[0][0][2] += ha.get(CHARINFO[0][2][0], 0)
+    if n_dau > 1 and chay:
+        moi[0][1][2] += chay[len(chay) // 2]
+    return ha
+
+
 def ha_dau(moi, anh_moi, n_dau, n_than):
     """Hạ từng mảnh đầu cho hết hở ở các khung dùng nó (đơn vị x1). Trả về số hạ của mảnh 0, 1."""
     hims = [im for _, im in anh_moi[:n_dau]]
@@ -208,6 +257,7 @@ def main(argv):
         day = (-y + dy) * 4 + np.nonzero(a.any(1))[0].max()
         ha = -round(day / 4) + CHINH_DAT.get(item, 0)
         moi = [[[i, dx, dy + ha] for i, dx, dy in pcs] for pcs in moi]
+        ht = ha_than(moi, anh_moi, len(cu[0]), len(cu[1]))
         hd = ha_dau(moi, anh_moi, len(cu[0]), len(cu[1]))
         cx_, cy_ = CHINH_DAU.get(item, (0, 0))
         for pc in moi[0]:
@@ -216,16 +266,19 @@ def main(argv):
         moi = [pcs + [[TRANSPARENT, 0, 0]] for pcs in moi]
         dang_dung = [ic for t in range(3) for ic, _, _ in hien[p0 + t] if ic != TRANSPARENT]
         geo = lambda ps: [[d[1:] for d in p] for p in ps]
-        # Thân + chân y hệt bản đang dùng -> cùng hệ số, ảnh không đổi: giữ nguyên số icon, chỉ sửa dx/dy
-        if geo(moi)[1:] == geo([hien[p0 + 1], hien[p0 + 2]]) and len(moi[0]) == len(hien[p0]):
+        # dx của thân + chân y hệt bản đang dùng -> cùng hệ số, ảnh không đổi (các bước căn chỉ dời dy):
+        # giữ nguyên số icon, chỉ sửa dx/dy
+        dx_ = lambda ps: [[d[1] for d in p] for p in ps]
+        if (dx_(moi[1:]) == dx_([hien[p0 + 1], hien[p0 + 2]])
+                and [len(m) for m in moi] == [len(hien[p0 + t]) for t in range(3)]):
             moi = [[[h[0], d[1], d[2]] for h, d in zip(hien[p0 + t], moi[t])] for t in range(3)]
             if moi == [hien[p0 + t] for t in range(3)]:
-                print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  (không đổi, giữ nguyên)"
-                      % (item, p0, p0 + 2, s, ha, hd))
+                print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  hạ thân %s  (không đổi, giữ nguyên)"
+                      % (item, p0, p0 + 2, s, ha, hd, ht))
                 continue
             ket_qua.append((item, p0, s, moi, [], [], folder))
-            print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  (chỉ sửa dx/dy, giữ số icon)"
-                  % (item, p0, p0 + 2, s, ha, hd))
+            print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  hạ thân %s  (chỉ sửa dx/dy, giữ số icon)"
+                  % (item, p0, p0 + 2, s, ha, hd, ht))
             continue
         base = cap_dai(k)
         moi = [[[i + base if i != TRANSPARENT else i, dx, dy] for i, dx, dy in pcs] for pcs in moi]
@@ -276,14 +329,14 @@ def main(argv):
     t94 = t94.replace("-- * Patch 98, 99 thu 7 bộ không có dx/dy theo cỡ Hắc Y Song Đao, chạm đất; part dưới đây\n",
                       "-- * Patch 98, 99, 100 thu 7 bộ không có dx/dy theo cỡ Hắc Y, chạm đất, liền cổ; part dưới đây\n")
     for f in PATCH_CU:
-        if "patch 102" not in cu_txt[f]:
+        if "patch 103" not in cu_txt[f]:
             cu_txt[f] = cu_txt[f].replace(
-                "-- Ảnh ", "-- Patch 102 chỉnh tay đầu lần 2; các dòng dưới đây đã sửa theo bản 102.\n-- Ảnh ", 1)
+                "-- Ảnh ", "-- Patch 103 liền eo + nâng đầu; các dòng dưới đây đã sửa theo bản 103.\n-- Ảnh ", 1)
     open(P94, "w", encoding="utf-8").write(t94)
     for f in PATCH_CU:
         open(f, "w", encoding="utf-8").write(cu_txt[f])
 
-    with open(P102, "w", encoding="utf-8") as f:
+    with open(P103, "w", encoding="utf-8") as f:
         f.write(HEADER % dict(vd=vs_data, ds="\n".join(
             "--   %d  part %d-%d  hệ số %.2f" % (it, p0, p0 + 2, s) for it, p0, s, _, _, _, _ in ket_qua)))
         for _, p0, _, moi, _, _, _ in ket_qua:
@@ -292,23 +345,21 @@ def main(argv):
                         % (data(moi[t]), p0 + t, t))
         f.write("\nSELECT `id`, LEFT(`DATA`, 60) FROM `part` WHERE `id` IN (%s);\n"
                 % ", ".join(str(p0 + t) for _, p0, _, _, _, _, _ in ket_qua for t in range(3)))
-    print("Đã ghi ảnh, sửa patch 94 / 96–101, ghi patch 102.")
+    print("Đã ghi ảnh, sửa patch 94 / 96–102, ghi patch 103.")
     return 0
 
 
 HEADER = """-- =====================================================================
--- 102 — CHỈNH ĐẦU LẦN 2 THEO CHỦ DỰ ÁN (2026-10-23)
+-- 103 — LIỀN EO (THÂN - CHÂN) VÀ NÂNG ĐẦU TỬ MA, NGỌC LONG (2026-10-24)
 --      (sinh bởi tools/thu_nho_cai_trang_docs.py)
 -- =====================================================================
--- Chỉnh cả 2 mảnh đầu (mọi động tác), so với bản 101:
---   2291 Vương Lâm   : hạ 3
---   2292 Kiếm Sĩ     : lên 1, sang trái 1
---   2293 Huyết Nhẫn  : sang phải 1
---   2295 Tử Ma       : lên 1
--- Chỉ đổi dx/dy của đầu; ảnh và số icon giữ nguyên. Hệ số thu (không đổi):
+-- Vào game Vương Lâm hở giữa đai lưng và quần. Đo khe eo ở khung 0..7 (Hắc Y gốc tới +4 px):
+-- Vương Lâm đứng +5 / thở +9, Kiếm Sĩ chạy tới +35, Huyết Nhẫn +31, Tử Ma +17... Khung thân nào
+-- hở quá 2 px thì hạ khung đó; đầu hạ theo để giữ chỗ đầu đã chỉnh tay. Tử Ma, Ngọc Long: đầu
+-- lên 1 (chủ dự án). Chỉ đổi dx/dy; ảnh và số icon giữ nguyên. Hệ số thu (không đổi):
 %(ds)s
 --
--- Chạy SAU patch 94 (94, 96–101 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
+-- Chạy SAU patch 94 (94, 96–102 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
 -- Cùng jar có DataGame.vsData = %(vd)d. Chạy lại vẫn an toàn. Khởi động lại server.
 -- =====================================================================
 
