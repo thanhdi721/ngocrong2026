@@ -49,3 +49,21 @@ không mang vào game và giữ nguyên tên. Lưu ý: số 20275/20276 trong ga
 1. Build jar với `DataGame.java` mới (vsItem 36, vsData 34).
 2. Chạy patch 94 rồi 95 (trước khi chạy, hai câu SELECT đầu patch 94 phải ra 2289 và 2660).
 3. Khởi động lại server, nhập mã `ctdocs1` ở NPC ADMIN Đẹp Trai (cần 8 ô trống).
+
+## Thu nhỏ cho bằng cỡ Hắc Y Song Đao (patch 96)
+
+Vào game thử thì chỉ Hắc Y Song Đao (ảnh chuẩn của game) vừa cỡ; Vương Lâm và 6 bộ x4 là ảnh HD nên to gần
+gấp đôi. Công cụ `SRC/tools/thu_nho_cai_trang_docs.py`:
+
+* Thu RIÊNG đầu / thân / chân cho bằng phần tương ứng của Hắc Y (mỗi bộ lệch tỉ lệ khác nhau, ví dụ Vương Lâm
+  thân vừa nhưng đầu to gấp đôi). Hệ số ghi ở đầu patch 96.
+* Căn lại từng khung theo chính Hắc Y; đầu nâng thêm: Tử Ma 2, Ngọc Long 2, Kim Lôi 1.
+* Ảnh nhỏ mang số icon MỚI 20614–20830 (mỗi bộ 31 số liền: 2 đầu, 16 thân, 13 chân). Lý do: server gửi phiên bản
+  ảnh nhỏ toàn 0 (`DataGame.sendSmallVersion`) nên client không biết ảnh đổi — giữ số cũ thì ai đã vào game vẫn
+  thấy ảnh to trong cache. Ảnh to cũ đã xoá khỏi `data/icon`; icon vật phẩm và avatar giữ nguyên.
+* Patch 94 đã sửa theo (chạy lại 94 vẫn ra bản nhỏ). Thư mục docs ghi đè bằng bản x4 đã thu nhỏ, tên theo số mới
+  (bản gốc HD còn ở `~/Downloads/x4`, `~/Downloads/vương lâm (tao)`).
+* `vsData` 34 → 35.
+* KHÔNG chạy lại tool này lần nữa: nó đọc ảnh đang có trong `data/icon` nên sẽ thu nhỏ thêm một lần.
+
+Chạy: build jar (vsData 35), chạy patch 96, khởi động lại server.
