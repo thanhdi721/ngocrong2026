@@ -58,7 +58,8 @@ public class DataGame {
     //           luân phiên chứ không chồng lên nhau, để trong suốt ở mảnh 0 thì lúc
     //           NPC đứng yên vẫn không thấy gì (patch 86 bản 2).
     // 32 -> 33: phóng to lò (icon 32700 52px -> icon 32701 64px), part 2658 đổi theo.
-    public static byte vsData = 33;
+    // 33 -> 34: thêm 24 part 2661–2684 của 8 cải trang từ docs/goi_cai_trang, vương lâm, x4 (patch 94).
+    public static byte vsData = 34;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ
@@ -111,7 +112,8 @@ public class DataGame {
     // 33 -> 34: viết lại mô tả 7 viên ngọc sao đen 372–378 cho khớp buff code thật
     //           sự cộng (patch 92).
     // 34 -> 35: 21 vật phẩm nhiệm vụ 2009–2029 có icon riêng 32705–32725 (patch 93).
-    public static byte vsItem = 35;
+    // 35 -> 36: thêm 8 cải trang 2290–2297 (patch 94).
+    public static byte vsItem = 36;
     public static int vsRes = 1;
     public static short maxSmallVersion = 32767;
 
