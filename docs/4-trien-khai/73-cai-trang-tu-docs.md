@@ -67,3 +67,20 @@ gấp đôi. Công cụ `SRC/tools/thu_nho_cai_trang_docs.py`:
 * KHÔNG chạy lại tool này lần nữa: nó đọc ảnh đang có trong `data/icon` nên sẽ thu nhỏ thêm một lần.
 
 Chạy: build jar (vsData 35), chạy patch 96, khởi động lại server.
+
+## Sửa lại: cao bằng Hắc Y, giữ tỉ lệ gốc (patch 97)
+
+Bản patch 96 thu riêng đầu / thân / chân nên vào game trông nhỏ và lệch tỉ lệ. Chủ dự án chốt: mỗi bộ thu ĐỀU
+cả người một hệ số, cho chiều cao dáng đứng (đầu + thân + chân) bằng Hắc Y Song Đao, không tăng giảm riêng phần nào.
+
+* `SRC/tools/thu_nho_cai_trang_docs.py` viết lại theo cách này. Hệ số: Vương Lâm 0.57, Kiếm Sĩ 0.78, Huyết Nhẫn 0.63,
+  Lam Hồn 0.51, Tử Ma 0.60, Ngọc Long 0.60, Kim Lôi 0.54.
+* dx/dy thu quanh điểm chân nhân vật: `d' = s*(CI + d) - CI` (CI dáng đứng: đầu -13,34 / thân -9,16 / chân -8,10),
+  nên cách ghép đầu - thân - chân giữ y bản gốc.
+* Tool luôn đọc ảnh HD gốc + dx/dy gốc từ commit `2027d8c02`, nên chạy lại vẫn ra cùng kết quả (mục "KHÔNG chạy lại"
+  ở trên không còn đúng).
+* Số icon mới 20831–21047. Dải 20257–20830 coi như đã dùng (client có thể còn cache ảnh cũ ở các số đó), tool không
+  cấp lại. Ảnh của bản 96 (20614–20830) đã xoá.
+* Patch 94 và 96 sửa theo, chạy thứ tự nào cũng ra kết quả của 97. `vsData` 35 → 36.
+
+Chạy: build jar (vsData 36), chạy patch 97, khởi động lại server.
