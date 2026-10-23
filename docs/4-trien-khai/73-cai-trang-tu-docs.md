@@ -128,3 +128,11 @@ Tool tự hạ từng mảnh đầu đến khi hết hở ở mọi khung dùng 
 Huyết Nhẫn 1, Kim Lôi 1. Chỉ đổi dy của đầu nên ảnh và số icon giữ nguyên. Patch 94, 96–99 sửa theo. `vsData` 38 → 39.
 
 Chạy: build jar (vsData 39), chạy patch 100, khởi động lại server.
+
+## Sửa lần 6: chỉnh tay đầu theo chủ dự án (patch 101)
+
+Chủ dự án xem hình ghép các khung rồi chỉnh (cả 2 mảnh đầu, mọi động tác), ghi ở `CHINH_DAU` trong tool, cộng sau bước
+tự hạ đầu: Vương Lâm hạ 3; Kiếm Sĩ hạ 1, trái 1; Huyết Nhẫn lên 1, phải 1; Lam Hồn lên 1, phải 1; Tử Ma hạ 1.
+Chỉ đổi dx/dy của đầu, ảnh và số icon giữ nguyên. Patch 94, 96–100 sửa theo. `vsData` 39 → 40.
+
+Chạy: build jar (vsData 40), chạy patch 101, khởi động lại server.
