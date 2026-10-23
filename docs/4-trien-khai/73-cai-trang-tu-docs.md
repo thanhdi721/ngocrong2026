@@ -84,3 +84,17 @@ cả người một hệ số, cho chiều cao dáng đứng (đầu + thân + c
 * Patch 94 và 96 sửa theo, chạy thứ tự nào cũng ra kết quả của 97. `vsData` 35 → 36.
 
 Chạy: build jar (vsData 36), chạy patch 97, khởi động lại server.
+
+## Sửa lần 3: to thêm 15%, chạm đất (patch 98)
+
+Bản 97 cao bằng Hắc Y nhưng chiều cao tính cả tóc dựng + hào quang nên người vẫn nhỏ; lại có bộ lơ lửng (Kiếm Sĩ)
+hoặc lún dưới đất (Lam Hồn, Ngọc Long, Kim Lôi) vì dx/dy gốc căn theo bộ VIP, đáy chân mỗi bộ một khác.
+
+* Hệ số = cỡ cao bằng Hắc Y × 1.15 (`PHONG` trong tool): Vương Lâm 0.66, Kiếm Sĩ 0.89, Huyết Nhẫn 0.72, Lam Hồn 0.59,
+  Tử Ma 0.69, Ngọc Long 0.69, Kim Lôi 0.62. Vẫn thu đều cả người, giữ tỉ lệ gốc.
+* Dời CẢ BỘ (mọi mảnh, mọi khung) cho đáy phần đặc của khung chân đứng chạm đất như Hắc Y; Huyết Nhẫn, Lam Hồn hạ thêm
+  1 (`CHINH_DAT`) vì có hào quang dưới bàn chân. Đã soi phóng to từng đôi chân.
+* Số icon mới 21048–21202, 21525–21586; dải 20257–21047 không cấp lại (client có thể còn cache).
+* Patch 94, 96, 97 sửa theo, chạy thứ tự nào cũng ra kết quả của 98. `vsData` 36 → 37.
+
+Chạy: build jar (vsData 37), chạy patch 98, khởi động lại server.

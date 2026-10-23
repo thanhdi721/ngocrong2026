@@ -8,10 +8,13 @@ Dùng:
 Ảnh Vương Lâm và 6 bộ x4 là ảnh HD, vào game to gần gấp đôi; Hắc Y Song Đao là ảnh chuẩn của game.
 Mỗi bộ dùng MỘT hệ số cho cả đầu / thân / chân (chủ dự án chốt: không thu riêng từng phần):
 
-  1. Hệ số = chiều cao dáng đứng (đầu + thân + chân, như client ghép) của Hắc Y / của bộ đó.
+  1. Hệ số = chiều cao dáng đứng (đầu + thân + chân, như client ghép) của Hắc Y / của bộ đó, nhân thêm
+     PHONG (1.15): chiều cao trên tính cả tóc dựng + hào quang nên bằng đúng thì người trông nhỏ hơn Hắc Y.
   2. Thu mọi mảnh theo hệ số đó; dx/dy thu quanh điểm chân nhân vật: d' = s*(CI + d) - CI, với CI là
      độ lệch của từng loại mảnh ở dáng đứng (đầu -13,34 / thân -9,16 / chân -8,10). Cách ghép giữa
      đầu, thân, chân giữ y bản gốc.
+  2b. Hạ / nâng CẢ BỘ (mọi mảnh, mọi khung) cho đáy chân dáng đứng chạm đất như Hắc Y; đo bằng đáy
+     phần đặc (alpha > 250) của khung chân rồi cộng CHINH_DAT (bộ có hào quang dưới chân).
   3. Luôn đọc ảnh HD gốc + dx/dy gốc từ commit GOC (trước mọi lần thu), nên chạy lại vẫn ra cùng kết quả.
   4. Ảnh thu mang SỐ ICON MỚI: server gửi phiên bản ảnh nhỏ toàn 0 (DataGame.sendSmallVersion) nên
      client không biết ảnh đổi, giữ số cũ thì ai đã vào game vẫn thấy ảnh cũ trong cache.
@@ -39,6 +42,9 @@ PATCH_DIR = HERE + "/sql/patch"
 P94 = PATCH_DIR + "/94-cai-trang-tu-docs.sql"
 P96 = PATCH_DIR + "/96-thu-nho-cai-trang-tu-docs.sql"
 P97 = PATCH_DIR + "/97-cai-trang-cao-bang-hac-y.sql"
+P98 = PATCH_DIR + "/98-cai-trang-to-them-cham-dat.sql"
+PHONG = 1.15
+CHINH_DAT = {2293: 1, 2294: 1}           # hạ thêm (đơn vị x1)
 DATAGAME = HERE + "/src/nro/models/data/DataGame.java"
 ZOOMS = (1, 2, 3, 4)
 MAU = 2661                     # part đầu của Hắc Y Song Đao
@@ -105,7 +111,7 @@ def main(argv):
     # cấp lại là hiện ảnh cũ
     taken |= {ic for p in goc.values() for ic, _, _ in p}
     taken |= {ic for p in hien.values() for ic, _, _ in p}
-    taken |= set(range(20257, 20831))
+    taken |= set(range(20257, 21048))
 
     def cap_dai(n):
         run = 0
@@ -118,7 +124,7 @@ def main(argv):
 
     ket_qua = []           # (item, part đầu, hệ số, [3 part mới], [(số mới, ảnh x4)], [số đang dùng], thư mục)
     for item, p0, folder in BO:
-        s = h_mau / chieu_cao(goc, p0)
+        s = h_mau / chieu_cao(goc, p0) * PHONG
         cu = [[p for p in goc[p0 + t] if p[0] != TRANSPARENT] for t in range(3)]
         base = cap_dai(sum(len(c) for c in cu))
         moi, anh_moi, k = [], [], 0
@@ -129,10 +135,17 @@ def main(argv):
                 pcs.append([base + k, round(s * (x + dx) - x), round(s * (-y + dy) + y)])
                 anh_moi.append((base + k, thu(anh_goc(ic), s)))
                 k += 1
-            moi.append(pcs + [[TRANSPARENT, 0, 0]])
+            moi.append(pcs)
+        # chạm đất: đáy phần đặc của khung chân đứng (mảnh 1) về y = 0
+        _, x, y = CI[2]
+        ic, dx, dy = moi[2][CI[2][0]]
+        a = np.asarray(anh_moi[len(cu[0]) + len(cu[1]) + CI[2][0]][1])[:, :, 3] > 250
+        day = (-y + dy) * 4 + np.nonzero(a.any(1))[0].max()
+        ha = -round(day / 4) + CHINH_DAT.get(item, 0)
+        moi = [[[i, dx, dy + ha] for i, dx, dy in pcs] + [[TRANSPARENT, 0, 0]] for pcs in moi]
         dang_dung = [ic for t in range(3) for ic, _, _ in hien[p0 + t] if ic != TRANSPARENT]
         ket_qua.append((item, p0, s, moi, anh_moi, dang_dung, folder))
-        print("  %d  part %d-%d  hệ số %.2f  icon mới %d..%d" % (item, p0, p0 + 2, s, base, base + k - 1))
+        print("  %d  part %d-%d  hệ số %.2f  hạ %+d  icon mới %d..%d" % (item, p0, p0 + 2, s, ha, base, base + k - 1))
 
     vs_data = int(re.search(r"public static byte vsData = (\d+);",
                             open(DATAGAME, encoding="utf-8").read()).group(1)) + 1
@@ -160,24 +173,38 @@ def main(argv):
     # Patch 94 (dòng INSERT) và 96 (dòng UPDATE) sửa theo -> chạy lại patch nào cũng ra bản cuối
     t94 = open(P94, encoding="utf-8").read()
     t96 = open(P96, encoding="utf-8").read()
+    t97 = open(P97, encoding="utf-8").read()
     for _, p0, _, moi, _, _, _ in ket_qua:
         for t in range(3):
             t94, n = re.subn(r"^\(%d, %d, '\[.*?\]'\)" % (p0 + t, t),
                              "(%d, %d, '%s')" % (p0 + t, t, data(moi[t])), t94, flags=re.M)
             assert n == 1, p0 + t
-            t96, n = re.subn(r"SET `DATA` = '\[.*?\]' WHERE `id` = %d AND" % (p0 + t),
-                             "SET `DATA` = '%s' WHERE `id` = %d AND" % (data(moi[t]), p0 + t), t96)
-            assert n == 1, p0 + t
-    t94 = t94.replace("-- * Patch 96 thu nhỏ 7 bộ không có dx/dy cho bằng cỡ Hắc Y Song Đao; part dưới đây\n",
-                      "-- * Patch 97 thu 7 bộ không có dx/dy cho cao bằng Hắc Y Song Đao; part dưới đây\n")
-    if "Patch 97" not in t96:
+            for name in ("t96", "t97"):
+                new, n = re.subn(r"SET `DATA` = '\[.*?\]' WHERE `id` = %d AND" % (p0 + t),
+                                 "SET `DATA` = '%s' WHERE `id` = %d AND" % (data(moi[t]), p0 + t), locals()[name])
+                assert n == 1, p0 + t
+                if name == "t96":
+                    t96 = new
+                else:
+                    t97 = new
+    for cu_ in ("-- * Patch 96 thu nhỏ 7 bộ không có dx/dy cho bằng cỡ Hắc Y Song Đao; part dưới đây\n",
+                "-- * Patch 97 thu 7 bộ không có dx/dy cho cao bằng Hắc Y Song Đao; part dưới đây\n"):
+        t94 = t94.replace(cu_, "-- * Patch 98 thu 7 bộ không có dx/dy theo cỡ Hắc Y Song Đao, chạm đất; part dưới đây\n")
+    if "patch 98" not in t97:
+        t97 = t97.replace("-- Ảnh mang SỐ ICON MỚI",
+                          "-- ĐÃ THAY bằng patch 98 (to thêm 15%%, chạm đất); các dòng dưới đã sửa theo bản 98.\n"
+                          "-- Ảnh mang SỐ ICON MỚI", 1)
+    t96 = t96.replace("ĐÃ THAY bằng patch 97 (thu đều cả người, giữ tỉ lệ gốc); các dòng dưới đã sửa theo\n-- bản 97 nên chạy 96 hay 97 đều ra kết quả cuối.",
+                      "ĐÃ THAY bằng patch 97 rồi 98; các dòng dưới đã sửa theo bản 98 nên chạy\n-- 96, 97 hay 98 đều ra kết quả cuối.")
+    if "Patch 97" not in t96 and "patch 97" not in t96:
         t96 = t96.replace("-- Ảnh nhỏ mang SỐ ICON MỚI",
                           "-- ĐÃ THAY bằng patch 97 (thu đều cả người, giữ tỉ lệ gốc); các dòng dưới đã sửa theo\n"
                           "-- bản 97 nên chạy 96 hay 97 đều ra kết quả cuối.\n-- Ảnh nhỏ mang SỐ ICON MỚI", 1)
     open(P94, "w", encoding="utf-8").write(t94)
     open(P96, "w", encoding="utf-8").write(t96)
+    open(P97, "w", encoding="utf-8").write(t97)
 
-    with open(P97, "w", encoding="utf-8") as f:
+    with open(P98, "w", encoding="utf-8") as f:
         f.write(HEADER % dict(vd=vs_data, ds="\n".join(
             "--   %d  part %d-%d  hệ số %.2f" % (it, p0, p0 + 2, s) for it, p0, s, _, _, _, _ in ket_qua)))
         for _, p0, _, moi, _, _, _ in ket_qua:
@@ -186,23 +213,24 @@ def main(argv):
                         % (data(moi[t]), p0 + t, t))
         f.write("\nSELECT `id`, LEFT(`DATA`, 60) FROM `part` WHERE `id` BETWEEN %d AND %d;\n"
                 % (BO[0][1], BO[-1][1] + 2))
-    print("Đã ghi ảnh, sửa patch 94 / 96, ghi patch 97.")
+    print("Đã ghi ảnh, sửa patch 94 / 96 / 97, ghi patch 98.")
     return 0
 
 
 HEADER = """-- =====================================================================
--- 97 — 7 CẢI TRANG CỦA PATCH 94 CAO BẰNG HẮC Y SONG ĐAO, GIỮ TỈ LỆ GỐC (2026-10-23)
+-- 98 — 7 CẢI TRANG CỦA PATCH 94 THEO CỠ HẮC Y SONG ĐAO, TO THÊM 15%%, CHẠM ĐẤT (2026-10-23)
 --      (sinh bởi tools/thu_nho_cai_trang_docs.py)
 -- =====================================================================
--- Patch 96 thu riêng đầu / thân / chân nên vào game trông nhỏ và lệch tỉ lệ. Chủ dự án chốt:
--- mỗi bộ thu ĐỀU cả người một hệ số, cho chiều cao dáng đứng bằng Hắc Y Song Đao (2290).
--- Hệ số:
+-- Patch 96 thu riêng từng phần (nhỏ, lệch tỉ lệ); patch 97 thu đều cho cao bằng Hắc Y nhưng
+-- chiều cao tính cả tóc dựng + hào quang nên người vẫn nhỏ, lại có bộ lơ lửng / lún dưới đất.
+-- Bản này: thu ĐỀU cả người (giữ tỉ lệ gốc) = cỡ cao bằng Hắc Y x 1.15, rồi dời cả bộ cho đáy
+-- chân dáng đứng chạm đất như Hắc Y Song Đao (2290). Hệ số:
 %(ds)s
 --
 -- Ảnh mang SỐ ICON MỚI (client không tải lại ảnh cũ cùng số vì phiên bản ảnh nhỏ luôn 0).
 -- Icon vật phẩm và avatar không đổi.
 --
--- Chạy SAU patch 94 (94 và 96 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
+-- Chạy SAU patch 94 (94, 96, 97 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
 -- Cùng jar có DataGame.vsData = %(vd)d. Chạy lại vẫn an toàn. Khởi động lại server.
 -- =====================================================================
 
