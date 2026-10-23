@@ -15,6 +15,10 @@ Mỗi bộ dùng MỘT hệ số cho cả đầu / thân / chân (chủ dự án
      đầu, thân, chân giữ y bản gốc.
   2b. Hạ / nâng CẢ BỘ (mọi mảnh, mọi khung) cho đáy chân dáng đứng chạm đất như Hắc Y; đo bằng đáy
      phần đặc (alpha > 250) của khung chân rồi cộng CHINH_DAT (bộ có hào quang dưới chân).
+  2c. Hạ đầu cho khỏi lơ lửng: ghép các khung 0..7 (đứng, chạy, nhảy) theo bảng CharInfo của client,
+     đo khe giữa đáy đầu và mép trên thân ngay bên dưới; mảnh đầu nào còn hở (khe > 0) ở khung dùng
+     nó thì hạ mảnh đó đến khi hết hở. Bảng CHARINFO dưới đây đã thử trên Hắc Y + Goku SSJ4 (dx/dy
+     gốc) ghép liền mạch; khung 8 trở đi chưa chắc nên không dùng.
   3. Luôn đọc ảnh HD gốc + dx/dy gốc từ commit GOC (trước mọi lần thu), nên chạy lại vẫn ra cùng kết quả.
   4. Ảnh thu mang SỐ ICON MỚI: server gửi phiên bản ảnh nhỏ toàn 0 (DataGame.sendSmallVersion) nên
      client không biết ảnh đổi, giữ số cũ thì ai đã vào game vẫn thấy ảnh cũ trong cache.
@@ -44,7 +48,8 @@ P96 = PATCH_DIR + "/96-thu-nho-cai-trang-tu-docs.sql"
 P97 = PATCH_DIR + "/97-cai-trang-cao-bang-hac-y.sql"
 P98 = PATCH_DIR + "/98-cai-trang-to-them-cham-dat.sql"
 P99 = PATCH_DIR + "/99-vuong-lam-kiem-si-to-them.sql"
-PATCH_CU = (P96, P97, P98)               # các patch UPDATE trước, sửa theo bản cuối
+P100 = PATCH_DIR + "/100-ha-dau-cai-trang-tu-docs.sql"
+PATCH_CU = (P96, P97, P98, P99)               # các patch UPDATE trước, sửa theo bản cuối
 PHONG = 1.15
 # Vương Lâm thân hẹp + tóc dài, Kiếm Sĩ có kiếm + sấm tính vào chiều cao -> người nhỏ hơn các bộ khác
 PHONG_RIENG = {2291: 1.2, 2292: 1.15}
@@ -53,6 +58,17 @@ DATAGAME = HERE + "/src/nro/models/data/DataGame.java"
 ZOOMS = (1, 2, 3, 4)
 MAU = 2661                     # part đầu của Hắc Y Song Đao
 CI = {0: (0, -13, 34), 1: (1, -9, 16), 2: (1, -8, 10)}   # dáng đứng: (mảnh, x, y) của đầu / thân / chân
+# Khung 0..7 của Char.CharInfo bên client: [đầu, chân, thân] = (mảnh, x, y), vẽ tại (x + dx, -y + dy)
+CHARINFO = [
+    [(0, -13, 34), (1, -8, 10), (1, -9, 16)],
+    [(0, -13, 35), (1, -8, 10), (1, -9, 17)],
+    [(1, -10, 33), (2, -10, 11), (2, -8, 16)],
+    [(1, -10, 32), (3, -11, 9), (3, -11, 16)],
+    [(1, -10, 34), (4, -9, 9), (4, -8, 16)],
+    [(1, -10, 34), (5, -11, 11), (5, -10, 17)],
+    [(1, -10, 33), (6, -9, 9), (6, -8, 16)],
+    [(0, -9, 36), (7, -5, 17), (7, -11, 25)],
+]
 DOCS = ROOT + "/docs/"
 # id vật phẩm, part đầu, thư mục docs
 BO = [
@@ -94,6 +110,41 @@ def chieu_cao(parts, p0):
         can.alpha_composite(anh_goc(ic), (800 + (x + dx) * 4, 1300 + (-y + dy) * 4))
     ys = np.nonzero((np.asarray(can)[:, :, 3] > 60).any(1))[0]
     return ys.max() - ys.min() + 1
+
+
+def khe_co(head, body, hims, bims, cf):
+    """Khe (px x4) giữa đáy đầu và mép trên thân ở khung cf; dương = đầu lơ lửng."""
+    (hi, hx, hy), _, (bi, bx, by) = CHARINFO[cf]
+    a = np.asarray(hims[hi])[:, :, 3] > 200
+    b = np.asarray(bims[bi])[:, :, 3] > 200
+    ax, ay = (hx + head[hi][1]) * 4, (-hy + head[hi][2]) * 4
+    bx_, by_ = (bx + body[bi][1]) * 4, (-by + body[bi][2]) * 4
+    cols = np.nonzero(a.any(0))[0]
+    w = cols.max() - cols.min()
+    vals = []
+    for c in range(int(cols.min() + .3 * w), int(cols.max() - .3 * w) + 1):
+        hc = np.nonzero(a[:, c])[0]
+        cb = c + ax - bx_
+        if len(hc) == 0 or not 0 <= cb < b.shape[1]:
+            continue
+        bc = np.nonzero(b[:, cb])[0]
+        if len(bc):
+            vals.append((by_ + bc.min()) - (ay + hc.max()))
+    return int(np.median(vals)) if vals else None
+
+
+def ha_dau(moi, anh_moi, n_dau, n_than):
+    """Hạ từng mảnh đầu cho hết hở ở các khung dùng nó (đơn vị x1). Trả về số hạ của mảnh 0, 1."""
+    hims = [im for _, im in anh_moi[:n_dau]]
+    bims = [im for _, im in anh_moi[n_dau:n_dau + n_than]]
+    ha = []
+    for i in range(n_dau):
+        khe = [khe_co(moi[0], moi[1], hims, bims, cf) for cf in range(len(CHARINFO)) if CHARINFO[cf][0][0] == i]
+        khe = [k for k in khe if k is not None]
+        d = max(0, -(-max(khe) // 4)) if khe else 0
+        moi[0][i][2] += d
+        ha.append(d)
+    return ha
 
 
 def thu(im, f):
@@ -145,17 +196,28 @@ def main(argv):
         a = np.asarray(anh_moi[len(cu[0]) + len(cu[1]) + CI[2][0]][1])[:, :, 3] > 250
         day = (-y + dy) * 4 + np.nonzero(a.any(1))[0].max()
         ha = -round(day / 4) + CHINH_DAT.get(item, 0)
-        moi = [[[i, dx, dy + ha] for i, dx, dy in pcs] + [[TRANSPARENT, 0, 0]] for pcs in moi]
-        # Bộ nào ra y hệt bản đang dùng (cùng dx/dy, cùng số mảnh) thì giữ nguyên số icon, không ghi lại ảnh
-        if [[d[1:] for d in p] for p in moi] == [[d[1:] for d in hien[p0 + t]] for t in range(3)]:
-            print("  %d  part %d-%d  hệ số %.2f  hạ %+d  (không đổi, giữ nguyên)" % (item, p0, p0 + 2, s, ha))
+        moi = [[[i, dx, dy + ha] for i, dx, dy in pcs] for pcs in moi]
+        hd = ha_dau(moi, anh_moi, len(cu[0]), len(cu[1]))
+        moi = [pcs + [[TRANSPARENT, 0, 0]] for pcs in moi]
+        dang_dung = [ic for t in range(3) for ic, _, _ in hien[p0 + t] if ic != TRANSPARENT]
+        geo = lambda ps: [[d[1:] for d in p] for p in ps]
+        # Thân + chân y hệt bản đang dùng -> cùng hệ số, ảnh không đổi: giữ nguyên số icon, chỉ sửa dx/dy
+        if geo(moi)[1:] == geo([hien[p0 + 1], hien[p0 + 2]]) and len(moi[0]) == len(hien[p0]):
+            moi = [[[h[0], d[1], d[2]] for h, d in zip(hien[p0 + t], moi[t])] for t in range(3)]
+            if moi == [hien[p0 + t] for t in range(3)]:
+                print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  (không đổi, giữ nguyên)"
+                      % (item, p0, p0 + 2, s, ha, hd))
+                continue
+            ket_qua.append((item, p0, s, moi, [], [], folder))
+            print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  (chỉ sửa dx/dy, giữ số icon)"
+                  % (item, p0, p0 + 2, s, ha, hd))
             continue
         base = cap_dai(k)
         moi = [[[i + base if i != TRANSPARENT else i, dx, dy] for i, dx, dy in pcs] for pcs in moi]
         anh_moi = [(i + base, im) for i, im in anh_moi]
-        dang_dung = [ic for t in range(3) for ic, _, _ in hien[p0 + t] if ic != TRANSPARENT]
         ket_qua.append((item, p0, s, moi, anh_moi, dang_dung, folder))
-        print("  %d  part %d-%d  hệ số %.2f  hạ %+d  icon mới %d..%d" % (item, p0, p0 + 2, s, ha, base, base + k - 1))
+        print("  %d  part %d-%d  hệ số %.2f  hạ %+d  hạ đầu %s  icon mới %d..%d"
+              % (item, p0, p0 + 2, s, ha, hd, base, base + k - 1))
 
     vs_data = int(re.search(r"public static byte vsData = (\d+);",
                             open(DATAGAME, encoding="utf-8").read()).group(1)) + 1
@@ -195,19 +257,18 @@ def main(argv):
             for f in PATCH_CU:
                 cu_txt[f], n = re.subn(r"SET `DATA` = '\[.*?\]' WHERE `id` = %d AND" % (p0 + t),
                                        "SET `DATA` = '%s' WHERE `id` = %d AND" % (data(moi[t]), p0 + t), cu_txt[f])
-                assert n == 1, (f, p0 + t)
-    t94 = t94.replace("-- * Patch 98 thu 7 bộ không có dx/dy theo cỡ Hắc Y Song Đao, chạm đất; part dưới đây\n",
-                      "-- * Patch 98, 99 thu 7 bộ không có dx/dy theo cỡ Hắc Y Song Đao, chạm đất; part dưới đây\n")
-    if "patch 99" not in cu_txt[P98]:
-        cu_txt[P98] = cu_txt[P98].replace(
-            "-- Ảnh mang SỐ ICON MỚI",
-            "-- Vương Lâm, Kiếm Sĩ: patch 99 to thêm; dòng của 2 bộ đó dưới đây đã sửa theo bản 99.\n"
-            "-- Ảnh mang SỐ ICON MỚI", 1)
+                assert n <= 1, (f, p0 + t)
+    t94 = t94.replace("-- * Patch 98, 99 thu 7 bộ không có dx/dy theo cỡ Hắc Y Song Đao, chạm đất; part dưới đây\n",
+                      "-- * Patch 98, 99, 100 thu 7 bộ không có dx/dy theo cỡ Hắc Y, chạm đất, liền cổ; part dưới đây\n")
+    for f in PATCH_CU:
+        if "patch 100" not in cu_txt[f]:
+            cu_txt[f] = cu_txt[f].replace(
+                "-- Ảnh ", "-- Patch 100 hạ đầu cho khỏi lơ lửng; các dòng dưới đây đã sửa theo bản 100.\n-- Ảnh ", 1)
     open(P94, "w", encoding="utf-8").write(t94)
     for f in PATCH_CU:
         open(f, "w", encoding="utf-8").write(cu_txt[f])
 
-    with open(P99, "w", encoding="utf-8") as f:
+    with open(P100, "w", encoding="utf-8") as f:
         f.write(HEADER % dict(vd=vs_data, ds="\n".join(
             "--   %d  part %d-%d  hệ số %.2f" % (it, p0, p0 + 2, s) for it, p0, s, _, _, _, _ in ket_qua)))
         for _, p0, _, moi, _, _, _ in ket_qua:
@@ -216,23 +277,21 @@ def main(argv):
                         % (data(moi[t]), p0 + t, t))
         f.write("\nSELECT `id`, LEFT(`DATA`, 60) FROM `part` WHERE `id` IN (%s);\n"
                 % ", ".join(str(p0 + t) for _, p0, _, _, _, _, _ in ket_qua for t in range(3)))
-    print("Đã ghi ảnh, sửa patch 94 / 96 / 97 / 98, ghi patch 99.")
+    print("Đã ghi ảnh, sửa patch 94 / 96 / 97 / 98 / 99, ghi patch 100.")
     return 0
 
 
 HEADER = """-- =====================================================================
--- 99 — VƯƠNG LÂM, KIẾM SĨ HỒNG LÔI TO THÊM CHO CÂN VỚI CÁC BỘ KHÁC (2026-10-23)
+-- 100 — HẠ ĐẦU CÁC CẢI TRANG CỦA PATCH 94 CHO KHỎI LƠ LỬNG (2026-10-23)
 --      (sinh bởi tools/thu_nho_cai_trang_docs.py)
 -- =====================================================================
--- Sau patch 98 hai bộ này trông nhỏ hơn 5 bộ còn lại: Vương Lâm thân hẹp, tóc dài chiếm chiều
--- cao; Kiếm Sĩ có kiếm + sấm hồng tính vào chiều cao. To thêm Vương Lâm x1.2, Kiếm Sĩ x1.15
--- so với bản 98 (vẫn thu đều cả người, giữ tỉ lệ gốc), chân vẫn chạm đất. Hệ số so với ảnh gốc:
+-- Ghép khung 0..7 (đứng, chạy, nhảy) theo CharInfo của client, đo khe giữa đáy đầu và mép
+-- trên thân. Hắc Y Song Đao (dx/dy gốc) khe ~ +2; Kiếm Sĩ đứng hở +15, khung 7 hở +22; Tử Ma
+-- khung 7 +11; vài bộ hở +3..+5. Hạ từng mảnh đầu cho hết hở. Chỉ đổi dy của đầu, ảnh và số
+-- icon giữ nguyên. Hệ số thu (không đổi so với 98 / 99):
 %(ds)s
 --
--- Ảnh mang SỐ ICON MỚI (client không tải lại ảnh cũ cùng số vì phiên bản ảnh nhỏ luôn 0).
--- 5 bộ còn lại, icon vật phẩm và avatar không đổi.
---
--- Chạy SAU patch 94 (94, 96, 97, 98 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
+-- Chạy SAU patch 94 (94, 96, 97, 98, 99 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
 -- Cùng jar có DataGame.vsData = %(vd)d. Chạy lại vẫn an toàn. Khởi động lại server.
 -- =====================================================================
 

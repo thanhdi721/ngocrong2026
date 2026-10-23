@@ -110,3 +110,21 @@ Kiếm Sĩ có kiếm + sấm hồng tính vào chiều cao. `PHONG_RIENG` trong
 * Patch 94, 96, 97, 98 sửa theo. `vsData` 37 → 38.
 
 Chạy: build jar (vsData 38), chạy patch 99, khởi động lại server.
+
+## Sửa lần 5: hạ đầu cho khỏi lơ lửng (patch 100)
+
+Ở dáng đứng nhìn vẫn liền cổ nhưng vào game đầu còn lơ lửng. Đã ghép thử các khung 0..7 (đứng, chạy, nhảy) theo bảng
+`CharInfo` của client (bảng `CHARINFO` trong tool; đã thử trên Hắc Y + Goku SSJ4 có dx/dy gốc thì ghép liền mạch, khung 8
+trở đi chưa chắc nên không dùng) và đo khe giữa đáy đầu với mép trên thân (px x4, dương = hở):
+
+| Bộ | trước (khung 0 / 7) | sau |
+|---|---|---|
+| Hắc Y Song Đao (gốc) | +2 / −31 | — |
+| Kiếm Sĩ Hồng Lôi | **+15 / +22** | −9 / −2 |
+| Tử Ma Chiến Thần | +4 / **+11** | −8 / −1 |
+| Ngọc Long, Huyết Nhẫn, Kim Lôi | +1..+7 | ≤ 0 |
+
+Tool tự hạ từng mảnh đầu đến khi hết hở ở mọi khung dùng mảnh đó: Kiếm Sĩ 6, Tử Ma 3, Ngọc Long 2 (+1 mảnh đầu thứ 2),
+Huyết Nhẫn 1, Kim Lôi 1. Chỉ đổi dy của đầu nên ảnh và số icon giữ nguyên. Patch 94, 96–99 sửa theo. `vsData` 38 → 39.
+
+Chạy: build jar (vsData 39), chạy patch 100, khởi động lại server.
