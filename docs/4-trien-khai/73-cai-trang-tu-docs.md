@@ -136,3 +136,10 @@ tự hạ đầu: Vương Lâm hạ 3; Kiếm Sĩ hạ 1, trái 1; Huyết Nhẫ
 Chỉ đổi dx/dy của đầu, ảnh và số icon giữ nguyên. Patch 94, 96–100 sửa theo. `vsData` 39 → 40.
 
 Chạy: build jar (vsData 40), chạy patch 101, khởi động lại server.
+
+## Sửa lần 7: chỉnh tay đầu lần 2 (patch 102)
+
+So với bản 101: Vương Lâm hạ 3; Kiếm Sĩ lên 1, trái 1; Huyết Nhẫn phải 1; Tử Ma lên 1. `CHINH_DAU` trong tool giữ
+tổng cộng dồn. Chỉ đổi dx/dy của đầu, ảnh và số icon giữ nguyên. Patch 94, 96–101 sửa theo. `vsData` 40 → 41.
+
+Chạy: build jar (vsData 41), chạy patch 102, khởi động lại server.

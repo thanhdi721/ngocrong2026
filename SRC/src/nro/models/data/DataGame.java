@@ -65,7 +65,8 @@ public class DataGame {
     // 37 -> 38: Vương Lâm x1.2, Kiếm Sĩ x1.15 cho cân với 5 bộ kia, part 2664–2669 (patch 99).
     // 38 -> 39: hạ đầu 5 cải trang cho khỏi lơ lửng, part 2667–2684 (patch 100).
     // 39 -> 40: chỉnh tay đầu 5 cải trang theo chủ dự án, part 2664–2678 (patch 101).
-    public static byte vsData = 40;
+    // 40 -> 41: chỉnh tay đầu lần 2 (Vương Lâm, Kiếm Sĩ, Huyết Nhẫn, Tử Ma), part 2664–2678 (patch 102).
+    public static byte vsData = 41;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ

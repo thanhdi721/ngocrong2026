@@ -50,19 +50,20 @@ P98 = PATCH_DIR + "/98-cai-trang-to-them-cham-dat.sql"
 P99 = PATCH_DIR + "/99-vuong-lam-kiem-si-to-them.sql"
 P100 = PATCH_DIR + "/100-ha-dau-cai-trang-tu-docs.sql"
 P101 = PATCH_DIR + "/101-chinh-dau-theo-chu-du-an.sql"
-PATCH_CU = (P96, P97, P98, P99, P100)               # các patch UPDATE trước, sửa theo bản cuối
+P102 = PATCH_DIR + "/102-chinh-dau-lan-2.sql"
+PATCH_CU = (P96, P97, P98, P99, P100, P101)               # các patch UPDATE trước, sửa theo bản cuối
 PHONG = 1.15
 # Vương Lâm thân hẹp + tóc dài, Kiếm Sĩ có kiếm + sấm tính vào chiều cao -> người nhỏ hơn các bộ khác
 PHONG_RIENG = {2291: 1.2, 2292: 1.15}
 CHINH_DAT = {2293: 1, 2294: 1}           # hạ thêm (đơn vị x1)
 # Chủ dự án xem hình rồi chỉnh tay đầu (cả 2 mảnh đầu), cộng thêm SAU bước tự hạ đầu: (dx, dy), dx âm = sang
-# trái, dy dương = hạ xuống. Patch 101.
+# trái, dy dương = hạ xuống. Cộng dồn các lần: lần 1 (patch 101) + lần 2 (patch 102).
 CHINH_DAU = {
-    2291: (0, 3),       # Vương Lâm: hạ 3
-    2292: (-1, 1),      # Kiếm Sĩ: hạ 1, sang trái 1
-    2293: (1, -1),      # Huyết Nhẫn: lên 1, sang phải 1
-    2294: (1, -1),      # Lam Hồn: lên 1, sang phải 1
-    2295: (0, 1),       # Tử Ma: hạ 1
+    2291: (0, 6),       # Vương Lâm: hạ 3 + hạ 3
+    2292: (-2, 0),      # Kiếm Sĩ: (hạ 1, trái 1) + (lên 1, trái 1)
+    2293: (2, -1),      # Huyết Nhẫn: (lên 1, phải 1) + phải 1
+    2294: (1, -1),      # Lam Hồn: lên 1, phải 1
+    2295: (0, 0),       # Tử Ma: hạ 1 + lên 1
 }
 DATAGAME = HERE + "/src/nro/models/data/DataGame.java"
 ZOOMS = (1, 2, 3, 4)
@@ -275,14 +276,14 @@ def main(argv):
     t94 = t94.replace("-- * Patch 98, 99 thu 7 bộ không có dx/dy theo cỡ Hắc Y Song Đao, chạm đất; part dưới đây\n",
                       "-- * Patch 98, 99, 100 thu 7 bộ không có dx/dy theo cỡ Hắc Y, chạm đất, liền cổ; part dưới đây\n")
     for f in PATCH_CU:
-        if "patch 101" not in cu_txt[f]:
+        if "patch 102" not in cu_txt[f]:
             cu_txt[f] = cu_txt[f].replace(
-                "-- Ảnh ", "-- Patch 101 chỉnh tay đầu 5 bộ; các dòng dưới đây đã sửa theo bản 101.\n-- Ảnh ", 1)
+                "-- Ảnh ", "-- Patch 102 chỉnh tay đầu lần 2; các dòng dưới đây đã sửa theo bản 102.\n-- Ảnh ", 1)
     open(P94, "w", encoding="utf-8").write(t94)
     for f in PATCH_CU:
         open(f, "w", encoding="utf-8").write(cu_txt[f])
 
-    with open(P101, "w", encoding="utf-8") as f:
+    with open(P102, "w", encoding="utf-8") as f:
         f.write(HEADER % dict(vd=vs_data, ds="\n".join(
             "--   %d  part %d-%d  hệ số %.2f" % (it, p0, p0 + 2, s) for it, p0, s, _, _, _, _ in ket_qua)))
         for _, p0, _, moi, _, _, _ in ket_qua:
@@ -291,24 +292,23 @@ def main(argv):
                         % (data(moi[t]), p0 + t, t))
         f.write("\nSELECT `id`, LEFT(`DATA`, 60) FROM `part` WHERE `id` IN (%s);\n"
                 % ", ".join(str(p0 + t) for _, p0, _, _, _, _, _ in ket_qua for t in range(3)))
-    print("Đã ghi ảnh, sửa patch 94 / 96–100, ghi patch 101.")
+    print("Đã ghi ảnh, sửa patch 94 / 96–101, ghi patch 102.")
     return 0
 
 
 HEADER = """-- =====================================================================
--- 101 — CHỈNH ĐẦU 5 CẢI TRANG THEO CHỦ DỰ ÁN (2026-10-23)
+-- 102 — CHỈNH ĐẦU LẦN 2 THEO CHỦ DỰ ÁN (2026-10-23)
 --      (sinh bởi tools/thu_nho_cai_trang_docs.py)
 -- =====================================================================
--- Chỉnh cả 2 mảnh đầu (mọi động tác), cộng thêm sau bước tự hạ đầu của patch 100:
+-- Chỉnh cả 2 mảnh đầu (mọi động tác), so với bản 101:
 --   2291 Vương Lâm   : hạ 3
---   2292 Kiếm Sĩ     : hạ 1, sang trái 1
---   2293 Huyết Nhẫn  : lên 1, sang phải 1
---   2294 Lam Hồn     : lên 1, sang phải 1
---   2295 Tử Ma       : hạ 1
+--   2292 Kiếm Sĩ     : lên 1, sang trái 1
+--   2293 Huyết Nhẫn  : sang phải 1
+--   2295 Tử Ma       : lên 1
 -- Chỉ đổi dx/dy của đầu; ảnh và số icon giữ nguyên. Hệ số thu (không đổi):
 %(ds)s
 --
--- Chạy SAU patch 94 (94, 96–100 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
+-- Chạy SAU patch 94 (94, 96–101 cũng đã sửa theo -> chạy thứ tự nào cũng ra kết quả này).
 -- Cùng jar có DataGame.vsData = %(vd)d. Chạy lại vẫn an toàn. Khởi động lại server.
 -- =====================================================================
 
