@@ -62,7 +62,8 @@ public class DataGame {
     // 34 -> 35: thu nhỏ 7 cải trang của patch 94 cho bằng cỡ Hắc Y Song Đao, part 2664–2684 (patch 96).
     // 35 -> 36: thay bằng bản thu đều cả người, cao bằng Hắc Y, giữ tỉ lệ gốc, part 2664–2684 (patch 97).
     // 36 -> 37: 7 cải trang đó to thêm 15%, dời cả bộ cho chân chạm đất như Hắc Y (patch 98).
-    public static byte vsData = 37;
+    // 37 -> 38: Vương Lâm x1.2, Kiếm Sĩ x1.15 cho cân với 5 bộ kia, part 2664–2669 (patch 99).
+    public static byte vsData = 38;
     // 2 -> 3 vì thêm npc_template 85 "ADMIN Đẹp Trai" (SRC/sql/patch/09-npc-admin-dep-trai.sql).
     // Danh sách npc_template (tên + head/body/leg) đi trong gói vMap (updateMap);
     // client chỉ xin tải lại khi vsMap khác bản đang cache. Không tăng => client cũ

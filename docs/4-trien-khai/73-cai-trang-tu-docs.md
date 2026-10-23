@@ -98,3 +98,15 @@ hoặc lún dưới đất (Lam Hồn, Ngọc Long, Kim Lôi) vì dx/dy gốc c�
 * Patch 94, 96, 97 sửa theo, chạy thứ tự nào cũng ra kết quả của 98. `vsData` 36 → 37.
 
 Chạy: build jar (vsData 37), chạy patch 98, khởi động lại server.
+
+## Sửa lần 4: Vương Lâm, Kiếm Sĩ to thêm (patch 99)
+
+Sau patch 98 hai bộ này nhỏ hơn 5 bộ còn lại: Vương Lâm thân hẹp (rộng 89 so với 118–150), tóc dài chiếm chiều cao;
+Kiếm Sĩ có kiếm + sấm hồng tính vào chiều cao. `PHONG_RIENG` trong tool: Vương Lâm ×1.2 (hệ số 0.79), Kiếm Sĩ ×1.15
+(hệ số 1.03), chân vẫn chạm đất.
+
+* Tool giờ so kết quả với bản đang dùng: bộ nào không đổi thì giữ nguyên số icon, không ghi lại ảnh. Lần này chỉ
+  2 bộ đổi, số icon mới 21587–21648; dải 20257–21586 không cấp lại.
+* Patch 94, 96, 97, 98 sửa theo. `vsData` 37 → 38.
+
+Chạy: build jar (vsData 38), chạy patch 99, khởi động lại server.
